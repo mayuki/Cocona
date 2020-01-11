@@ -23,8 +23,10 @@ namespace Cocona.Command
             Description = description ?? throw new ArgumentNullException(nameof(description));
             DefaultValue = defaultValue;
 
-            if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("A name of the command option must not be empty.", nameof(name));
-            if (defaultValue.HasValue && defaultValue.Value != null && defaultValue.Value.GetType() != optionType) throw new ArgumentException("The type of default value is not compatible with type of option.");
+            if (String.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("A name of the command option must not be empty.", nameof(name));
+            if (defaultValue.HasValue && defaultValue.Value != null && defaultValue.Value.GetType() != optionType)
+                throw new ArgumentException($"The type of default value is not compatible with type of option.: OptionType={optionType.FullName}; ValueType={defaultValue.Value.GetType().FullName}");
         }
     }
 }

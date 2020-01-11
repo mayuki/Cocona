@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace Cocona.Command.Binder
@@ -8,7 +9,7 @@ namespace Cocona.Command.Binder
     {
         public object? ConvertTo(Type t, string? value)
         {
-            return value;
+            return TypeDescriptor.GetConverter(t).ConvertFrom(value);
         }
     }
 }
