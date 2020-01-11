@@ -1,9 +1,11 @@
 ﻿using Cocona.Command;
+using System;
+using System.Collections.Generic;
 
 namespace Cocona.CommandLine
 {
     public interface ICoconaCommandLineParser
     {
-        ParsedCommandLine ParseCommand(string[] args, CommandOptionDescriptor[] options, CommandArgumentDescriptor[] arguments);
+        ParsedCommandLine ParseCommand(Span<string> args, IReadOnlyList<CommandOptionDescriptor> options, IReadOnlyList<CommandArgumentDescriptor> arguments);
     }
 }

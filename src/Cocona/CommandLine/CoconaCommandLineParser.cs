@@ -13,7 +13,7 @@ namespace Cocona.CommandLine
     /// </summary>
     public class CoconaCommandLineParser : ICoconaCommandLineParser
     {
-        public ParsedCommandLine ParseCommand(string[] args, CommandOptionDescriptor[] optionDescs, CommandArgumentDescriptor[] argumentDescs)
+        public ParsedCommandLine ParseCommand(Span<string> args, IReadOnlyList<CommandOptionDescriptor> optionDescs, IReadOnlyList<CommandArgumentDescriptor> argumentDescs)
         {
             var optionbyLongName = optionDescs
                 .ToDictionary(k => k.Name);
@@ -145,7 +145,7 @@ namespace Cocona.CommandLine
                 }
             }
 
-            var arguments = args[index..^0].Select(x => new CommandArgument(x)).ToArray();
+            var arguments = args.Slice(index).ToArray().Select(x => new CommandArgument(x)).ToArray();
 
             return new ParsedCommandLine(options, arguments, unknownOptions);
         }

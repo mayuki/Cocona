@@ -76,12 +76,11 @@ namespace Cocona.Command
                 .ToArray();
 
             return new CommandDescriptor(
-                methodInfo.DeclaringType,
+                methodInfo,
                 commandName,
                 aliases,
                 description,
-                parameters,
-                methodInfo.ReturnType
+                parameters
             );
         }
     }

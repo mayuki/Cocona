@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Cocona.Command.Binder
 {
-    public class CoconaParameterBinder
+    public class CoconaParameterBinder : ICoconaParameterBinder
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ICoconaValueConverter _valueConverter;
@@ -18,7 +18,7 @@ namespace Cocona.Command.Binder
             _valueConverter = valueConverter;
         }
 
-        public object?[] Bind(CommandDescriptor commandDescriptor, CommandOption[] commandOptionValues, CommandArgument[] commandArgumentValues)
+        public object?[] Bind(CommandDescriptor commandDescriptor, IReadOnlyList<CommandOption> commandOptionValues, IReadOnlyList<CommandArgument> commandArgumentValues)
         {
             var bindParams = new object?[commandDescriptor.Parameters.Count];
             var optionValueByOption = commandOptionValues.ToLookup(k => k.Option, v => v.Value);
@@ -71,7 +71,7 @@ namespace Cocona.Command.Binder
             for (var i = 0; i < orderedArgDescWithParamIndex.Length; i++)
             {
                 var argDesc = orderedArgDescWithParamIndex[i];
-                if (commandArgumentValues.Length == index)
+                if (commandArgumentValues.Count == index)
                 {
                     if (!argDesc.Argument.IsRequired)
                     {
@@ -91,7 +91,7 @@ namespace Cocona.Command.Binder
                     //          |     ^^^^^^^^      |       |
                     //      [ arg0,   arg1, arg2,  arg3,   arg4 ]
                     //                              <-------o
-                    var indexRev = commandArgumentValues.Length - 1;
+                    var indexRev = commandArgumentValues.Count - 1;
                     for (var j = orderedArgDescWithParamIndex.Length - 1; j > i; j--)
                     {
                         if (indexRev == index) throw new Exception("MissingArgument");
@@ -106,7 +106,7 @@ namespace Cocona.Command.Binder
                     // e.g: [ string,  string[],  string, string ]
                     //          |       |    |      |       |
                     //      [ arg0,  [arg1, arg2], arg3,   arg4 ]
-                    var rest = commandArgumentValues[index..(indexRev+1)];
+                    var rest = commandArgumentValues.ToArray()[index..(indexRev+1)]; // TODO: ToArray
                     bindParams[argDesc.ParameterIndex] = CreateValue(argDesc.Argument.ArgumentType, rest.Select(x => x.Value).ToArray());
 
                     return bindParams;
