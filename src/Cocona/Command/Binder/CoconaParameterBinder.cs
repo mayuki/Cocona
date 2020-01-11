@@ -20,7 +20,7 @@ namespace Cocona.Command.Binder
         public object?[] Bind(CommandDescriptor commandDescriptor, CommandOption[] commandOptionValues, CommandArgument[] commandArgumentValues)
         {
             var bindParams = new object?[commandDescriptor.Parameters.Count];
-            var optionValueByOption = commandOptionValues.ToDictionary(k => k.Option, v => v.Value);
+            var optionValueByOption = commandOptionValues.ToLookup(k => k.Option, v => v.Value);
 
             var index = 0;
             foreach (var param in commandDescriptor.Parameters)
@@ -28,9 +28,9 @@ namespace Cocona.Command.Binder
                 switch (param)
                 {
                     case CommandOptionDescriptor optionDesc:
-                        if (optionValueByOption.TryGetValue(optionDesc, out var optionValue))
+                        if (optionValueByOption.Contains(optionDesc))
                         {
-                            bindParams[index++] = _valueConverter.ConvertTo(optionDesc.OptionType, optionValue);
+                            bindParams[index++] = CreateValue(optionDesc.OptionType, optionValueByOption[optionDesc].ToArray());
                         }
                         else if (!optionDesc.IsRequired)
                         {
@@ -82,6 +82,50 @@ namespace Cocona.Command.Binder
             }
 
             return bindParams;
+        }
+
+        private object? CreateValue(Type valueType, string?[] values)
+        {
+            if (valueType.IsGenericType)
+            {
+                // Any<T>
+                var openGenericType = valueType.GetGenericTypeDefinition();
+                var elementType = valueType.GetGenericArguments()[0];
+
+                // List<T> (== IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerable<T>)
+                if (openGenericType == typeof(List<>) ||
+                    openGenericType == typeof(IList<>) ||
+                    openGenericType == typeof(IReadOnlyList<>) ||
+                    openGenericType == typeof(ICollection<>) ||
+                    openGenericType == typeof(IEnumerable<>))
+                {
+                    var typedArray = Array.CreateInstance(elementType, values.Length);
+                    for (var i = 0; i < values.Length; i++)
+                    {
+                        typedArray.SetValue(_valueConverter.ConvertTo(elementType, values[i]), i);
+                    }
+                    var listT = typeof(List<>).MakeGenericType(elementType);
+                    return Activator.CreateInstance(listT, new[] { typedArray });
+                }
+            }
+            else if (valueType.IsArray)
+            {
+                // T[]
+                var elementType = valueType.GetElementType();
+                var typedArray = Array.CreateInstance(elementType, values.Length);
+                for (var i = 0; i < values.Length; i++)
+                {
+                    typedArray.SetValue(_valueConverter.ConvertTo(elementType, values[i]), i);
+                }
+                return typedArray;
+            }
+            else
+            {
+                // Primitive or plain object (int, bool, string ...)
+                return _valueConverter.ConvertTo(valueType, values.Last());
+            }
+
+            throw new NotSupportedException($"Cannot create a instance of type '{valueType.FullName}'");
         }
     }
 }
