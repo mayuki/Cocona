@@ -9,11 +9,6 @@ using System.Threading.Tasks;
 
 namespace Cocona.Command.Dispatcher
 {
-    public interface ICoconaCommandDispatcher
-    {
-        ValueTask<int> DispatchAsync(string[] args);
-    }
-
     public class CoconaCommandDispatcher : ICoconaCommandDispatcher
     {
         private readonly IServiceProvider _serviceProvider;
@@ -64,7 +59,7 @@ namespace Cocona.Command.Dispatcher
                 }
             }
 
-            throw new Exception("CommandNotImplemented");
+            throw new Exception("CommandNotImplemented"); // TODO: Exception type
         }
 
         private async ValueTask<int> DispatchAsyncCore(string[] args, CommandDescriptor command)

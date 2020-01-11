@@ -30,6 +30,8 @@ namespace Cocona.Command
 
         public CommandDescriptor CreateCommand(MethodInfo methodInfo)
         {
+            ThrowHelper.ArgumentNull(methodInfo, nameof(methodInfo));
+
             var commandAttr = methodInfo.GetCustomAttribute<CommandAttribute>();
             var commandName = commandAttr?.Name ?? methodInfo.Name;
             var description = commandAttr?.Description ?? string.Empty;
