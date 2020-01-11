@@ -12,6 +12,15 @@ namespace Cocona.Test.Command.CommandProvider
     public class GetCommandCollectionTest
     {
         [Fact]
+        public void HasProperty()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestHasProperty) });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+        }
+
+        [Fact]
         public void NoCommand()
         {
             var provider = new CoconaCommandProvider(new[] { typeof(CommandTestNoCommand) });
@@ -73,6 +82,12 @@ namespace Cocona.Test.Command.CommandProvider
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(1);
+        }
+
+        public class CommandTestHasProperty
+        {
+            public void A() { }
+            public string B => string.Empty;
         }
 
         public class CommandTestNoCommand

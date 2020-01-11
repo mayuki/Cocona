@@ -20,9 +20,9 @@ namespace Cocona.Command
         {
             var methods = _targetTypes
                 .Where(x => x.GetCustomAttribute<IgnoreAttribute>() == null) // class-level ignore
-                .Where(x => !x.IsAbstract && (!x.IsGenericType || x.IsConstructedGenericType)) // non-abstract, non-generic, closed-generic
+                .Where(x =>!x.IsAbstract && (!x.IsGenericType || x.IsConstructedGenericType)) // non-abstract, non-generic, closed-generic
                 .SelectMany(xs => xs.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                .Where(x => x.DeclaringType != typeof(object) && (x.IsPublic || x.GetCustomAttributes<CommandAttribute>(inherit: true).Any())) // is not System.Object && (public || has-command attr)
+                .Where(x => !x.IsSpecialName && x.DeclaringType != typeof(object) && (x.IsPublic || x.GetCustomAttributes<CommandAttribute>(inherit: true).Any())) // not-property && not-System.Object && (public || has-command attr)
                 .Where(x => x.GetCustomAttribute<IgnoreAttribute>() == null); // method-level ignore
 
             return new CommandCollection(methods.Select(x => CreateCommand(x)).ToArray());
