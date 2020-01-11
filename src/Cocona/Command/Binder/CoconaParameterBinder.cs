@@ -65,9 +65,12 @@ namespace Cocona.Command.Binder
                 .Select((x, i) => (Param: x, ParameterIndex: i))
                 .Where(x => x.Param is CommandArgumentDescriptor)
                 .Select(x => (Argument: (CommandArgumentDescriptor)x.Param, x.ParameterIndex))
-                .OrderBy(k => k.Argument.Order);
-            foreach (var argDesc in orderedArgDescWithParamIndex)
+                .OrderBy(k => k.Argument.Order)
+                .ToArray();
+
+            for (var i = 0; i < orderedArgDescWithParamIndex.Length; i++)
             {
+                var argDesc = orderedArgDescWithParamIndex[i];
                 if (commandArgumentValues.Length == index)
                 {
                     if (!argDesc.Argument.IsRequired)
@@ -79,7 +82,37 @@ namespace Cocona.Command.Binder
                     // TODO: Exception type
                     throw new Exception("MissingArgument");
                 }
-                bindParams[argDesc.ParameterIndex] = commandArgumentValues[index++].Value;
+
+                // T[] or List<T>, IEnumerable<T> ...
+                if (argDesc.Argument.IsEnumerableLike)
+                {
+                    // pick values from tail of arguments.
+                    // e.g: [ string, string[],   string, string ]
+                    //          |     ^^^^^^^^      |       |
+                    //      [ arg0,   arg1, arg2,  arg3,   arg4 ]
+                    //                              <-------o
+                    var indexRev = commandArgumentValues.Length - 1;
+                    for (var j = orderedArgDescWithParamIndex.Length - 1; j > i; j--)
+                    {
+                        if (indexRev == index) throw new Exception("MissingArgument");
+
+                        var argDesc2 = orderedArgDescWithParamIndex[j];
+                        if (argDesc2.Argument.IsEnumerableLike) throw new Exception("MultipleArrayInArgument"); // TODO: Exception type
+
+                        bindParams[argDesc2.ParameterIndex] = _valueConverter.ConvertTo(argDesc2.Argument.ArgumentType, commandArgumentValues[indexRev--].Value);
+                    }
+
+                    // pick rest values to array argment.
+                    // e.g: [ string,  string[],  string, string ]
+                    //          |       |    |      |       |
+                    //      [ arg0,  [arg1, arg2], arg3,   arg4 ]
+                    var rest = commandArgumentValues[index..(indexRev+1)];
+                    bindParams[argDesc.ParameterIndex] = CreateValue(argDesc.Argument.ArgumentType, rest.Select(x => x.Value).ToArray());
+
+                    return bindParams;
+                }
+
+                bindParams[argDesc.ParameterIndex] = _valueConverter.ConvertTo(argDesc.Argument.ArgumentType, commandArgumentValues[index++].Value);
             }
 
             return bindParams;

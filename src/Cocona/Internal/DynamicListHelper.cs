@@ -26,7 +26,7 @@ namespace Cocona.Internal
                     openGenericType == typeof(ICollection<>) ||
                     openGenericType == typeof(IEnumerable<>))
                 {
-                    string.IsNullOrEmpty
+                    return true;
                 }
             }
             else if (valueType.IsArray)

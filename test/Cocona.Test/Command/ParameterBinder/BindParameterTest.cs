@@ -158,7 +158,9 @@ namespace Cocona.Test.Command.ParameterBinder
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
             invokeArgs.Should().HaveCount(3);
-            invokeArgs.Should().Equal(new[] { "argValue0", "argValue1", }, "argValue2", "argValue3");
+            invokeArgs[0].Should().Equals(new[] { "argValue0", "argValue1", });
+            invokeArgs[1].Should().Be("argValue2");
+            invokeArgs[2].Should().Be("argValue3");
         }
 
         [Fact]
@@ -186,7 +188,9 @@ namespace Cocona.Test.Command.ParameterBinder
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
             invokeArgs.Should().HaveCount(3);
-            invokeArgs.Should().Equal("argValue0", new[] { "argValue1", "argValue2", }, "argValue3");
+            invokeArgs[0].Should().Be("argValue0");
+            invokeArgs[1].Should().Equals(new[] { "argValue1", "argValue2", });
+            invokeArgs[2].Should().Be("argValue3");
         }
 
         [Fact]
@@ -214,7 +218,9 @@ namespace Cocona.Test.Command.ParameterBinder
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
             invokeArgs.Should().HaveCount(3);
-            invokeArgs.Should().Equal("argValue0", "argValue1", new[] { "argValue2", "argValue3", });
+            invokeArgs[0].Should().Be("argValue0");
+            invokeArgs[1].Should().Be("argValue1");
+            invokeArgs[2].Should().Equals(new[] { "argValue2", "argValue3", });
         }
 
         [Fact]
@@ -240,6 +246,165 @@ namespace Cocona.Test.Command.ParameterBinder
             var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2"), new CommandArgument("argValue3"), };
 
             Assert.Throws<Exception>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
+        }
+
+        [Fact]
+        public void BindArguments_Array_Empty()
+        {
+            // void Test([Argument]string[] arg0);
+            // Arguments: new [] { }
+            var commandDescriptor = new CommandDescriptor(
+                typeof(BindParameterTest),
+                "Test",
+                Array.Empty<string>(),
+                "",
+                new CommandParameterDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string[]), "arg0", 0, "", CoconaDefaultValue.None),
+                },
+                typeof(void)
+            );
+
+            var commandOptions = new CommandOption[] { };
+            var commandArguments = new CommandArgument[] { };
+
+            Assert.Throws<Exception>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments))
+                .Message.Should().Be("MissingArgument");
+        }
+
+        [Fact]
+        public void BindArguments_Array_One()
+        {
+            // void Test([Argument]string[] arg0);
+            // Arguments: new [] { }
+            var commandDescriptor = new CommandDescriptor(
+                typeof(BindParameterTest),
+                "Test",
+                Array.Empty<string>(),
+                "",
+                new CommandParameterDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string[]), "arg0", 0, "", CoconaDefaultValue.None),
+                },
+                typeof(void)
+            );
+
+            var commandOptions = new CommandOption[] { };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0") };
+
+            var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
+            invokeArgs.Should().NotBeNull();
+            invokeArgs.Should().HaveCount(1);
+            invokeArgs[0].Should().Equals(new string[] { "argValue0" });
+        }
+
+        [Fact]
+        public void BindArguments_Array_Insufficient()
+        {
+            // void Test([Argument]string arg0, [Argument]string arg1, [Argument]string[] arg2);
+            // Arguments: new [] { "argValue0", "argValue1" }
+            var commandDescriptor = new CommandDescriptor(
+                typeof(BindParameterTest),
+                "Test",
+                Array.Empty<string>(),
+                "",
+                new CommandParameterDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "arg2", 2, "", CoconaDefaultValue.None),
+                },
+                typeof(void)
+            );
+
+            var commandOptions = new CommandOption[] { };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1") };
+
+            Assert.Throws<Exception>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments))
+                .Message.Should().Be("MissingArgument");
+        }
+
+        [Fact]
+        public void BindArguments_Array_Insufficient_2()
+        {
+            // void Test([Argument]string[] arg0, [Argument]string arg1, [Argument]string arg2, [Argument]string arg3);
+            // Arguments: new [] { "argValue0", "argValue1" }
+            var commandDescriptor = new CommandDescriptor(
+                typeof(BindParameterTest),
+                "Test",
+                Array.Empty<string>(),
+                "",
+                new CommandParameterDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string[]), "arg0", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 2, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg3", 3, "", CoconaDefaultValue.None),
+                },
+                typeof(void)
+            );
+
+            var commandOptions = new CommandOption[] { };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1") };
+
+            Assert.Throws<Exception>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments))
+                .Message.Should().Be("MissingArgument");
+        }
+
+        [Fact]
+        public void BindArguments_Array_DefaultValue()
+        {
+            // void Test([Argument]string[] arg0, [Argument]string arg1 = null, [Argument]string arg2 = null);
+            // Arguments: new [] { "argValue0", "argValue1", "argValue2" }
+            var commandDescriptor = new CommandDescriptor(
+                typeof(BindParameterTest),
+                "Test",
+                Array.Empty<string>(),
+                "",
+                new CommandParameterDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string[]), "arg0", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 2, "", new CoconaDefaultValue(default(string))),
+                },
+                typeof(void)
+            );
+
+            var commandOptions = new CommandOption[] { };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2") };
+
+            var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
+            invokeArgs.Should().NotBeNull();
+            invokeArgs.Should().HaveCount(3);
+            invokeArgs[0].Should().Equals(new[] { "argValue0", });
+            invokeArgs[1].Should().Be("argValue1");
+            invokeArgs[2].Should().Be("argValue2");
+        }
+
+        [Fact]
+        public void BindArguments_Array_DefaultValue_2()
+        {
+            // void Test([Argument]string[] arg0, [Argument]string arg1 = null, [Argument]string arg2 = null);
+            // Arguments: new [] { "argValue0", "argValue1" }
+            var commandDescriptor = new CommandDescriptor(
+                typeof(BindParameterTest),
+                "Test",
+                Array.Empty<string>(),
+                "",
+                new CommandParameterDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string[]), "arg0", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 2, "", new CoconaDefaultValue(default(string))),
+                },
+                typeof(void)
+            );
+
+            var commandOptions = new CommandOption[] { };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1") };
+
+            Assert.Throws<Exception>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments))
+                .Message.Should().Be("MissingArgument");
         }
 
         [Fact]
@@ -292,7 +457,9 @@ namespace Cocona.Test.Command.ParameterBinder
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
             invokeArgs.Should().HaveCount(3);
-            invokeArgs.Should().Equal(new List<string>() { "argValue0", "argValue1", }, "argValue2", "argValue3");
+            invokeArgs[0].Should().Equals(new List<string>() { "argValue0", "argValue1", });
+            invokeArgs[1].Should().Be("argValue2");
+            invokeArgs[2].Should().Be("argValue3");
         }
 
         [Fact]
