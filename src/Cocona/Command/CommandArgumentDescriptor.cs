@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cocona.Internal;
+using System;
 using System.Diagnostics;
 
 namespace Cocona.Command
@@ -12,7 +13,7 @@ namespace Cocona.Command
         public string Description { get; }
         public CoconaDefaultValue DefaultValue { get; }
 
-        public bool IsArray => ArgumentType.IsArray;
+        public bool IsEnumerableLike => DynamicListHelper.IsArrayOrEnumerableLike(ArgumentType);
         public bool IsRequired => !DefaultValue.HasValue;
 
         public CommandArgumentDescriptor(Type argumentType, string name, int order, string description, CoconaDefaultValue defaultValue)

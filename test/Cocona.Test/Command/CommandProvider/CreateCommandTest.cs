@@ -264,7 +264,7 @@ namespace Cocona.Test.Command.CommandProvider
             cmd.Arguments[1].Name.Should().Be("arg1");
             cmd.Arguments[1].Order.Should().Be(1);
             cmd.Arguments[1].ArgumentType.Should().Be(typeof(string[]));
-            cmd.Arguments[1].IsArray.Should().BeTrue();
+            cmd.Arguments[1].IsEnumerableLike.Should().BeTrue();
             cmd.Arguments[1].IsRequired.Should().BeTrue();
             cmd.Aliases.Should().BeEmpty();
             cmd.ReturnType.Should().Be(typeof(void));
@@ -289,7 +289,7 @@ namespace Cocona.Test.Command.CommandProvider
             cmd.Arguments[1].Name.Should().Be("arg1");
             cmd.Arguments[1].Order.Should().Be(1);
             cmd.Arguments[1].ArgumentType.Should().Be(typeof(string));
-            cmd.Arguments[1].IsArray.Should().BeFalse();
+            cmd.Arguments[1].IsEnumerableLike.Should().BeFalse();
             cmd.Arguments[1].DefaultValue.Value.Should().BeNull();
             cmd.Arguments[1].IsRequired.Should().BeFalse();
             cmd.Aliases.Should().BeEmpty();

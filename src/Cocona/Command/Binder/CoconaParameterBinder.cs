@@ -1,4 +1,5 @@
 ﻿using Cocona.CommandLine;
+using Cocona.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,40 +87,12 @@ namespace Cocona.Command.Binder
 
         private object? CreateValue(Type valueType, string?[] values)
         {
-            if (valueType.IsGenericType)
+            if (DynamicListHelper.TryCreateArrayOrEnumerableLike(valueType, values, _valueConverter, out var arrayOrEnumerableLike))
             {
-                // Any<T>
-                var openGenericType = valueType.GetGenericTypeDefinition();
-                var elementType = valueType.GetGenericArguments()[0];
-
-                // List<T> (== IList<T>, IReadOnlyList<T>, ICollection<T>, IEnumerable<T>)
-                if (openGenericType == typeof(List<>) ||
-                    openGenericType == typeof(IList<>) ||
-                    openGenericType == typeof(IReadOnlyList<>) ||
-                    openGenericType == typeof(ICollection<>) ||
-                    openGenericType == typeof(IEnumerable<>))
-                {
-                    var typedArray = Array.CreateInstance(elementType, values.Length);
-                    for (var i = 0; i < values.Length; i++)
-                    {
-                        typedArray.SetValue(_valueConverter.ConvertTo(elementType, values[i]), i);
-                    }
-                    var listT = typeof(List<>).MakeGenericType(elementType);
-                    return Activator.CreateInstance(listT, new[] { typedArray });
-                }
+                // T[] or List<T> (IEnumerable<T>, IList<T>)
+                return arrayOrEnumerableLike;
             }
-            else if (valueType.IsArray)
-            {
-                // T[]
-                var elementType = valueType.GetElementType();
-                var typedArray = Array.CreateInstance(elementType, values.Length);
-                for (var i = 0; i < values.Length; i++)
-                {
-                    typedArray.SetValue(_valueConverter.ConvertTo(elementType, values[i]), i);
-                }
-                return typedArray;
-            }
-            else
+            else if (!DynamicListHelper.IsArrayOrEnumerableLike(valueType))
             {
                 // Primitive or plain object (int, bool, string ...)
                 return _valueConverter.ConvertTo(valueType, values.Last());
