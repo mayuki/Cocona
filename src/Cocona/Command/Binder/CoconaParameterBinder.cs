@@ -39,8 +39,7 @@ namespace Cocona.Command.Binder
                         }
                         else
                         {
-                            // TODO: Exception type
-                            throw new Exception("MissingOption");
+                            throw new ParameterBinderException(ParameterBinderResult.InsufficientOption, optionDesc);
                         }
                         break;
                     case CommandArgumentDescriptor argumentDesc:
@@ -55,7 +54,7 @@ namespace Cocona.Command.Binder
                         bindParams[index++] = ignoredDesc.DefaultValue;
                         break;
                     default:
-                        throw new NotSupportedException($"CoconaParameterBinder doesn't support '{param.GetType().FullName}' as bind target.");
+                        throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"CoconaParameterBinder doesn't support '{param.GetType().FullName}' as bind target. Param: {param}");
                 }
             }
 
@@ -79,8 +78,7 @@ namespace Cocona.Command.Binder
                         continue;
                     }
 
-                    // TODO: Exception type
-                    throw new Exception("MissingArgument");
+                    throw new ParameterBinderException(ParameterBinderResult.InsufficientArgument, argument: argDesc.Argument);
                 }
 
                 // T[] or List<T>, IEnumerable<T> ...
@@ -94,10 +92,10 @@ namespace Cocona.Command.Binder
                     var indexRev = commandArgumentValues.Count - 1;
                     for (var j = orderedArgDescWithParamIndex.Length - 1; j > i; j--)
                     {
-                        if (indexRev == index) throw new Exception("MissingArgument");
-
                         var argDesc2 = orderedArgDescWithParamIndex[j];
-                        if (argDesc2.Argument.IsEnumerableLike) throw new Exception("MultipleArrayInArgument"); // TODO: Exception type
+
+                        if (indexRev == index) throw new ParameterBinderException(ParameterBinderResult.InsufficientArgument, argument: argDesc2.Argument);
+                        if (argDesc2.Argument.IsEnumerableLike) throw new ParameterBinderException(ParameterBinderResult.MultipleArrayInArgument, argument: argDesc2.Argument);
 
                         bindParams[argDesc2.ParameterIndex] = _valueConverter.ConvertTo(argDesc2.Argument.ArgumentType, commandArgumentValues[indexRev--].Value);
                     }
@@ -131,7 +129,7 @@ namespace Cocona.Command.Binder
                 return _valueConverter.ConvertTo(valueType, values.Last());
             }
 
-            throw new NotSupportedException($"Cannot create a instance of type '{valueType.FullName}'");
+            throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Cannot create a instance of type '{valueType.FullName}'");
         }
     }
 }

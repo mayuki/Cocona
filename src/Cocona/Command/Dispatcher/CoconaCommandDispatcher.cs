@@ -37,34 +37,45 @@ namespace Cocona.Command.Dispatcher
                 // multi-commands hosted style
                 if (args.Length > 0)
                 {
+                    var commandName = args[0];
                     var matchedCommand = commandCollection.All
                         .FirstOrDefault(x =>
-                            string.Compare(x.Name, args[0], StringComparison.OrdinalIgnoreCase) == 0 ||
+                            string.Compare(x.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0 ||
                             x.Aliases.Any(y => string.Compare(y, args[0], StringComparison.OrdinalIgnoreCase) == 0)
                         );
 
-                    if (matchedCommand != null)
+                    if (matchedCommand == null)
                     {
-                        return DispatchAsyncCore(args.Skip(1).ToArray(), matchedCommand);
+                        throw new CommandNotFoundException(
+                            commandName,
+                            commandCollection,
+                            $"The specified command '{commandName}' was not found."
+                        );
                     }
+
+                    return DispatchAsyncCore(args.Skip(1).ToArray(), matchedCommand);
                 }
             }
             else
             {
                 // single-command style
-                var matchedCommand = commandCollection.All[0];
-                if (matchedCommand != null)
+                if (commandCollection.All.Any())
                 {
-                    return DispatchAsyncCore(args, matchedCommand);
+                    return DispatchAsyncCore(args, commandCollection.All[0]);
                 }
             }
 
-            throw new Exception("CommandNotImplemented"); // TODO: Exception type
+            throw new CommandNotFoundException(
+                string.Empty,
+                commandCollection,
+                $"No commands are implemented yet."
+            );
         }
 
         private async ValueTask<int> DispatchAsyncCore(string[] args, CommandDescriptor command)
         {
             var parsedCommandLine = _commandLineParser.ParseCommand(args, command.Options, command.Arguments);
+            if (parsedCommandLine.UnknownOptions.Any()) throw new Exception("UnknownOption:"+parsedCommandLine.UnknownOptions[0]); // TOOD: Exception type
 
             var invokeArgs = _parameterBinder.Bind(command, parsedCommandLine.Options, parsedCommandLine.Arguments);
             var commandInstance = ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, command.CommandType);
