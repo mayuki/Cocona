@@ -14,8 +14,8 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void NoCommand()
         {
-            var provider = new CoconaCommandProvider();
-            var commands = provider.GetCommandCollection(new[] { typeof(CommandTestNoCommand) });
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestNoCommand) });
+            var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().BeEmpty();
         }
@@ -23,8 +23,8 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void SingleCommand()
         {
-            var provider = new CoconaCommandProvider();
-            var commands = provider.GetCommandCollection(new[] { typeof(CommandTestSingleCommand) });
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestSingleCommand) });
+            var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(1);
         }
@@ -32,8 +32,8 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void MultipleMainCommand()
         {
-            var provider = new CoconaCommandProvider();
-            var commands = provider.GetCommandCollection(new[] { typeof(CommandTestMultipleMainCommand) });
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestMultipleMainCommand) });
+            var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(2);
         }
@@ -41,8 +41,8 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void IgnoreCommand_Method()
         {
-            var provider = new CoconaCommandProvider();
-            var commands = provider.GetCommandCollection(new[] { typeof(CommandTestIgnoreCommand_Method) });
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestIgnoreCommand_Method) });
+            var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(2);
         }
@@ -50,8 +50,8 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void IgnoreCommand_Class()
         {
-            var provider = new CoconaCommandProvider();
-            var commands = provider.GetCommandCollection(new[] { typeof(CommandTestIgnoreCommand_Class) });
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestIgnoreCommand_Class) });
+            var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().BeEmpty();
         }
@@ -59,8 +59,8 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void IgnoreCommand_Parameter()
         {
-            var provider = new CoconaCommandProvider();
-            var commands = provider.GetCommandCollection(new[] { typeof(CommandTestIgnoreCommand_Parameter) });
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestIgnoreCommand_Parameter) });
+            var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(1);
             commands.All[0].Options.Should().HaveCount(1);
@@ -69,8 +69,8 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void NonPublicCommand()
         {
-            var provider = new CoconaCommandProvider();
-            var commands = provider.GetCommandCollection(new[] { typeof(CommandTestNonPublicCommand) });
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestNonPublicCommand) });
+            var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(1);
         }

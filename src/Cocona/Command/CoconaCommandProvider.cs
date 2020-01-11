@@ -9,11 +9,16 @@ namespace Cocona.Command
 {
     public class CoconaCommandProvider : ICoconaCommandProvider
     {
-        public CommandCollection GetCommandCollection(Type[] targetTypes)
-        {
-            ThrowHelper.ArgumentNull(targetTypes, nameof(targetTypes));
+        private readonly Type[] _targetTypes;
 
-            var methods = targetTypes
+        public CoconaCommandProvider(Type[] targetTypes)
+        {
+            _targetTypes = targetTypes ?? throw new ArgumentNullException(nameof(targetTypes));
+        }
+
+        public CommandCollection GetCommandCollection()
+        {
+            var methods = _targetTypes
                 .Where(x => x.GetCustomAttribute<IgnoreAttribute>() == null) // class-level ignore
                 .Where(x => !x.IsAbstract && (!x.IsGenericType || x.IsConstructedGenericType)) // non-abstract, non-generic, closed-generic
                 .SelectMany(xs => xs.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))

@@ -15,7 +15,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_NoOptions_NoArguments_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_NoOptions_NoArguments_NoReturn));
             cmd.Options.Should().BeEmpty();
             cmd.Arguments.Should().BeEmpty();
@@ -26,7 +26,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_NoOptions_NoArguments_ReturnInt()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_ReturnInt)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_ReturnInt)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_NoOptions_NoArguments_ReturnInt));
             cmd.Options.Should().BeEmpty();
             cmd.Arguments.Should().BeEmpty();
@@ -37,7 +37,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_NoOptions_NoArguments_ReturnTaskOfInt()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_ReturnTaskOfInt)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_ReturnTaskOfInt)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_NoOptions_NoArguments_ReturnTaskOfInt));
             cmd.Options.Should().BeEmpty();
             cmd.Arguments.Should().BeEmpty();
@@ -48,7 +48,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_NoOptions_NoArguments_ReturnValueTaskOfInt()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_ReturnValueTaskOfInt)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_ReturnValueTaskOfInt)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_NoOptions_NoArguments_ReturnValueTaskOfInt));
             cmd.Options.Should().BeEmpty();
             cmd.Arguments.Should().BeEmpty();
@@ -59,7 +59,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_NoOptions_NoArguments_ReturnString()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_ReturnString)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_ReturnString)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_NoOptions_NoArguments_ReturnString));
             cmd.Options.Should().BeEmpty();
             cmd.Arguments.Should().BeEmpty();
@@ -70,7 +70,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_ImplicitOptions1_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_ImplicitOptions1_NoReturn));
             cmd.Options.Should().HaveCount(1);
             cmd.Options[0].Name.Should().Be("option0");
@@ -85,7 +85,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_ImplicitOptions1WithDefaultValue_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1WithDefaultValue_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1WithDefaultValue_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_ImplicitOptions1WithDefaultValue_NoReturn));
             cmd.Options.Should().HaveCount(3);
             cmd.Options[0].Name.Should().Be("option0");
@@ -111,7 +111,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_ImplicitOptions1_ExplicitOptions1_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1_NoReturn));
             cmd.Options.Should().HaveCount(2);
             cmd.Options[0].Name.Should().Be("option0");
@@ -130,7 +130,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_ImplicitOptions1_ExplicitOptions1HasShortName_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1HasShortName_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1HasShortName_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1HasShortName_NoReturn));
             cmd.Options.Should().HaveCount(2);
             cmd.Options[0].Name.Should().Be("option0");
@@ -150,7 +150,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_ImplicitOptions1_ExplicitOptions1HasName_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1HasName_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1HasName_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1HasName_NoReturn));
             cmd.Options.Should().HaveCount(2);
             cmd.Options[0].Name.Should().Be("option0");
@@ -170,7 +170,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_ImplicitOptions1_ExplicitOptions1HasNameAndDescription_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1HasNameAndDescription_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1HasNameAndDescription_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1HasNameAndDescription_NoReturn));
             cmd.Options.Should().HaveCount(2);
             cmd.Options[0].Name.Should().Be("option0");
@@ -190,7 +190,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_ImplicitOptions1_ExplicitOptions1HasDescription_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1HasDescription_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1HasDescription_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_ImplicitOptions1_ExplicitOptions1HasDescription_NoReturn));
             cmd.Options.Should().HaveCount(2);
             cmd.Options[0].Name.Should().Be("option0");
@@ -211,7 +211,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_Options1_Arguments1_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Options1_Arguments1_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Options1_Arguments1_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_Options1_Arguments1_NoReturn));
             cmd.Options.Should().HaveCount(1);
             cmd.Options[0].Name.Should().Be("option0");
@@ -230,7 +230,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_Options1_Arguments2_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Options1_Arguments2_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Options1_Arguments2_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_Options1_Arguments2_NoReturn));
             cmd.Options.Should().HaveCount(1);
             cmd.Options[0].Name.Should().Be("option0");
@@ -253,7 +253,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_Arguments_HasArray_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Arguments_HasArray_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Arguments_HasArray_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_Arguments_HasArray_NoReturn));
             cmd.Options.Should().BeEmpty();
             cmd.Arguments.Should().HaveCount(2);
@@ -273,7 +273,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_Arguments_WithDefaultValue_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Arguments_WithDefaultValue_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Arguments_WithDefaultValue_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_Arguments_WithDefaultValue_NoReturn));
             cmd.Options.Should().HaveCount(1);
             cmd.Options[0].Name.Should().Be("option0");
@@ -299,7 +299,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_Arguments_HasDescription_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Arguments_HasDescription_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Arguments_HasDescription_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_Arguments_HasDescription_NoReturn));
             cmd.Options.Should().BeEmpty();
             cmd.Arguments.Should().HaveCount(1);
@@ -315,7 +315,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_Arguments_HasName_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Arguments_HasName_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Arguments_HasName_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_Arguments_HasName_NoReturn));
             cmd.Options.Should().BeEmpty();
             cmd.Arguments.Should().HaveCount(1);
@@ -330,7 +330,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_Arguments_Ordered_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Arguments_Ordered_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Arguments_Ordered_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_Arguments_Ordered_NoReturn));
             cmd.Options.Should().BeEmpty();
             cmd.Arguments.Should().HaveCount(2);
@@ -349,7 +349,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Default_HasIgnoreParameter_NoReturn()
         {
-            var cmd = new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_HasIgnoreParameter_NoReturn)));
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_HasIgnoreParameter_NoReturn)));
             cmd.Name.Should().Be(nameof(CommandTest.Default_HasIgnoreParameter_NoReturn));
             cmd.Parameters.Should().HaveCount(3);
             cmd.Options.Should().HaveCount(1);
@@ -361,13 +361,13 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Invalid_SameOptionName()
         {
-            Assert.Throws<Exception>(() => new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Invalid_SameOptionName))));
+            Assert.Throws<Exception>(() => new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Invalid_SameOptionName))));
         }
 
         [Fact]
         public void Invalid_SameOptionShortName()
         {
-            Assert.Throws<Exception>(() => new CoconaCommandProvider().CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Invalid_SameOptionShortName))));
+            Assert.Throws<Exception>(() => new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Invalid_SameOptionShortName))));
         }
 
         private static MethodInfo GetMethod<T>(string methodName)
