@@ -11,6 +11,6 @@ namespace Cocona.CommandLine
     public interface ICoconaCommandLineParser
     {
         ParsedCommandLine ParseCommand(IReadOnlyList<string> args, IReadOnlyList<CommandOptionDescriptor> options, IReadOnlyList<CommandArgumentDescriptor> arguments);
-        bool TryGetCommandName(string[] args, [MaybeNullWhen(false)] out string commandName);
+        bool TryGetCommandName(string[] args, [NotNullWhen(true)] out string? commandName);
     }
 }

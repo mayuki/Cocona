@@ -13,7 +13,7 @@ namespace Cocona.CommandLine
     /// </summary>
     public class CoconaCommandLineParser : ICoconaCommandLineParser
     {
-        public bool TryGetCommandName(string[] args, [MaybeNullWhen(false)] out string commandName)
+        public bool TryGetCommandName(string[] args, [NotNullWhen(true)] out string? commandName)
         {
             if (args.Length == 0)
             {

@@ -1,6 +1,7 @@
 ﻿using Cocona.Command.Binder;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Cocona.Internal
@@ -46,7 +47,7 @@ namespace Cocona.Internal
         /// <param name="converter"></param>
         /// <param name="arrayOrEnumerableLike"></param>
         /// <returns></returns>
-        public static bool TryCreateArrayOrEnumerableLike(Type valueType, string?[] values, ICoconaValueConverter converter, out object arrayOrEnumerableLike)
+        public static bool TryCreateArrayOrEnumerableLike(Type valueType, string?[] values, ICoconaValueConverter converter, [NotNullWhen(true)] out object? arrayOrEnumerableLike)
         {
             if (valueType.IsGenericType)
             {

@@ -63,7 +63,7 @@ namespace Cocona.Command.Dispatcher
                 else
                 {
                     // Use default command (NOTE: The default command must have no argument.)
-                    matchedCommand = commandCollection.Primary ?? BuiltInPrimaryCommand.GetCommand();
+                    matchedCommand = commandCollection.Primary ?? BuiltInPrimaryCommand.GetCommand(commandCollection);
                 }
             }
             else
