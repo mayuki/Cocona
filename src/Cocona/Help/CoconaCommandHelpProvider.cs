@@ -44,7 +44,7 @@ namespace Cocona.Help
                     }
                     else
                     {
-                        sb.Append($"[--{opt.Name} <{opt.OptionType.Name}>]");
+                        sb.Append($"[--{opt.Name} <{opt.ValueName}>]");
                     }
                 }
             }
@@ -111,7 +111,7 @@ namespace Cocona.Help
                             command.Options
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
-                                        (x.ShortName.Any() ? string.Join(", ", x.ShortName.Select(x => $"-{x}")) + ", " : "") + $"--{x.Name}" + (x.OptionType != typeof(bool) ? $" <{x.OptionType.Name}>" : ""),
+                                        (x.ShortName.Any() ? string.Join(", ", x.ShortName.Select(x => $"-{x}")) + ", " : "") + $"--{x.Name}" + (x.OptionType != typeof(bool) ? $" <{x.ValueName}>" : ""),
                                         $"{x.Description}{(x.IsRequired ? " (Required)" : (" (DefaultValue: " + x.DefaultValue.Value + ")"))}"
                                     )
                                 )
@@ -189,7 +189,7 @@ namespace Cocona.Help
                             commandCollection.Primary.Options
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
-                                        (x.ShortName.Any() ? string.Join(", ", x.ShortName.Select(x => $"-{x}")) + ", " : "") + $"--{x.Name}" + (x.OptionType != typeof(bool) ? $" <{x.OptionType.Name}>" : ""),
+                                        (x.ShortName.Any() ? string.Join(", ", x.ShortName.Select(x => $"-{x}")) + ", " : "") + $"--{x.Name}" + (x.OptionType != typeof(bool) ? $" <{x.ValueName}>" : ""),
                                         $"{x.Description}{(x.IsRequired ? " (Required)" : (" (DefaultValue: " + x.DefaultValue.Value + ")"))}"
                                     )
                                 )

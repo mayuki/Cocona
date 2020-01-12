@@ -25,6 +25,11 @@ namespace Cocona
         /// </summary>
         public IReadOnlyList<char> ShortNames { get; } = Array.Empty<char>();
 
+        /// <summary>
+        /// Gets the option value name.
+        /// </summary>
+        public string? ValueName { get; set; }
+
         public OptionAttribute()
         { }
 

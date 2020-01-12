@@ -89,6 +89,7 @@ namespace Cocona.Command
                     var optionName = optionAttr?.Name ?? x.Name;
                     var optionDesc = optionAttr?.Description ?? string.Empty;
                     var optionShortNames = optionAttr?.ShortNames ?? Array.Empty<char>();
+                    var optionValueName = optionAttr?.ValueName ?? x.ParameterType.Name;
 
                     // TODO: Exception type
                     if (allOptionNames.Contains(optionName))
@@ -98,7 +99,7 @@ namespace Cocona.Command
                     allOptionNames.Add(optionName);
                     allOptionShortNames.UnionWith(optionShortNames);
 
-                    return (CommandParameterDescriptor)new CommandOptionDescriptor(x.ParameterType, optionName, optionShortNames, optionDesc, defaultValue);
+                    return (CommandParameterDescriptor)new CommandOptionDescriptor(x.ParameterType, optionName, optionShortNames, optionDesc, defaultValue, optionValueName);
                 })
                 .ToArray();
 

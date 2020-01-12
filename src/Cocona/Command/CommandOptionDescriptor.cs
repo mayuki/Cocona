@@ -10,18 +10,20 @@ namespace Cocona.Command
         public Type OptionType { get; }
         public string Name { get; }
         public IReadOnlyList<char> ShortName { get; }
+        public string ValueName { get; }
         public string Description { get; }
         public CoconaDefaultValue DefaultValue { get; }
 
         public bool IsRequired => !DefaultValue.HasValue;
 
-        public CommandOptionDescriptor(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue)
+        public CommandOptionDescriptor(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue, string? valueName = null)
         {
             OptionType = optionType ?? throw new ArgumentNullException(nameof(optionType));
             Name = name ?? throw new ArgumentNullException(nameof(name));
             ShortName = shortName ?? throw new ArgumentNullException(nameof(shortName));
             Description = description ?? throw new ArgumentNullException(nameof(description));
             DefaultValue = defaultValue;
+            ValueName = valueName ?? OptionType.Name;
 
             if (String.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("A name of the command option must not be empty.", nameof(name));
