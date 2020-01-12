@@ -23,7 +23,7 @@ namespace Cocona.Test.Command.CommandDispatcher
             var builder = serviceProvider.GetService<ICoconaCommandDispatcherPipelineBuilder>();
             builder.Should().NotBeNull();
             var pipeline = builder.Build();
-            var result = await pipeline(new CommandDispatchContext(null, null));
+            var result = await pipeline(new CommandDispatchContext(null, null, null));
             result.Should().Be(0);
         }
 
@@ -45,7 +45,7 @@ namespace Cocona.Test.Command.CommandDispatcher
                 return 123;
             });
             var pipeline = builder.Build();
-            var result = await pipeline(new CommandDispatchContext(null, null));
+            var result = await pipeline(new CommandDispatchContext(null, null, null));
             result.Should().Be(123);
             called.Should().BeTrue();
         }
@@ -65,7 +65,7 @@ namespace Cocona.Test.Command.CommandDispatcher
             builder.Should().NotBeNull();
             builder.UseMiddleware<TestMiddleware>();
             var pipeline = builder.Build();
-            var result = await pipeline(new CommandDispatchContext(null, null));
+            var result = await pipeline(new CommandDispatchContext(null, null, null));
             result.Should().Be(456);
             log.Should().NotBeEmpty();
             log[0].Should().Be("Called");
@@ -88,7 +88,7 @@ namespace Cocona.Test.Command.CommandDispatcher
             builder.UseMiddleware<Test3Middleware>();
             builder.UseMiddleware<Test4Middleware>();
             var pipeline = builder.Build();
-            var result = await pipeline(new CommandDispatchContext(null, null));
+            var result = await pipeline(new CommandDispatchContext(null, null, null));
             result.Should().Be(0);
             log.Should().NotBeEmpty();
             log[0].Should().Be("Begin:Test2Middleware");

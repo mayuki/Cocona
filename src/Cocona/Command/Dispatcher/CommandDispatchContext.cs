@@ -7,13 +7,17 @@ namespace Cocona.Command.Dispatcher
 {
     public class CommandDispatchContext
     {
-        public CommandDescriptor Command { get; set; }
-        public ParsedCommandLine ParsedCommandLine { get; set; }
+        public CommandDescriptor Command { get;}
+        
+        public object CommandTarget { get; }
 
-        public CommandDispatchContext(CommandDescriptor command, ParsedCommandLine parsedCommandLine)
+        public ParsedCommandLine ParsedCommandLine { get; }
+
+        public CommandDispatchContext(CommandDescriptor command, ParsedCommandLine parsedCommandLine, object commandTarget)
         {
             Command = command;
             ParsedCommandLine = parsedCommandLine;
+            CommandTarget = commandTarget;
         }
     }
 }

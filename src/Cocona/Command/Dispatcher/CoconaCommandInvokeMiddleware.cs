@@ -7,21 +7,18 @@ namespace Cocona.Command.Dispatcher
 {
     public class CoconaCommandInvokeMiddleware : CommandDispatcherMiddleware
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly ICoconaParameterBinder _parameterBinder;
 
-        public CoconaCommandInvokeMiddleware(CommandDispatchDelegate next, IServiceProvider serviceProvider, ICoconaParameterBinder parameterBinder)
+        public CoconaCommandInvokeMiddleware(CommandDispatchDelegate next, ICoconaParameterBinder parameterBinder)
             : base(next)
         {
-            _serviceProvider = serviceProvider;
             _parameterBinder = parameterBinder;
         }
 
         public override async ValueTask<int> DispatchAsync(CommandDispatchContext ctx)
         {
             var invokeArgs = _parameterBinder.Bind(ctx.Command!, ctx.ParsedCommandLine!.Options, ctx.ParsedCommandLine!.Arguments);
-            var commandInstance = ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, ctx.Command!.CommandType);
-            var result = ctx.Command!.Method.Invoke(commandInstance, invokeArgs);
+            var result = ctx.Command!.Method.Invoke(ctx.CommandTarget, invokeArgs);
 
             if (result is Task<int> taskOfInt)
             {

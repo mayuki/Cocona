@@ -1,4 +1,5 @@
 ﻿using Cocona.CommandLine;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Text;
@@ -8,18 +9,21 @@ namespace Cocona.Command.Dispatcher
 {
     public class CoconaCommandDispatcher : ICoconaCommandDispatcher
     {
+        private readonly IServiceProvider _serviceProvider;
         private readonly ICoconaCommandProvider _commandProvider;
         private readonly ICoconaCommandLineParser _commandLineParser;
         private readonly ICoconaCommandLineArgumentProvider _commandLineArgumentProvider;
         private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
 
         public CoconaCommandDispatcher(
+            IServiceProvider serviceProvider,
             ICoconaCommandProvider commandProvider,
             ICoconaCommandLineParser commandLineParser,
             ICoconaCommandLineArgumentProvider commandLineArgumentProvider,
             ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder
         )
         {
+            _serviceProvider = serviceProvider;
             _commandProvider = commandProvider;
             _commandLineParser = commandLineParser;
             _commandLineArgumentProvider = commandLineArgumentProvider;
@@ -74,10 +78,8 @@ namespace Cocona.Command.Dispatcher
             // Found a command and dispatch.
             if (matchedCommand != null)
             {
-                var ctx = new CommandDispatchContext(matchedCommand, _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments));
-                if (ctx.ParsedCommandLine!.UnknownOptions.Any())
-                    throw new Exception("UnknownOption:" + ctx.ParsedCommandLine.UnknownOptions[0]); // TOOD: Exception type
-
+                var commandInstance = ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, matchedCommand.CommandType);
+                var ctx = new CommandDispatchContext(matchedCommand, _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments), commandInstance);
                 var dispatchAsync = _dispatcherPipelineBuilder.Build();
                 return dispatchAsync(ctx);
             }
