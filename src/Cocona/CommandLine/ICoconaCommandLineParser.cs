@@ -9,6 +9,6 @@ namespace Cocona.CommandLine
     /// </summary>
     public interface ICoconaCommandLineParser
     {
-        ParsedCommandLine ParseCommand(Span<string> args, IReadOnlyList<CommandOptionDescriptor> options, IReadOnlyList<CommandArgumentDescriptor> arguments);
+        ParsedCommandLine ParseCommand(IReadOnlyList<string> args, IReadOnlyList<CommandOptionDescriptor> options, IReadOnlyList<CommandArgumentDescriptor> arguments);
     }
 }

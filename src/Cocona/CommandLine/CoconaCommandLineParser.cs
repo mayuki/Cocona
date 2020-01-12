@@ -13,7 +13,7 @@ namespace Cocona.CommandLine
     /// </summary>
     public class CoconaCommandLineParser : ICoconaCommandLineParser
     {
-        public ParsedCommandLine ParseCommand(Span<string> args, IReadOnlyList<CommandOptionDescriptor> optionDescs, IReadOnlyList<CommandArgumentDescriptor> argumentDescs)
+        public ParsedCommandLine ParseCommand(IReadOnlyList<string> args, IReadOnlyList<CommandOptionDescriptor> optionDescs, IReadOnlyList<CommandArgumentDescriptor> argumentDescs)
         {
             var optionbyLongName = optionDescs
                 .ToDictionary(k => k.Name);
@@ -25,7 +25,7 @@ namespace Cocona.CommandLine
             var index = 0;
             var options = new List<CommandOption>();
             var unknownOptions = new List<string>();
-            for (var i = 0; i < args.Length; i++)
+            for (var i = 0; i < args.Count; i++)
             {
                 if (!args[i].StartsWith('-'))
                 {
@@ -80,7 +80,7 @@ namespace Cocona.CommandLine
                             else
                             {
                                 // Non-boolean (the option may have some value)
-                                options.Add(new CommandOption(option, args[i++]));
+                                options.Add(new CommandOption(option, (i + 1 == args.Count) ? null : args[i++]));
                                 index++;
                             }
                             continue;
@@ -104,7 +104,7 @@ namespace Cocona.CommandLine
                             else
                             {
                                 // Non-boolean (the option may have some value)
-                                if (args.Length == i + 1 && args[i].Length == j + 1)
+                                if (args.Count == i + 1 && args[i].Length == j + 1)
                                 {
                                     // ["-foo", "-I"]
                                     // -foo -I
@@ -145,7 +145,7 @@ namespace Cocona.CommandLine
                 }
             }
 
-            var arguments = args.Slice(index).ToArray().Select(x => new CommandArgument(x)).ToArray();
+            var arguments = args.Skip(index).Select(x => new CommandArgument(x)).ToArray();
 
             return new ParsedCommandLine(options, arguments, unknownOptions);
         }
