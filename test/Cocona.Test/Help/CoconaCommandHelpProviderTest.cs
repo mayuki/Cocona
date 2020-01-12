@@ -38,5 +38,36 @@ namespace Cocona.Test.Help
             var help = provider.CreateCommandHelp(commandDescriptor);
             var text = new CoconaHelpRenderer().Render(help);
         }
+
+
+        [Fact]
+        public void CommandHelp_Rendered()
+        {
+            var commandDescriptor = new CommandDescriptor(
+                typeof(CoconaCommandHelpProviderTest).GetMethod(nameof(CoconaCommandHelpProviderTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+                "Test",
+                Array.Empty<string>(),
+                "command description",
+                new CommandParameterDescriptor[]
+                {
+                    new CommandOptionDescriptor(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    new CommandOptionDescriptor(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                }
+            );
+
+            var provider = new CoconaCommandHelpProvider(() => "ExeName");
+            var help = provider.CreateCommandHelp(commandDescriptor);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName [options...]
+
+command description
+
+Options:
+  --foo, -f <String>         Foo option (Required)
+  --looooooong-option, -l    Long name option (DefaultValue=False)
+".TrimStart());
+
+        }
     }
 }
