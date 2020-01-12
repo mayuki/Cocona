@@ -84,6 +84,27 @@ namespace Cocona.Test.Command.CommandProvider
             commands.All.Should().HaveCount(1);
         }
 
+        [Fact]
+        public void PrimaryCommand()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestPrimaryCommand) });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(2);
+            commands.All[0].Name.Should().Be("A");
+            commands.All[0].IsPrimaryCommand.Should().BeTrue();
+            commands.All[1].Name.Should().Be("B");
+            commands.All[1].IsPrimaryCommand.Should().BeFalse();
+
+            commands.Primary.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void PrimaryCommand_Argument()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestPrimaryCommand_Argument) });
+            var ex = Assert.Throws<Exception>(() => provider.GetCommandCollection());
+        }
         public class CommandTestHasProperty
         {
             public void A() { }
@@ -131,5 +152,21 @@ namespace Cocona.Test.Command.CommandProvider
             [Command]
             private void A(string name, int ignored) { }
         }
+
+        public class CommandTestPrimaryCommand
+        {
+            [PrimaryCommand]
+            public void A([Option]string name) { }
+
+            public void B([Argument]string name) { }
+        }
+
+        public class CommandTestPrimaryCommand_Argument
+        {
+            [PrimaryCommand]
+            public void A([Argument]string name) { }
+            public void B([Argument]string name) { }
+        }
+
     }
 }

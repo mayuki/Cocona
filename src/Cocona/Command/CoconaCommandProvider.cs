@@ -20,15 +20,18 @@ namespace Cocona.Command
         {
             var methods = _targetTypes
                 .Where(x => x.GetCustomAttribute<IgnoreAttribute>() == null) // class-level ignore
-                .Where(x =>!x.IsAbstract && (!x.IsGenericType || x.IsConstructedGenericType)) // non-abstract, non-generic, closed-generic
+                .Where(x => !x.IsAbstract && (!x.IsGenericType || x.IsConstructedGenericType)) // non-abstract, non-generic, closed-generic
                 .SelectMany(xs => xs.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 .Where(x => !x.IsSpecialName && x.DeclaringType != typeof(object) && (x.IsPublic || x.GetCustomAttributes<CommandAttribute>(inherit: true).Any())) // not-property && not-System.Object && (public || has-command attr)
-                .Where(x => x.GetCustomAttribute<IgnoreAttribute>() == null); // method-level ignore
+                .Where(x => x.GetCustomAttribute<IgnoreAttribute>() == null) // method-level ignore
+                .ToArray();
 
-            return new CommandCollection(methods.Select(x => CreateCommand(x)).ToArray());
+            var singleCommand = methods.Length == 1;
+
+            return new CommandCollection(methods.Select(x => CreateCommand(x, singleCommand)).ToArray());
         }
 
-        public CommandDescriptor CreateCommand(MethodInfo methodInfo)
+        public CommandDescriptor CreateCommand(MethodInfo methodInfo, bool isPrimaryCommand)
         {
             ThrowHelper.ArgumentNull(methodInfo, nameof(methodInfo));
 
@@ -36,6 +39,9 @@ namespace Cocona.Command
             var commandName = commandAttr?.Name ?? methodInfo.Name;
             var description = commandAttr?.Description ?? string.Empty;
             var aliases = commandAttr?.Aliases ?? Array.Empty<string>();
+
+            // PrimaryCommand: single-command or a command has PrimaryCommand attribute.
+            isPrimaryCommand = isPrimaryCommand || methodInfo.GetCustomAttribute<PrimaryCommandAttribute>() != null;
 
             var allOptionNames = new HashSet<string>();
             var allOptionShortNames = new HashSet<char>();
@@ -62,6 +68,8 @@ namespace Cocona.Command
                     var argumentAttr = x.GetCustomAttribute<ArgumentAttribute>();
                     if (argumentAttr != null)
                     {
+                        if (isPrimaryCommand) throw new Exception("A primary command can not handle/have arguments.");
+
                         var argName = argumentAttr.Name ?? x.Name;
                         var argDesc = argumentAttr.Description ?? string.Empty;
                         var argOrder = argumentAttr.Order != 0 ? argumentAttr.Order : defaultArgOrder;
@@ -94,12 +102,14 @@ namespace Cocona.Command
                 })
                 .ToArray();
 
+
             return new CommandDescriptor(
                 methodInfo,
                 commandName,
                 aliases,
                 description,
-                parameters
+                parameters,
+                isPrimaryCommand
             );
         }
     }
