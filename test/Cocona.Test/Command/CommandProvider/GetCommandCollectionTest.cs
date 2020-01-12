@@ -27,6 +27,7 @@ namespace Cocona.Test.Command.CommandProvider
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().BeEmpty();
+            commands.Primary.Should().BeNull();
         }
 
         [Fact]
@@ -36,6 +37,7 @@ namespace Cocona.Test.Command.CommandProvider
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(1);
+            commands.Primary.Should().NotBeNull();
         }
 
         [Fact]
@@ -45,6 +47,7 @@ namespace Cocona.Test.Command.CommandProvider
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(2);
+            commands.Primary.Should().BeNull();
         }
 
         [Fact]
