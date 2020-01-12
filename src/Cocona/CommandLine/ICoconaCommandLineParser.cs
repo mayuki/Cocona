@@ -1,6 +1,7 @@
 ﻿using Cocona.Command;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Cocona.CommandLine
 {
@@ -10,5 +11,6 @@ namespace Cocona.CommandLine
     public interface ICoconaCommandLineParser
     {
         ParsedCommandLine ParseCommand(IReadOnlyList<string> args, IReadOnlyList<CommandOptionDescriptor> options, IReadOnlyList<CommandArgumentDescriptor> arguments);
+        bool TryGetCommandName(string[] args, [MaybeNullWhen(false)] out string commandName);
     }
 }

@@ -11,6 +11,42 @@ namespace Cocona.Test.CommandLine
     public class CoconaCommandLineParserTest
     {
         [Fact]
+        public void TryGetCommandName_Empty()
+        {
+            var args = new string[] { };
+            var result = new CoconaCommandLineParser().TryGetCommandName(args, out var commandName);
+            result.Should().BeFalse();
+            commandName.Should().BeNull();
+        }
+
+        [Fact]
+        public void TryGetCommandName_CommandName()
+        {
+            var args = new string[] { "commandName" };
+            var result = new CoconaCommandLineParser().TryGetCommandName(args, out var commandName);
+            result.Should().BeTrue();
+            commandName.Should().Be("commandName");
+        }
+
+        [Fact]
+        public void TryGetCommandName_ShortOption()
+        {
+            var args = new string[] { "-h" };
+            var result = new CoconaCommandLineParser().TryGetCommandName(args, out var commandName);
+            result.Should().BeFalse();
+            commandName.Should().BeNull();
+        }
+
+        [Fact]
+        public void TryGetCommandName_LongOption()
+        {
+            var args = new string[] { "--h" };
+            var result = new CoconaCommandLineParser().TryGetCommandName(args, out var commandName);
+            result.Should().BeFalse();
+            commandName.Should().BeNull();
+        }
+
+        [Fact]
         public void ParseCommand_ArgumentsOnly()
         {
             var args = new[] { "src1", "src2", "src3", "dest" };
@@ -721,6 +757,7 @@ namespace Cocona.Test.CommandLine
             parsed.Options.Should().HaveCount(2);
             parsed.Arguments.Should().HaveCount(5);
             parsed.UnknownOptions.Should().HaveCount(1);
+            parsed.UnknownOptions[0].Should().Be("y");
         }
 
         [Fact]
@@ -746,6 +783,7 @@ namespace Cocona.Test.CommandLine
             parsed.Options.Should().HaveCount(1); // 'I'
             parsed.Arguments.Should().HaveCount(5);
             parsed.UnknownOptions.Should().Contain("X"); // 'X'
+            parsed.UnknownOptions.Should().Contain("y");
         }
 
         [Fact]
@@ -771,6 +809,106 @@ namespace Cocona.Test.CommandLine
             parsed.Options.Should().BeEmpty();
             parsed.Arguments.Should().BeEmpty();
             parsed.UnknownOptions.Should().HaveCount(1); // '='
+        }
+
+        [Fact]
+        public void ParseCommand_UnknownOptions_LongName_1()
+        {
+            var args = new[] { "--help" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                },
+                new CommandArgumentDescriptor[]
+                {
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().BeEmpty();
+            parsed.Arguments.Should().BeEmpty();
+            parsed.UnknownOptions.Should().HaveCount(1);
+            parsed.UnknownOptions.Should().Equal(new[] { "help" });
+        }
+
+        [Fact]
+        public void ParseCommand_UnknownOptions_LongName_2()
+        {
+            var args = new[] { "--help", "--foo" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                },
+                new CommandArgumentDescriptor[]
+                {
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().BeEmpty();
+            parsed.Arguments.Should().BeEmpty();
+            parsed.UnknownOptions.Should().HaveCount(2);
+            parsed.UnknownOptions.Should().Equal(new[] { "help", "foo" });
+        }
+
+        [Fact]
+        public void ParseCommand_UnknownOptions_LongName_Value()
+        {
+            var args = new[] { "--foo=bar" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                },
+                new CommandArgumentDescriptor[]
+                {
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().BeEmpty();
+            parsed.Arguments.Should().BeEmpty();
+            parsed.UnknownOptions.Should().HaveCount(1);
+            parsed.UnknownOptions.Should().Equal(new[] { "foo=bar" });
+        }
+
+        [Fact]
+        public void ParseCommand_UnknownOptions_ShortName_1()
+        {
+            var args = new[] { "-h" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                },
+                new CommandArgumentDescriptor[]
+                {
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().BeEmpty();
+            parsed.Arguments.Should().BeEmpty();
+            parsed.UnknownOptions.Should().HaveCount(1);
+            parsed.UnknownOptions.Should().Equal(new[] { "h" });
+        }
+
+        [Fact]
+        public void ParseCommand_UnknownOptions_ShortName_2()
+        {
+            var args = new[] { "-h", "-f" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                },
+                new CommandArgumentDescriptor[]
+                {
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().BeEmpty();
+            parsed.Arguments.Should().BeEmpty();
+            parsed.UnknownOptions.Should().HaveCount(2);
+            parsed.UnknownOptions.Should().Equal(new[] { "h", "f" });
         }
 
         [Fact]

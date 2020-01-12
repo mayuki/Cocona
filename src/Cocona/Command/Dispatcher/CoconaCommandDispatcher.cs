@@ -1,4 +1,5 @@
-﻿using Cocona.CommandLine;
+﻿using Cocona.Command.BuiltIn;
+using Cocona.CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
@@ -39,9 +40,8 @@ namespace Cocona.Command.Dispatcher
             if (commandCollection.All.Count > 1)
             {
                 // multi-commands hosted style
-                if (args.Length > 0)
+                if (_commandLineParser.TryGetCommandName(args, out var commandName))
                 {
-                    var commandName = args[0];
                     matchedCommand = commandCollection.All
                         .FirstOrDefault(x =>
                             string.Compare(x.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0 ||
@@ -63,7 +63,7 @@ namespace Cocona.Command.Dispatcher
                 else
                 {
                     // Use default command (NOTE: The default command must have no argument.)
-                    throw new NotImplementedException();
+                    matchedCommand = commandCollection.Primary ?? BuiltInPrimaryCommand.GetCommand();
                 }
             }
             else

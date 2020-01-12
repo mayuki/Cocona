@@ -13,6 +13,26 @@ namespace Cocona.CommandLine
     /// </summary>
     public class CoconaCommandLineParser : ICoconaCommandLineParser
     {
+        public bool TryGetCommandName(string[] args, [MaybeNullWhen(false)] out string commandName)
+        {
+            if (args.Length == 0)
+            {
+                commandName = null;
+                return false;
+            }
+
+            if (args[0].StartsWith("-"))
+            {
+                commandName = null;
+                return false;
+            }
+            else
+            {
+                commandName = args[0];
+                return true;
+            }
+        }
+
         public ParsedCommandLine ParseCommand(IReadOnlyList<string> args, IReadOnlyList<CommandOptionDescriptor> optionDescs, IReadOnlyList<CommandArgumentDescriptor> argumentDescs)
         {
             var optionbyLongName = optionDescs
@@ -62,9 +82,8 @@ namespace Cocona.CommandLine
                                 // Non-boolean (the option may have some value)
                                 options.Add(new CommandOption(option, partRight));
                             }
+                            continue;
                         }
-
-                        continue;
                     }
                     else
                     {
@@ -87,7 +106,7 @@ namespace Cocona.CommandLine
                         }
                     }
 
-                    unknownOptions.Add(args[i].ToString());
+                    unknownOptions.Add(args[i].Substring(2).ToString());
                 }
                 else
                 {

@@ -23,7 +23,8 @@ namespace Cocona.Help
             var help = new HelpMessage();
 
             // Usage
-            help.Children.Add(new HelpSection(new HelpHeading($"Usage: {_getExecutionSystemCommandName()}{(command.Options.Any() ? " [options...]" : "")}{(command.Arguments.Any() ? " arg0 ... argN" : "")}")));
+            help.Children.Add(new HelpSection(new HelpHeading(
+                $"Usage: {_getExecutionSystemCommandName()}{(command.IsPrimaryCommand ? "" : " " + command.Name)}{(command.Options.Any() ? " [options...]" : "")}{(command.Arguments.Any() ? " arg0 ... argN" : "")}")));
 
             // Description
             if (!string.IsNullOrWhiteSpace(command.Description))
@@ -59,6 +60,59 @@ namespace Cocona.Help
                     new HelpSection(
                         new HelpLabelDescriptionList(
                             command.Options
+                                .Select((x, i) =>
+                                    new HelpLabelDescriptionListItem(
+                                        $"--{x.Name}" + (x.ShortName.Any() ? ", " + string.Join(", ", x.ShortName.Select(x => $"-{x}")) : "") + (x.OptionType != typeof(bool) ? $" <{x.OptionType.Name}>" : ""),
+                                        $"{x.Description}{(x.IsRequired ? " (Required)" : (" (DefaultValue=" + x.DefaultValue.Value + ")"))}"
+                                    )
+                                )
+                                .ToArray()
+                        )
+                    )
+                ));
+            }
+
+            return help;
+        }
+
+        public HelpMessage CreateCommandsIndexHelp(CommandCollection commandCollection)
+        {
+            var help = new HelpMessage();
+
+            // Usage
+            help.Children.Add(new HelpSection(new HelpHeading($"Usage: {_getExecutionSystemCommandName()} [command]")));
+
+            // Description
+            if (!string.IsNullOrWhiteSpace(commandCollection.Description))
+            {
+                help.Children.Add(new HelpSection(new HelpParagraph(commandCollection.Description)));
+            }
+
+            // Commands
+            if (commandCollection.All.Any())
+            {
+                help.Children.Add(new HelpSection(
+                    new HelpHeading("Commands:"),
+                    new HelpSection(
+                        new HelpLabelDescriptionList(
+                            commandCollection.All
+                                .Select((x, i) =>
+                                    new HelpLabelDescriptionListItem(x.Name, x.Description)
+                                )
+                                .ToArray()
+                        )
+                    )
+                ));
+            }
+
+            // Options
+            if (commandCollection.Primary != null && commandCollection.Primary.Options.Any())
+            {
+                help.Children.Add(new HelpSection(
+                    new HelpHeading("Options:"),
+                    new HelpSection(
+                        new HelpLabelDescriptionList(
+                            commandCollection.Primary.Options
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
                                         $"--{x.Name}" + (x.ShortName.Any() ? ", " + string.Join(", ", x.ShortName.Select(x => $"-{x}")) : "") + (x.OptionType != typeof(bool) ? $" <{x.OptionType.Name}>" : ""),

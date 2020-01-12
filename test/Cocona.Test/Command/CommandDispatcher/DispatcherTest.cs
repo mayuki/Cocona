@@ -112,6 +112,29 @@ namespace Cocona.Test.Command.CommandDispatcher
             ex.ImplementedCommands.All.Should().HaveCount(2);
         }
 
+        [Fact]
+        public async Task MultipleCommand_Primary()
+        {
+            var services = new ServiceCollection();
+            {
+                services.AddTransient<ICoconaCommandProvider>(serviceProvider => new CoconaCommandProvider(new Type[] { typeof(TestMultipleCommand_Primary) }));
+                services.AddTransient<ICoconaCommandLineArgumentProvider>(serviceProvider => new CoconaCommandLineArgumentProvider(new string[] { "--option0=123" }));
+                services.AddTransient<ICoconaParameterBinder, CoconaParameterBinder>();
+                services.AddTransient<ICoconaValueConverter, CoconaValueConverter>();
+                services.AddTransient<ICoconaCommandLineParser, CoconaCommandLineParser>();
+                services.AddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
+                services.AddTransient<ICoconaCommandDispatcherPipelineBuilder>(
+                    serviceProvider => new CoconaCommandDispatcherPipelineBuilder(serviceProvider).UseMiddleware<CoconaCommandInvokeMiddleware>());
+
+                services.AddSingleton<TestCommand>();
+                services.AddSingleton<TestMultipleCommand>();
+            }
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var result = await dispatcher.DispatchAsync();
+        }
+
         public class NoCommand
         { }
 
@@ -133,6 +156,22 @@ namespace Cocona.Test.Command.CommandDispatcher
             {
                 Log.Add($"{nameof(TestMultipleCommand.A)}:{nameof(option0)} -> {option0}");
             }
+            public void B(bool option0, [Argument]string arg0)
+            {
+                Log.Add($"{nameof(TestMultipleCommand.B)}:{nameof(option0)} -> {option0}");
+            }
+        }
+
+        public class TestMultipleCommand_Primary
+        {
+            public List<string> Log { get; } = new List<string>();
+
+            [PrimaryCommand]
+            public void A(string option0)
+            {
+                Log.Add($"{nameof(TestMultipleCommand.A)}:{nameof(option0)} -> {option0}");
+            }
+
             public void B(bool option0, [Argument]string arg0)
             {
                 Log.Add($"{nameof(TestMultipleCommand.B)}:{nameof(option0)} -> {option0}");

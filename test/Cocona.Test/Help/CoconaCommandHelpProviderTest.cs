@@ -59,7 +59,7 @@ namespace Cocona.Test.Help
             var help = provider.CreateCommandHelp(commandDescriptor);
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
-Usage: ExeName [options...]
+Usage: ExeName Test [options...]
 
 command description
 

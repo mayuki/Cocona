@@ -6,5 +6,6 @@ namespace Cocona.Help
     public interface ICoconaCommandHelpProvider
     {
         HelpMessage CreateCommandHelp(CommandDescriptor command);
+        HelpMessage CreateCommandsIndexHelp(CommandCollection commandCollection);
     }
 }
