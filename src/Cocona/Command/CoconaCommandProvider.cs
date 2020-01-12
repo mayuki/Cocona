@@ -37,6 +37,9 @@ namespace Cocona.Command
             var description = commandAttr?.Description ?? string.Empty;
             var aliases = commandAttr?.Aliases ?? Array.Empty<string>();
 
+            var allOptionNames = new HashSet<string>();
+            var allOptionShortNames = new HashSet<char>();
+
             var defaultArgOrder = 0;
             var parameters = methodInfo.GetParameters()
                 .Select((x, i) =>
@@ -78,6 +81,15 @@ namespace Cocona.Command
                     var optionName = optionAttr?.Name ?? x.Name;
                     var optionDesc = optionAttr?.Description ?? string.Empty;
                     var optionShortNames = optionAttr?.ShortNames ?? Array.Empty<char>();
+
+                    // TODO: Exception type
+                    if (allOptionNames.Contains(optionName))
+                        throw new Exception("OptionNameAlreadyExists:"+optionName);
+                    if (allOptionShortNames.Any() && optionShortNames.Any() && allOptionShortNames.IsSupersetOf(optionShortNames))
+                        throw new Exception("OptionNameAlreadyExists:"+string.Join(",", optionShortNames));
+                    allOptionNames.Add(optionName);
+                    allOptionShortNames.UnionWith(optionShortNames);
+
                     return (CommandParameterDescriptor)new CommandOptionDescriptor(x.ParameterType, optionName, optionShortNames, optionDesc, defaultValue);
                 })
                 .ToArray();

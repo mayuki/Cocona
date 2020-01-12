@@ -26,6 +26,7 @@ namespace Cocona.Command.Binder
     {
         None,
         InsufficientOption,
+        InsufficientOptionValue,
         InsufficientArgument,
         MultipleArrayInArgument,
         TypeNotSupported,

@@ -521,6 +521,35 @@ namespace Cocona.Test.Command.ParameterBinder
         }
 
         [Fact]
+        public void BindOptions_Insufficient_Value()
+        {
+            // void Test([Option]string option0);
+            // Options: --option0
+            // Arguments: new [] { }
+            var commandDescriptor = new CommandDescriptor(
+                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
+                "Test",
+                Array.Empty<string>(),
+                "",
+                new CommandParameterDescriptor[]
+                {
+                    new CommandOptionDescriptor(typeof(string), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                }
+            );
+
+            var commandOptions = new CommandOption[]
+            {
+                new CommandOption(commandDescriptor.Options[0], null),
+            };
+            var commandArguments = new CommandArgument[] { };
+
+            var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
+            ex.Result.Should().Be(ParameterBinderResult.InsufficientOptionValue);
+            ex.Option.Should().NotBeNull();
+        }
+
+
+        [Fact]
         public void BindOptions_DefaultValue_1()
         {
             // void Test([Option]string option0, [Option]bool option1 = false);

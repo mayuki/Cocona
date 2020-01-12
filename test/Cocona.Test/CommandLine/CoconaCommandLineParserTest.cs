@@ -666,5 +666,27 @@ namespace Cocona.Test.CommandLine
             parsed.Arguments.Should().BeEmpty();
             parsed.UnknownOptions.Should().HaveCount(1);
         }
+
+
+        [Fact]
+        public void ParseCommand_ShortOptions_Insufficient_Value()
+        {
+            var args = new[] { "-m" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().HaveCount(1);
+            parsed.Options[0].Value.Should().BeNull();
+            parsed.Arguments.Should().BeEmpty();
+            parsed.UnknownOptions.Should().BeEmpty();
+        }
     }
 }

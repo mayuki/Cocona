@@ -31,7 +31,7 @@ namespace Cocona.Command.Binder
                     case CommandOptionDescriptor optionDesc:
                         if (optionValueByOption.Contains(optionDesc))
                         {
-                            bindParams[index++] = CreateValue(optionDesc.OptionType, optionValueByOption[optionDesc].ToArray());
+                            bindParams[index++] = CreateValue(optionDesc.OptionType, optionValueByOption[optionDesc].ToArray(), optionDesc, null);
                         }
                         else if (!optionDesc.IsRequired)
                         {
@@ -105,7 +105,7 @@ namespace Cocona.Command.Binder
                     //          |       |    |      |       |
                     //      [ arg0,  [arg1, arg2], arg3,   arg4 ]
                     var rest = commandArgumentValues.ToArray()[index..(indexRev+1)]; // TODO: ToArray
-                    bindParams[argDesc.ParameterIndex] = CreateValue(argDesc.Argument.ArgumentType, rest.Select(x => x.Value).ToArray());
+                    bindParams[argDesc.ParameterIndex] = CreateValue(argDesc.Argument.ArgumentType, rest.Select(x => x.Value).ToArray(), null, argDesc.Argument);
 
                     return bindParams;
                 }
@@ -116,7 +116,7 @@ namespace Cocona.Command.Binder
             return bindParams;
         }
 
-        private object? CreateValue(Type valueType, string?[] values)
+        private object? CreateValue(Type valueType, string?[] values, CommandOptionDescriptor? option, CommandArgumentDescriptor? argument)
         {
             if (DynamicListHelper.TryCreateArrayOrEnumerableLike(valueType, values, _valueConverter, out var arrayOrEnumerableLike))
             {
@@ -126,10 +126,13 @@ namespace Cocona.Command.Binder
             else if (!DynamicListHelper.IsArrayOrEnumerableLike(valueType))
             {
                 // Primitive or plain object (int, bool, string ...)
-                return _valueConverter.ConvertTo(valueType, values.Last());
+                var value = values.Last();
+                if (value == null) throw new ParameterBinderException(ParameterBinderResult.InsufficientOptionValue, option, argument);
+
+                return _valueConverter.ConvertTo(valueType, value);
             }
 
-            throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Cannot create a instance of type '{valueType.FullName}'");
+            throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Cannot create a instance of type '{valueType.FullName}'", option, argument);
         }
     }
 }

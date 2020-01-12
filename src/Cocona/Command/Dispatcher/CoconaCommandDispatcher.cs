@@ -55,6 +55,11 @@ namespace Cocona.Command.Dispatcher
 
                     return DispatchAsyncCore(args.Skip(1).ToArray(), matchedCommand);
                 }
+                else
+                {
+                    // Use default command (NOTE: The default command must have no argument.)
+                    throw new NotImplementedException();
+                }
             }
             else
             {
