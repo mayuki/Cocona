@@ -22,7 +22,7 @@ namespace Cocona.Help
             _serviceProvider = serviceProvider;
         }
 
-        public string CreateUsageCommandOptionsAndArgs(CommandDescriptor command)
+        private string CreateUsageCommandOptionsAndArgs(CommandDescriptor command)
         {
             var sb = new StringBuilder();
             sb.Append(_applicationMetadataProvider.GetExecutableName());
