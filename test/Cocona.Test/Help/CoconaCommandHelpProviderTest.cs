@@ -1,8 +1,10 @@
-﻿using Cocona.Command;
+﻿using Cocona.Application;
+using Cocona.Command;
 using Cocona.Help;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -11,6 +13,20 @@ namespace Cocona.Test.Help
     public class CoconaCommandHelpProviderTest
     {
         private void __Dummy() { }
+
+        class FakeApplicationMetadataProvider : ICoconaApplicationMetadataProvider
+        {
+            public string ProductName { get; set; } = "ProductName";
+            public string Description { get; set; } = string.Empty;
+
+            public string GetDescription() => Description;
+
+            public string GetExecutableName() => "ExeName";
+
+            public string GetProductName() => ProductName;
+
+            public string GetVersion() => "1.0.0.0";
+        }
 
         [Fact]
         public void CommandHelp1()
@@ -34,11 +50,10 @@ namespace Cocona.Test.Help
                 }
             );
 
-            var provider = new CoconaCommandHelpProvider(() => "ExeName");
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider());
             var help = provider.CreateCommandHelp(commandDescriptor);
             var text = new CoconaHelpRenderer().Render(help);
         }
-
 
         [Fact]
         public void CommandHelp_Rendered()
@@ -55,7 +70,7 @@ namespace Cocona.Test.Help
                 }
             );
 
-            var provider = new CoconaCommandHelpProvider(() => "ExeName");
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider());
             var help = provider.CreateCommandHelp(commandDescriptor);
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
@@ -68,6 +83,26 @@ Options:
   --looooooong-option, -l    Long name option (DefaultValue=False)
 ".TrimStart());
 
+        }
+
+        [Fact]
+        public void CreateVersionHelp_VersionOnly()
+        {
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider());
+            var help = provider.CreateVersionHelp();
+            help.Children.Should().HaveCount(1);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be("ProductName 1.0.0.0" + Environment.NewLine);
+        }
+
+        [Fact]
+        public void CreateVersionHelp_Version_Description()
+        {
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider() { Description = "Description of the application" });
+            var help = provider.CreateVersionHelp();
+            help.Children.Should().HaveCount(1);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be("ProductName 1.0.0.0" + Environment.NewLine);
         }
     }
 }

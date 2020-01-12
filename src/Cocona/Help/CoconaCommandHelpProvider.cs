@@ -1,4 +1,5 @@
-﻿using Cocona.Command;
+﻿using Cocona.Application;
+using Cocona.Command;
 using Cocona.Help.DocumentModel;
 using System;
 using System.Collections.Generic;
@@ -11,11 +12,11 @@ namespace Cocona.Help
 {
     public class CoconaCommandHelpProvider : ICoconaCommandHelpProvider
     {
-        private readonly Func<string> _getExecutionSystemCommandName;
+        private readonly ICoconaApplicationMetadataProvider _applicationMetadataProvider;
 
-        public CoconaCommandHelpProvider(Func<string>? getExecutionSystemCommandName = null)
+        public CoconaCommandHelpProvider(ICoconaApplicationMetadataProvider applicationMetadataProvider)
         {
-            _getExecutionSystemCommandName = getExecutionSystemCommandName ?? (() => Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location));
+            _applicationMetadataProvider = applicationMetadataProvider;
         }
 
         public HelpMessage CreateCommandHelp(CommandDescriptor command)
@@ -24,7 +25,7 @@ namespace Cocona.Help
 
             // Usage
             help.Children.Add(new HelpSection(new HelpHeading(
-                $"Usage: {_getExecutionSystemCommandName()}{(command.IsPrimaryCommand ? "" : " " + command.Name)}{(command.Options.Any() ? " [options...]" : "")}{(command.Arguments.Any() ? " arg0 ... argN" : "")}")));
+                $"Usage: {_applicationMetadataProvider.GetExecutableName()}{(command.IsPrimaryCommand ? "" : " " + command.Name)}{(command.Options.Any() ? " [options...]" : "")}{(command.Arguments.Any() ? " arg0 ... argN" : "")}")));
 
             // Description
             if (!string.IsNullOrWhiteSpace(command.Description))
@@ -80,12 +81,16 @@ namespace Cocona.Help
             var help = new HelpMessage();
 
             // Usage
-            help.Children.Add(new HelpSection(new HelpHeading($"Usage: {_getExecutionSystemCommandName()} [command]")));
+            help.Children.Add(new HelpSection(new HelpHeading($"Usage: {_applicationMetadataProvider.GetExecutableName()} [command]")));
 
             // Description
-            if (!string.IsNullOrWhiteSpace(commandCollection.Description))
+            var description = string.IsNullOrWhiteSpace(commandCollection.Description)
+                ? _applicationMetadataProvider.GetDescription()
+                : commandCollection.Description;
+
+            if (!string.IsNullOrWhiteSpace(description))
             {
-                help.Children.Add(new HelpSection(new HelpParagraph(commandCollection.Description)));
+                help.Children.Add(new HelpSection(new HelpParagraph(description)));
             }
 
             // Commands
@@ -126,6 +131,14 @@ namespace Cocona.Help
             }
 
             return help;
+        }
+
+        public HelpMessage CreateVersionHelp()
+        {
+            var prodName = _applicationMetadataProvider.GetProductName();
+            var version = _applicationMetadataProvider.GetVersion();
+
+            return new HelpMessage(new HelpSection(new HelpHeading($"{prodName} {version}")));
         }
     }
 }

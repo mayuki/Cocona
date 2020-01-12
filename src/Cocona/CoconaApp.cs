@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Hosting;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,12 +10,15 @@ namespace Cocona
     {
         public static void Run<T>(string[] args)
         {
-            throw new NotImplementedException();
+            RunAsync<T>(args).GetAwaiter().GetResult();
         }
 
-        public static async Task RunAsync<T>(string[] args)
+        public static Task RunAsync<T>(string[] args)
         {
-            throw new NotImplementedException();
+            return Host.CreateDefaultBuilder()
+                .UseCocona(args, new[] { typeof(T) })
+                .Build()
+                .RunAsync();
         }
     }
 }

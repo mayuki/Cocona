@@ -1,6 +1,7 @@
 ﻿using Cocona.Command;
 using Cocona.Command.Binder;
 using Cocona.Command.Dispatcher;
+using Cocona.Command.Dispatcher.Middlewares;
 using Cocona.CommandLine;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;

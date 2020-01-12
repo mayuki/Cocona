@@ -7,5 +7,6 @@ namespace Cocona.Help
     {
         HelpMessage CreateCommandHelp(CommandDescriptor command);
         HelpMessage CreateCommandsIndexHelp(CommandCollection commandCollection);
+        HelpMessage CreateVersionHelp();
     }
 }

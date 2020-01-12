@@ -14,11 +14,11 @@ namespace Cocona
         /// </summary>
         public int ExitCode { get; }
 
-        public CommandExitedException(string message)
-            : this(message, -1)
+        public CommandExitedException(int exitCode)
+            : this($"The command has exited with code '{exitCode}'.", exitCode)
         { }
 
-        public CommandExitedException(string message, int exitCode)
+        protected CommandExitedException(string message, int exitCode)
             : base(message)
         {
             ExitCode = exitCode;
