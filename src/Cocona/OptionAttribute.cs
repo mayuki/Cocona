@@ -4,11 +4,25 @@ using System.Text;
 
 namespace Cocona
 {
+    /// <summary>
+    /// Specifies the parameter that should be treated as command option.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
     public class OptionAttribute : Attribute
     {
+        /// <summary>
+        /// Gets or sets the option description.
+        /// </summary>
         public string Description { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets the option name. The name is long-form name. (e.g. "output", "force")
+        /// </summary>
         public string? Name { get; }
+
+        /// <summary>
+        /// Gets or sets the option short-form names. (e.g. 'O', 'f')
+        /// </summary>
         public IReadOnlyList<char> ShortNames { get; } = Array.Empty<char>();
 
         public OptionAttribute()
