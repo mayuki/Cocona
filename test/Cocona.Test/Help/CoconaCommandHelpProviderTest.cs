@@ -75,13 +75,48 @@ namespace Cocona.Test.Help
             var help = provider.CreateCommandHelp(commandDescriptor);
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
-Usage: ExeName Test [options...]
+Usage: ExeName Test [--foo <String>] [--looooooong-option]
 
 command description
 
 Options:
-  --foo, -f <String>         Foo option (Required)
-  --looooooong-option, -l    Long name option (DefaultValue=False)
+  -f, --foo <String>         Foo option (Required)
+  -l, --looooooong-option    Long name option (DefaultValue: False)
+".TrimStart());
+        }
+
+        [Fact]
+        public void CommandHelp_Arguments_Rendered()
+        {
+            var commandDescriptor = new CommandDescriptor(
+                typeof(CoconaCommandHelpProviderTest).GetMethod(nameof(CoconaCommandHelpProviderTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+                "Test",
+                Array.Empty<string>(),
+                "command description",
+                new CommandParameterDescriptor[]
+                {
+                    new CommandOptionDescriptor(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    new CommandOptionDescriptor(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "src files", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "dest dir", CoconaDefaultValue.None),
+                }
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandHelp(commandDescriptor);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName Test [--foo <String>] [--looooooong-option] src0 ... srcN dest
+
+command description
+
+Arguments:
+  0: src     src files (Required)
+  1: dest    dest dir (Required)
+
+Options:
+  -f, --foo <String>         Foo option (Required)
+  -l, --looooooong-option    Long name option (DefaultValue: False)
 ".TrimStart());
         }
 
@@ -105,16 +140,13 @@ Options:
             var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
-Usage: ExeName [command]
-Usage: ExeName [options...]
+Usage: ExeName [--foo <String>] [--looooooong-option]
 
 Options:
-  --foo, -f <String>         Foo option (Required)
-  --looooooong-option, -l    Long name option (DefaultValue=False)
+  -f, --foo <String>         Foo option (Required)
+  -l, --looooooong-option    Long name option (DefaultValue: False)
 ".TrimStart());
-
         }
-
 
         [Fact]
         public void CreateCommandsIndexHelp_Commands_Rendered()
@@ -145,16 +177,15 @@ Options:
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName [command]
-Usage: ExeName [options...]
+Usage: ExeName [--foo <String>] [--looooooong-option]
 
 Commands:
   Test2    command description
 
 Options:
-  --foo, -f <String>         Foo option (Required)
-  --looooooong-option, -l    Long name option (DefaultValue=False)
+  -f, --foo <String>         Foo option (Required)
+  -l, --looooooong-option    Long name option (DefaultValue: False)
 ".TrimStart());
-
         }
 
         [Fact]

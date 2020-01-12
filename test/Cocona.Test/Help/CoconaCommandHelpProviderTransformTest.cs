@@ -74,7 +74,7 @@ Hello, Konnichiwa!
             var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
-Usage: ExeName [command]
+Usage: ExeName
 
 Hello, Konnichiwa!
 ".TrimStart());

@@ -22,13 +22,58 @@ namespace Cocona.Help
             _serviceProvider = serviceProvider;
         }
 
+        public string CreateUsageCommandOptionsAndArgs(CommandDescriptor command)
+        {
+            var sb = new StringBuilder();
+            sb.Append(_applicationMetadataProvider.GetExecutableName());
+
+            if (!command.IsPrimaryCommand)
+            {
+                sb.Append(" ");
+                sb.Append(command.Name);
+            }
+
+            if (command.Options.Any())
+            {
+                foreach (var opt in command.Options)
+                {
+                    sb.Append(" ");
+                    if (opt.OptionType == typeof(bool))
+                    {
+                        sb.Append($"[--{opt.Name}]");
+                    }
+                    else
+                    {
+                        sb.Append($"[--{opt.Name} <{opt.OptionType.Name}>]");
+                    }
+                }
+            }
+
+            if (command.Arguments.Any())
+            {
+                foreach (var arg in command.Arguments)
+                {
+                    sb.Append(" ");
+                    if (arg.IsEnumerableLike)
+                    {
+                        sb.Append($"{arg.Name}0 ... {arg.Name}N");
+                    }
+                    else
+                    {
+                        sb.Append(arg.Name);
+                    }
+                }
+            }
+
+            return sb.ToString();
+        }
+
         public HelpMessage CreateCommandHelp(CommandDescriptor command)
         {
             var help = new HelpMessage();
 
             // Usage
-            help.Children.Add(new HelpSection(new HelpHeading(
-                $"Usage: {_applicationMetadataProvider.GetExecutableName()}{(command.IsPrimaryCommand ? "" : " " + command.Name)}{(command.Options.Any() ? " [options...]" : "")}{(command.Arguments.Any() ? " arg0 ... argN" : "")}")));
+            help.Children.Add(new HelpSection(new HelpHeading($"Usage: {CreateUsageCommandOptionsAndArgs(command)}")));
 
             // Description
             if (!string.IsNullOrWhiteSpace(command.Description))
@@ -66,8 +111,8 @@ namespace Cocona.Help
                             command.Options
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
-                                        $"--{x.Name}" + (x.ShortName.Any() ? ", " + string.Join(", ", x.ShortName.Select(x => $"-{x}")) : "") + (x.OptionType != typeof(bool) ? $" <{x.OptionType.Name}>" : ""),
-                                        $"{x.Description}{(x.IsRequired ? " (Required)" : (" (DefaultValue=" + x.DefaultValue.Value + ")"))}"
+                                        (x.ShortName.Any() ? string.Join(", ", x.ShortName.Select(x => $"-{x}")) + ", " : "") + $"--{x.Name}" + (x.OptionType != typeof(bool) ? $" <{x.OptionType.Name}>" : ""),
+                                        $"{x.Description}{(x.IsRequired ? " (Required)" : (" (DefaultValue: " + x.DefaultValue.Value + ")"))}"
                                     )
                                 )
                                 .ToArray()
@@ -96,10 +141,13 @@ namespace Cocona.Help
 
             // Usage
             var usageSection = new HelpSection();
-            usageSection.Children.Add(new HelpHeading($"Usage: {_applicationMetadataProvider.GetExecutableName()} [command]"));
-            if (commandCollection.Primary != null && commandCollection.Primary.Options.Any())
+            if (commandCollection.All.Count != 1)
             {
-                usageSection.Children.Add(new HelpHeading($"Usage: {_applicationMetadataProvider.GetExecutableName()} [options...]"));
+                usageSection.Children.Add(new HelpHeading($"Usage: {_applicationMetadataProvider.GetExecutableName()} [command]"));
+            }
+            if (commandCollection.Primary != null)
+            {
+                usageSection.Children.Add(new HelpHeading($"Usage: {CreateUsageCommandOptionsAndArgs(commandCollection.Primary)}"));
             }
             help.Children.Add(usageSection);
 
@@ -141,8 +189,8 @@ namespace Cocona.Help
                             commandCollection.Primary.Options
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
-                                        $"--{x.Name}" + (x.ShortName.Any() ? ", " + string.Join(", ", x.ShortName.Select(x => $"-{x}")) : "") + (x.OptionType != typeof(bool) ? $" <{x.OptionType.Name}>" : ""),
-                                        $"{x.Description}{(x.IsRequired ? " (Required)" : (" (DefaultValue=" + x.DefaultValue.Value + ")"))}"
+                                        (x.ShortName.Any() ? string.Join(", ", x.ShortName.Select(x => $"-{x}")) + ", " : "") + $"--{x.Name}" + (x.OptionType != typeof(bool) ? $" <{x.OptionType.Name}>" : ""),
+                                        $"{x.Description}{(x.IsRequired ? " (Required)" : (" (DefaultValue: " + x.DefaultValue.Value + ")"))}"
                                     )
                                 )
                                 .ToArray()
