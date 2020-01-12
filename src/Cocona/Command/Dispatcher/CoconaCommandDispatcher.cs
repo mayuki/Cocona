@@ -1,8 +1,5 @@
-﻿using Cocona.Command.Binder;
-using Cocona.CommandLine;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Cocona.CommandLine;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,34 +8,37 @@ namespace Cocona.Command.Dispatcher
 {
     public class CoconaCommandDispatcher : ICoconaCommandDispatcher
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly ICoconaCommandProvider _commandProvider;
-        private readonly ICoconaParameterBinder _parameterBinder;
         private readonly ICoconaCommandLineParser _commandLineParser;
+        private readonly ICoconaCommandLineArgumentProvider _commandLineArgumentProvider;
+        private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
 
         public CoconaCommandDispatcher(
-            IServiceProvider serviceProvider,
             ICoconaCommandProvider commandProvider,
-            ICoconaParameterBinder parameterBinder,
-            ICoconaCommandLineParser commandLineParser
+            ICoconaCommandLineParser commandLineParser,
+            ICoconaCommandLineArgumentProvider commandLineArgumentProvider,
+            ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder
         )
         {
-            _serviceProvider = serviceProvider;
             _commandProvider = commandProvider;
-            _parameterBinder = parameterBinder;
             _commandLineParser = commandLineParser;
+            _commandLineArgumentProvider = commandLineArgumentProvider;
+            _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
         }
 
-        public ValueTask<int> DispatchAsync(string[] args)
+        public ValueTask<int> DispatchAsync()
         {
             var commandCollection = _commandProvider.GetCommandCollection();
+            var args = _commandLineArgumentProvider.GetArguments();
+
+            var matchedCommand = default(CommandDescriptor);
             if (commandCollection.All.Count > 1)
             {
                 // multi-commands hosted style
                 if (args.Length > 0)
                 {
                     var commandName = args[0];
-                    var matchedCommand = commandCollection.All
+                    matchedCommand = commandCollection.All
                         .FirstOrDefault(x =>
                             string.Compare(x.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0 ||
                             x.Aliases.Any(y => string.Compare(y, args[0], StringComparison.OrdinalIgnoreCase) == 0)
@@ -53,7 +53,8 @@ namespace Cocona.Command.Dispatcher
                         );
                     }
 
-                    return DispatchAsyncCore(args.Skip(1).ToArray(), matchedCommand);
+                    // NOTE: Skip a first argument that is command name.
+                    args = args.Skip(1).ToArray();
                 }
                 else
                 {
@@ -66,8 +67,19 @@ namespace Cocona.Command.Dispatcher
                 // single-command style
                 if (commandCollection.All.Any())
                 {
-                    return DispatchAsyncCore(args, commandCollection.All[0]);
+                    matchedCommand = commandCollection.All[0];
                 }
+            }
+
+            // Found a command and dispatch.
+            if (matchedCommand != null)
+            {
+                var ctx = new CommandDispatchContext(matchedCommand, _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments));
+                if (ctx.ParsedCommandLine!.UnknownOptions.Any())
+                    throw new Exception("UnknownOption:" + ctx.ParsedCommandLine.UnknownOptions[0]); // TOOD: Exception type
+
+                var dispatchAsync = _dispatcherPipelineBuilder.Build();
+                return dispatchAsync(ctx);
             }
 
             throw new CommandNotFoundException(
@@ -75,33 +87,6 @@ namespace Cocona.Command.Dispatcher
                 commandCollection,
                 $"No commands are implemented yet."
             );
-        }
-
-        private async ValueTask<int> DispatchAsyncCore(string[] args, CommandDescriptor command)
-        {
-            var parsedCommandLine = _commandLineParser.ParseCommand(args, command.Options, command.Arguments);
-            if (parsedCommandLine.UnknownOptions.Any()) throw new Exception("UnknownOption:"+parsedCommandLine.UnknownOptions[0]); // TOOD: Exception type
-
-            var invokeArgs = _parameterBinder.Bind(command, parsedCommandLine.Options, parsedCommandLine.Arguments);
-            var commandInstance = ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, command.CommandType);
-            var result = command.Method.Invoke(commandInstance, invokeArgs);
-
-            if (result is Task<int> taskOfInt)
-            {
-                var exitCode = await taskOfInt.ConfigureAwait(false);
-                return exitCode;
-            }
-            else if (result is ValueTask<int> valueTaskOfInt)
-            {
-                var exitCode = await valueTaskOfInt.ConfigureAwait(false);
-                return exitCode;
-            }
-            else if (result is int exitCode)
-            {
-                return exitCode;
-            }
-
-            return 0;
         }
     }
 }

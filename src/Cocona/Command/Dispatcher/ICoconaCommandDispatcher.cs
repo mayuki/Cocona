@@ -4,6 +4,6 @@ namespace Cocona.Command.Dispatcher
 {
     public interface ICoconaCommandDispatcher
     {
-        ValueTask<int> DispatchAsync(string[] args);
+        ValueTask<int> DispatchAsync();
     }
 }

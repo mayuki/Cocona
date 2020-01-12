@@ -80,7 +80,7 @@ namespace Cocona.CommandLine
                             else
                             {
                                 // Non-boolean (the option may have some value)
-                                options.Add(new CommandOption(option, (i + 1 == args.Count) ? null : args[i++]));
+                                options.Add(new CommandOption(option, (i + 1 == args.Count) ? null : args[++i])); // consume a next argment
                                 index++;
                             }
                             continue;

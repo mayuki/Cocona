@@ -20,18 +20,46 @@ namespace Cocona.Test.Command.CommandDispatcher
             var services = new ServiceCollection();
             {
                 services.AddTransient<ICoconaCommandProvider>(serviceProvider => new CoconaCommandProvider(new Type[] { typeof(TestCommand) }));
+                services.AddTransient<ICoconaCommandLineArgumentProvider>(serviceProvider => new CoconaCommandLineArgumentProvider(new string[] { "--option0=hogehoge" }));
                 services.AddTransient<ICoconaParameterBinder, CoconaParameterBinder>();
                 services.AddTransient<ICoconaValueConverter, CoconaValueConverter>();
                 services.AddTransient<ICoconaCommandLineParser, CoconaCommandLineParser>();
                 services.AddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
+                services.AddTransient<ICoconaCommandDispatcherPipelineBuilder>(
+                    serviceProvider => new CoconaCommandDispatcherPipelineBuilder(serviceProvider).UseMiddleware<CoconaCommandInvokeMiddleware>());
 
                 services.AddSingleton<TestCommand>();
+                services.AddSingleton<TestMultipleCommand>();
             }
             var serviceProvider = services.BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var result = await dispatcher.DispatchAsync(new string[] { "--option0=hogehoge" });
+            var result = await dispatcher.DispatchAsync();
             serviceProvider.GetService<TestCommand>().Log[0].Should().Be($"{nameof(TestCommand.Test)}:option0 -> hogehoge");
+        }
+
+        [Fact]
+        public async Task MultipleCommand_Option1()
+        {
+            var services = new ServiceCollection();
+            {
+                services.AddTransient<ICoconaCommandProvider>(serviceProvider => new CoconaCommandProvider(new Type[] { typeof(TestMultipleCommand) }));
+                services.AddTransient<ICoconaCommandLineArgumentProvider>(serviceProvider => new CoconaCommandLineArgumentProvider(new string[] { "A", "--option0", "Hello" }));
+                services.AddTransient<ICoconaParameterBinder, CoconaParameterBinder>();
+                services.AddTransient<ICoconaValueConverter, CoconaValueConverter>();
+                services.AddTransient<ICoconaCommandLineParser, CoconaCommandLineParser>();
+                services.AddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
+                services.AddTransient<ICoconaCommandDispatcherPipelineBuilder>(
+                    serviceProvider => new CoconaCommandDispatcherPipelineBuilder(serviceProvider).UseMiddleware<CoconaCommandInvokeMiddleware>());
+
+                services.AddSingleton<TestCommand>();
+                services.AddSingleton<TestMultipleCommand>();
+            }
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var result = await dispatcher.DispatchAsync();
+            serviceProvider.GetService<TestMultipleCommand>().Log[0].Should().Be($"{nameof(TestMultipleCommand.A)}:option0 -> Hello");
         }
 
         [Fact]
@@ -40,17 +68,21 @@ namespace Cocona.Test.Command.CommandDispatcher
             var services = new ServiceCollection();
             {
                 services.AddTransient<ICoconaCommandProvider>(serviceProvider => new CoconaCommandProvider(new Type[] { typeof(NoCommand) }));
+                services.AddTransient<ICoconaCommandLineArgumentProvider>(serviceProvider => new CoconaCommandLineArgumentProvider(new string[] { "C" }));
                 services.AddTransient<ICoconaParameterBinder, CoconaParameterBinder>();
                 services.AddTransient<ICoconaValueConverter, CoconaValueConverter>();
                 services.AddTransient<ICoconaCommandLineParser, CoconaCommandLineParser>();
                 services.AddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
+                services.AddTransient<ICoconaCommandDispatcherPipelineBuilder>(
+                    serviceProvider => new CoconaCommandDispatcherPipelineBuilder(serviceProvider).UseMiddleware<CoconaCommandInvokeMiddleware>());
 
                 services.AddSingleton<TestCommand>();
+                services.AddSingleton<TestMultipleCommand>();
             }
             var serviceProvider = services.BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () => await dispatcher.DispatchAsync(new string[] { "C" }));
+            var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () => await dispatcher.DispatchAsync());
             ex.Command.Should().BeEmpty();
             ex.ImplementedCommands.All.Should().BeEmpty();
         }
@@ -61,17 +93,21 @@ namespace Cocona.Test.Command.CommandDispatcher
             var services = new ServiceCollection();
             {
                 services.AddTransient<ICoconaCommandProvider>(serviceProvider => new CoconaCommandProvider(new Type[] { typeof(TestMultipleCommand) }));
+                services.AddTransient<ICoconaCommandLineArgumentProvider>(serviceProvider => new CoconaCommandLineArgumentProvider(new string[] { "C" }));
                 services.AddTransient<ICoconaParameterBinder, CoconaParameterBinder>();
                 services.AddTransient<ICoconaValueConverter, CoconaValueConverter>();
                 services.AddTransient<ICoconaCommandLineParser, CoconaCommandLineParser>();
                 services.AddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
+                services.AddTransient<ICoconaCommandDispatcherPipelineBuilder>(
+                    serviceProvider => new CoconaCommandDispatcherPipelineBuilder(serviceProvider).UseMiddleware<CoconaCommandInvokeMiddleware>());
 
                 services.AddSingleton<TestCommand>();
+                services.AddSingleton<TestMultipleCommand>();
             }
             var serviceProvider = services.BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () => await dispatcher.DispatchAsync(new string[] { "C" }));
+            var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () => await dispatcher.DispatchAsync());
             ex.Command.Should().Be("C");
             ex.ImplementedCommands.All.Should().HaveCount(2);
         }
