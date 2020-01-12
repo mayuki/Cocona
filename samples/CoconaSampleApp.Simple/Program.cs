@@ -1,13 +1,8 @@
 ﻿using Cocona;
 using Cocona.Application;
 using Cocona.Command;
-using Cocona.Command.Binder;
-using Cocona.Command.Dispatcher;
-using Cocona.CommandLine;
 using Cocona.Help;
-using Cocona.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Cocona.Help.DocumentModel;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -38,6 +33,7 @@ namespace CoconaSampleApp.Simple
         }
 
         [Command(Description = "Long running task demo.")]
+        [TransformHelp(typeof(LongRunningHelpTransformer))]
         public async Task LongRunning([FromService]ICoconaAppContextAccessor appContext)
         {
             Console.WriteLine("Long running task...");
@@ -48,6 +44,19 @@ namespace CoconaSampleApp.Simple
             }
 
             Console.WriteLine("Canceled.");
+        }
+    }
+
+    class LongRunningHelpTransformer : ICoconaHelpTransformer
+    {
+        public void TransformHelp(HelpMessage helpMessage, CommandDescriptor command)
+        {
+            helpMessage.Children.Add(new HelpSection(
+                new HelpHeading("Example:"),
+                new HelpSection(
+                    new HelpParagraph("MyApp --foo --bar")
+                )
+            ));
         }
     }
 }

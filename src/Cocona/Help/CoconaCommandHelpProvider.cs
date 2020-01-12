@@ -1,6 +1,7 @@
 ﻿using Cocona.Application;
 using Cocona.Command;
 using Cocona.Help.DocumentModel;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,10 +14,12 @@ namespace Cocona.Help
     public class CoconaCommandHelpProvider : ICoconaCommandHelpProvider
     {
         private readonly ICoconaApplicationMetadataProvider _applicationMetadataProvider;
+        private readonly IServiceProvider _serviceProvider;
 
-        public CoconaCommandHelpProvider(ICoconaApplicationMetadataProvider applicationMetadataProvider)
+        public CoconaCommandHelpProvider(ICoconaApplicationMetadataProvider applicationMetadataProvider, IServiceProvider serviceProvider)
         {
             _applicationMetadataProvider = applicationMetadataProvider;
+            _serviceProvider = serviceProvider;
         }
 
         public HelpMessage CreateCommandHelp(CommandDescriptor command)
@@ -73,6 +76,17 @@ namespace Cocona.Help
                 ));
             }
 
+            // Transform help document
+            var transformAttrs = command.Method.GetCustomAttributes<TransformHelpAttribute>();
+            if (transformAttrs.Any())
+            {
+                foreach (var transformAttr in transformAttrs)
+                {
+                    var transformer = (ICoconaHelpTransformer)ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, transformAttr.Transformer);
+                    transformer.TransformHelp(help, command);
+                }
+            }
+
             return help;
         }
 
@@ -81,7 +95,13 @@ namespace Cocona.Help
             var help = new HelpMessage();
 
             // Usage
-            help.Children.Add(new HelpSection(new HelpHeading($"Usage: {_applicationMetadataProvider.GetExecutableName()} [command]")));
+            var usageSection = new HelpSection();
+            usageSection.Children.Add(new HelpHeading($"Usage: {_applicationMetadataProvider.GetExecutableName()} [command]"));
+            if (commandCollection.Primary != null && commandCollection.Primary.Options.Any())
+            {
+                usageSection.Children.Add(new HelpHeading($"Usage: {_applicationMetadataProvider.GetExecutableName()} [options...]"));
+            }
+            help.Children.Add(usageSection);
 
             // Description
             var description = string.IsNullOrWhiteSpace(commandCollection.Description)
@@ -94,13 +114,14 @@ namespace Cocona.Help
             }
 
             // Commands
-            if (commandCollection.All.Any())
+            var commandsExceptPrimary = commandCollection.All.Where(x => !x.IsPrimaryCommand).ToArray();
+            if (commandsExceptPrimary.Any())
             {
                 help.Children.Add(new HelpSection(
                     new HelpHeading("Commands:"),
                     new HelpSection(
                         new HelpLabelDescriptionList(
-                            commandCollection.All
+                            commandsExceptPrimary
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(x.Name, x.Description)
                                 )
@@ -128,6 +149,20 @@ namespace Cocona.Help
                         )
                     )
                 ));
+            }
+
+            // Transform help document
+            if (commandCollection.Primary != null)
+            {
+                var transformAttrs = commandCollection.Primary.Method.GetCustomAttributes<TransformHelpAttribute>();
+                if (transformAttrs.Any())
+                {
+                    foreach (var transformAttr in transformAttrs)
+                    {
+                        var transformer = (ICoconaHelpTransformer)ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, transformAttr.Transformer);
+                        transformer.TransformHelp(help, commandCollection.Primary);
+                    }
+                }
             }
 
             return help;
