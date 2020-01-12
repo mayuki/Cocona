@@ -57,6 +57,7 @@ namespace Cocona.Hosting
                 .UseMiddleware<HelpAndVersionMiddleware>()
                 .UseMiddleware<HandleExceptionAndExitMiddleware>()
                 .UseMiddleware<HandleParameterBindExceptionMiddleware>()
+                .UseMiddleware<RejectUnknownOptionsMiddleware>()
                 .UseMiddleware<CoconaCommandInvokeMiddleware>();
 
             _contextAccessor.Current = _context;
