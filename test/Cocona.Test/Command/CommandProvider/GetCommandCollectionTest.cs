@@ -106,8 +106,16 @@ namespace Cocona.Test.Command.CommandProvider
         public void PrimaryCommand_Argument()
         {
             var provider = new CoconaCommandProvider(new[] { typeof(CommandTestPrimaryCommand_Argument) });
-            var ex = Assert.Throws<Exception>(() => provider.GetCommandCollection());
+            var ex = Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
         }
+
+        [Fact]
+        public void PrimaryCommand_Multiple()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestPrimaryCommand_Multiple) });
+            var ex = Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
+        }
+
         public class CommandTestHasProperty
         {
             public void A() { }
@@ -171,5 +179,12 @@ namespace Cocona.Test.Command.CommandProvider
             public void B([Argument]string name) { }
         }
 
+        public class CommandTestPrimaryCommand_Multiple
+        {
+            [PrimaryCommand]
+            public void A(string name) { }
+            [PrimaryCommand]
+            public void B(string name) { }
+        }
     }
 }

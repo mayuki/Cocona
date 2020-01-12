@@ -361,13 +361,13 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Invalid_SameOptionName()
         {
-            Assert.Throws<Exception>(() => new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Invalid_SameOptionName)), false));
+            Assert.Throws<CoconaException>(() => new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Invalid_SameOptionName)), false));
         }
 
         [Fact]
         public void Invalid_SameOptionShortName()
         {
-            Assert.Throws<Exception>(() => new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Invalid_SameOptionShortName)), false));
+            Assert.Throws<CoconaException>(() => new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Invalid_SameOptionShortName)), false));
         }
 
         private static MethodInfo GetMethod<T>(string methodName)

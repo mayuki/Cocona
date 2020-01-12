@@ -68,7 +68,7 @@ namespace Cocona.Command
                     var argumentAttr = x.GetCustomAttribute<ArgumentAttribute>();
                     if (argumentAttr != null)
                     {
-                        if (isPrimaryCommand) throw new Exception("A primary command can not handle/have arguments.");
+                        if (isPrimaryCommand) throw new CoconaException("A primary command can not handle/have any arguments.");
 
                         var argName = argumentAttr.Name ?? x.Name;
                         var argDesc = argumentAttr.Description ?? string.Empty;
@@ -93,9 +93,9 @@ namespace Cocona.Command
 
                     // TODO: Exception type
                     if (allOptionNames.Contains(optionName))
-                        throw new Exception("OptionNameAlreadyExists:"+optionName);
+                        throw new CoconaException($"Option '{optionName}' is already exists.");
                     if (allOptionShortNames.Any() && optionShortNames.Any() && allOptionShortNames.IsSupersetOf(optionShortNames))
-                        throw new Exception("OptionNameAlreadyExists:"+string.Join(",", optionShortNames));
+                        throw new CoconaException($"Short name option '{string.Join(",", optionShortNames)}' is already exists.");
                     allOptionNames.Add(optionName);
                     allOptionShortNames.UnionWith(optionShortNames);
 
