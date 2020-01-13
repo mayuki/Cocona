@@ -97,8 +97,7 @@ namespace Cocona.Command.Dispatcher
 
                 _contextAccessor.Current = new CoconaAppContext(
                     cancellationToken,
-                    _loggerFactory.CreateLogger(matchedCommand.CommandType),
-                    matchedCommand
+                    _loggerFactory.CreateLogger(matchedCommand.CommandType)
                 );
 
                 // Dispatch command.

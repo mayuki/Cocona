@@ -12,13 +12,11 @@ namespace Cocona
     {
         public CancellationToken CancellationToken { get; }
         public ILogger Logger { get; }
-        public CommandDescriptor ExecutingCommand { get; }
 
-        public CoconaAppContext(CancellationToken cancellationToken, ILogger logger, CommandDescriptor executingCommand)
+        public CoconaAppContext(CancellationToken cancellationToken, ILogger logger)
         {
             CancellationToken = cancellationToken;
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            ExecutingCommand = executingCommand ?? throw new ArgumentNullException(nameof(executingCommand));
         }
     }
 }
