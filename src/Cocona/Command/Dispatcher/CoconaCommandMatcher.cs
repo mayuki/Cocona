@@ -37,23 +37,21 @@ namespace Cocona.Command.Dispatcher
         {
             var valueByOption = parsedCommandLine.Options.ToDictionary(k => k.Option, v => v);
 
+            var resolvedCommand = default(CommandDescriptor);
             foreach (var overloadCommand in command.Overloads)
             {
                 if (valueByOption.TryGetValue(overloadCommand.Option, out var value))
                 {
-                    if (overloadCommand.Value == null)
+                    if ((overloadCommand.Value == null) || (value.Value != null && overloadCommand.Comparer.Equals(value.Value, overloadCommand.Value)))
                     {
-                        return overloadCommand.Command;
-                    }
-
-                    if (value.Value != null && overloadCommand.Comparer.Equals(value.Value, overloadCommand.Value))
-                    {
-                        return overloadCommand.Command;
+                        if (resolvedCommand != null) throw new CoconaException($"Command '{command.Name}' and option '{overloadCommand.Option}' has option overloads more than one.");
+                        resolvedCommand = overloadCommand.Command;
+                        continue;
                     }
                 }
             }
 
-            return command;
+            return resolvedCommand ?? command;
         }
     }
 }

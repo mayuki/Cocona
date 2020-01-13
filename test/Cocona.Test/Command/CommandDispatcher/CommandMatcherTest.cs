@@ -121,7 +121,6 @@ namespace Cocona.Test.Command.CommandDispatcher
             resolved.Name.Should().Be("A2");
         }
 
-
         [Fact]
         public void ResolveOverload_Overload_NoValue()
         {
@@ -143,6 +142,27 @@ namespace Cocona.Test.Command.CommandDispatcher
             var resolved = matcher.ResolveOverload(command, parsedCommandLine);
             resolved.Should().NotBeNull();
             resolved.Name.Should().Be("A2");
+        }
+
+        [Fact]
+        public void ResolveOverload_Ambiguous()
+        {
+            var matcher = new CoconaCommandMatcher();
+            var commandOption0 = new CommandOptionDescriptor(typeof(bool), "foo", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null);
+            var commandOption1 = new CommandOptionDescriptor(typeof(bool), "bar", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null);
+            var command = CreateCommand(
+                "A",
+                new CommandParameterDescriptor[]
+                {
+                    commandOption0, commandOption1
+                },
+                new CommandOverloadDescriptor[]
+                {
+                    new CommandOverloadDescriptor(commandOption0, null, CreateCommand("A2", Array.Empty<CommandParameterDescriptor>()), StringComparer.OrdinalIgnoreCase),
+                    new CommandOverloadDescriptor(commandOption0, null, CreateCommand("A3", Array.Empty<CommandParameterDescriptor>()), StringComparer.OrdinalIgnoreCase),
+                });
+            var parsedCommandLine = new ParsedCommandLine(new CommandOption[] { new CommandOption(commandOption0, "true") }, new CommandArgument[] { }, new string[] { });
+            Assert.Throws<CoconaException>(() => matcher.ResolveOverload(command, parsedCommandLine));
         }
     }
 }
