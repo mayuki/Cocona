@@ -7,12 +7,6 @@ using System.Text;
 
 namespace Cocona.Command.Dispatcher
 {
-    public interface ICoconaCommandMatcher
-    {
-        bool TryGetCommand(string commandName, CommandCollection commandCollection, [NotNullWhen(true)] out CommandDescriptor? command);
-        CommandDescriptor ResolveOverload(CommandDescriptor command, ParsedCommandLine parsedCommandLine);
-    }
-
     public class CoconaCommandMatcher : ICoconaCommandMatcher
     {
         public bool TryGetCommand(string commandName, CommandCollection commandCollection, [NotNullWhen(true)] out CommandDescriptor? command)
