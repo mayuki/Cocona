@@ -73,18 +73,18 @@ namespace Cocona.Help
             var help = new HelpMessage();
 
             // Usage
-            help.Children.Add(new HelpSection(new HelpHeading($"Usage: {CreateUsageCommandOptionsAndArgs(command)}")));
+            help.Children.Add(new HelpSection(HelpSectionId.Usage, new HelpUsage($"Usage: {CreateUsageCommandOptionsAndArgs(command)}")));
 
             // Description
             if (!string.IsNullOrWhiteSpace(command.Description))
             {
-                help.Children.Add(new HelpSection(new HelpParagraph(command.Description)));
+                help.Children.Add(new HelpSection(HelpSectionId.Description, new HelpDescription(command.Description)));
             }
 
             // Arguments
             if (command.Arguments.Any())
             {
-                help.Children.Add(new HelpSection(
+                help.Children.Add(new HelpSection(HelpSectionId.Arguments,
                     new HelpHeading("Arguments:"),
                     new HelpSection(
                         new HelpLabelDescriptionList(
@@ -104,7 +104,7 @@ namespace Cocona.Help
             // Options
             if (command.Options.Any())
             {
-                help.Children.Add(new HelpSection(
+                help.Children.Add(new HelpSection(HelpSectionId.Options,
                     new HelpHeading("Options:"),
                     new HelpSection(
                         new HelpLabelDescriptionList(
@@ -140,14 +140,14 @@ namespace Cocona.Help
             var help = new HelpMessage();
 
             // Usage
-            var usageSection = new HelpSection();
+            var usageSection = new HelpSection(HelpSectionId.Usage);
             if (commandCollection.All.Count != 1)
             {
-                usageSection.Children.Add(new HelpHeading($"Usage: {_applicationMetadataProvider.GetExecutableName()} [command]"));
+                usageSection.Children.Add(new HelpUsage($"Usage: {_applicationMetadataProvider.GetExecutableName()} [command]"));
             }
             if (commandCollection.Primary != null)
             {
-                usageSection.Children.Add(new HelpHeading($"Usage: {CreateUsageCommandOptionsAndArgs(commandCollection.Primary)}"));
+                usageSection.Children.Add(new HelpUsage($"Usage: {CreateUsageCommandOptionsAndArgs(commandCollection.Primary)}"));
             }
             help.Children.Add(usageSection);
 
@@ -158,14 +158,14 @@ namespace Cocona.Help
 
             if (!string.IsNullOrWhiteSpace(description))
             {
-                help.Children.Add(new HelpSection(new HelpParagraph(description)));
+                help.Children.Add(new HelpSection(HelpSectionId.Description, new HelpDescription(description)));
             }
 
             // Commands
             var commandsExceptPrimary = commandCollection.All.Where(x => !x.IsPrimaryCommand).ToArray();
             if (commandsExceptPrimary.Any())
             {
-                help.Children.Add(new HelpSection(
+                help.Children.Add(new HelpSection(HelpSectionId.Commands,
                     new HelpHeading("Commands:"),
                     new HelpSection(
                         new HelpLabelDescriptionList(
@@ -182,7 +182,7 @@ namespace Cocona.Help
             // Options
             if (commandCollection.Primary != null && commandCollection.Primary.Options.Any())
             {
-                help.Children.Add(new HelpSection(
+                help.Children.Add(new HelpSection(HelpSectionId.Options,
                     new HelpHeading("Options:"),
                     new HelpSection(
                         new HelpLabelDescriptionList(
