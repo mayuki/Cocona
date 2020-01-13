@@ -11,13 +11,18 @@ namespace Cocona.Command
     {
         private readonly Type[] _targetTypes;
         private static readonly Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> _emptyOverloads = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>();
+        private readonly Lazy<CommandCollection> _commandCollection;
 
         public CoconaCommandProvider(Type[] targetTypes)
         {
             _targetTypes = targetTypes ?? throw new ArgumentNullException(nameof(targetTypes));
+            _commandCollection = new Lazy<CommandCollection>(GetCommandCollectionCore);
         }
 
         public CommandCollection GetCommandCollection()
+            => _commandCollection.Value;
+
+        private CommandCollection GetCommandCollectionCore()
         {
             var candidateMethods = _targetTypes
                 .Where(x => x.GetCustomAttribute<IgnoreAttribute>() == null) // class-level ignore
@@ -49,12 +54,6 @@ namespace Cocona.Command
 
             var hasMultipleCommand = commandMethods.Count > 1;
             var commands = commandMethods.Select(x => CreateCommand(x, !hasMultipleCommand, overloadCommandMethods)).ToArray();
-            
-            // If the collection has multiple-commands without primary command, use built-in primary command.
-            if (hasMultipleCommand && !commands.Any(x => x.IsPrimaryCommand))
-            {
-                commands = commands.Concat(new[] { BuiltIn.BuiltInPrimaryCommand.GetCommand(string.Empty) }).ToArray();
-            }
 
             return new CommandCollection(commands);
         }

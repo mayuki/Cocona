@@ -1,6 +1,7 @@
 ﻿using Cocona.Application;
 using Cocona.Command;
 using Cocona.Command.Binder;
+using Cocona.Command.BuiltIn;
 using Cocona.Command.Dispatcher;
 using Cocona.CommandLine;
 using Cocona.Help;
@@ -30,7 +31,7 @@ namespace Microsoft.Extensions.Hosting
                         .Configure(x => x.SuppressStatusMessages = true);
 
                     services.TryAddSingleton<ICoconaCommandLineArgumentProvider>(serviceProvider => new CoconaCommandLineArgumentProvider(args));
-                    services.TryAddSingleton<ICoconaCommandProvider>(serviceProvider => new CoconaCommandProvider(types));
+                    services.TryAddSingleton<ICoconaCommandProvider>(serviceProvider => new CoconaBuiltInCommandProvider(new CoconaCommandProvider(types)));
                     services.TryAddSingleton<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
                     services.TryAddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
                     services.TryAddSingleton<ICoconaApplicationMetadataProvider, CoconaApplicationMetadataProvider>();

@@ -69,7 +69,7 @@ namespace Cocona.Command.Dispatcher
                 else
                 {
                     // Use default command (NOTE: The default command must have no argument.)
-                    matchedCommand = commandCollection.Primary;
+                    matchedCommand = commandCollection.Primary ?? throw new CommandNotFoundException("", commandCollection, "A primary command was not found.");
                 }
             }
             else

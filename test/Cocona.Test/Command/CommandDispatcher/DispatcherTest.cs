@@ -80,7 +80,7 @@ namespace Cocona.Test.Command.CommandDispatcher
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
             var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () => await dispatcher.DispatchAsync());
             ex.Command.Should().Be("C");
-            ex.ImplementedCommands.All.Should().HaveCount(3); // A, B, BuiltInPrimaryCommand
+            ex.ImplementedCommands.All.Should().HaveCount(2); // A, B
         }
 
         [Fact]
