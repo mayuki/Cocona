@@ -359,6 +359,20 @@ namespace Cocona.Test.Command.CommandProvider
         }
 
         [Fact]
+        public void Default_TreatBooleanOptionAsDefaultFalse_NoReturn()
+        {
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_TreatBooleanOptionAsDefaultFalse_NoReturn)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            cmd.Name.Should().Be(nameof(CommandTest.Default_TreatBooleanOptionAsDefaultFalse_NoReturn));
+            cmd.Parameters.Should().HaveCount(1);
+            cmd.Options.Should().HaveCount(1);
+            cmd.Options[0].DefaultValue.HasValue.Should().BeTrue();
+            cmd.Options[0].DefaultValue.Value.Should().Be(false);
+            cmd.Arguments.Should().BeEmpty();
+            cmd.Aliases.Should().BeEmpty();
+            cmd.ReturnType.Should().Be(typeof(void));
+        }
+
+        [Fact]
         public void Invalid_SameOptionName()
         {
             Assert.Throws<CoconaException>(() => new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Invalid_SameOptionName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>()));
@@ -398,6 +412,7 @@ namespace Cocona.Test.Command.CommandProvider
             public void Default_Arguments_Ordered_NoReturn([Argument(Order = 5)]int[] arg0, [Argument(Order = int.MinValue)]string[] arg1) { }
             public void Default_HasIgnoreParameter_NoReturn(string name, [Ignore]string ignored, [Argument]string arg0) { }
             public void Default_HasIgnoreValueTypeParameter_NoReturn(string name, [Ignore]int ignored, [Argument]string arg0) { }
+            public void Default_TreatBooleanOptionAsDefaultFalse_NoReturn(bool flag0) { }
 
             public void Invalid_SameOptionName([Option("option")]string option0, [Option("option")]int option1) { }
             public void Invalid_SameOptionShortName([Option('o')]string option0, [Option('o')]int option1) { }

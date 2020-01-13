@@ -111,6 +111,12 @@ namespace Cocona.Command
                     var optionShortNames = optionAttr?.ShortNames ?? Array.Empty<char>();
                     var optionValueName = optionAttr?.ValueName ?? x.ParameterType.Name;
 
+                    // If the option type is bool, the option has always default value (false).
+                    if (!defaultValue.HasValue && x.ParameterType == typeof(bool))
+                    {
+                        defaultValue = new CoconaDefaultValue(false);
+                    }
+
                     if (allOptions.ContainsKey(optionName))
                         throw new CoconaException($"Option '{optionName}' is already exists.");
                     if (allOptionShortNames.Any() && optionShortNames.Any() && allOptionShortNames.IsSupersetOf(optionShortNames))
