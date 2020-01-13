@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Cocona.Command.Dispatcher.Middlewares
 {
-    public class HelpAndVersionMiddleware : CommandDispatcherMiddleware
+    public class CommandHelpMiddleware : CommandDispatcherMiddleware
     {
         private readonly ICoconaHelpRenderer _helpRenderer;
         private readonly ICoconaCommandHelpProvider _commandHelpProvider;
         private readonly ICoconaCommandProvider _commandProvider;
 
-        public HelpAndVersionMiddleware(CommandDispatchDelegate next, ICoconaHelpRenderer helpRenderer, ICoconaCommandHelpProvider commandHelpProvider, ICoconaCommandProvider commandProvider)
+        public CommandHelpMiddleware(CommandDispatchDelegate next, ICoconaHelpRenderer helpRenderer, ICoconaCommandHelpProvider commandHelpProvider, ICoconaCommandProvider commandProvider)
             : base(next)
         {
             _helpRenderer = helpRenderer;
@@ -32,13 +32,6 @@ namespace Cocona.Command.Dispatcher.Middlewares
                     ? _commandHelpProvider.CreateCommandsIndexHelp(_commandProvider.GetCommandCollection())
                     : _commandHelpProvider.CreateCommandHelp(ctx.Command);
 
-                Console.Write(_helpRenderer.Render(help));
-                return new ValueTask<int>(129);
-            }
-
-            if (string.Equals(unknownOption, "version", StringComparison.OrdinalIgnoreCase))
-            {
-                var help = _commandHelpProvider.CreateVersionHelp();
                 Console.Write(_helpRenderer.Render(help));
                 return new ValueTask<int>(129);
             }

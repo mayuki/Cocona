@@ -1,10 +1,12 @@
-﻿using Cocona.Command;
+﻿using Cocona.Application;
+using Cocona.Command;
 using Cocona.Command.Binder;
 using Cocona.Command.Dispatcher;
 using Cocona.Command.Dispatcher.Middlewares;
 using Cocona.CommandLine;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -25,6 +27,8 @@ namespace Cocona.Test.Command.CommandDispatcher
             services.AddTransient<ICoconaCommandLineParser, CoconaCommandLineParser>();
             services.AddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
             services.AddTransient<ICoconaCommandMatcher, CoconaCommandMatcher>();
+            services.AddTransient<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
+            services.AddTransient<ILoggerFactory, LoggerFactory>();
             services.AddTransient<ICoconaCommandDispatcherPipelineBuilder>(
                 serviceProvider => new CoconaCommandDispatcherPipelineBuilder(serviceProvider).UseMiddleware<CoconaCommandInvokeMiddleware>());
 
@@ -76,7 +80,7 @@ namespace Cocona.Test.Command.CommandDispatcher
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
             var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () => await dispatcher.DispatchAsync());
             ex.Command.Should().Be("C");
-            ex.ImplementedCommands.All.Should().HaveCount(2);
+            ex.ImplementedCommands.All.Should().HaveCount(3); // A, B, BuiltInPrimaryCommand
         }
 
         [Fact]

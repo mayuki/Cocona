@@ -94,7 +94,7 @@ command description
 
 Options:
   -f, --foo <String>         Foo option (Required)
-  -l, --looooooong-option    Long name option (DefaultValue: False)
+  -l, --looooooong-option    Long name option
 ".TrimStart());
         }
 
@@ -127,7 +127,7 @@ Arguments:
 
 Options:
   -f, --foo <String>         Foo option (Required)
-  -l, --looooooong-option    Long name option (DefaultValue: False)
+  -l, --looooooong-option    Long name option
 ".TrimStart());
         }
 
@@ -153,7 +153,7 @@ Usage: ExeName [--foo <String>] [--looooooong-option]
 
 Options:
   -f, --foo <String>         Foo option (Required)
-  -l, --looooooong-option    Long name option (DefaultValue: False)
+  -l, --looooooong-option    Long name option
 ".TrimStart());
         }
 
@@ -167,6 +167,7 @@ Options:
                 {
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(int), "bar", new [] { 'b' }, "has default value", new CoconaDefaultValue(123)),
                 },
                 isPrimaryCommand: true
             );
@@ -182,14 +183,15 @@ Options:
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName [command]
-Usage: ExeName [--foo <String>] [--looooooong-option]
+Usage: ExeName [--foo <String>] [--looooooong-option] [--bar <Int32>]
 
 Commands:
   Test2    command description
 
 Options:
   -f, --foo <String>         Foo option (Required)
-  -l, --looooooong-option    Long name option (DefaultValue: False)
+  -l, --looooooong-option    Long name option
+  -b, --bar <Int32>          has default value (DefaultValue: 123)
 ".TrimStart());
         }
 

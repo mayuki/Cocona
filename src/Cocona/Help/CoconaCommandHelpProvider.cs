@@ -112,7 +112,7 @@ namespace Cocona.Help
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
                                         (x.ShortName.Any() ? string.Join(", ", x.ShortName.Select(x => $"-{x}")) + ", " : "") + $"--{x.Name}" + (x.OptionType != typeof(bool) ? $" <{x.ValueName}>" : ""),
-                                        $"{x.Description}{(x.IsRequired ? " (Required)" : (" (DefaultValue: " + x.DefaultValue.Value + ")"))}"
+                                        $"{x.Description}{(x.IsRequired ? " (Required)" : (x.OptionType == typeof(bool)) ? "" : (" (DefaultValue: " + x.DefaultValue.Value + ")"))}"
                                     )
                                 )
                                 .ToArray()
@@ -190,7 +190,7 @@ namespace Cocona.Help
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
                                         (x.ShortName.Any() ? string.Join(", ", x.ShortName.Select(x => $"-{x}")) + ", " : "") + $"--{x.Name}" + (x.OptionType != typeof(bool) ? $" <{x.ValueName}>" : ""),
-                                        $"{x.Description}{(x.IsRequired ? " (Required)" : (" (DefaultValue: " + x.DefaultValue.Value + ")"))}"
+                                        $"{x.Description}{(x.IsRequired ? " (Required)" : (x.OptionType == typeof(bool)) ? "" : (" (DefaultValue: " + x.DefaultValue.Value + ")"))}"
                                     )
                                 )
                                 .ToArray()

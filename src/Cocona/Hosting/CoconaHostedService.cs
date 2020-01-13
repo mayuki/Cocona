@@ -1,13 +1,8 @@
-﻿using Cocona.Application;
-using Cocona.Command;
-using Cocona.Command.Binder;
+﻿using Cocona.Command;
 using Cocona.Command.Dispatcher;
 using Cocona.Command.Dispatcher.Middlewares;
-using Cocona.CommandLine;
-using Cocona.Help;
 using Cocona.Internal;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,52 +16,38 @@ namespace Cocona.Hosting
     {
         private readonly ICoconaCommandDispatcher _commandDispatcher;
         private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
-        private readonly ICoconaHelpRenderer _helpRenderer;
-        private readonly ICoconaCommandHelpProvider _commandHelpProvider;
         private readonly IHostApplicationLifetime _lifetime;
-        private readonly ICoconaAppContextAccessor _contextAccessor;
 
-        private readonly CoconaAppContext _context;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private Task<int>? _runningCommandTask;
 
         public CoconaHostedService(
-            ICoconaHelpRenderer helpRenderer,
-            ICoconaCommandHelpProvider commandHelpProvider,
             ICoconaCommandDispatcher commandDispatcher,
             ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
-            ICoconaAppContextAccessor contextAccessor,
-            ILogger<CoconaHostedService> logger,
             IHostApplicationLifetime lifetime
         )
         {
-            _helpRenderer = helpRenderer;
-            _commandHelpProvider = commandHelpProvider;
             _commandDispatcher = commandDispatcher;
             _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
-            _contextAccessor = contextAccessor;
             _lifetime = lifetime;
 
             _cancellationTokenSource = new CancellationTokenSource();
-            _context = new CoconaAppContext(_cancellationTokenSource.Token, logger);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _dispatcherPipelineBuilder
-                .UseMiddleware<HelpAndVersionMiddleware>()
+                .UseMiddleware<CommandHelpMiddleware>()
                 .UseMiddleware<HandleExceptionAndExitMiddleware>()
                 .UseMiddleware<HandleParameterBindExceptionMiddleware>()
                 .UseMiddleware<RejectUnknownOptionsMiddleware>()
                 .UseMiddleware<CoconaCommandInvokeMiddleware>();
 
-            _contextAccessor.Current = _context;
-
             _lifetime.ApplicationStarted.Register(async () =>
             {
                 try
                 {
-                    _runningCommandTask = _commandDispatcher.DispatchAsync().AsTask();
+                    _runningCommandTask = _commandDispatcher.DispatchAsync(_cancellationTokenSource.Token).AsTask();
                     await _runningCommandTask;
                 }
                 catch (CommandNotFoundException cmdNotFoundEx)

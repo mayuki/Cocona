@@ -1,9 +1,12 @@
-﻿using Cocona.Command.BuiltIn;
+﻿using Cocona.Application;
+using Cocona.Command.BuiltIn;
 using Cocona.CommandLine;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Cocona.Command.Dispatcher
@@ -16,6 +19,8 @@ namespace Cocona.Command.Dispatcher
         private readonly ICoconaCommandLineArgumentProvider _commandLineArgumentProvider;
         private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
         private readonly ICoconaCommandMatcher _commandMatcher;
+        private readonly ICoconaAppContextAccessor _contextAccessor;
+        private readonly ILoggerFactory _loggerFactory;
 
         public CoconaCommandDispatcher(
             IServiceProvider serviceProvider,
@@ -23,7 +28,9 @@ namespace Cocona.Command.Dispatcher
             ICoconaCommandLineParser commandLineParser,
             ICoconaCommandLineArgumentProvider commandLineArgumentProvider,
             ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
-            ICoconaCommandMatcher commandMatcher
+            ICoconaCommandMatcher commandMatcher,
+            ICoconaAppContextAccessor contextAccessor,
+            ILoggerFactory loggerFactory
         )
         {
             _serviceProvider = serviceProvider;
@@ -32,9 +39,11 @@ namespace Cocona.Command.Dispatcher
             _commandLineArgumentProvider = commandLineArgumentProvider;
             _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
             _commandMatcher = commandMatcher;
+            _contextAccessor = contextAccessor;
+            _loggerFactory = loggerFactory;
         }
 
-        public ValueTask<int> DispatchAsync()
+        public async ValueTask<int> DispatchAsync(CancellationToken cancellationToken)
         {
             var commandCollection = _commandProvider.GetCommandCollection();
             var args = _commandLineArgumentProvider.GetArguments();
@@ -60,7 +69,7 @@ namespace Cocona.Command.Dispatcher
                 else
                 {
                     // Use default command (NOTE: The default command must have no argument.)
-                    matchedCommand = commandCollection.Primary ?? BuiltInPrimaryCommand.GetCommand(commandCollection);
+                    matchedCommand = commandCollection.Primary;
                 }
             }
             else
@@ -79,14 +88,37 @@ namespace Cocona.Command.Dispatcher
                 if (matchedCommand.Overloads.Any())
                 {
                     // Try parse command-line for overload resolution by options.
-                    var parsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments);
-                    matchedCommand = _commandMatcher.ResolveOverload(matchedCommand, parsedCommandLine);
+                    var preParsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments);
+                    matchedCommand = _commandMatcher.ResolveOverload(matchedCommand, preParsedCommandLine);
                 }
 
-                var commandInstance = ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, matchedCommand.CommandType);
-                var ctx = new CommandDispatchContext(matchedCommand, _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments), commandInstance);
+                var parsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments);
                 var dispatchAsync = _dispatcherPipelineBuilder.Build();
-                return dispatchAsync(ctx);
+
+                _contextAccessor.Current = new CoconaAppContext(
+                    cancellationToken,
+                    _loggerFactory.CreateLogger(matchedCommand.CommandType),
+                    matchedCommand
+                );
+
+                // Dispatch command.
+                var commandInstance = ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, matchedCommand.CommandType);
+                try
+                {
+                    var ctx = new CommandDispatchContext(matchedCommand, parsedCommandLine, commandInstance);
+                    return await dispatchAsync(ctx);
+                }
+                finally
+                {
+                    if (commandInstance is IAsyncDisposable asyncDisposable)
+                    {
+                        await asyncDisposable.DisposeAsync();
+                    }
+                    else if (commandInstance is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
+                }
             }
 
             throw new CommandNotFoundException(

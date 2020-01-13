@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Cocona.Command.Dispatcher
 {
     public interface ICoconaCommandDispatcher
     {
-        ValueTask<int> DispatchAsync();
+        ValueTask<int> DispatchAsync(CancellationToken cancellationToken = default);
     }
 }

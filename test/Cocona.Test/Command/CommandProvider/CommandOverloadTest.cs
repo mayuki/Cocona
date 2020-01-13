@@ -26,8 +26,8 @@ namespace Cocona.Test.Command.CommandProvider
             var provider = new CoconaCommandProvider(new[] { typeof(TestCommand_Overload_Multiple) });
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
-            commands.All.Should().HaveCount(2);
-            commands.Primary.Should().BeNull();
+            commands.All.Should().HaveCount(3); // CommandA, CommandB, BuiltInPrimary
+            commands.Primary.Should().NotBeNull(); // BuiltInPrimary
             commands.All[0].Overloads.Should().HaveCount(2);
         }
 

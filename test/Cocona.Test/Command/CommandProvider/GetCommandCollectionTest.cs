@@ -41,13 +41,13 @@ namespace Cocona.Test.Command.CommandProvider
         }
 
         [Fact]
-        public void MultipleMainCommand()
+        public void MultipleMainCommand_BuiltInPrimary()
         {
             var provider = new CoconaCommandProvider(new[] { typeof(CommandTestMultipleMainCommand) });
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
-            commands.All.Should().HaveCount(2);
-            commands.Primary.Should().BeNull();
+            commands.All.Should().HaveCount(3); // A, B, BuiltInPrimary
+            commands.Primary.Should().NotBeNull();
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace Cocona.Test.Command.CommandProvider
             var provider = new CoconaCommandProvider(new[] { typeof(CommandTestIgnoreCommand_Method) });
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
-            commands.All.Should().HaveCount(2);
+            commands.All.Should().HaveCount(3); // A, C, Primary
         }
 
         [Fact]

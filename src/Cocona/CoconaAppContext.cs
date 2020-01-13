@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Cocona.Command;
+using Cocona.CommandLine;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,11 +12,13 @@ namespace Cocona
     {
         public CancellationToken CancellationToken { get; }
         public ILogger Logger { get; }
+        public CommandDescriptor ExecutingCommand { get; }
 
-        public CoconaAppContext(CancellationToken cancellationToken, ILogger logger)
+        public CoconaAppContext(CancellationToken cancellationToken, ILogger logger, CommandDescriptor executingCommand)
         {
             CancellationToken = cancellationToken;
-            Logger = logger;
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            ExecutingCommand = executingCommand ?? throw new ArgumentNullException(nameof(executingCommand));
         }
     }
 }

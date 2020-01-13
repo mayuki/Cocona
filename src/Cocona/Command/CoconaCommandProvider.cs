@@ -47,9 +47,16 @@ namespace Cocona.Command
                 }
             }
 
-            var singleCommand = commandMethods.Count == 1;
+            var hasMultipleCommand = commandMethods.Count > 1;
+            var commands = commandMethods.Select(x => CreateCommand(x, !hasMultipleCommand, overloadCommandMethods)).ToArray();
+            
+            // If the collection has multiple-commands without primary command, use built-in primary command.
+            if (hasMultipleCommand && !commands.Any(x => x.IsPrimaryCommand))
+            {
+                commands = commands.Concat(new[] { BuiltIn.BuiltInPrimaryCommand.GetCommand(string.Empty) }).ToArray();
+            }
 
-            return new CommandCollection(commandMethods.Select(x => CreateCommand(x, singleCommand, overloadCommandMethods)).ToArray());
+            return new CommandCollection(commands);
         }
 
         public CommandDescriptor CreateCommand(MethodInfo methodInfo, bool isSingleCommand, Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> overloadCommandMethods)
@@ -63,7 +70,7 @@ namespace Cocona.Command
 
             var isPrimaryCommand = methodInfo.GetCustomAttribute<PrimaryCommandAttribute>() != null;
 
-            var allOptions = new Dictionary<string, CommandOptionDescriptor>();
+            var allOptions = new Dictionary<string, CommandOptionDescriptor>(StringComparer.OrdinalIgnoreCase);
             var allOptionShortNames = new HashSet<char>();
 
             var defaultArgOrder = 0;
@@ -130,6 +137,9 @@ namespace Cocona.Command
                 })
                 .ToArray();
 
+            var options = parameters.OfType<CommandOptionDescriptor>().ToList();
+            var arguments = parameters.OfType<CommandArgumentDescriptor>().ToArray();
+
             // Overloaded commands
             var overloadDescriptors = new List<CommandOverloadDescriptor>();
             if (overloadCommandMethods.TryGetValue(commandName, out var overloads))
@@ -149,6 +159,8 @@ namespace Cocona.Command
                 aliases,
                 description,
                 parameters,
+                options,
+                arguments,
                 overloadDescriptors.ToArray(),
                 isSingleCommand || isPrimaryCommand
             );
