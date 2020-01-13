@@ -10,14 +10,14 @@ namespace Cocona
         public string TargetCommand { get; }
         public string OptionName { get; }
         public string? OptionValue { get; }
-        public StringComparison StringComparison { get; }
+        public Type? Comparer { get; }
 
-        public CommandOverloadAttribute(string targetCommand, string optionName, string? optionValue = null, StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
+        public CommandOverloadAttribute(string targetCommand, string optionName, string? optionValue = null, Type? comparer = null)
         {
             TargetCommand = targetCommand ?? throw new ArgumentNullException(nameof(targetCommand));
             OptionName = optionName ?? throw new ArgumentNullException(nameof(optionName));
             OptionValue = optionValue;
-            StringComparison = stringComparison;
+            Comparer = comparer;
         }
     }
 }

@@ -90,8 +90,8 @@ namespace Cocona.Test.Command.CommandDispatcher
                 },
                 new CommandOverloadDescriptor[]
                 {
-                    new CommandOverloadDescriptor(commandOption, "foo", CreateCommand("A2", Array.Empty<CommandParameterDescriptor>()), StringComparison.OrdinalIgnoreCase),
-                    new CommandOverloadDescriptor(commandOption, "bar", CreateCommand("A3", Array.Empty<CommandParameterDescriptor>()), StringComparison.OrdinalIgnoreCase),
+                    new CommandOverloadDescriptor(commandOption, "foo", CreateCommand("A2", Array.Empty<CommandParameterDescriptor>()), StringComparer.OrdinalIgnoreCase),
+                    new CommandOverloadDescriptor(commandOption, "bar", CreateCommand("A3", Array.Empty<CommandParameterDescriptor>()), StringComparer.OrdinalIgnoreCase),
                 });
             var parsedCommandLine = new ParsedCommandLine(new CommandOption[] { }, new CommandArgument[] { }, new string[] { });
             var resolved = matcher.ResolveOverload(command, parsedCommandLine);
@@ -112,8 +112,8 @@ namespace Cocona.Test.Command.CommandDispatcher
                 },
                 new CommandOverloadDescriptor[]
                 {
-                    new CommandOverloadDescriptor(commandOption, "foo", CreateCommand("A2", Array.Empty<CommandParameterDescriptor>()), StringComparison.OrdinalIgnoreCase),
-                    new CommandOverloadDescriptor(commandOption, "bar", CreateCommand("A3", Array.Empty<CommandParameterDescriptor>()), StringComparison.OrdinalIgnoreCase),
+                    new CommandOverloadDescriptor(commandOption, "foo", CreateCommand("A2", Array.Empty<CommandParameterDescriptor>()), StringComparer.OrdinalIgnoreCase),
+                    new CommandOverloadDescriptor(commandOption, "bar", CreateCommand("A3", Array.Empty<CommandParameterDescriptor>()), StringComparer.OrdinalIgnoreCase),
                 });
             var parsedCommandLine = new ParsedCommandLine(new CommandOption[] { new CommandOption(commandOption, "foo") }, new CommandArgument[] { }, new string[] { });
             var resolved = matcher.ResolveOverload(command, parsedCommandLine);
@@ -136,8 +136,8 @@ namespace Cocona.Test.Command.CommandDispatcher
                 },
                 new CommandOverloadDescriptor[]
                 {
-                    new CommandOverloadDescriptor(commandOption0, null, CreateCommand("A2", Array.Empty<CommandParameterDescriptor>()), StringComparison.OrdinalIgnoreCase),
-                    new CommandOverloadDescriptor(commandOption1, null, CreateCommand("A3", Array.Empty<CommandParameterDescriptor>()), StringComparison.OrdinalIgnoreCase),
+                    new CommandOverloadDescriptor(commandOption0, null, CreateCommand("A2", Array.Empty<CommandParameterDescriptor>()), StringComparer.OrdinalIgnoreCase),
+                    new CommandOverloadDescriptor(commandOption1, null, CreateCommand("A3", Array.Empty<CommandParameterDescriptor>()), StringComparer.OrdinalIgnoreCase),
                 });
             var parsedCommandLine = new ParsedCommandLine(new CommandOption[] { new CommandOption(commandOption0, "true") }, new CommandArgument[] { }, new string[] { });
             var resolved = matcher.ResolveOverload(command, parsedCommandLine);

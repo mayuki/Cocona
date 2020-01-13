@@ -133,7 +133,7 @@ namespace Cocona.Command
                         (allOptions.TryGetValue(x.Attribute.OptionName, out var name) ? name : throw new CoconaException($"Command option overload '{x.Attribute.OptionName}' was not found in overload target '{methodInfo.Name}'.")),
                         x.Attribute.OptionValue,
                         CreateCommand(x.Method, isSingleCommand, _emptyOverloads),
-                        x.Attribute.StringComparison
+                        x.Attribute.Comparer != null ? (IEqualityComparer<string>)Activator.CreateInstance(x.Attribute.Comparer) : null
                     )));
             }
 
@@ -154,14 +154,14 @@ namespace Cocona.Command
         public CommandOptionDescriptor Option { get; }
         public string? Value { get; }
         public CommandDescriptor Command { get; }
-        public StringComparison StringComparison { get; }
+        public IEqualityComparer<string> Comparer { get; }
 
-        public CommandOverloadDescriptor(CommandOptionDescriptor option, string? value, CommandDescriptor command, StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
+        public CommandOverloadDescriptor(CommandOptionDescriptor option, string? value, CommandDescriptor command, IEqualityComparer<string>? comparer)
         {
             Option = option ?? throw new ArgumentNullException(nameof(option));
             Value = value;
             Command = command ?? throw new ArgumentNullException(nameof(command));
-            StringComparison = stringComparison;
+            Comparer = comparer ?? StringComparer.OrdinalIgnoreCase;
         }
     }
 }

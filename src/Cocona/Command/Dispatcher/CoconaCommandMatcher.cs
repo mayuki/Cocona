@@ -45,7 +45,8 @@ namespace Cocona.Command.Dispatcher
                     {
                         return overloadCommand.Command;
                     }
-                    if (string.Equals(value.Value, overloadCommand.Value, overloadCommand.StringComparison))
+
+                    if (value.Value != null && overloadCommand.Comparer.Equals(value.Value, overloadCommand.Value))
                     {
                         return overloadCommand.Command;
                     }
