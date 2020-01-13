@@ -33,16 +33,27 @@ namespace Cocona.Test.Help
                 helpMessage.Children.Add(new HelpSection(new HelpHeading("Hello, Konnichiwa!")));
             }
         }
+        
+        private CommandDescriptor CreateCommand(string methodName, CommandParameterDescriptor[] parameterDescriptors, bool isPrimaryCommand)
+        {
+            return new CommandDescriptor(
+                typeof(CoconaCommandHelpProviderTransformTest).GetMethod(methodName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+                "Test",
+                Array.Empty<string>(),
+                "command description",
+                parameterDescriptors,
+                Array.Empty<CommandOverloadDescriptor>(),
+                isPrimaryCommand
+            );
+        }
 
         [Fact]
         public void Transform_CreateCommandHelp()
         {
-            var commandDescriptor = new CommandDescriptor(
-                typeof(CoconaCommandHelpProviderTransformTest).GetMethod(nameof(CoconaCommandHelpProviderTransformTest.__Dummy_Transform), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
-                "Test",
-                Array.Empty<string>(),
-                "command description",
-                new CommandParameterDescriptor[0]
+            var commandDescriptor = CreateCommand(
+                nameof(CoconaCommandHelpProviderTransformTest.__Dummy_Transform),
+                new CommandParameterDescriptor[0],
+                isPrimaryCommand: false
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
@@ -61,13 +72,10 @@ Hello, Konnichiwa!
         [Fact]
         public void Transform_CreateCommandsIndexHelp()
         {
-            var commandDescriptor = new CommandDescriptor(
-                typeof(CoconaCommandHelpProviderTransformTest).GetMethod(nameof(CoconaCommandHelpProviderTransformTest.__Dummy_Transform), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
-                "Test",
-                Array.Empty<string>(),
-                "command description",
+            var commandDescriptor = CreateCommand(
+                nameof(CoconaCommandHelpProviderTransformTest.__Dummy_Transform),
                 new CommandParameterDescriptor[0],
-                isPrimaryCommand:true
+                isPrimaryCommand: true
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());

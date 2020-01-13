@@ -29,20 +29,35 @@ namespace Cocona.Test.Help
             public string GetVersion() => "1.0.0.0";
         }
 
+        private CommandDescriptor CreateCommand(string name, string description, CommandParameterDescriptor[] parameterDescriptors, bool isPrimaryCommand = false)
+        {
+            return new CommandDescriptor(
+                typeof(CoconaCommandHelpProviderTest).GetMethod(nameof(CoconaCommandHelpProviderTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+                name,
+                Array.Empty<string>(),
+                description,
+                parameterDescriptors,
+                Array.Empty<CommandOverloadDescriptor>(),
+                isPrimaryCommand
+            );
+        }
+        private CommandOptionDescriptor CreateCommandOption(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue)
+        {
+            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null);
+        }
+
         [Fact]
         public void CommandHelp1()
         {
             // void Test(string arg0, string arg1, string arg2);
             // Arguments: new [] { "argValue0", "argValue1", "argValue2" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(CoconaCommandHelpProviderTest).GetMethod(nameof(CoconaCommandHelpProviderTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            var commandDescriptor = CreateCommand(
                 "Test",
-                Array.Empty<string>(),
                 "command description",
                 new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "option0", Array.Empty<char>(), "option description - option0", CoconaDefaultValue.None),
-                    new CommandOptionDescriptor(typeof(bool), "option1", Array.Empty<char>(), "option description - option1", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(string), "option0", Array.Empty<char>(), "option description - option0", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "option1", Array.Empty<char>(), "option description - option1", CoconaDefaultValue.None),
                     new CommandIgnoredParameterDescriptor(typeof(bool), true),
                     new CommandServiceParameterDescriptor(typeof(bool)),
                     new CommandArgumentDescriptor(typeof(string), "arg0", 0, "description - arg0", CoconaDefaultValue.None),
@@ -59,15 +74,13 @@ namespace Cocona.Test.Help
         [Fact]
         public void CommandHelp_Rendered()
         {
-            var commandDescriptor = new CommandDescriptor(
-                typeof(CoconaCommandHelpProviderTest).GetMethod(nameof(CoconaCommandHelpProviderTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            var commandDescriptor = CreateCommand(
                 "Test",
-                Array.Empty<string>(),
                 "command description",
                 new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
-                    new CommandOptionDescriptor(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
                 }
             );
 
@@ -88,15 +101,13 @@ Options:
         [Fact]
         public void CommandHelp_Arguments_Rendered()
         {
-            var commandDescriptor = new CommandDescriptor(
-                typeof(CoconaCommandHelpProviderTest).GetMethod(nameof(CoconaCommandHelpProviderTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            var commandDescriptor = CreateCommand(
                 "Test",
-                Array.Empty<string>(),
                 "command description",
                 new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
-                    new CommandOptionDescriptor(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
                     new CommandArgumentDescriptor(typeof(string[]), "src", 0, "src files", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string), "dest", 0, "dest dir", CoconaDefaultValue.None),
                 }
@@ -123,15 +134,13 @@ Options:
         [Fact]
         public void CreateCommandsIndexHelp_Rendered()
         {
-            var commandDescriptor = new CommandDescriptor(
-                typeof(CoconaCommandHelpProviderTest).GetMethod(nameof(CoconaCommandHelpProviderTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            var commandDescriptor = CreateCommand(
                 "Test",
-                Array.Empty<string>(),
                 "command description",
                 new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
-                    new CommandOptionDescriptor(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
                 },
                 isPrimaryCommand: true
             );
@@ -151,22 +160,18 @@ Options:
         [Fact]
         public void CreateCommandsIndexHelp_Commands_Rendered()
         {
-            var commandDescriptor = new CommandDescriptor(
-                typeof(CoconaCommandHelpProviderTest).GetMethod(nameof(CoconaCommandHelpProviderTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            var commandDescriptor = CreateCommand(
                 "Test",
-                Array.Empty<string>(),
                 "command description",
                 new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
-                    new CommandOptionDescriptor(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
                 },
                 isPrimaryCommand: true
             );
-            var commandDescriptor2 = new CommandDescriptor(
-                typeof(CoconaCommandHelpProviderTest).GetMethod(nameof(CoconaCommandHelpProviderTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+            var commandDescriptor2 = CreateCommand(
                 "Test2",
-                Array.Empty<string>(),
                 "command description",
                 new CommandParameterDescriptor[0],
                 isPrimaryCommand: false

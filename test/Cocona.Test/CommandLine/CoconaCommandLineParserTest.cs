@@ -10,6 +10,11 @@ namespace Cocona.Test.CommandLine
 {
     public class CoconaCommandLineParserTest
     {
+        private CommandOptionDescriptor CreateCommandOption(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue)
+        {
+            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null);
+        }
+
         [Fact]
         public void TryGetCommandName_Empty()
         {
@@ -55,8 +60,8 @@ namespace Cocona.Test.CommandLine
                 new CommandOptionDescriptor[] { },
                 new CommandArgumentDescriptor[]
                 {
-                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
                 }
             );
             parsed.Should().NotBeNull();
@@ -73,8 +78,8 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -96,8 +101,8 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -120,7 +125,7 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -145,7 +150,7 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                        new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -171,9 +176,9 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -199,9 +204,9 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -275,8 +280,8 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                        new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                        new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -302,8 +307,8 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                        new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                        new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -329,8 +334,8 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                        new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                        new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -356,9 +361,9 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                        new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                        new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                        new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                        CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -386,7 +391,7 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -407,9 +412,9 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                        new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                        new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                        new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                        CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -437,9 +442,9 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                        new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                        new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                        new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                        CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -467,9 +472,9 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                        new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                        new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                        new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                        CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                        CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -498,10 +503,10 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -525,10 +530,10 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -556,10 +561,10 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -587,10 +592,10 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -620,10 +625,10 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -647,10 +652,10 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -678,10 +683,10 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -709,10 +714,10 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -742,10 +747,10 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -768,10 +773,10 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -794,10 +799,10 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionDescriptor(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -919,7 +924,7 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -940,7 +945,7 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -961,7 +966,7 @@ namespace Cocona.Test.CommandLine
                 args,
                 new CommandOptionDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
                 },
                 new CommandArgumentDescriptor[]
                 {

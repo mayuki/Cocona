@@ -39,6 +39,7 @@ namespace Microsoft.Extensions.Hosting
                     services.TryAddTransient<ICoconaValueConverter, CoconaValueConverter>();
                     services.TryAddTransient<ICoconaCommandLineParser, CoconaCommandLineParser>();
                     services.TryAddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
+                    services.TryAddTransient<ICoconaCommandMatcher, CoconaCommandMatcher>();
                     services.TryAddTransient<ICoconaHelpRenderer, CoconaHelpRenderer>();
                     services.TryAddTransient<ICoconaCommandHelpProvider, CoconaCommandHelpProvider>();
 

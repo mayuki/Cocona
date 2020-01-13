@@ -28,7 +28,8 @@ namespace Cocona.Command.BuiltIn
                 method.Name,
                 Array.Empty<string>(),
                 commandCollection.Description,
-                new CommandParameterDescriptor[]{ new CommandOptionDescriptor(typeof(bool), "help", new[] { 'h' }, "Show help message", new CoconaDefaultValue(false)) },
+                new CommandParameterDescriptor[]{ new CommandOptionDescriptor(typeof(bool), "help", new[] { 'h' }, "Show help message", new CoconaDefaultValue(false), null) },
+                Array.Empty<CommandOverloadDescriptor>(),
                 isPrimaryCommand: true
             );
         }

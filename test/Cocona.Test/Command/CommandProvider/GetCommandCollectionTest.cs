@@ -116,6 +116,21 @@ namespace Cocona.Test.Command.CommandProvider
             var ex = Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
         }
 
+        [Fact]
+        public void DefaultPrimaryCommand_Argument()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDefaultPrimaryCommand_Argument) });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+            commands.Primary.Should().NotBeNull();
+        }
+
+        public class CommandTestDefaultPrimaryCommand_Argument
+        {
+            public void A([Argument]string[] args) { }
+        }
+
         public class CommandTestHasProperty
         {
             public void A() { }

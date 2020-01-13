@@ -86,6 +86,12 @@ namespace Cocona.Hosting
 
                     Environment.ExitCode = 1;
                 }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Unhandled Exception: {ex.Message}");
+                    Console.Error.WriteLine(ex.StackTrace);
+                    Environment.ExitCode = 1;
+                }
                 finally
                 {
                     _lifetime.StopApplication();

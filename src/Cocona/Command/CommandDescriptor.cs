@@ -21,14 +21,16 @@ namespace Cocona.Command
         public IReadOnlyList<CommandParameterDescriptor> Parameters { get; }
         public IReadOnlyList<CommandOptionDescriptor> Options { get; }
         public IReadOnlyList<CommandArgumentDescriptor> Arguments { get; }
+        public IReadOnlyList<CommandOverloadDescriptor> Overloads { get; }
 
-        public CommandDescriptor(MethodInfo methodInfo, string name, IReadOnlyList<string> aliases, string description, IReadOnlyList<CommandParameterDescriptor> parameters, bool isPrimaryCommand = false)
+        public CommandDescriptor(MethodInfo methodInfo, string name, IReadOnlyList<string> aliases, string description, IReadOnlyList<CommandParameterDescriptor> parameters, IReadOnlyList<CommandOverloadDescriptor> overloads, bool isPrimaryCommand)
         {
             Method = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Aliases = aliases ?? throw new ArgumentNullException(nameof(aliases));
             Description = description ?? throw new ArgumentNullException(nameof(description));
             Parameters = parameters?.ToArray() ?? throw new ArgumentNullException(nameof(parameters));
+            Overloads = overloads ?? throw new ArgumentNullException(nameof(overloads));
             IsPrimaryCommand = isPrimaryCommand;
 
             Options = Parameters.OfType<CommandOptionDescriptor>().ToArray();

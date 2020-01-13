@@ -15,13 +15,15 @@ namespace Cocona.Command.Dispatcher
         private readonly ICoconaCommandLineParser _commandLineParser;
         private readonly ICoconaCommandLineArgumentProvider _commandLineArgumentProvider;
         private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
+        private readonly ICoconaCommandMatcher _commandMatcher;
 
         public CoconaCommandDispatcher(
             IServiceProvider serviceProvider,
             ICoconaCommandProvider commandProvider,
             ICoconaCommandLineParser commandLineParser,
             ICoconaCommandLineArgumentProvider commandLineArgumentProvider,
-            ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder
+            ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
+            ICoconaCommandMatcher commandMatcher
         )
         {
             _serviceProvider = serviceProvider;
@@ -29,6 +31,7 @@ namespace Cocona.Command.Dispatcher
             _commandLineParser = commandLineParser;
             _commandLineArgumentProvider = commandLineArgumentProvider;
             _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
+            _commandMatcher = commandMatcher;
         }
 
         public ValueTask<int> DispatchAsync()
@@ -42,13 +45,7 @@ namespace Cocona.Command.Dispatcher
                 // multi-commands hosted style
                 if (_commandLineParser.TryGetCommandName(args, out var commandName))
                 {
-                    matchedCommand = commandCollection.All
-                        .FirstOrDefault(x =>
-                            string.Compare(x.Name, commandName, StringComparison.OrdinalIgnoreCase) == 0 ||
-                            x.Aliases.Any(y => string.Compare(y, args[0], StringComparison.OrdinalIgnoreCase) == 0)
-                        );
-
-                    if (matchedCommand == null)
+                    if (!_commandMatcher.TryGetCommand(commandName, commandCollection, out matchedCommand))
                     {
                         throw new CommandNotFoundException(
                             commandName,
@@ -78,6 +75,14 @@ namespace Cocona.Command.Dispatcher
             // Found a command and dispatch.
             if (matchedCommand != null)
             {
+                // resolve command overload
+                if (matchedCommand.Overloads.Any())
+                {
+                    // Try parse command-line for overload resolution by options.
+                    var parsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments);
+                    matchedCommand = _commandMatcher.ResolveOverload(matchedCommand, parsedCommandLine);
+                }
+
                 var commandInstance = ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, matchedCommand.CommandType);
                 var ctx = new CommandDispatchContext(matchedCommand, _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments), commandInstance);
                 var dispatchAsync = _dispatcherPipelineBuilder.Build();

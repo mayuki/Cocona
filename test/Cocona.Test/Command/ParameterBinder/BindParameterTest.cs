@@ -28,17 +28,30 @@ namespace Cocona.Test.Command.ParameterBinder
         public void __Dummy() { }
 #pragma warning restore xUnit1013 // Public method should be marked as test
 
+        private CommandDescriptor CreateCommand(CommandParameterDescriptor[] parameterDescriptors)
+        {
+            return new CommandDescriptor(
+                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
+                "Test",
+                Array.Empty<string>(),
+                "",
+                parameterDescriptors,
+                Array.Empty<CommandOverloadDescriptor>(),
+                false
+            );
+        }
+
+        private CommandOptionDescriptor CreateCommandOption(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue)
+        {
+            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null);
+        }
+
         [Fact]
         public void BindArguments()
         {
             // void Test(string arg0, string arg1, string arg2);
             // Arguments: new [] { "argValue0", "argValue1", "argValue2" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
@@ -60,12 +73,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument(Order = 5)]string arg0, [Argument(Order = 4)]string arg1, [Argument(Order = 3)]string arg2);
             // Arguments: new [] { "argValue0", "argValue1", "argValue2" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string), "arg0", 5, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string), "arg1", 4, "", CoconaDefaultValue.None),
@@ -87,12 +95,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string arg0, [Argument]string arg1, [Argument]string arg2);
             // Arguments: new [] { "argValue0", "argValue1" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
@@ -113,12 +116,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string arg0, [Argument]string arg1, [Argument]string arg2 = "hello");
             // Arguments: new [] { "argValue0", "argValue1" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
@@ -140,12 +138,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string[] arg0, [Argument]string arg1, [Argument]string arg2);
             // Arguments: new [] { "argValue0", "argValue1", "argValue2", "argValue3" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string[]), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
@@ -169,12 +162,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string arg0, [Argument]string[] arg1, [Argument]string arg2);
             // Arguments: new [] { "argValue0", "argValue1", "argValue2", "argValue3" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string[]), "arg1", 1, "", CoconaDefaultValue.None),
@@ -198,12 +186,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string arg0, [Argument]string arg1, [Argument]string[] arg2);
             // Arguments: new [] { "argValue0", "argValue1", "argValue2", "argValue3" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
@@ -227,12 +210,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string arg0, [Argument]string[] arg1, [Argument]string[] arg2);
             // Arguments: new [] { "argValue0", "argValue1", "argValue2", "argValue3" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string[]), "arg1", 1, "", CoconaDefaultValue.None),
@@ -253,12 +231,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string[] arg0);
             // Arguments: new [] { }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string[]), "arg0", 0, "", CoconaDefaultValue.None),
                 }
@@ -277,12 +250,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string[] arg0);
             // Arguments: new [] { }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string[]), "arg0", 0, "", CoconaDefaultValue.None),
                 }
@@ -302,12 +270,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string arg0, [Argument]string arg1, [Argument]string[] arg2);
             // Arguments: new [] { "argValue0", "argValue1" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
@@ -329,12 +292,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string[] arg0, [Argument]string arg1, [Argument]string arg2, [Argument]string arg3);
             // Arguments: new [] { "argValue0", "argValue1" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string[]), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
@@ -356,12 +314,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string[] arg0, [Argument]string arg1 = null, [Argument]string arg2 = null);
             // Arguments: new [] { "argValue0", "argValue1", "argValue2" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string[]), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
@@ -385,12 +338,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string[] arg0, [Argument]string arg1 = null, [Argument]string arg2 = null);
             // Arguments: new [] { "argValue0", "argValue1" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string[]), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
@@ -411,12 +359,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string arg0, [Argument]string[] arg1, [Argument]IReadOnlyList<string> arg2);
             // Arguments: new [] { "argValue0", "argValue1", "argValue2", "argValue3" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string[]), "arg1", 1, "", CoconaDefaultValue.None),
@@ -437,12 +380,7 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             // void Test([Argument]string[] arg0, [Argument]string arg1, [Argument]string arg2);
             // Arguments: new [] { "argValue0", "argValue1", "argValue2", "argValue3" }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandArgumentDescriptor(typeof(List<string>), "arg0", 0, "", CoconaDefaultValue.None),
                     new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None),
@@ -467,15 +405,10 @@ namespace Cocona.Test.Command.ParameterBinder
             // void Test([Option]string option0, [Option]bool option1);
             // Options: --option0=foo --option1
             // Arguments: new [] { }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
-                    new CommandOptionDescriptor(typeof(bool), "option1", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(string), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "option1", Array.Empty<char>(), "", CoconaDefaultValue.None),
                 }
             );
 
@@ -499,14 +432,9 @@ namespace Cocona.Test.Command.ParameterBinder
             // void Test([Option]string option0);
             // Options: 
             // Arguments: new [] { }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(string), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
                 }
             );
 
@@ -526,14 +454,9 @@ namespace Cocona.Test.Command.ParameterBinder
             // void Test([Option]string option0);
             // Options: --option0
             // Arguments: new [] { }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(string), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
                 }
             );
 
@@ -555,15 +478,10 @@ namespace Cocona.Test.Command.ParameterBinder
             // void Test([Option]string option0, [Option]bool option1 = false);
             // Options: --option0=foo
             // Arguments: new [] { }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
-                    new CommandOptionDescriptor(typeof(bool), "option1", Array.Empty<char>(), "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "option1", Array.Empty<char>(), "", new CoconaDefaultValue(false)),
                 }
             );
 
@@ -586,15 +504,10 @@ namespace Cocona.Test.Command.ParameterBinder
             // void Test([Option]string option0, [Option]bool option1 = false);
             // Options: --option0=foo --option1
             // Arguments: new [] { }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
-                    new CommandOptionDescriptor(typeof(bool), "option1", Array.Empty<char>(), "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "option1", Array.Empty<char>(), "", new CoconaDefaultValue(false)),
                 }
             );
 
@@ -618,14 +531,9 @@ namespace Cocona.Test.Command.ParameterBinder
             // void Test([Option]string[] option0);
             // Options: --option0=foo --option0=bar --option0=baz
             // Arguments: new [] { }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(string[]), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(string[]), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
                 }
             );
 
@@ -649,14 +557,9 @@ namespace Cocona.Test.Command.ParameterBinder
             // void Test([Option]List<string> option0);
             // Options: --option0=foo --option0=bar --option0=baz
             // Arguments: new [] { }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(List<string>), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(List<string>), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
                 }
             );
 
@@ -680,14 +583,9 @@ namespace Cocona.Test.Command.ParameterBinder
             // void Test([Option]IReadOnlyList<string> option0);
             // Options: --option0=foo --option0=bar --option0=baz
             // Arguments: new [] { }
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
-                    new CommandOptionDescriptor(typeof(IReadOnlyList<string>), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(IReadOnlyList<string>), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
                 }
             );
 
@@ -709,12 +607,7 @@ namespace Cocona.Test.Command.ParameterBinder
         public void BindService()
         {
             // void Test([FromService]MyService arg0);
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandServiceParameterDescriptor(typeof(MyService)),
                 }
@@ -733,12 +626,7 @@ namespace Cocona.Test.Command.ParameterBinder
         public void BindService_Argument()
         {
             // void Test([FromService]MyService arg0);
-            var commandDescriptor = new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
-                "Test",
-                Array.Empty<string>(),
-                "",
-                new CommandParameterDescriptor[]
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
                 {
                     new CommandServiceParameterDescriptor(typeof(MyService)),
                     new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),

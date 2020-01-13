@@ -16,7 +16,7 @@ namespace Cocona.Command
 
         public bool IsRequired => !DefaultValue.HasValue;
 
-        public CommandOptionDescriptor(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue, string? valueName = null)
+        public CommandOptionDescriptor(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue, string? valueName)
         {
             OptionType = optionType ?? throw new ArgumentNullException(nameof(optionType));
             Name = name ?? throw new ArgumentNullException(nameof(name));
