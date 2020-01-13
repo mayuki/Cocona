@@ -93,6 +93,19 @@ namespace Cocona.Test.Command.CommandDispatcher
             var result = await dispatcher.DispatchAsync();
         }
 
+        [Fact]
+        public async Task CommandNotFound_Multiple_Primary()
+        {
+            var services = CreateDefaultServices<TestMultipleCommand>(new string[] { });
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () => await dispatcher.DispatchAsync());
+            ex.Command.Should().BeEmpty();
+            ex.ImplementedCommands.All.Should().HaveCount(2);
+            ex.ImplementedCommands.Primary.Should().BeNull();
+        }
+
         public class NoCommand
         { }
 
