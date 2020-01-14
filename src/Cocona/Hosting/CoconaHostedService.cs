@@ -83,7 +83,7 @@ namespace Cocona.Hosting
 
                 try
                 {
-                    _runningCommandTask = RunAsync();
+                    _runningCommandTask = Task.Factory.StartNew(RunAsync);
                     await _runningCommandTask;
                 }
                 finally

@@ -5,6 +5,7 @@ using Cocona.Help;
 using Cocona.Help.DocumentModel;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CoconaSampleApp.Simple
@@ -48,6 +49,16 @@ namespace CoconaSampleApp.Simple
             //cts.Cancel();
             //cts.Token.ThrowIfCancellationRequested();
 
+            Console.WriteLine("Canceled.");
+        }
+
+        public void LongRunningSync([FromService]ICoconaAppContextAccessor appContext)
+        {
+            Console.WriteLine("Long running task...");
+            while (!appContext.Current.CancellationToken.IsCancellationRequested)
+            {
+                Thread.Sleep(100);
+            }
             Console.WriteLine("Canceled.");
         }
 
