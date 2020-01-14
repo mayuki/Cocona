@@ -17,14 +17,14 @@ namespace CoconaSampleApp.Simple
         }
 
         [Command(Description = "Greeting from ConsoleApp")]
-        public void Echo([Option('n', Description = "Echo message to console.")]string name)
+        public void Echo([Option('n', Description = "Echo message to console.", ValueName = "Name")]string name)
         {
             Console.WriteLine($"Hello from {name}");
         }
 
-        public void Echo2([Argument]string name, [FromService]ILogger<Program> logger)
+        public void Echo2([Option]string name1, [FromService]ILogger<Program> logger)
         {
-            Console.WriteLine($"Hello from {name}");
+            Console.WriteLine($"Hello from {name1}!!!!");
         }
 
         public void ThrowAndExit()
@@ -41,9 +41,19 @@ namespace CoconaSampleApp.Simple
             while (!appContext.Current.CancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(100);
+                appContext.Current.CancellationToken.ThrowIfCancellationRequested();
             }
 
+            //var cts = new System.Threading.CancellationTokenSource();
+            //cts.Cancel();
+            //cts.Token.ThrowIfCancellationRequested();
+
             Console.WriteLine("Canceled.");
+        }
+
+        public void Number(int foo)
+        {
+            Console.WriteLine(foo);
         }
     }
 

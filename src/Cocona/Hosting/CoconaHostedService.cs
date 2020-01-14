@@ -49,7 +49,7 @@ namespace Cocona.Hosting
                 {
                     try
                     {
-                        Environment.ExitCode = await _commandDispatcher.DispatchAsync(_cancellationTokenSource.Token).AsTask();
+                        Environment.ExitCode = await _commandDispatcher.DispatchAsync(_cancellationTokenSource.Token);
                     }
                     catch (CommandNotFoundException cmdNotFoundEx)
                     {

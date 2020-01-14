@@ -97,7 +97,7 @@ namespace Cocona.Command.Binder
                         if (indexRev == index) throw new ParameterBinderException(ParameterBinderResult.InsufficientArgument, argument: argDesc2.Argument);
                         if (argDesc2.Argument.IsEnumerableLike) throw new ParameterBinderException(ParameterBinderResult.MultipleArrayInArgument, argument: argDesc2.Argument);
 
-                        bindParams[argDesc2.ParameterIndex] = _valueConverter.ConvertTo(argDesc2.Argument.ArgumentType, commandArgumentValues[indexRev--].Value);
+                        bindParams[argDesc2.ParameterIndex] = ConvertTo(argDesc2.Argument, argDesc2.Argument.ArgumentType, commandArgumentValues[indexRev--].Value);
                     }
 
                     // pick rest values to array argment.
@@ -110,10 +110,34 @@ namespace Cocona.Command.Binder
                     return bindParams;
                 }
 
-                bindParams[argDesc.ParameterIndex] = _valueConverter.ConvertTo(argDesc.Argument.ArgumentType, commandArgumentValues[index++].Value);
+                bindParams[argDesc.ParameterIndex] = ConvertTo(argDesc.Argument, argDesc.Argument.ArgumentType, commandArgumentValues[index++].Value);
             }
 
             return bindParams;
+        }
+
+        private object? ConvertTo(CommandOptionDescriptor option, Type type, string value)
+        {
+            try
+            {
+                return _valueConverter.ConvertTo(type, value);
+            }
+            catch (Exception)
+            {
+                throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Option '{option.Name}' requires {type.Name} value. '{value}' cannot be converted to {type.Name} value.", option: option);
+            }
+        }
+
+        private object? ConvertTo(CommandArgumentDescriptor argument, Type type, string value)
+        {
+            try
+            {
+                return _valueConverter.ConvertTo(type, value);
+            }
+            catch (Exception)
+            {
+                throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Argument '{argument.Name}' requires {type.Name} value. 'hello' cannot be converted to {type.Name} value.", argument: argument);
+            }
         }
 
         private object? CreateValue(Type valueType, string?[] values, CommandOptionDescriptor? option, CommandArgumentDescriptor? argument)
@@ -129,7 +153,7 @@ namespace Cocona.Command.Binder
                 var value = values.Last();
                 if (value == null) throw new ParameterBinderException(ParameterBinderResult.InsufficientOptionValue, option, argument);
 
-                return _valueConverter.ConvertTo(valueType, value);
+                return (option != null) ? ConvertTo(option!, valueType, value) : ConvertTo(argument!, valueType, value);
             }
 
             throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Cannot create a instance of type '{valueType.FullName}'", option, argument);

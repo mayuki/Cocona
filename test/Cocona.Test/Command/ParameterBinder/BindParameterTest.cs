@@ -604,6 +604,51 @@ namespace Cocona.Test.Command.ParameterBinder
         }
 
         [Fact]
+        public void BindOptions_CanNotConvertType()
+        {
+            // void Test([Option]int option0);
+            // Options: --option0 hello
+            // Arguments: new [] { }
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(int), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                }
+            );
+
+            var commandOptions = new CommandOption[]
+            {
+                new CommandOption(commandDescriptor.Options[0], "hello"),
+            };
+            var commandArguments = new CommandArgument[] { };
+
+            var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
+            ex.Option.Name.Should().Be("option0");
+            ex.Message.Should().Be("Option 'option0' requires Int32 value. 'hello' cannot be converted to Int32 value.");
+        }
+
+        [Fact]
+        public void BindArguments_CanNotConvertType()
+        {
+            // void Test([Argument]int option0);
+            // Options: hello
+            // Arguments: new [] { }
+            var commandDescriptor = CreateCommand(new CommandParameterDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(int), "arg0", 0, "", CoconaDefaultValue.None),
+                }
+            );
+
+            var commandOptions = new CommandOption[]
+            {
+            };
+            var commandArguments = new CommandArgument[] { new CommandArgument("hello") };
+
+            var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
+            ex.Argument.Name.Should().Be("arg0");
+            ex.Message.Should().Be("Argument 'arg0' requires Int32 value. 'hello' cannot be converted to Int32 value.");
+        }
+
+        [Fact]
         public void BindService()
         {
             // void Test([FromService]MyService arg0);

@@ -32,6 +32,10 @@ namespace Cocona.Command.Dispatcher.Middlewares
             {
                 Console.Error.WriteLine($"Error: Option '--{paramEx.Option!.Name}' requires a value.");
             }
+            catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.TypeNotSupported)
+            {
+                Console.Error.WriteLine($"Error: {paramEx.Message}");
+            }
 
             return 1;
         }
