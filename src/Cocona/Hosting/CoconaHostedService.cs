@@ -19,7 +19,7 @@ namespace Cocona.Hosting
         private readonly IHostApplicationLifetime _lifetime;
 
         private readonly CancellationTokenSource _cancellationTokenSource;
-        private Task<int>? _runningCommandTask;
+        private Task? _runningCommandTask;
 
         public CoconaHostedService(
             ICoconaCommandDispatcher commandDispatcher,
@@ -45,33 +45,46 @@ namespace Cocona.Hosting
 
             _lifetime.ApplicationStarted.Register(async () =>
             {
+                async Task RunAsync()
+                {
+                    try
+                    {
+                        Environment.ExitCode = await _commandDispatcher.DispatchAsync(_cancellationTokenSource.Token).AsTask();
+                    }
+                    catch (CommandNotFoundException cmdNotFoundEx)
+                    {
+                        Console.Error.WriteLine($"Error: '{cmdNotFoundEx.Command}' is not a command. See '--help'");
+
+                        var similarCommands = cmdNotFoundEx.ImplementedCommands.All.Where(x => Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
+                        if (similarCommands.Any())
+                        {
+                            Console.Error.WriteLine();
+                            Console.Error.WriteLine("Similar commands:");
+                            foreach (var c in similarCommands)
+                            {
+                                Console.Error.WriteLine($"  {c.Name}");
+                            }
+                        }
+
+                        Environment.ExitCode = 1;
+                    }
+                    catch (OperationCanceledException ex) when (ex.CancellationToken == _cancellationTokenSource.Token)
+                    {
+                        // NOTE: Ignore OperationCanceledException that was thrown by non-user code.
+                        Environment.ExitCode = 0;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Unhandled Exception: {ex.GetType().FullName}: {ex.Message}");
+                        Console.Error.WriteLine(ex.StackTrace);
+                        Environment.ExitCode = 1;
+                    }
+                }
+
                 try
                 {
-                    _runningCommandTask = _commandDispatcher.DispatchAsync(_cancellationTokenSource.Token).AsTask();
+                    _runningCommandTask = RunAsync();
                     await _runningCommandTask;
-                }
-                catch (CommandNotFoundException cmdNotFoundEx)
-                {
-                    Console.Error.WriteLine($"Error: '{cmdNotFoundEx.Command}' is not a command. See '--help'");
-
-                    var similarCommands = cmdNotFoundEx.ImplementedCommands.All.Where(x => Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
-                    if (similarCommands.Any())
-                    {
-                        Console.Error.WriteLine();
-                        Console.Error.WriteLine("Similar commands:");
-                        foreach (var c in similarCommands)
-                        {
-                            Console.Error.WriteLine($"  {c.Name}");
-                        }
-                    }
-
-                    Environment.ExitCode = 1;
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine($"Unhandled Exception: {ex.Message}");
-                    Console.Error.WriteLine(ex.StackTrace);
-                    Environment.ExitCode = 1;
                 }
                 finally
                 {

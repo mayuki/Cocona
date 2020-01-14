@@ -18,19 +18,11 @@ namespace Cocona.Command.Dispatcher.Middlewares
         {
             try
             {
-                var result = await Next(ctx);
-                Environment.ExitCode = result;
-                return result;
+                return await Next(ctx);
             }
             catch (CommandExitedException exitEx)
             {
-                Environment.ExitCode = exitEx.ExitCode;
                 return exitEx.ExitCode;
-            }
-            catch
-            {
-                Environment.ExitCode = 1;
-                throw;
             }
         }
     }
