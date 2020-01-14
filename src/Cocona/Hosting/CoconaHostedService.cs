@@ -49,7 +49,7 @@ namespace Cocona.Hosting
                 {
                     try
                     {
-                        Environment.ExitCode = await _commandDispatcher.DispatchAsync(_cancellationTokenSource.Token);
+                        Environment.ExitCode = await Task.Run(async () => await _commandDispatcher.DispatchAsync(_cancellationTokenSource.Token));
                     }
                     catch (CommandNotFoundException cmdNotFoundEx)
                     {
@@ -83,7 +83,7 @@ namespace Cocona.Hosting
 
                 try
                 {
-                    _runningCommandTask = Task.Factory.StartNew(RunAsync);
+                    _runningCommandTask = RunAsync();
                     await _runningCommandTask;
                 }
                 finally
