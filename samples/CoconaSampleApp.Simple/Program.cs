@@ -42,7 +42,7 @@ namespace CoconaSampleApp.Simple
             while (!appContext.Current.CancellationToken.IsCancellationRequested)
             {
                 await Task.Delay(100);
-                appContext.Current.CancellationToken.ThrowIfCancellationRequested();
+                //appContext.Current.CancellationToken.ThrowIfCancellationRequested();
             }
 
             //var cts = new System.Threading.CancellationTokenSource();
@@ -66,6 +66,16 @@ namespace CoconaSampleApp.Simple
         {
             Console.WriteLine(foo);
         }
+
+        public void Enum(User user)
+        {
+            Console.WriteLine(user);
+        }
+    }
+
+    public enum User
+    {
+        Alice, Karen, Other
     }
 
     class LongRunningHelpTransformer : ICoconaHelpTransformer
