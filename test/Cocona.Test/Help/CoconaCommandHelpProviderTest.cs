@@ -191,9 +191,41 @@ Commands:
 Options:
   -f, --foo <String>         Foo option (Required)
   -l, --looooooong-option    Long name option
-  -b, --bar <Int32>          has default value (DefaultValue: 123)
+  -b, --bar <Int32>          has default value (Default: 123)
 ".TrimStart());
         }
+
+
+        [Fact]
+        public void CommandHelp_Options_Enum_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new CommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(CommandHelpEnumValue), "enum", new [] { 'e' }, "Enum option", CoconaDefaultValue.None),
+                }
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandHelp(commandDescriptor);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName Test [--enum <CommandHelpEnumValue>]
+
+command description
+
+Options:
+  -e, --enum <CommandHelpEnumValue>    Enum option (Required) (Allowed values: Alice, Karen, Other)
+".TrimStart());
+        }
+
+        public enum CommandHelpEnumValue
+        {
+            Alice, Karen, Other
+        }
+
 
         [Fact]
         public void CreateVersionHelp_VersionOnly()

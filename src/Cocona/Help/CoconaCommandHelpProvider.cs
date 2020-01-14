@@ -92,7 +92,7 @@ namespace Cocona.Help
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
                                         $"{i}: {x.Name}",
-                                        $"{x.Description}{(x.IsRequired ? " (Required)" : (" (DefaultValue=" + x.DefaultValue.Value + ")"))}"
+                                        BuildParameterDescription(x.Description, x.IsRequired, x.ArgumentType, x.DefaultValue)
                                     )
                                 )
                                 .ToArray()
@@ -112,7 +112,7 @@ namespace Cocona.Help
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
                                         (x.ShortName.Any() ? string.Join(", ", x.ShortName.Select(x => $"-{x}")) + ", " : "") + $"--{x.Name}" + (x.OptionType != typeof(bool) ? $" <{x.ValueName}>" : ""),
-                                        $"{x.Description}{(x.IsRequired ? " (Required)" : (x.OptionType == typeof(bool)) ? "" : (" (DefaultValue: " + x.DefaultValue.Value + ")"))}"
+                                        BuildParameterDescription(x.Description, x.IsRequired, x.OptionType, x.DefaultValue)
                                     )
                                 )
                                 .ToArray()
@@ -190,7 +190,7 @@ namespace Cocona.Help
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
                                         (x.ShortName.Any() ? string.Join(", ", x.ShortName.Select(x => $"-{x}")) + ", " : "") + $"--{x.Name}" + (x.OptionType != typeof(bool) ? $" <{x.ValueName}>" : ""),
-                                        $"{x.Description}{(x.IsRequired ? " (Required)" : (x.OptionType == typeof(bool)) ? "" : (" (DefaultValue: " + x.DefaultValue.Value + ")"))}"
+                                        BuildParameterDescription(x.Description, x.IsRequired, x.OptionType, x.DefaultValue)
                                     )
                                 )
                                 .ToArray()
@@ -222,6 +222,20 @@ namespace Cocona.Help
             var version = _applicationMetadataProvider.GetVersion();
 
             return new HelpMessage(new HelpSection(new HelpHeading($"{prodName} {version}")));
+        }
+
+        internal string BuildParameterDescription(string description, bool isRequired, Type valueType, CoconaDefaultValue defaultValue)
+        {
+            return 
+                description +
+                    (isRequired
+                        ? " (Required)"
+                        : (valueType == typeof(bool))
+                            ? ""
+                            : (" (Default: " + defaultValue.Value + ")")) +
+                    (valueType.IsEnum
+                        ? " (Allowed values: " + string.Join(", ", Enum.GetNames(valueType)) + ")"
+                        : "");
         }
     }
 }
