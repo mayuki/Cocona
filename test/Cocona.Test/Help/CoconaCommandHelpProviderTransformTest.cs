@@ -84,6 +84,8 @@ Hello, Konnichiwa!
             text.Should().Be(@"
 Usage: ExeName
 
+command description
+
 Hello, Konnichiwa!
 ".TrimStart());
         }

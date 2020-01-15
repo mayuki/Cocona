@@ -41,6 +41,17 @@ namespace Cocona.Test.Command.CommandProvider
         }
 
         [Fact]
+        public void SingleCommand_Description()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestSingleCommand_Description) });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+            commands.Primary.Should().NotBeNull();
+            commands.Primary.Description.Should().Be("Description of A");
+        }
+
+        [Fact]
         public void MultipleMainCommand_BuiltInPrimary()
         {
             var provider = new CoconaCommandProvider(new[] { typeof(CommandTestMultipleMainCommand) });
@@ -154,9 +165,15 @@ namespace Cocona.Test.Command.CommandProvider
         public class CommandTestNoCommand
         {
         }
-        
+
         public class CommandTestSingleCommand
         {
+            public void A(string name) { }
+        }
+
+        public class CommandTestSingleCommand_Description
+        {
+            [Command(Description = "Description of A")]
             public void A(string name) { }
         }
 

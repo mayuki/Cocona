@@ -72,6 +72,88 @@ namespace Cocona.Test.Help
         }
 
         [Fact]
+        public void CommandIndexHelp_Single_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new CommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                },
+                isPrimaryCommand: true
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName [--foo <String>] [--looooooong-option]
+
+command description
+
+Options:
+  -f, --foo <String>         Foo option (Required)
+  -l, --looooooong-option    Long name option
+".TrimStart());
+        }
+
+        [Fact]
+        public void CommandIndexHelp_Single_NoDescription_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "",
+                new CommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                },
+                isPrimaryCommand: true
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName [--foo <String>] [--looooooong-option]
+
+Options:
+  -f, --foo <String>         Foo option (Required)
+  -l, --looooooong-option    Long name option
+".TrimStart());
+        }
+
+        [Fact]
+        public void CommandIndexHelp_Single_DescriptionFromMetadata_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "",
+                new CommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                },
+                isPrimaryCommand: true
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider() { Description = "via metadata" }, new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName [--foo <String>] [--looooooong-option]
+
+via metadata
+
+Options:
+  -f, --foo <String>         Foo option (Required)
+  -l, --looooooong-option    Long name option
+".TrimStart());
+        }
+
+        [Fact]
         public void CommandHelp_Rendered()
         {
             var commandDescriptor = CreateCommand(
@@ -151,6 +233,8 @@ Options:
             text.Should().Be(@"
 Usage: ExeName [--foo <String>] [--looooooong-option]
 
+command description
+
 Options:
   -f, --foo <String>         Foo option (Required)
   -l, --looooooong-option    Long name option
@@ -173,7 +257,7 @@ Options:
             );
             var commandDescriptor2 = CreateCommand(
                 "Test2",
-                "command description",
+                "command2 description",
                 new CommandParameterDescriptor[0],
                 isPrimaryCommand: false
             );
@@ -185,8 +269,10 @@ Options:
 Usage: ExeName [command]
 Usage: ExeName [--foo <String>] [--looooooong-option] [--bar <Int32>]
 
+command description
+
 Commands:
-  Test2    command description
+  Test2    command2 description
 
 Options:
   -f, --foo <String>         Foo option (Required)

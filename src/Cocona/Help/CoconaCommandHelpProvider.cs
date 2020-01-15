@@ -159,9 +159,13 @@ namespace Cocona.Help
             help.Children.Add(usageSection);
 
             // Description
-            var description = string.IsNullOrWhiteSpace(commandCollection.Description)
-                ? _applicationMetadataProvider.GetDescription()
-                : commandCollection.Description;
+            var description = !string.IsNullOrWhiteSpace(commandCollection.Description)
+                ? commandCollection.Description
+                : !string.IsNullOrWhiteSpace(commandCollection.Primary?.Description)
+                    ? commandCollection.Primary.Description
+                    : !string.IsNullOrWhiteSpace(_applicationMetadataProvider.GetDescription())
+                        ? _applicationMetadataProvider.GetDescription()
+                        : string.Empty;
 
             if (!string.IsNullOrWhiteSpace(description))
             {
