@@ -20,14 +20,16 @@ namespace Cocona.Command.BuiltIn
         private CommandCollection GetCommandCollectionCore()
         {
             var commandCollection = _underlyingCommandProvider.GetCommandCollection();
+            var commands = commandCollection.All;
 
             // If the collection has multiple-commands without primary command, use built-in primary command.
             if (commandCollection.All.Count() > 1 && commandCollection.Primary == null)
             {
-                return new CommandCollection(commandCollection.All.Concat(new[] { BuiltInPrimaryCommand.GetCommand(string.Empty) }).ToArray());
+                commands = commands.Concat(new[] { BuiltInPrimaryCommand.GetCommand(string.Empty) }).ToArray();
             }
 
-            return commandCollection;
+            // Rewrite all command names as lower-case.
+            return new CommandCollection(commands.Select(x => new CommandDescriptor(x.Method, x.Name.ToLower(), x.Aliases, x.Description, x.Parameters, x.Overloads, x.IsPrimaryCommand)).ToArray());
         }
     }
 }
