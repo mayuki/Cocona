@@ -75,7 +75,10 @@ namespace Cocona.CommandLine
                             if (option.OptionType == typeof(bool))
                             {
                                 // Boolean (flag)
-                                options.Add(new CommandOption(option, "true"));
+                                var flag = string.Equals(partRight, "true", StringComparison.OrdinalIgnoreCase) || string.Equals(partRight, "1", StringComparison.OrdinalIgnoreCase)
+                                    ? "true"
+                                    : "false";
+                                options.Add(new CommandOption(option, flag));
                             }
                             else
                             {

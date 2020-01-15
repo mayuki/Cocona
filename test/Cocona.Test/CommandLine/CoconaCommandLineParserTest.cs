@@ -405,6 +405,127 @@ namespace Cocona.Test.CommandLine
         }
 
         [Fact]
+        public void ParseCommand_LongOptions_Boolean_Equal_False_DefaultTrue()
+        {
+            var args = new[] { "--flag=false" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(bool), "flag", new [] { 'f' }, "", new CoconaDefaultValue(true)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().HaveCount(1);
+            parsed.Options[0].Value.Should().Be("false");
+            parsed.Arguments.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ParseCommand_LongOptions_Boolean_Equal_Non_True()
+        {
+            var args = new[] { "--flag=0" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(bool), "flag", new [] { 'f' }, "", new CoconaDefaultValue(true)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().HaveCount(1);
+            parsed.Options[0].Value.Should().Be("false");
+            parsed.Arguments.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ParseCommand_LongOptions_Boolean_Equal_True_DefaultTrue()
+        {
+            var args = new[] { "--flag=true" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(bool), "flag", new [] { 'f' }, "", new CoconaDefaultValue(true)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().HaveCount(1);
+            parsed.Options[0].Value.Should().Be("true");
+            parsed.Arguments.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ParseCommand_LongOptions_Boolean_Equal_False_DefaultFalse()
+        {
+            var args = new[] { "--flag=false" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(bool), "flag", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().HaveCount(1);
+            parsed.Options[0].Value.Should().Be("false");
+            parsed.Arguments.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ParseCommand_LongOptions_Boolean_Equal_True_DefaultFalse()
+        {
+            var args = new[] { "--flag=true" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(bool), "flag", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().HaveCount(1);
+            parsed.Options[0].Value.Should().Be("true");
+            parsed.Arguments.Should().BeEmpty();
+        }
+
+
+        [Fact]
+        public void ParseCommand_LongOptions_Boolean_NonEqual_Ignored()
+        {
+            var args = new[] { "--flag", "false" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(bool), "flag", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().HaveCount(1);
+            parsed.Options[0].Value.Should().Be("true"); // --flag
+            parsed.Arguments.Should().NotBeEmpty(); // false
+        }
+
+        [Fact]
         public void ParseCommand_ShortOptionWithValue_Arguments()
         {
             var args = new[] { "-rm", "Message", "src1", "src2", "src3", "dest" };
