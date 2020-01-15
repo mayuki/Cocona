@@ -126,6 +126,20 @@ namespace Cocona.Test.Command.CommandProvider
             commands.Primary.Should().NotBeNull();
         }
 
+        [Fact]
+        public void DuplicateSameNameCommand()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDuplicateSameNameCommand) });
+            var ex = Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
+        }
+
+        [Fact]
+        public void DuplicateSameNameInAliasCommand()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDuplicateSameNameInAliasCommand) });
+            var ex = Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
+        }
+
         public class CommandTestDefaultPrimaryCommand_Argument
         {
             public void A([Argument]string[] args) { }
@@ -200,6 +214,20 @@ namespace Cocona.Test.Command.CommandProvider
             public void A(string name) { }
             [PrimaryCommand]
             public void B(string name) { }
+        }
+
+        public class CommandTestDuplicateSameNameCommand
+        {
+            public void A() { }
+            [Command("a")]
+            public void B() { }
+        }
+
+        public class CommandTestDuplicateSameNameInAliasCommand
+        {
+            public void A() { }
+            [Command("B", Aliases = new [] { "A" })]
+            public void B() { }
         }
     }
 }

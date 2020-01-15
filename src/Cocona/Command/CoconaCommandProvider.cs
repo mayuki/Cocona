@@ -53,7 +53,30 @@ namespace Cocona.Command
             }
 
             var hasMultipleCommand = commandMethods.Count > 1;
-            var commands = commandMethods.Select(x => CreateCommand(x, !hasMultipleCommand, overloadCommandMethods)).ToArray();
+            var commandNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var commands = new List<CommandDescriptor>();
+            foreach (var command in commandMethods.Select(x => CreateCommand(x, !hasMultipleCommand, overloadCommandMethods)))
+            {
+                if (commandNames.Contains(command.Name))
+                {
+                    throw new CoconaException($"Command '{command.Name}' has already exists. (Method: {command.Method.Name})");
+                }
+                commandNames.Add(command.Name);
+
+                if (command.Aliases.Any())
+                {
+                    foreach (var alias in command.Aliases)
+                    {
+                        if (commandNames.Contains(alias))
+                        {
+                            throw new CoconaException($"Command alias '{alias}' has already exists in commands. (Method: {command.Method.Name})");
+                        }
+                        commandNames.Add(alias);
+                    }
+                }
+
+                commands.Add(command);
+            }
 
             return new CommandCollection(commands);
         }

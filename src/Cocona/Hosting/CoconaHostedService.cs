@@ -53,7 +53,14 @@ namespace Cocona.Hosting
                     }
                     catch (CommandNotFoundException cmdNotFoundEx)
                     {
-                        Console.Error.WriteLine($"Error: '{cmdNotFoundEx.Command}' is not a command. See '--help'");
+                        if (string.IsNullOrWhiteSpace(cmdNotFoundEx.Command))
+                        {
+                            Console.Error.WriteLine($"Error: {cmdNotFoundEx.Message}");
+                        }
+                        else
+                        {
+                            Console.Error.WriteLine($"Error: '{cmdNotFoundEx.Command}' is not a command. See '--help'");
+                        }
 
                         var similarCommands = cmdNotFoundEx.ImplementedCommands.All.Where(x => Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
                         if (similarCommands.Any())
