@@ -41,6 +41,7 @@ namespace Cocona.Hosting
                 .UseMiddleware<HandleExceptionAndExitMiddleware>()
                 .UseMiddleware<HandleParameterBindExceptionMiddleware>()
                 .UseMiddleware<RejectUnknownOptionsMiddleware>()
+                .UseMiddleware<CommandFilterMiddleware>()
                 .UseMiddleware<InitializeConsoleAppMiddleware>()
                 .UseMiddleware<CoconaCommandInvokeMiddleware>();
 
