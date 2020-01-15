@@ -221,6 +221,56 @@ Options:
 ".TrimStart());
         }
 
+        [Fact]
+        public void CommandHelp_Options_Boolean_DefaultFalse_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new CommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(bool), "flag", new [] { 'f' }, "Boolean option", new CoconaDefaultValue(false)),
+                }
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandHelp(commandDescriptor);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName Test [--flag]
+
+command description
+
+Options:
+  -f, --flag    Boolean option
+".TrimStart());
+        }
+
+        [Fact]
+        public void CommandHelp_Options_Boolean_DefaultTrue_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new CommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(bool), "flag", new [] { 'f' }, "Boolean option", new CoconaDefaultValue(true)),
+                }
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandHelp(commandDescriptor);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName Test [--flag=<true|false>]
+
+command description
+
+Options:
+  -f, --flag=<true|false>    Boolean option (Default: True)
+".TrimStart());
+        }
+
         public enum CommandHelpEnumValue
         {
             Alice, Karen, Other

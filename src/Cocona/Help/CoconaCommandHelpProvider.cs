@@ -40,7 +40,14 @@ namespace Cocona.Help
                     sb.Append(" ");
                     if (opt.OptionType == typeof(bool))
                     {
-                        sb.Append($"[--{opt.Name}]");
+                        if (opt.DefaultValue.HasValue && opt.DefaultValue.Value.Equals(true))
+                        {
+                            sb.Append($"[--{opt.Name}=<true|false>]");
+                        }
+                        else
+                        {
+                            sb.Append($"[--{opt.Name}]");
+                        }
                     }
                     else
                     {
@@ -111,7 +118,7 @@ namespace Cocona.Help
                             command.Options
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
-                                        (x.ShortName.Any() ? string.Join(", ", x.ShortName.Select(x => $"-{x}")) + ", " : "") + $"--{x.Name}" + (x.OptionType != typeof(bool) ? $" <{x.ValueName}>" : ""),
+                                        BuildParameterLabel(x),
                                         BuildParameterDescription(x.Description, x.IsRequired, x.OptionType, x.DefaultValue)
                                     )
                                 )
@@ -189,7 +196,7 @@ namespace Cocona.Help
                             commandCollection.Primary.Options
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
-                                        (x.ShortName.Any() ? string.Join(", ", x.ShortName.Select(x => $"-{x}")) + ", " : "") + $"--{x.Name}" + (x.OptionType != typeof(bool) ? $" <{x.ValueName}>" : ""),
+                                        BuildParameterLabel(x),
                                         BuildParameterDescription(x.Description, x.IsRequired, x.OptionType, x.DefaultValue)
                                     )
                                 )
@@ -224,13 +231,26 @@ namespace Cocona.Help
             return new HelpMessage(new HelpSection(new HelpHeading($"{prodName} {version}")));
         }
 
+        internal string BuildParameterLabel(CommandOptionDescriptor option)
+        {
+            return (option.ShortName.Any() ? string.Join(", ", option.ShortName.Select(x => $"-{x}")) + ", " : "") +
+                $"--{option.Name}" +
+                (
+                    option.OptionType == typeof(bool)
+                        ? option.DefaultValue.HasValue && option.DefaultValue.Value.Equals(true)
+                            ? "=<true|false>"
+                            : ""
+                        : $" <{option.ValueName}>"
+                );
+        }
+
         internal string BuildParameterDescription(string description, bool isRequired, Type valueType, CoconaDefaultValue defaultValue)
         {
             return 
                 description +
                     (isRequired
                         ? " (Required)"
-                        : (valueType == typeof(bool))
+                        : (valueType == typeof(bool) && defaultValue.Value.Equals(false))
                             ? ""
                             : (" (Default: " + defaultValue.Value + ")")) +
                     (valueType.IsEnum
