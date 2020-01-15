@@ -41,6 +41,7 @@ namespace Cocona.Hosting
                 .UseMiddleware<HandleExceptionAndExitMiddleware>()
                 .UseMiddleware<HandleParameterBindExceptionMiddleware>()
                 .UseMiddleware<RejectUnknownOptionsMiddleware>()
+                .UseMiddleware<InitializeConsoleAppMiddleware>()
                 .UseMiddleware<CoconaCommandInvokeMiddleware>();
 
             _lifetime.ApplicationStarted.Register(async () =>

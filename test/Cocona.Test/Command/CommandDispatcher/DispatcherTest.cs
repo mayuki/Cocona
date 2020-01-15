@@ -20,16 +20,16 @@ namespace Cocona.Test.Command.CommandDispatcher
         private ServiceCollection CreateDefaultServices<TCommand>(string[] args)
         {
             var services = new ServiceCollection();
-            services.AddTransient<ICoconaCommandProvider>(serviceProvider => new CoconaCommandProvider(new Type[] { typeof(TCommand) }));
-            services.AddTransient<ICoconaCommandLineArgumentProvider>(serviceProvider => new CoconaCommandLineArgumentProvider(args));
+            services.AddSingleton<ICoconaCommandProvider>(serviceProvider => new CoconaCommandProvider(new Type[] { typeof(TCommand) }));
+            services.AddSingleton<ICoconaCommandLineArgumentProvider>(serviceProvider => new CoconaCommandLineArgumentProvider(args));
             services.AddTransient<ICoconaParameterBinder, CoconaParameterBinder>();
             services.AddTransient<ICoconaValueConverter, CoconaValueConverter>();
             services.AddTransient<ICoconaCommandLineParser, CoconaCommandLineParser>();
             services.AddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
             services.AddTransient<ICoconaCommandMatcher, CoconaCommandMatcher>();
-            services.AddTransient<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
-            services.AddTransient<ILoggerFactory, LoggerFactory>();
-            services.AddTransient<ICoconaCommandDispatcherPipelineBuilder>(
+            services.AddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
+            services.AddSingleton<ILoggerFactory, LoggerFactory>();
+            services.AddSingleton<ICoconaCommandDispatcherPipelineBuilder>(
                 serviceProvider => new CoconaCommandDispatcherPipelineBuilder(serviceProvider).UseMiddleware<CoconaCommandInvokeMiddleware>());
 
             services.AddSingleton<TestCommand>();
