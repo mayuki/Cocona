@@ -123,7 +123,7 @@ namespace Cocona.Command.Dispatcher
             throw new CommandNotFoundException(
                 string.Empty,
                 commandCollection,
-                $"No commands are implemented yet."
+                $"Command not yet implemented."
             );
         }
     }
