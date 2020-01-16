@@ -11,6 +11,7 @@
     <Copyright>Copyright 2020-present Mayuki Sawatari</Copyright>
     <PackageProjectUrl>https://github.com/mayuki/Cocona</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mayuki/Cocona</RepositoryUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/mayuki/Cocona/master/docs/assets/icon.png</PackageIconUrl>
     <PackageTags>CLI Framework Console</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
