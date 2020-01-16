@@ -1,4 +1,4 @@
-﻿using Cocona.Application;
+using Cocona.Application;
 using Cocona.Command;
 using Cocona.Command.Binder;
 using Cocona.Command.BuiltIn;
@@ -35,6 +35,7 @@ namespace Microsoft.Extensions.Hosting
                     services.TryAddSingleton<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
                     services.TryAddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
                     services.TryAddSingleton<ICoconaApplicationMetadataProvider, CoconaApplicationMetadataProvider>();
+                    services.TryAddSingleton<ICoconaConsoleProvider, CoconaConsoleProvider>();
 
                     services.TryAddTransient<ICoconaParameterBinder, CoconaParameterBinder>();
                     services.TryAddTransient<ICoconaValueConverter, CoconaValueConverter>();

@@ -1,4 +1,4 @@
-﻿using Cocona.Application;
+using Cocona.Application;
 using Cocona.Help;
 using System;
 using System.Collections.Generic;
@@ -13,13 +13,15 @@ namespace Cocona.Command.Dispatcher.Middlewares
         private readonly ICoconaHelpRenderer _helpRenderer;
         private readonly ICoconaCommandHelpProvider _commandHelpProvider;
         private readonly ICoconaCommandProvider _commandProvider;
+        private readonly ICoconaConsoleProvider _console;
 
-        public CommandHelpMiddleware(CommandDispatchDelegate next, ICoconaHelpRenderer helpRenderer, ICoconaCommandHelpProvider commandHelpProvider, ICoconaCommandProvider commandProvider)
+        public CommandHelpMiddleware(CommandDispatchDelegate next, ICoconaHelpRenderer helpRenderer, ICoconaCommandHelpProvider commandHelpProvider, ICoconaCommandProvider commandProvider, ICoconaConsoleProvider console)
             : base(next)
         {
             _helpRenderer = helpRenderer;
             _commandHelpProvider = commandHelpProvider;
             _commandProvider = commandProvider;
+            _console = console;
         }
 
         public override ValueTask<int> DispatchAsync(CommandDispatchContext ctx)
@@ -32,7 +34,7 @@ namespace Cocona.Command.Dispatcher.Middlewares
                     ? _commandHelpProvider.CreateCommandsIndexHelp(_commandProvider.GetCommandCollection())
                     : _commandHelpProvider.CreateCommandHelp(ctx.Command);
 
-                Console.Write(_helpRenderer.Render(help));
+                _console.Output.Write(_helpRenderer.Render(help));
                 return new ValueTask<int>(129);
             }
 

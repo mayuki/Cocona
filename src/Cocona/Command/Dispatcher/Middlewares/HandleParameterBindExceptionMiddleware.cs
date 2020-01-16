@@ -1,4 +1,5 @@
-﻿using Cocona.Command.Binder;
+using Cocona.Application;
+using Cocona.Command.Binder;
 using Cocona.Help;
 using System;
 using System.Collections.Generic;
@@ -10,8 +11,11 @@ namespace Cocona.Command.Dispatcher.Middlewares
 {
     public class HandleParameterBindExceptionMiddleware : CommandDispatcherMiddleware
     {
-        public HandleParameterBindExceptionMiddleware(CommandDispatchDelegate next) : base(next)
+        private readonly ICoconaConsoleProvider _console;
+
+        public HandleParameterBindExceptionMiddleware(CommandDispatchDelegate next, ICoconaConsoleProvider console) : base(next)
         {
+            _console = console;
         }
 
         public override async ValueTask<int> DispatchAsync(CommandDispatchContext ctx)
@@ -22,19 +26,19 @@ namespace Cocona.Command.Dispatcher.Middlewares
             }
             catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.InsufficientArgument)
             {
-                Console.Error.WriteLine($"Error: Argument '{paramEx.Argument!.Name}' is required.");
+                _console.Error.WriteLine($"Error: Argument '{paramEx.Argument!.Name}' is required.");
             }
             catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.InsufficientOption)
             {
-                Console.Error.WriteLine($"Error: Option '--{paramEx.Option!.Name}' is required.");
+                _console.Error.WriteLine($"Error: Option '--{paramEx.Option!.Name}' is required.");
             }
             catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.InsufficientOptionValue)
             {
-                Console.Error.WriteLine($"Error: Option '--{paramEx.Option!.Name}' requires a value.");
+                _console.Error.WriteLine($"Error: Option '--{paramEx.Option!.Name}' requires a value.");
             }
             catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.TypeNotSupported)
             {
-                Console.Error.WriteLine($"Error: {paramEx.Message}");
+                _console.Error.WriteLine($"Error: {paramEx.Message}");
             }
 
             return 1;

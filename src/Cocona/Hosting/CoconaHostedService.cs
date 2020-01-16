@@ -1,4 +1,5 @@
-﻿using Cocona.Command;
+using Cocona.Application;
+using Cocona.Command;
 using Cocona.Command.Dispatcher;
 using Cocona.Command.Dispatcher.Middlewares;
 using Cocona.Internal;
@@ -14,6 +15,7 @@ namespace Cocona.Hosting
 {
     public class CoconaHostedService : IHostedService
     {
+        private readonly ICoconaConsoleProvider _console;
         private readonly ICoconaCommandDispatcher _commandDispatcher;
         private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
         private readonly IHostApplicationLifetime _lifetime;
@@ -22,11 +24,13 @@ namespace Cocona.Hosting
         private Task? _runningCommandTask;
 
         public CoconaHostedService(
+            ICoconaConsoleProvider console,
             ICoconaCommandDispatcher commandDispatcher,
             ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
             IHostApplicationLifetime lifetime
         )
         {
+            _console = console;
             _commandDispatcher = commandDispatcher;
             _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
             _lifetime = lifetime;
@@ -57,21 +61,21 @@ namespace Cocona.Hosting
                     {
                         if (string.IsNullOrWhiteSpace(cmdNotFoundEx.Command))
                         {
-                            Console.Error.WriteLine($"Error: {cmdNotFoundEx.Message}");
+                            _console.Error.WriteLine($"Error: {cmdNotFoundEx.Message}");
                         }
                         else
                         {
-                            Console.Error.WriteLine($"Error: '{cmdNotFoundEx.Command}' is not a command. See '--help'");
+                            _console.Error.WriteLine($"Error: '{cmdNotFoundEx.Command}' is not a command. See '--help'");
                         }
 
                         var similarCommands = cmdNotFoundEx.ImplementedCommands.All.Where(x => Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
                         if (similarCommands.Any())
                         {
-                            Console.Error.WriteLine();
-                            Console.Error.WriteLine("Similar commands:");
+                            _console.Error.WriteLine();
+                            _console.Error.WriteLine("Similar commands:");
                             foreach (var c in similarCommands)
                             {
-                                Console.Error.WriteLine($"  {c.Name}");
+                                _console.Error.WriteLine($"  {c.Name}");
                             }
                         }
 
@@ -84,8 +88,9 @@ namespace Cocona.Hosting
                     }
                     catch (Exception ex)
                     {
-                        Console.Error.WriteLine($"Unhandled Exception: {ex.GetType().FullName}: {ex.Message}");
-                        Console.Error.WriteLine(ex.StackTrace);
+                        _console.Error.WriteLine($"Unhandled Exception: {ex.GetType().FullName}: {ex.Message}");
+                        _console.Error.WriteLine(ex.StackTrace);
+
                         Environment.ExitCode = 1;
                     }
                 }

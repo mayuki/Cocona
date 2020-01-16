@@ -1,4 +1,5 @@
-﻿using Cocona.Help;
+using Cocona.Application;
+using Cocona.Help;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,12 +8,14 @@ namespace Cocona.Command.BuiltIn
 {
     public class BuiltInPrimaryCommand
     {
+        private readonly ICoconaConsoleProvider _console;
         private readonly ICoconaCommandHelpProvider _commandHelpProvider;
         private readonly ICoconaHelpRenderer _helpRenderer;
         private readonly ICoconaCommandProvider _commandProvider;
 
-        public BuiltInPrimaryCommand(ICoconaCommandHelpProvider commandHelpProvider, ICoconaHelpRenderer helpRenderer, ICoconaCommandProvider commandProvider)
+        public BuiltInPrimaryCommand(ICoconaConsoleProvider console, ICoconaCommandHelpProvider commandHelpProvider, ICoconaHelpRenderer helpRenderer, ICoconaCommandProvider commandProvider)
         {
+            _console = console;
             _commandHelpProvider = commandHelpProvider;
             _helpRenderer = helpRenderer;
             _commandProvider = commandProvider;
@@ -42,11 +45,11 @@ namespace Cocona.Command.BuiltIn
         {
             if (version)
             {
-                Console.Write(_helpRenderer.Render(_commandHelpProvider.CreateVersionHelp()));
+                _console.Output.Write(_helpRenderer.Render(_commandHelpProvider.CreateVersionHelp()));
             }
             else
             {
-                Console.Write(_helpRenderer.Render(_commandHelpProvider.CreateCommandsIndexHelp(_commandProvider.GetCommandCollection())));
+                _console.Output.Write(_helpRenderer.Render(_commandHelpProvider.CreateCommandsIndexHelp(_commandProvider.GetCommandCollection())));
             }
         }
     }
