@@ -8,10 +8,10 @@ namespace CoconaSample.Advanced.PreventMultipleInstances
     public class PreventMultipleInstancesAttribute : CommandFilterAttribute
     {
         private readonly Mutex _mutex = new Mutex(false, System.Reflection.Assembly.GetEntryAssembly().GetName().Name);
-        private bool _isRunning;
 
         public override ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
         {
+            var isRunning = false;
             try
             {
                 if (!_mutex.WaitOne(0, false))
@@ -19,14 +19,14 @@ namespace CoconaSample.Advanced.PreventMultipleInstances
                     Console.Error.WriteLine("Error: The application is already running.");
                     return new ValueTask<int>(1);
                 }
-                
-                _isRunning = true;
+
+                isRunning = true;
 
                 return next(ctx);
             }
             finally
             {
-                if (_isRunning)
+                if (isRunning)
                 {
                     _mutex.ReleaseMutex();
                 }
