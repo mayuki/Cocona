@@ -33,6 +33,7 @@ steps:
 - task: NuGetCommand@2
   displayName: 'NuGet push'
   inputs:
-    command: push
-    publishVstsFeed: 'Cocona-Canary'
+    command: 'push'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: 'fb5f5542-197b-4b74-85dc-e7028e5541de/72ea1975-d994-41bf-b517-185b51130c29'
     allowPackageConflicts: true
