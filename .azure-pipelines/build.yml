@@ -1,0 +1,18 @@
+name: $(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    useGlobalJson: true
+
+- script: dotnet restore -c Release
+- script: dotnet build -c Release
+- script: dotnet test -c Release --no-build
+- script: dotnet pack -c Release --no-build --version-suffix ci-$BUILD_BUILDNUMBER
