@@ -14,13 +14,19 @@ namespace Cocona
         /// </summary>
         public int ExitCode { get; }
 
+        /// <summary>
+        /// Gets an message on the command exited.
+        /// </summary>
+        public string? ExitMessage { get; }
+
         public CommandExitedException(int exitCode)
-            : this($"The command has exited with code '{exitCode}'.", exitCode)
+            : this(null, exitCode)
         { }
 
-        protected CommandExitedException(string message, int exitCode)
-            : base(message)
+        public CommandExitedException(string? exitMessage, int exitCode)
+            : base($"The command has exited with code '{exitCode}'." + (string.IsNullOrEmpty(exitMessage) ? string.Empty : " " + exitMessage))
         {
+            ExitMessage = exitMessage;
             ExitCode = exitCode;
         }
     }
