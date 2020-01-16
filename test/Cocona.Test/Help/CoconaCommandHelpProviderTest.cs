@@ -1,4 +1,4 @@
-﻿using Cocona.Application;
+using Cocona.Application;
 using Cocona.Command;
 using Cocona.Help;
 using FluentAssertions;
@@ -234,6 +234,38 @@ Options:
 Usage: ExeName [--foo <String>] [--looooooong-option]
 
 command description
+
+Options:
+  -f, --foo <String>         Foo option (Required)
+  -l, --looooooong-option    Long name option
+".TrimStart());
+        }
+
+        [Fact]
+        public void CreateCommandsIndexHelp_Arguments_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new CommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "Argument description", CoconaDefaultValue.None),
+                },
+                isPrimaryCommand: true
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName [--foo <String>] [--looooooong-option] arg0
+
+command description
+
+Arguments:
+  0: arg0    Argument description (Required)
 
 Options:
   -f, --foo <String>         Foo option (Required)

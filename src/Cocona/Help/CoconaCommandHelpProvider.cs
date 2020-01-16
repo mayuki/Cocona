@@ -1,4 +1,4 @@
-﻿using Cocona.Application;
+using Cocona.Application;
 using Cocona.Command;
 using Cocona.Help.DocumentModel;
 using Microsoft.Extensions.DependencyInjection;
@@ -89,44 +89,10 @@ namespace Cocona.Help
             }
 
             // Arguments
-            if (command.Arguments.Any())
-            {
-                help.Children.Add(new HelpSection(HelpSectionId.Arguments,
-                    new HelpHeading("Arguments:"),
-                    new HelpSection(
-                        new HelpLabelDescriptionList(
-                            command.Arguments
-                                .Select((x, i) =>
-                                    new HelpLabelDescriptionListItem(
-                                        $"{i}: {x.Name}",
-                                        BuildParameterDescription(x.Description, x.IsRequired, x.ArgumentType, x.DefaultValue)
-                                    )
-                                )
-                                .ToArray()
-                        )
-                    )
-                ));
-            }
+            AddHelpForCommandArguments(help, command.Arguments);
 
             // Options
-            if (command.Options.Any())
-            {
-                help.Children.Add(new HelpSection(HelpSectionId.Options,
-                    new HelpHeading("Options:"),
-                    new HelpSection(
-                        new HelpLabelDescriptionList(
-                            command.Options
-                                .Select((x, i) =>
-                                    new HelpLabelDescriptionListItem(
-                                        BuildParameterLabel(x),
-                                        BuildParameterDescription(x.Description, x.IsRequired, x.OptionType, x.DefaultValue)
-                                    )
-                                )
-                                .ToArray()
-                        )
-                    )
-                ));
-            }
+            AddHelpForCommandOptions(help, command.Options);
 
             // Transform help document
             var transformAttrs = command.Method.GetCustomAttributes<TransformHelpAttribute>();
@@ -190,24 +156,14 @@ namespace Cocona.Help
                 ));
             }
 
-            // Options
-            if (commandCollection.Primary != null && commandCollection.Primary.Options.Any())
+            // Show helps for primary command.
+            if (commandCollection.Primary != null)
             {
-                help.Children.Add(new HelpSection(HelpSectionId.Options,
-                    new HelpHeading("Options:"),
-                    new HelpSection(
-                        new HelpLabelDescriptionList(
-                            commandCollection.Primary.Options
-                                .Select((x, i) =>
-                                    new HelpLabelDescriptionListItem(
-                                        BuildParameterLabel(x),
-                                        BuildParameterDescription(x.Description, x.IsRequired, x.OptionType, x.DefaultValue)
-                                    )
-                                )
-                                .ToArray()
-                        )
-                    )
-                ));
+                // Arguments
+                AddHelpForCommandArguments(help, commandCollection.Primary.Arguments);
+
+                // Options
+                AddHelpForCommandOptions(help, commandCollection.Primary.Options);
             }
 
             // Transform help document
@@ -235,7 +191,51 @@ namespace Cocona.Help
             return new HelpMessage(new HelpSection(new HelpHeading($"{prodName} {version}")));
         }
 
-        internal string BuildParameterLabel(CommandOptionDescriptor option)
+        private void AddHelpForCommandArguments(HelpMessage help, IEnumerable<CommandArgumentDescriptor> arguments)
+        {
+            if (arguments.Any())
+            {
+                help.Children.Add(new HelpSection(HelpSectionId.Arguments,
+                    new HelpHeading("Arguments:"),
+                    new HelpSection(
+                        new HelpLabelDescriptionList(
+                            arguments
+                                .Select((x, i) =>
+                                    new HelpLabelDescriptionListItem(
+                                        $"{i}: {x.Name}",
+                                        BuildParameterDescription(x.Description, x.IsRequired, x.ArgumentType, x.DefaultValue)
+                                    )
+                                )
+                                .ToArray()
+                        )
+                    )
+                ));
+            }
+        }
+
+        private void AddHelpForCommandOptions(HelpMessage help, IEnumerable<CommandOptionDescriptor> options)
+        {
+            if (options.Any())
+            {
+                help.Children.Add(new HelpSection(HelpSectionId.Options,
+                    new HelpHeading("Options:"),
+                    new HelpSection(
+                        new HelpLabelDescriptionList(
+                            options
+                                .Select((x, i) =>
+                                    new HelpLabelDescriptionListItem(
+                                        BuildParameterLabel(x),
+                                        BuildParameterDescription(x.Description, x.IsRequired, x.OptionType, x.DefaultValue)
+                                    )
+                                )
+                                .ToArray()
+                        )
+                    )
+                ));
+            }
+        }
+
+        private string BuildParameterLabel(CommandOptionDescriptor option)
         {
             return (option.ShortName.Any() ? string.Join(", ", option.ShortName.Select(x => $"-{x}")) + ", " : "") +
                 $"--{option.Name}" +
@@ -248,7 +248,7 @@ namespace Cocona.Help
                 );
         }
 
-        internal string BuildParameterDescription(string description, bool isRequired, Type valueType, CoconaDefaultValue defaultValue)
+        private string BuildParameterDescription(string description, bool isRequired, Type valueType, CoconaDefaultValue defaultValue)
         {
             return 
                 description +
