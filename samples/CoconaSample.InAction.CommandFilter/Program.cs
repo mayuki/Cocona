@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CoconaSample.InAction.CommandFilter
 {
+    [SampleCommandFilter("Class")]
     class Program
     {
         static void Main(string[] args)
@@ -15,10 +16,11 @@ namespace CoconaSample.InAction.CommandFilter
         }
 
         // Example:
-        //     [SampleCommandFilter]
-        //         [SampleCommandFilterWithDI]
-        //             Hello (Command)
-        [SampleCommandFilter]
+        //     [SampleCommandFilter(Class)]
+        //         [SampleCommandFilter(Method)]
+        //             [SampleCommandFilterWithDI]
+        //                 Hello (Command)
+        [SampleCommandFilter("Method")]
         [SampleCommandFilterWithDI]
         public void Hello()
         {
@@ -28,21 +30,28 @@ namespace CoconaSample.InAction.CommandFilter
 
     class SampleCommandFilterAttribute : CommandFilterAttribute
     {
+        private readonly string _label;
+
+        public SampleCommandFilterAttribute(string label)
+        {
+            _label = label;
+        }
+
         public override async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
         {
-            Console.WriteLine($"[SampleCommandFilter] Before Command: {ctx.Command.Name}");
+            Console.WriteLine($"[SampleCommandFilter({_label})] Before Command: {ctx.Command.Name}");
             try
             {
                 return await next(ctx);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[SampleCommandFilter] Exception: {ex.GetType().FullName}: {ex.Message}");
+                Console.WriteLine($"[SampleCommandFilter({_label})] Exception: {ex.GetType().FullName}: {ex.Message}");
                 throw;
             }
             finally
             {
-                Console.WriteLine($"[SampleCommandFilter] End Command: {ctx.Command.Name}");
+                Console.WriteLine($"[SampleCommandFilter({_label})] End Command: {ctx.Command.Name}");
             }
         }
     }
