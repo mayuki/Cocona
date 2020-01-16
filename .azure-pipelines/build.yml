@@ -12,7 +12,19 @@ steps:
     packageType: 'sdk'
     useGlobalJson: true
 
-- script: dotnet restore -c Release
+- script: dotnet restore
+  displayName: dotnet restore
+
 - script: dotnet build -c Release
-- script: dotnet test -c Release --no-build
+  displayName: dotnet build
+
+- script: dotnet test -c Release --no-build --logger trx
+  displayName: dotnet test
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: VSTest
+    testResultsFiles: '**/*.trx'
+
 - script: dotnet pack -c Release --no-build --version-suffix ci-$BUILD_BUILDNUMBER
+  displayName: dotnet pack
