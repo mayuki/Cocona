@@ -26,8 +26,13 @@ steps:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
 
-- script: dotnet pack -c Release --no-build --version-suffix ci-$BUILD_BUILDNUMBER --include-symbols --output ./build/
+- script: dotnet pack -c Release --no-build --version-suffix ci-$BUILD_BUILDNUMBER --include-symbols --output $BUILD_ARTIFACTSTAGINGDIRECTORY
   displayName: dotnet pack
-
-- script: dotnet nuget push --source "Cocona-Canary" --api-key az ./build/*.nupkg
-  displayName: dotnet nuget push
+- task: NuGetAuthenticate@0
+  displayName: 'NuGet Authenticate'
+- task: NuGetCommand@2
+  displayName: 'NuGet push'
+  inputs:
+    command: push
+    publishVstsFeed: 'Cocona-Canary'
+    allowPackageConflicts: true
