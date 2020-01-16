@@ -26,5 +26,8 @@ steps:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
 
-- script: dotnet pack -c Release --no-build --version-suffix ci-$BUILD_BUILDNUMBER
+- script: dotnet pack -c Release --no-build --version-suffix ci-$BUILD_BUILDNUMBER --include-symbols --output ./build/
   displayName: dotnet pack
+
+- script: dotnet nuget push --source "Cocona-Canary" --api-key az ./build/*.nupkg
+  displayName: dotnet nuget push
