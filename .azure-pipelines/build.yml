@@ -26,7 +26,7 @@ steps:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
 
-- script: dotnet pack -c Release --no-build --version-suffix ci-$BUILD_BUILDNUMBER --include-symbols --output $BUILD_ARTIFACTSTAGINGDIRECTORY
+- script: dotnet pack -c Release --no-build --version-suffix ci-$BUILD_BUILDNUMBER --include-symbols --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
   displayName: dotnet pack
 - task: NuGetAuthenticate@0
   displayName: 'NuGet Authenticate'
