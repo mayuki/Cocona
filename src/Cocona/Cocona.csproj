@@ -3,11 +3,16 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <nullable>enable</nullable>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors>RS0030</WarningsAsErrors>
+
+    <!-- NuGet Package Information -->
+    <Description>Micro-framework for .NET Core console application. Cocona makes it easy and blazing-fast to build console application on .NET Core.</Description>
+    <Authors>Mayuki Sawatari</Authors>
+    <Copyright>Copyright 2020-present Mayuki Sawatari</Copyright>
+    <PackageProjectUrl>https://github.com/mayuki/Cocona</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mayuki/Cocona</RepositoryUrl>
+    <PackageTags>CLI Framework Console</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
