@@ -23,17 +23,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Intro.MinimalA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Intro.TypicalSimpleApp", "samples\CoconaSample.Intro.TypicalSimpleApp\CoconaSample.Intro.TypicalSimpleApp.csproj", "{63C36327-C407-4293-BAF2-B0F9AD9657B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.Intro.SubCommandApp", "samples\CoconaSample.Intro.SubCommandApp\CoconaSample.Intro.SubCommandApp.csproj", "{3B11DF33-D775-45B1-BD16-1B3BE71D7917}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Intro.SubCommandApp", "samples\CoconaSample.Intro.SubCommandApp\CoconaSample.Intro.SubCommandApp.csproj", "{3B11DF33-D775-45B1-BD16-1B3BE71D7917}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.Advanced.PreventMultipleInstances", "samples\CoconaSample.Advanced.PreventMultipleInstances\CoconaSample.Advanced.PreventMultipleInstances.csproj", "{5D129837-6E27-40E4-93A7-87C06E5CF1AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Advanced.PreventMultipleInstances", "samples\CoconaSample.Advanced.PreventMultipleInstances\CoconaSample.Advanced.PreventMultipleInstances.csproj", "{5D129837-6E27-40E4-93A7-87C06E5CF1AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.CommandFilter", "samples\CoconaSample.InAction.CommandFilter\CoconaSample.InAction.CommandFilter.csproj", "{144EDBA0-838A-4DBA-B882-65C31DF70734}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.CommandFilter", "samples\CoconaSample.InAction.CommandFilter\CoconaSample.InAction.CommandFilter.csproj", "{144EDBA0-838A-4DBA-B882-65C31DF70734}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.ManyArguments", "samples\CoconaSample.InAction.ManyArguments\CoconaSample.InAction.ManyArguments.csproj", "{A455C92E-C3C7-4EAB-8C14-9A03834D90C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.ManyArguments", "samples\CoconaSample.InAction.ManyArguments\CoconaSample.InAction.ManyArguments.csproj", "{A455C92E-C3C7-4EAB-8C14-9A03834D90C3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.DependencyInjection", "samples\CoconaSample.InAction.DependencyInjection\CoconaSample.InAction.DependencyInjection.csproj", "{E415C3D5-DCC4-4876-8122-EEA2FAD69295}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.HandleShutdownSignal", "samples\CoconaSample.InAction.HandleShutdownSignal\CoconaSample.InAction.HandleShutdownSignal.csproj", "{433C57D8-B703-46B6-B313-C31405C11BE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.HandleShutdownSignal", "samples\CoconaSample.InAction.HandleShutdownSignal\CoconaSample.InAction.HandleShutdownSignal.csproj", "{433C57D8-B703-46B6-B313-C31405C11BE0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.ExitCode", "samples\CoconaSample.InAction.ExitCode\CoconaSample.InAction.ExitCode.csproj", "{9FCD7EF6-A720-4392-9B5E-E29AE01E06A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +87,10 @@ Global
 		{433C57D8-B703-46B6-B313-C31405C11BE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{433C57D8-B703-46B6-B313-C31405C11BE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{433C57D8-B703-46B6-B313-C31405C11BE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FCD7EF6-A720-4392-9B5E-E29AE01E06A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FCD7EF6-A720-4392-9B5E-E29AE01E06A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FCD7EF6-A720-4392-9B5E-E29AE01E06A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FCD7EF6-A720-4392-9B5E-E29AE01E06A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,6 +105,7 @@ Global
 		{A455C92E-C3C7-4EAB-8C14-9A03834D90C3} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 		{E415C3D5-DCC4-4876-8122-EEA2FAD69295} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 		{433C57D8-B703-46B6-B313-C31405C11BE0} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
+		{9FCD7EF6-A720-4392-9B5E-E29AE01E06A7} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8DBA26EF-235B-4656-A5DD-00C266A42735}
