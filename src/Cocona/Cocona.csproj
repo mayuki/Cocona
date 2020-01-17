@@ -11,7 +11,7 @@
     <Copyright>Copyright 2020-present Mayuki Sawatari</Copyright>
     <PackageProjectUrl>https://github.com/mayuki/Cocona</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mayuki/Cocona</RepositoryUrl>
-    <PackageIcon>https://mayuki.github.io/Cocona/assets/icon.png</PackageIcon>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageTags>CLI Framework Console</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
@@ -28,5 +28,6 @@
 
   <ItemGroup>
     <AdditionalFiles Include="BannedSymbols.txt" />
+    <None Include="..\..\docs\assets\icon.png" Pack="true" PackagePath="/" />
   </ItemGroup>
 </Project>
