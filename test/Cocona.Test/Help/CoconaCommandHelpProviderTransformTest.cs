@@ -1,4 +1,4 @@
-﻿using Cocona.Application;
+using Cocona.Application;
 using Cocona.Command;
 using Cocona.Help;
 using Cocona.Help.DocumentModel;
@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -42,6 +43,8 @@ namespace Cocona.Test.Help
                 Array.Empty<string>(),
                 "command description",
                 parameterDescriptors,
+                parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
+                parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),
                 Array.Empty<CommandOverloadDescriptor>(),
                 isPrimaryCommand
             );

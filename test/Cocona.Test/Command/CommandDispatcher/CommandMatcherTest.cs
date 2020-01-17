@@ -1,9 +1,10 @@
-﻿using Cocona.Command;
+using Cocona.Command;
 using Cocona.Command.Dispatcher;
 using Cocona.CommandLine;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -24,6 +25,8 @@ namespace Cocona.Test.Command.CommandDispatcher
                 Array.Empty<string>(),
                 string.Empty,
                 parameterDescriptors,
+                parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
+                parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),
                 overloads ?? Array.Empty<CommandOverloadDescriptor>(),
                 isPrimaryCommand
             );

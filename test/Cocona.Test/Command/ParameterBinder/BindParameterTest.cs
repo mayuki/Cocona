@@ -1,10 +1,11 @@
-﻿using Cocona.Command;
+using Cocona.Command;
 using Cocona.Command.Binder;
 using Cocona.CommandLine;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -36,6 +37,8 @@ namespace Cocona.Test.Command.ParameterBinder
                 Array.Empty<string>(),
                 "",
                 parameterDescriptors,
+                parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
+                parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),
                 Array.Empty<CommandOverloadDescriptor>(),
                 false
             );

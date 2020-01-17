@@ -31,26 +31,17 @@ namespace Cocona.Command.BuiltIn
                 method.Name,
                 Array.Empty<string>(),
                 description,
-                new CommandParameterDescriptor[]
-                {
-                    new CommandOptionDescriptor(typeof(bool), "help", new[] { 'h' }, "Show help message", new CoconaDefaultValue(false), null),
-                    new CommandOptionDescriptor(typeof(bool), "version", Array.Empty<char>(), "Show version", new CoconaDefaultValue(false), null)
-                },
+                Array.Empty<CommandParameterDescriptor>(),
+                Array.Empty<CommandOptionDescriptor>(),
+                Array.Empty<CommandArgumentDescriptor>(),
                 Array.Empty<CommandOverloadDescriptor>(),
                 isPrimaryCommand: true
             );
         }
 
-        private void ShowDefaultMessage(bool help, bool version)
+        private void ShowDefaultMessage()
         {
-            if (version)
-            {
-                _console.Output.Write(_helpRenderer.Render(_commandHelpProvider.CreateVersionHelp()));
-            }
-            else
-            {
-                _console.Output.Write(_helpRenderer.Render(_commandHelpProvider.CreateCommandsIndexHelp(_commandProvider.GetCommandCollection())));
-            }
+            _console.Output.Write(_helpRenderer.Render(_commandHelpProvider.CreateCommandsIndexHelp(_commandProvider.GetCommandCollection())));
         }
     }
 }

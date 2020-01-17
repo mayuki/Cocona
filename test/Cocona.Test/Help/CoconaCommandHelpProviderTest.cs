@@ -37,6 +37,8 @@ namespace Cocona.Test.Help
                 Array.Empty<string>(),
                 description,
                 parameterDescriptors,
+                parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
+                parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),
                 Array.Empty<CommandOverloadDescriptor>(),
                 isPrimaryCommand
             );

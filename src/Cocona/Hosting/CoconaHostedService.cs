@@ -1,5 +1,6 @@
 using Cocona.Application;
 using Cocona.Command;
+using Cocona.Command.BuiltIn;
 using Cocona.Command.Dispatcher;
 using Cocona.Command.Dispatcher.Middlewares;
 using Cocona.Internal;
@@ -41,7 +42,7 @@ namespace Cocona.Hosting
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _dispatcherPipelineBuilder
-                .UseMiddleware<CommandHelpMiddleware>()
+                .UseMiddleware<BuiltInCommandMiddleware>()
                 .UseMiddleware<HandleExceptionAndExitMiddleware>()
                 .UseMiddleware<HandleParameterBindExceptionMiddleware>()
                 .UseMiddleware<RejectUnknownOptionsMiddleware>()

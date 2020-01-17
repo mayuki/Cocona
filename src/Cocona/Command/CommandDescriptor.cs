@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -22,30 +22,6 @@ namespace Cocona.Command
         public IReadOnlyList<CommandOptionDescriptor> Options { get; }
         public IReadOnlyList<CommandArgumentDescriptor> Arguments { get; }
         public IReadOnlyList<CommandOverloadDescriptor> Overloads { get; }
-
-        public CommandDescriptor(
-            MethodInfo methodInfo,
-            string name,
-            IReadOnlyList<string> aliases,
-            string description,
-            IReadOnlyList<CommandParameterDescriptor> parameters,
-            IReadOnlyList<CommandOverloadDescriptor> overloads,
-            bool isPrimaryCommand
-        )
-            : this
-            (
-                methodInfo,
-                name,
-                aliases,
-                description,
-                parameters,
-                parameters.OfType<CommandOptionDescriptor>().ToArray(),
-                parameters.OfType<CommandArgumentDescriptor>().ToArray(),
-                overloads,
-                isPrimaryCommand
-            )
-        {
-        }
 
         public CommandDescriptor(
             MethodInfo methodInfo,
