@@ -37,6 +37,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.GettingStarted
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.GettingStarted.TypicalSimpleApp", "samples\CoconaSample.GettingStarted.TypicalSimpleApp\CoconaSample.GettingStarted.TypicalSimpleApp.csproj", "{83C8BDA5-6BBC-43F8-A6B6-700184597A48}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.CommandOptionOverload", "samples\CoconaSample.InAction.CommandOptionOverload\CoconaSample.InAction.CommandOptionOverload.csproj", "{BD9A8CD2-FC92-41D1-BD52-9495EAE0E557}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{83C8BDA5-6BBC-43F8-A6B6-700184597A48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83C8BDA5-6BBC-43F8-A6B6-700184597A48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83C8BDA5-6BBC-43F8-A6B6-700184597A48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD9A8CD2-FC92-41D1-BD52-9495EAE0E557}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD9A8CD2-FC92-41D1-BD52-9495EAE0E557}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD9A8CD2-FC92-41D1-BD52-9495EAE0E557}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD9A8CD2-FC92-41D1-BD52-9495EAE0E557}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -106,6 +112,7 @@ Global
 		{96E0A0B5-60A8-4BFE-A7EE-09E1A878F1F7} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 		{4B1C04AF-9478-4D79-82BF-140C5446A2FB} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 		{83C8BDA5-6BBC-43F8-A6B6-700184597A48} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
+		{BD9A8CD2-FC92-41D1-BD52-9495EAE0E557} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8DBA26EF-235B-4656-A5DD-00C266A42735}
