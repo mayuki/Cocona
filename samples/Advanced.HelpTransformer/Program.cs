@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Cocona;
 using Cocona.Command;
 using Cocona.Help;
@@ -16,6 +17,7 @@ namespace CoconaSample.Advanced.HelpTransformer
         [TransformHelp(typeof(SampleHelpTransformer))]
         public void Run()
         {
+            Console.WriteLine("To show help message, use '--help' option.");
         }
     }
 
@@ -23,6 +25,18 @@ namespace CoconaSample.Advanced.HelpTransformer
     {
         public void TransformHelp(HelpMessage helpMessage, CommandDescriptor command)
         {
+            var descSection = (HelpSection)helpMessage.Children.First(x => x is HelpSection section && section.Id == HelpSectionId.Description);
+            descSection.Children.Add(new HelpPreformattedText(@"
+  ________ 
+ < Hello! >
+  -------- 
+         \   ^__^
+          \  (oo)\_______
+             (__)\       )\/\
+                 ||----w |
+                 ||     ||
+"));
+
             helpMessage.Children.Add(new HelpSection(
                 new HelpHeading("Example:"),
                 new HelpSection(
