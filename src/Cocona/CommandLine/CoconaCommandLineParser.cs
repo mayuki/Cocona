@@ -1,4 +1,4 @@
-﻿using Cocona.Command;
+using Cocona.Command;
 using Cocona.Internal;
 using System;
 using System.Collections.Generic;
@@ -47,7 +47,7 @@ namespace Cocona.CommandLine
             var unknownOptions = new List<string>();
             for (var i = 0; i < args.Count; i++)
             {
-                if (!args[i].StartsWith('-'))
+                if (!args[i].StartsWith("-"))
                 {
                     break;
                 }

@@ -1,4 +1,4 @@
-﻿using Cocona.Help.DocumentModel;
+using Cocona.Help.DocumentModel;
 using Cocona.Internal;
 using System;
 using System.Collections.Generic;
@@ -136,7 +136,7 @@ namespace Cocona.Help
                 public void Dispose()
                 {
                     _ctx.Sections.Pop();
-                    _ctx.CurrentSection = _ctx.Sections.TryPeek(out var prevSection) ? prevSection : null;
+                    _ctx.CurrentSection = _ctx.Sections.Count != 0 ? _ctx.Sections.Peek() : null;
                 }
             }
         }

@@ -128,14 +128,14 @@ namespace Cocona.Help
             var description = !string.IsNullOrWhiteSpace(commandCollection.Description)
                 ? commandCollection.Description
                 : !string.IsNullOrWhiteSpace(commandCollection.Primary?.Description)
-                    ? commandCollection.Primary.Description
+                    ? commandCollection.Primary?.Description
                     : !string.IsNullOrWhiteSpace(_applicationMetadataProvider.GetDescription())
                         ? _applicationMetadataProvider.GetDescription()
                         : string.Empty;
 
             if (!string.IsNullOrWhiteSpace(description))
             {
-                help.Children.Add(new HelpSection(HelpSectionId.Description, new HelpDescription(description)));
+                help.Children.Add(new HelpSection(HelpSectionId.Description, new HelpDescription(description!)));
             }
 
             // Commands

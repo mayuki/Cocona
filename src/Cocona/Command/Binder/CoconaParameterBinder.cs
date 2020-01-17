@@ -1,4 +1,4 @@
-﻿using Cocona.CommandLine;
+using Cocona.CommandLine;
 using Cocona.Internal;
 using System;
 using System.Collections.Generic;
@@ -104,7 +104,7 @@ namespace Cocona.Command.Binder
                     // e.g: [ string,  string[],  string, string ]
                     //          |       |    |      |       |
                     //      [ arg0,  [arg1, arg2], arg3,   arg4 ]
-                    var rest = commandArgumentValues.ToArray()[index..(indexRev+1)]; // TODO: ToArray
+                    var rest = commandArgumentValues.Skip(index).Take((indexRev + 1) - index);
                     bindParams[argDesc.ParameterIndex] = CreateValue(argDesc.Argument.ArgumentType, rest.Select(x => x.Value).ToArray(), null, argDesc.Argument);
 
                     return bindParams;

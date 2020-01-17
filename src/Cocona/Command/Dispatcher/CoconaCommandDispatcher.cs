@@ -1,5 +1,4 @@
-﻿using Cocona.Application;
-using Cocona.Command.BuiltIn;
+using Cocona.Application;
 using Cocona.CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -109,11 +108,7 @@ namespace Cocona.Command.Dispatcher
                 }
                 finally
                 {
-                    if (commandInstance is IAsyncDisposable asyncDisposable)
-                    {
-                        await asyncDisposable.DisposeAsync();
-                    }
-                    else if (commandInstance is IDisposable disposable)
+                    if (commandInstance is IDisposable disposable)
                     {
                         disposable.Dispose();
                     }
