@@ -1,7 +1,7 @@
 using System;
 using Cocona;
 
-namespace CoconaSample.Intro.SubCommandApp
+namespace CoconaSample.GettingStarted.SubCommandApp
 {
     class Program
     {

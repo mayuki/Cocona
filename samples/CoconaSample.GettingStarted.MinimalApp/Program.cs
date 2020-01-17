@@ -1,7 +1,7 @@
 using Cocona;
 using System;
 
-namespace CoconaSample.Intro.MinimalApp
+namespace CoconaSample.GettingStarted.MinimalApp
 {
     class Program
     {
