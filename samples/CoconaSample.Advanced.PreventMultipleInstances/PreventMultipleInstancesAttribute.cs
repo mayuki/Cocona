@@ -7,29 +7,61 @@ namespace CoconaSample.Advanced.PreventMultipleInstances
 {
     public class PreventMultipleInstancesAttribute : CommandFilterAttribute
     {
-        private readonly Mutex _mutex = new Mutex(false, System.Reflection.Assembly.GetEntryAssembly().GetName().Name);
+        private readonly Mutex _mutex;
+        private readonly Thread _mutexAcquireThread;
+        private readonly ManualResetEventSlim _waitForExit;
 
-        public override ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+        public PreventMultipleInstancesAttribute()
         {
-            var isRunning = false;
+            _mutex = new Mutex(false, System.Reflection.Assembly.GetEntryAssembly().GetName().Name);
+            _mutexAcquireThread = new Thread(AcquireAndHoldMutexInThread);
+            _waitForExit = new ManualResetEventSlim();
+        }
+
+        public override async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            _mutexAcquireThread.Start(tcs);
+
             try
             {
-                if (!_mutex.WaitOne(0, false))
+                var acquired = await tcs.Task;
+                if (!acquired)
                 {
                     Console.Error.WriteLine("Error: The application is already running.");
-                    return new ValueTask<int>(1);
+                    return 1;
                 }
 
-                isRunning = true;
-
-                return next(ctx);
+                return await next(ctx);
             }
             finally
             {
-                if (isRunning)
+                _waitForExit.Set();
+                _mutexAcquireThread.Join();
+            }
+        }
+
+        private void AcquireAndHoldMutexInThread(object state)
+        {
+            var tcs = (TaskCompletionSource<bool>)state;
+            var acquired = false;
+            try
+            {
+                acquired = _mutex.WaitOne(0, false);
+                tcs.SetResult(acquired);
+
+                if (acquired)
+                {
+                    _waitForExit.Wait();
+                }
+            }
+            finally
+            {
+                if (acquired)
                 {
                     _mutex.ReleaseMutex();
                 }
+
                 _mutex.Dispose();
             }
         }
