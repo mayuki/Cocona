@@ -17,31 +17,31 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Advanced.PreventMultipleInstances", "samples\CoconaSample.Advanced.PreventMultipleInstances\CoconaSample.Advanced.PreventMultipleInstances.csproj", "{5D129837-6E27-40E4-93A7-87C06E5CF1AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Advanced.PreventMultipleInstances", "samples\Advanced.PreventMultipleInstances\CoconaSample.Advanced.PreventMultipleInstances.csproj", "{5D129837-6E27-40E4-93A7-87C06E5CF1AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.CommandFilter", "samples\CoconaSample.InAction.CommandFilter\CoconaSample.InAction.CommandFilter.csproj", "{144EDBA0-838A-4DBA-B882-65C31DF70734}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.CommandFilter", "samples\InAction.CommandFilter\CoconaSample.InAction.CommandFilter.csproj", "{144EDBA0-838A-4DBA-B882-65C31DF70734}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.ManyArguments", "samples\CoconaSample.InAction.ManyArguments\CoconaSample.InAction.ManyArguments.csproj", "{A455C92E-C3C7-4EAB-8C14-9A03834D90C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.ManyArguments", "samples\InAction.ManyArguments\CoconaSample.InAction.ManyArguments.csproj", "{A455C92E-C3C7-4EAB-8C14-9A03834D90C3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.DependencyInjection", "samples\CoconaSample.InAction.DependencyInjection\CoconaSample.InAction.DependencyInjection.csproj", "{E415C3D5-DCC4-4876-8122-EEA2FAD69295}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.DependencyInjection", "samples\InAction.DependencyInjection\CoconaSample.InAction.DependencyInjection.csproj", "{E415C3D5-DCC4-4876-8122-EEA2FAD69295}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.HandleShutdownSignal", "samples\CoconaSample.InAction.HandleShutdownSignal\CoconaSample.InAction.HandleShutdownSignal.csproj", "{433C57D8-B703-46B6-B313-C31405C11BE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.HandleShutdownSignal", "samples\InAction.HandleShutdownSignal\CoconaSample.InAction.HandleShutdownSignal.csproj", "{433C57D8-B703-46B6-B313-C31405C11BE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.ExitCode", "samples\CoconaSample.InAction.ExitCode\CoconaSample.InAction.ExitCode.csproj", "{9FCD7EF6-A720-4392-9B5E-E29AE01E06A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.ExitCode", "samples\InAction.ExitCode\CoconaSample.InAction.ExitCode.csproj", "{9FCD7EF6-A720-4392-9B5E-E29AE01E06A7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.GettingStarted.MinimalApp", "samples\CoconaSample.GettingStarted.MinimalApp\CoconaSample.GettingStarted.MinimalApp.csproj", "{96E0A0B5-60A8-4BFE-A7EE-09E1A878F1F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.GettingStarted.MinimalApp", "samples\GettingStarted.MinimalApp\CoconaSample.GettingStarted.MinimalApp.csproj", "{96E0A0B5-60A8-4BFE-A7EE-09E1A878F1F7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.GettingStarted.SubCommandApp", "samples\CoconaSample.GettingStarted.SubCommandApp\CoconaSample.GettingStarted.SubCommandApp.csproj", "{4B1C04AF-9478-4D79-82BF-140C5446A2FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.GettingStarted.SubCommandApp", "samples\GettingStarted.SubCommandApp\CoconaSample.GettingStarted.SubCommandApp.csproj", "{4B1C04AF-9478-4D79-82BF-140C5446A2FB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.GettingStarted.TypicalSimpleApp", "samples\CoconaSample.GettingStarted.TypicalSimpleApp\CoconaSample.GettingStarted.TypicalSimpleApp.csproj", "{83C8BDA5-6BBC-43F8-A6B6-700184597A48}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.GettingStarted.TypicalSimpleApp", "samples\GettingStarted.TypicalSimpleApp\CoconaSample.GettingStarted.TypicalSimpleApp.csproj", "{83C8BDA5-6BBC-43F8-A6B6-700184597A48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.CommandOptionOverload", "samples\CoconaSample.InAction.CommandOptionOverload\CoconaSample.InAction.CommandOptionOverload.csproj", "{BD9A8CD2-FC92-41D1-BD52-9495EAE0E557}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.CommandOptionOverload", "samples\InAction.CommandOptionOverload\CoconaSample.InAction.CommandOptionOverload.csproj", "{BD9A8CD2-FC92-41D1-BD52-9495EAE0E557}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.Advanced.HelpTransformer", "samples\CoconaSample.Advanced.HelpTransformer\CoconaSample.Advanced.HelpTransformer.csproj", "{53A79BEE-DF6D-4E6F-B5DA-B34E7F6C50DD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.Advanced.HelpTransformer", "samples\Advanced.HelpTransformer\CoconaSample.Advanced.HelpTransformer.csproj", "{53A79BEE-DF6D-4E6F-B5DA-B34E7F6C50DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.CommandOptions", "samples\CoconaSample.InAction.CommandOptions\CoconaSample.InAction.CommandOptions.csproj", "{528367FE-5A15-471D-B461-5596958E9FB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.CommandOptions", "samples\InAction.CommandOptions\CoconaSample.InAction.CommandOptions.csproj", "{528367FE-5A15-471D-B461-5596958E9FB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.Advanced.GenericHost", "samples\CoconaSample.Advanced.GenericHost\CoconaSample.Advanced.GenericHost.csproj", "{CFC811DE-1C26-433E-AE6D-162F4F38E174}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.Advanced.GenericHost", "samples\Advanced.GenericHost\CoconaSample.Advanced.GenericHost.csproj", "{CFC811DE-1C26-433E-AE6D-162F4F38E174}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
