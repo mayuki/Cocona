@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.Advanced.HelpT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.CommandOptions", "samples\CoconaSample.InAction.CommandOptions\CoconaSample.InAction.CommandOptions.csproj", "{528367FE-5A15-471D-B461-5596958E9FB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.Advanced.GenericHost", "samples\CoconaSample.Advanced.GenericHost\CoconaSample.Advanced.GenericHost.csproj", "{CFC811DE-1C26-433E-AE6D-162F4F38E174}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +105,10 @@ Global
 		{528367FE-5A15-471D-B461-5596958E9FB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{528367FE-5A15-471D-B461-5596958E9FB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{528367FE-5A15-471D-B461-5596958E9FB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFC811DE-1C26-433E-AE6D-162F4F38E174}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFC811DE-1C26-433E-AE6D-162F4F38E174}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFC811DE-1C26-433E-AE6D-162F4F38E174}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFC811DE-1C26-433E-AE6D-162F4F38E174}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -120,6 +126,7 @@ Global
 		{BD9A8CD2-FC92-41D1-BD52-9495EAE0E557} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 		{53A79BEE-DF6D-4E6F-B5DA-B34E7F6C50DD} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 		{528367FE-5A15-471D-B461-5596958E9FB8} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
+		{CFC811DE-1C26-433E-AE6D-162F4F38E174} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8DBA26EF-235B-4656-A5DD-00C266A42735}
