@@ -620,13 +620,13 @@ namespace Cocona.Test.Command.ParameterBinder
 
             var commandOptions = new CommandOption[]
             {
-                new CommandOption(commandDescriptor.Options[0], "hello"),
+                new CommandOption(commandDescriptor.Options[0], "argvalue0"),
             };
             var commandArguments = new CommandArgument[] { };
 
             var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
             ex.Option.Name.Should().Be("option0");
-            ex.Message.Should().Be("Option 'option0' requires Int32 value. 'hello' cannot be converted to Int32 value.");
+            ex.Message.Should().Be("Option 'option0' requires Int32 value. 'argvalue0' cannot be converted to Int32 value.");
         }
 
         [Fact]
@@ -644,11 +644,11 @@ namespace Cocona.Test.Command.ParameterBinder
             var commandOptions = new CommandOption[]
             {
             };
-            var commandArguments = new CommandArgument[] { new CommandArgument("hello") };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argvalue0") };
 
             var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
             ex.Argument.Name.Should().Be("arg0");
-            ex.Message.Should().Be("Argument 'arg0' requires Int32 value. 'hello' cannot be converted to Int32 value.");
+            ex.Message.Should().Be("Argument 'arg0' requires Int32 value. 'argvalue0' cannot be converted to Int32 value.");
         }
 
         [Fact]

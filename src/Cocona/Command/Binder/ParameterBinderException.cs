@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Cocona.Command.Binder
 {
@@ -8,13 +8,13 @@ namespace Cocona.Command.Binder
         public CommandArgumentDescriptor? Argument { get; }
         public CommandOptionDescriptor? Option { get; }
 
-        public ParameterBinderException(ParameterBinderResult result, CommandOptionDescriptor? option = null, CommandArgumentDescriptor? argument = null)
-            : this(result, result.ToString(), option, argument)
+        public ParameterBinderException(ParameterBinderResult result, CommandOptionDescriptor? option = null, CommandArgumentDescriptor? argument = null, Exception? innerException = null)
+            : this(result, result.ToString(), option, argument, innerException)
         {
         }
 
-        public ParameterBinderException(ParameterBinderResult result, string message, CommandOptionDescriptor? option = null, CommandArgumentDescriptor? argument = null)
-            : base(message)
+        public ParameterBinderException(ParameterBinderResult result, string message, CommandOptionDescriptor? option = null, CommandArgumentDescriptor? argument = null, Exception? innerException = null)
+            : base(message, innerException)
         {
             Result = result;
             Option = option;

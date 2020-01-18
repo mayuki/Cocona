@@ -122,9 +122,9 @@ namespace Cocona.Command.Binder
             {
                 return _valueConverter.ConvertTo(type, value);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Option '{option.Name}' requires {type.Name} value. '{value}' cannot be converted to {type.Name} value.", option: option);
+                throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Option '{option.Name}' requires {type.Name} value. '{value}' cannot be converted to {type.Name} value.", option: option, innerException: ex);
             }
         }
 
@@ -134,9 +134,9 @@ namespace Cocona.Command.Binder
             {
                 return _valueConverter.ConvertTo(type, value);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Argument '{argument.Name}' requires {type.Name} value. 'hello' cannot be converted to {type.Name} value.", argument: argument);
+                throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Argument '{argument.Name}' requires {type.Name} value. '{value}' cannot be converted to {type.Name} value.", argument: argument, innerException: ex);
             }
         }
 
