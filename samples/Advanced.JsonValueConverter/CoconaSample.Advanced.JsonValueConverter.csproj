@@ -13,4 +13,8 @@
     <ProjectReference Include="..\..\src\Cocona\Cocona.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
 </Project>
