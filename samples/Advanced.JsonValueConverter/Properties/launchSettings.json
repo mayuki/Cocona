@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CoconaSample.Advanced.JsonConverter": {
+      "commandName": "Project",
+      "commandLineArgs": "'{Name:\"hoge\",Age:18}'"
+    }
+  }
+}
