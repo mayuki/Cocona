@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,7 +8,7 @@ namespace Cocona
     /// Specifies the method that should be treated as a command.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-    public class CommandAttribute : Attribute
+    public sealed class CommandAttribute : Attribute
     {
         /// <summary>
         /// Gets or sets the command name.

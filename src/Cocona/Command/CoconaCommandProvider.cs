@@ -1,4 +1,4 @@
-﻿using Cocona.Internal;
+using Cocona.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +12,13 @@ namespace Cocona.Command
         private readonly Type[] _targetTypes;
         private static readonly Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> _emptyOverloads = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>();
         private readonly Lazy<CommandCollection> _commandCollection;
+        private readonly bool _treatPublicMethodsAsCommands;
 
-        public CoconaCommandProvider(Type[] targetTypes)
+        public CoconaCommandProvider(Type[] targetTypes, bool treatPublicMethodsAsCommands = true)
         {
             _targetTypes = targetTypes ?? throw new ArgumentNullException(nameof(targetTypes));
             _commandCollection = new Lazy<CommandCollection>(GetCommandCollectionCore);
+            _treatPublicMethodsAsCommands = treatPublicMethodsAsCommands;
         }
 
         public CommandCollection GetCommandCollection()
@@ -28,7 +30,10 @@ namespace Cocona.Command
                 .Where(x => x.GetCustomAttribute<IgnoreAttribute>() == null) // class-level ignore
                 .Where(x => !x.IsAbstract && (!x.IsGenericType || x.IsConstructedGenericType)) // non-abstract, non-generic, closed-generic
                 .SelectMany(xs => xs.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                .Where(x => !x.IsSpecialName && x.DeclaringType != typeof(object) && (x.IsPublic || x.GetCustomAttributes<CommandAttribute>(inherit: true).Any())) // not-property && not-System.Object && (public || has-command attr)
+                .Where(x => !x.IsSpecialName && x.DeclaringType != typeof(object)) // non-property && not declared in object
+                .Where(x => (_treatPublicMethodsAsCommands && x.IsPublic)  // ((treatPublicMethodAsCommands && public) || has-command attr || has-primary-command attr)
+                    || x.GetCustomAttributes<CommandAttribute>(inherit: true).Any()
+                    || x.GetCustomAttributes<PrimaryCommandAttribute>(inherit: true).Any())
                 .Where(x => x.GetCustomAttribute<IgnoreAttribute>() == null); // method-level ignore
 
             var commandMethods = new List<MethodInfo>();

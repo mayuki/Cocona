@@ -8,8 +8,10 @@ using Cocona.Help;
 using Cocona.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.Extensions.Hosting
@@ -27,11 +29,13 @@ namespace Microsoft.Extensions.Hosting
                 })
                 .ConfigureServices(services =>
                 {
-                    services.AddOptions<ConsoleLifetimeOptions>()
-                        .Configure(x => x.SuppressStatusMessages = true);
-
-                    services.TryAddSingleton<ICoconaCommandLineArgumentProvider>(serviceProvider => new CoconaCommandLineArgumentProvider(args));
-                    services.TryAddSingleton<ICoconaCommandProvider>(serviceProvider => new CoconaBuiltInCommandProvider(new CoconaCommandProvider(types)));
+                    services.TryAddSingleton<ICoconaCommandLineArgumentProvider>(serviceProvider =>
+                        new CoconaCommandLineArgumentProvider(args));
+                    services.TryAddSingleton<ICoconaCommandProvider>(serviceProvider =>
+                    {
+                        var options = serviceProvider.GetService<IOptions<CoconaAppOptions>>().Value;
+                        return new CoconaBuiltInCommandProvider(new CoconaCommandProvider(options.CommandTypes.ToArray(), options.TreatPublicMethodsAsCommands));
+                    });
                     services.TryAddSingleton<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
                     services.TryAddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
                     services.TryAddSingleton<ICoconaApplicationMetadataProvider, CoconaApplicationMetadataProvider>();
@@ -46,6 +50,11 @@ namespace Microsoft.Extensions.Hosting
                     services.TryAddTransient<ICoconaCommandHelpProvider, CoconaCommandHelpProvider>();
 
                     services.AddHostedService<CoconaHostedService>();
+
+                    services.Configure<CoconaAppOptions>(options =>
+                    {
+                        options.CommandTypes = types;
+                    });
                 });
         }
     }

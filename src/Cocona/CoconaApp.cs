@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,8 +17,10 @@ namespace Cocona
         {
             return Host.CreateDefaultBuilder()
                 .UseCocona(args, new[] { typeof(T) })
-                .Build()
-                .RunAsync();
+                .RunConsoleAsync(options =>
+                {
+                    options.SuppressStatusMessages = true;
+                });
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Cocona.Command;
+using Cocona.Command;
 using Cocona.CommandLine;
 using FluentAssertions;
 using System;
@@ -151,6 +151,40 @@ namespace Cocona.Test.Command.CommandProvider
             var ex = Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
         }
 
+        [Fact]
+        public void DontTreatPublicMethodsAsCommand()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands) }, treatPublicMethodsAsCommands: false);
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.Primary.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+            commands.All[0].Name.Should().Be("B");
+        }
+
+        [Fact]
+        public void DontTreatPublicMethodsAsCommand_Primary()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands_Primary) }, treatPublicMethodsAsCommands: false);
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.Primary.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+            commands.All[0].Name.Should().Be("B");
+        }
+
+        [Fact]
+        public void DontTreatPublicMethodsAsCommand_Multiple()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands_Multiple) }, treatPublicMethodsAsCommands: false);
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.Primary.Should().BeNull();
+            commands.All.Should().HaveCount(2);
+            commands.All[0].Name.Should().Be("B");
+            commands.All[1].Name.Should().Be("C");
+        }
+
         public class CommandTestDefaultPrimaryCommand_Argument
         {
             public void A([Argument]string[] args) { }
@@ -246,5 +280,34 @@ namespace Cocona.Test.Command.CommandProvider
             [Command("B", Aliases = new [] { "A" })]
             public void B() { }
         }
+
+        public class CommandTestDontTreatPublicMethodsAsCommands
+        {
+            public void A() { }
+
+            [Command]
+            public void B() { }
+        }
+
+        public class CommandTestDontTreatPublicMethodsAsCommands_Primary
+        {
+            public void A() { }
+
+            [PrimaryCommand]
+            public void B() { }
+        }
+
+
+        public class CommandTestDontTreatPublicMethodsAsCommands_Multiple
+        {
+            public void A() { }
+
+            [Command]
+            public void B() { }
+
+            [Command]
+            public void C() { }
+        }
+
     }
 }
