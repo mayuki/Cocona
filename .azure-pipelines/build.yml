@@ -62,8 +62,8 @@ jobs:
         VERSION_SUFFIX=$(echo $BUILD_SOURCEBRANCHNAME | sed 's|^v[^-]*-||')
         echo "VersionSuffix: $VERSION_SUFFIX"
         echo "##vso[task.setvariable variable=versionSuffix]$VERSION_SUFFIX"
-        displayName: Set version suffix for preview
-        condition: contains(variables['Build.SourceBranchName'], '-preview')
+      displayName: Set version suffix for preview
+      condition: contains(variables['Build.SourceBranchName'], '-preview')
     
     - script: dotnet restore
       displayName: dotnet restore
