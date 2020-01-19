@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,6 +9,9 @@ namespace Cocona
     /// </summary>
     public abstract class CoconaConsoleAppBase
     {
+        /// <summary>
+        /// Gets a current application context.
+        /// </summary>
         public CoconaAppContext Context { get; internal set; } = default!;
     }
 }
