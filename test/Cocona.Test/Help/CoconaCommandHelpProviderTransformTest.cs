@@ -31,7 +31,16 @@ namespace Cocona.Test.Help
                 helpMessage.Children.Add(new HelpSection(new HelpHeading("Hello, Konnichiwa!")));
             }
         }
-        
+
+
+        class TestTransformHelpAttribute : TransformHelpAttribute
+        {
+            public override void TransformHelp(HelpMessage helpMessage, CommandDescriptor command)
+            {
+                helpMessage.Children.Add(new HelpSection(new HelpHeading("Hi!")));
+            }
+        }
+
         private CommandDescriptor CreateCommand<T>(string methodName, CommandParameterDescriptor[] parameterDescriptors, bool isPrimaryCommand)
         {
             return new CommandDescriptor(
@@ -68,6 +77,26 @@ Hello, Konnichiwa!
 ".TrimStart());
         }
 
+        [Fact]
+        public void Transform_CreateCommandHelp_InheritedAttribute()
+        {
+            var commandDescriptor = CreateCommand<TestCommand_InheritedAttribute>(
+                nameof(TestCommand_InheritedAttribute.A),
+                new CommandParameterDescriptor[0],
+                isPrimaryCommand: false
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandHelp(commandDescriptor);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName A
+
+command description
+
+Hi!
+".TrimStart());
+        }
 
         [Fact]
         public void Transform_CreateCommandsIndexHelp()
@@ -89,7 +118,6 @@ command description
 Hello, Konnichiwa!
 ".TrimStart());
         }
-
 
         [Fact]
         public void Transform_CreateCommandsIndexHelp_Primary_Class()
@@ -126,14 +154,64 @@ Hello, Konnichiwa!
 ".TrimStart());
         }
 
+        [Fact]
+        public void Transform_CreateCommandsIndexHelp_Primary_Class_InheritedAttribute()
+        {
+            var commandDescriptor = CreateCommand<TestCommand_Primary_InheritedAttribute>(
+                nameof(TestCommand_Primary_InheritedAttribute.Default),
+                new CommandParameterDescriptor[0],
+                isPrimaryCommand: true
+            );
+            var commandDescriptor1 = CreateCommand<TestCommand_Primary_InheritedAttribute>(
+                nameof(TestCommand_Primary_InheritedAttribute.A),
+                new CommandParameterDescriptor[0],
+                isPrimaryCommand: false
+            );
+            var commandDescriptor2 = CreateCommand<TestCommand_Primary_InheritedAttribute>(
+                nameof(TestCommand_Primary_InheritedAttribute.B),
+                new CommandParameterDescriptor[0],
+                isPrimaryCommand: false
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor1, commandDescriptor2 }));
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName [command]
+
+command description
+
+Commands:
+  A    command description
+  B    command description
+
+Hi!
+".TrimStart());
+        }
+
         class TestCommand
         {
-            [TransformHelp(typeof(TestTransformer))]
+            [TransformHelpFactory(typeof(TestTransformer))]
             public void A() { }
         }
 
-        [TransformHelp(typeof(TestTransformer))]
+        class TestCommand_InheritedAttribute
+        {
+            [TestTransformHelp]
+            public void A() { }
+        }
+
+        [TransformHelpFactory(typeof(TestTransformer))]
         class TestCommand_Primary
+        {
+            [PrimaryCommand]
+            public void Default() { }
+            public void A() { }
+            public void B() { }
+        }
+
+        [TestTransformHelp]
+        class TestCommand_Primary_InheritedAttribute
         {
             [PrimaryCommand]
             public void Default() { }

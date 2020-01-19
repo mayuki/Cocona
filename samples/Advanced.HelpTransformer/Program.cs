@@ -14,16 +14,16 @@ namespace CoconaSample.Advanced.HelpTransformer
             CoconaApp.Run<Program>(args);
         }
 
-        [TransformHelp(typeof(SampleHelpTransformer))]
+        [SampleTransformHelp]
         public void Run()
         {
             Console.WriteLine("To show help message, use '--help' option.");
         }
     }
 
-    class SampleHelpTransformer : ICoconaHelpTransformer
+    class SampleTransformHelpAttribute : TransformHelpAttribute
     {
-        public void TransformHelp(HelpMessage helpMessage, CommandDescriptor command)
+        public override void TransformHelp(HelpMessage helpMessage, CommandDescriptor command)
         {
             var descSection = (HelpSection)helpMessage.Children.First(x => x is HelpSection section && section.Id == HelpSectionId.Description);
             descSection.Children.Add(new HelpPreformattedText(@"

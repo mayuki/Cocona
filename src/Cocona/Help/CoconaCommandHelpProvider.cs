@@ -1,5 +1,6 @@
 using Cocona.Application;
 using Cocona.Command;
+using Cocona.Filters.Internal;
 using Cocona.Help.DocumentModel;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -95,15 +96,10 @@ namespace Cocona.Help
             AddHelpForCommandOptions(help, command.Options);
 
             // Transform help document
-            var transformAttrs = command.Method.GetCustomAttributes<TransformHelpAttribute>()
-                .Concat(command.Method.DeclaringType.GetCustomAttributes<TransformHelpAttribute>());
-            if (transformAttrs.Any())
+            var transformers = FilterHelper.GetFilters<ICoconaHelpTransformer>(command.Method, _serviceProvider);
+            foreach (var transformer in transformers)
             {
-                foreach (var transformAttr in transformAttrs)
-                {
-                    var transformer = (ICoconaHelpTransformer)ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, transformAttr.Transformer);
-                    transformer.TransformHelp(help, command);
-                }
+                transformer.TransformHelp(help, command);
             }
 
             return help;
@@ -170,15 +166,10 @@ namespace Cocona.Help
             // Transform help document
             if (commandCollection.Primary != null)
             {
-                var transformAttrs = commandCollection.Primary.Method.GetCustomAttributes<TransformHelpAttribute>()
-                    .Concat(commandCollection.Primary.Method.DeclaringType.GetCustomAttributes<TransformHelpAttribute>());
-                if (transformAttrs.Any())
+                var transformers = FilterHelper.GetFilters<ICoconaHelpTransformer>(commandCollection.Primary.Method, _serviceProvider);
+                foreach (var transformer in transformers)
                 {
-                    foreach (var transformAttr in transformAttrs)
-                    {
-                        var transformer = (ICoconaHelpTransformer)ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, transformAttr.Transformer);
-                        transformer.TransformHelp(help, commandCollection.Primary);
-                    }
+                    transformer.TransformHelp(help, commandCollection.Primary);
                 }
             }
 
