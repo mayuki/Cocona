@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Cocona;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace CoconaSample.InAction.DependencyInjection
@@ -14,12 +15,32 @@ namespace CoconaSample.InAction.DependencyInjection
 
         static void Main(string[] args)
         {
-            CoconaApp.Run<Program>(args);
+            CoconaApp.Create()
+                .ConfigureServices(services =>
+                {
+                    services.AddTransient<MyService>();
+                })
+                .Run<Program>(args);
         }
 
-        public void Hello([FromService]ILogger<Program> logger)
+        public void Hello([FromService]MyService myService)
         {
-            logger.LogInformation($"Hello Konnichiwa");
+            myService.Hello("Hello Konnichiwa!");
+        }
+    }
+
+    class MyService
+    {
+        private readonly ILogger _logger;
+
+        public MyService(ILogger<MyService> logger)
+        {
+            _logger = logger;
+        }
+
+        public void Hello(string message)
+        {
+            _logger.LogInformation(message);
         }
     }
 }
