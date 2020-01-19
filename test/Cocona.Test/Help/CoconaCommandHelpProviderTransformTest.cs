@@ -24,9 +24,6 @@ namespace Cocona.Test.Help
             public string GetVersion() => "1.0.0.0";
         }
 
-        [TransformHelp(typeof(TestTransformer))]
-        private void __Dummy_Transform() { }
-
         class TestTransformer : ICoconaHelpTransformer
         {
             public void TransformHelp(HelpMessage helpMessage, CommandDescriptor command)
@@ -35,11 +32,11 @@ namespace Cocona.Test.Help
             }
         }
         
-        private CommandDescriptor CreateCommand(string methodName, CommandParameterDescriptor[] parameterDescriptors, bool isPrimaryCommand)
+        private CommandDescriptor CreateCommand<T>(string methodName, CommandParameterDescriptor[] parameterDescriptors, bool isPrimaryCommand)
         {
             return new CommandDescriptor(
-                typeof(CoconaCommandHelpProviderTransformTest).GetMethod(methodName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
-                "Test",
+                typeof(T).GetMethod(methodName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+                methodName,
                 Array.Empty<string>(),
                 "command description",
                 parameterDescriptors,
@@ -53,8 +50,8 @@ namespace Cocona.Test.Help
         [Fact]
         public void Transform_CreateCommandHelp()
         {
-            var commandDescriptor = CreateCommand(
-                nameof(CoconaCommandHelpProviderTransformTest.__Dummy_Transform),
+            var commandDescriptor = CreateCommand<TestCommand>(
+                nameof(TestCommand.A),
                 new CommandParameterDescriptor[0],
                 isPrimaryCommand: false
             );
@@ -63,7 +60,7 @@ namespace Cocona.Test.Help
             var help = provider.CreateCommandHelp(commandDescriptor);
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
-Usage: ExeName Test
+Usage: ExeName A
 
 command description
 
@@ -75,8 +72,8 @@ Hello, Konnichiwa!
         [Fact]
         public void Transform_CreateCommandsIndexHelp()
         {
-            var commandDescriptor = CreateCommand(
-                nameof(CoconaCommandHelpProviderTransformTest.__Dummy_Transform),
+            var commandDescriptor = CreateCommand<TestCommand>(
+                nameof(TestCommand.A),
                 new CommandParameterDescriptor[0],
                 isPrimaryCommand: true
             );
@@ -91,6 +88,57 @@ command description
 
 Hello, Konnichiwa!
 ".TrimStart());
+        }
+
+
+        [Fact]
+        public void Transform_CreateCommandsIndexHelp_Primary_Class()
+        {
+            var commandDescriptor = CreateCommand<TestCommand_Primary>(
+                nameof(TestCommand_Primary.Default),
+                new CommandParameterDescriptor[0],
+                isPrimaryCommand: true
+            );
+            var commandDescriptor1 = CreateCommand<TestCommand_Primary>(
+                nameof(TestCommand_Primary.A),
+                new CommandParameterDescriptor[0],
+                isPrimaryCommand: false
+            );
+            var commandDescriptor2 = CreateCommand<TestCommand_Primary>(
+                nameof(TestCommand_Primary.B),
+                new CommandParameterDescriptor[0],
+                isPrimaryCommand: false
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor1, commandDescriptor2 }));
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName [command]
+
+command description
+
+Commands:
+  A    command description
+  B    command description
+
+Hello, Konnichiwa!
+".TrimStart());
+        }
+
+        class TestCommand
+        {
+            [TransformHelp(typeof(TestTransformer))]
+            public void A() { }
+        }
+
+        [TransformHelp(typeof(TestTransformer))]
+        class TestCommand_Primary
+        {
+            [PrimaryCommand]
+            public void Default() { }
+            public void A() { }
+            public void B() { }
         }
     }
 }

@@ -156,6 +156,26 @@ Options:
         }
 
         [Fact]
+        public void CommandIndexHelp_Single_NoParams_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "",
+                new CommandParameterDescriptor[0],
+                isPrimaryCommand: true
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider() { Description = "via metadata" }, new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName
+
+via metadata
+".TrimStart());
+        }
+
+        [Fact]
         public void CommandHelp_Rendered()
         {
             var commandDescriptor = CreateCommand(
@@ -315,6 +335,34 @@ Options:
 ".TrimStart());
         }
 
+        [Fact]
+        public void CreateCommandsIndexHelp_Commands_NoOptionInPrimary_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new CommandParameterDescriptor[0],
+                isPrimaryCommand: true
+            );
+            var commandDescriptor2 = CreateCommand(
+                "Test2",
+                "command2 description",
+                new CommandParameterDescriptor[0],
+                isPrimaryCommand: false
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor2 }));
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName [command]
+
+command description
+
+Commands:
+  Test2    command2 description
+".TrimStart());
+        }
 
         [Fact]
         public void CommandHelp_Options_Enum_Rendered()

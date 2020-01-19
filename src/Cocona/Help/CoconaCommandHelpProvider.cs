@@ -95,7 +95,8 @@ namespace Cocona.Help
             AddHelpForCommandOptions(help, command.Options);
 
             // Transform help document
-            var transformAttrs = command.Method.GetCustomAttributes<TransformHelpAttribute>();
+            var transformAttrs = command.Method.GetCustomAttributes<TransformHelpAttribute>()
+                .Concat(command.Method.DeclaringType.GetCustomAttributes<TransformHelpAttribute>());
             if (transformAttrs.Any())
             {
                 foreach (var transformAttr in transformAttrs)
@@ -118,7 +119,7 @@ namespace Cocona.Help
             {
                 usageSection.Children.Add(new HelpUsage($"Usage: {_applicationMetadataProvider.GetExecutableName()} [command]"));
             }
-            if (commandCollection.Primary != null)
+            if (commandCollection.Primary != null && (commandCollection.All.Count == 1 || commandCollection.Primary.Options.Any() || commandCollection.Primary.Arguments.Any()))
             {
                 usageSection.Children.Add(new HelpUsage($"Usage: {CreateUsageCommandOptionsAndArgs(commandCollection.Primary)}"));
             }
@@ -169,7 +170,8 @@ namespace Cocona.Help
             // Transform help document
             if (commandCollection.Primary != null)
             {
-                var transformAttrs = commandCollection.Primary.Method.GetCustomAttributes<TransformHelpAttribute>();
+                var transformAttrs = commandCollection.Primary.Method.GetCustomAttributes<TransformHelpAttribute>()
+                    .Concat(commandCollection.Primary.Method.DeclaringType.GetCustomAttributes<TransformHelpAttribute>());
                 if (transformAttrs.Any())
                 {
                     foreach (var transformAttr in transformAttrs)
