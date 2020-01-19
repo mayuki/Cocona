@@ -1,7 +1,10 @@
 name: $(Date:yyyyMMdd)$(Rev:.r)
 
 trigger:
-- master
+  branches:
+    include:
+      - master
+      - refs/tags/v*
 
 pool:
   vmImage: 'ubuntu-latest'
