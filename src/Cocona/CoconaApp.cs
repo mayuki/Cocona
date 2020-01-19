@@ -11,7 +11,7 @@ namespace Cocona
     public class CoconaApp
     {
         public static CoconaAppHostBuilder Create()
-            =>  new CoconaAppHostBuilder(Host.CreateDefaultBuilder());
+            =>  new CoconaAppHostBuilder(Host.CreateDefaultBuilder(null /* If `arg` is null, CreateDefaultBuilder doesn't use `config.AddCommandLine()`. */));
 
         public static void Run<T>(string[] args, Action<CoconaAppOptions>? configureOptions = null)
             => Run(args, new[] { typeof(T) }, configureOptions);
