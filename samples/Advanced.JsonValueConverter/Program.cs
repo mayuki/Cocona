@@ -12,13 +12,12 @@ namespace CoconaSample.Advanced.JsonValueConverter
     {
         static async Task Main(string[] args)
         {
-            await Host.CreateDefaultBuilder()
+            await CoconaApp.Create()
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton<ICoconaValueConverter, JsonValueConverter>();
                 })
-                .UseCocona(args, new[] { typeof(Program) })
-                .RunConsoleAsync(options => options.SuppressStatusMessages = true);
+                .RunAsync<Program>(args);
         }
 
         // dotnet run -- "{\"Name\":\"Alice\",\"Age\":18}"
