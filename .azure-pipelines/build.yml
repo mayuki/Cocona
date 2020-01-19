@@ -6,34 +6,75 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    useGlobalJson: true
+variables:
+  versionSuffix: ci-$(Build.BuildNumber)
 
-- script: dotnet restore
-  displayName: dotnet restore
+jobs:
+  - job: Build
+    condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        useGlobalJson: true
 
-- script: dotnet build -c Release
-  displayName: dotnet build
+    - script: dotnet restore
+      displayName: dotnet restore
 
-- script: dotnet test -c Release --no-build --logger trx
-  displayName: dotnet test
-- task: PublishTestResults@2
-  condition: succeededOrFailed()
-  inputs:
-    testRunner: VSTest
-    testResultsFiles: '**/*.trx'
+    - script: dotnet build -c Release
+      displayName: dotnet build
 
-- script: dotnet pack -c Release --no-build --version-suffix ci-$BUILD_BUILDNUMBER --include-symbols --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
-  displayName: dotnet pack
-- task: NuGetAuthenticate@0
-  displayName: 'NuGet Authenticate'
-- task: NuGetCommand@2
-  displayName: 'NuGet push'
-  inputs:
-    command: 'push'
-    nuGetFeedType: 'internal'
-    publishVstsFeed: 'fb5f5542-197b-4b74-85dc-e7028e5541de/72ea1975-d994-41bf-b517-185b51130c29'
-    allowPackageConflicts: true
+    - script: dotnet test -c Release --no-build --logger trx
+      displayName: dotnet test
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testRunner: VSTest
+        testResultsFiles: '**/*.trx'
+
+    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" --include-symbols --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
+      displayName: dotnet pack
+
+    # Publish to Azure Artifacts
+    - task: NuGetAuthenticate@0
+      displayName: 'NuGet Authenticate'
+    - task: NuGetCommand@2
+      displayName: 'NuGet push'
+      inputs:
+        command: 'push'
+        nuGetFeedType: 'internal'
+        publishVstsFeed: 'fb5f5542-197b-4b74-85dc-e7028e5541de/72ea1975-d994-41bf-b517-185b51130c29'
+        allowPackageConflicts: true
+
+  # ========================================
+  - job: Release
+    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/v')
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        useGlobalJson: true
+    
+    - script: |
+        VERSION_SUFFIX=$(echo $BUILD_SOURCEBRANCHNAME | sed 's|^v[^-]*-||')
+        echo "VersionSuffix: $VERSION_SUFFIX"
+        echo "##vso[task.setvariable variable=versionSuffix]$VERSION_SUFFIX"
+        displayName: Set version suffix for preview
+        condition: contains(variables['Build.SourceBranchName'], '-preview')
+    
+    - script: dotnet restore
+      displayName: dotnet restore
+
+    - script: dotnet build -c Release
+      displayName: dotnet build
+
+    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" --include-symbols --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
+      displayName: dotnet pack
+
+    # Publish to NuGet.org
+    - task: NuGetCommand@2
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.snupkg'
+        nuGetFeedType: 'external'
+        publishFeedCredentials: 'NuGet.org (mayuki)'
