@@ -2,6 +2,7 @@ using Cocona.Application;
 using Cocona.Help;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace Cocona.Command.BuiltIn
@@ -12,6 +13,7 @@ namespace Cocona.Command.BuiltIn
         private readonly ICoconaCommandHelpProvider _commandHelpProvider;
         private readonly ICoconaHelpRenderer _helpRenderer;
         private readonly ICoconaCommandProvider _commandProvider;
+        private static readonly MethodInfo _methodShowDefaultMessage = typeof(BuiltInPrimaryCommand).GetMethod(nameof(ShowDefaultMessage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         public BuiltInPrimaryCommand(ICoconaConsoleProvider console, ICoconaCommandHelpProvider commandHelpProvider, ICoconaHelpRenderer helpRenderer, ICoconaCommandProvider commandProvider)
         {
@@ -23,12 +25,9 @@ namespace Cocona.Command.BuiltIn
 
         public static CommandDescriptor GetCommand(string description)
         {
-            var t = typeof(BuiltInPrimaryCommand);
-            var method = t.GetMethod(nameof(ShowDefaultMessage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
             return new CommandDescriptor(
-                method,
-                method.Name,
+                _methodShowDefaultMessage,
+                _methodShowDefaultMessage.Name,
                 Array.Empty<string>(),
                 description,
                 Array.Empty<CommandParameterDescriptor>(),
@@ -42,6 +41,11 @@ namespace Cocona.Command.BuiltIn
         private void ShowDefaultMessage()
         {
             _console.Output.Write(_helpRenderer.Render(_commandHelpProvider.CreateCommandsIndexHelp(_commandProvider.GetCommandCollection())));
+        }
+
+        public static bool IsBuiltInCommand(CommandDescriptor command)
+        {
+            return command.Method == _methodShowDefaultMessage;
         }
     }
 }

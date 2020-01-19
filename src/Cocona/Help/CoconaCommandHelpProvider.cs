@@ -1,13 +1,11 @@
 using Cocona.Application;
 using Cocona.Command;
+using Cocona.Command.BuiltIn;
 using Cocona.Filters.Internal;
 using Cocona.Help.DocumentModel;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
 namespace Cocona.Help
@@ -167,6 +165,17 @@ namespace Cocona.Help
             if (commandCollection.Primary != null)
             {
                 var transformers = FilterHelper.GetFilters<ICoconaHelpTransformer>(commandCollection.Primary.Method, _serviceProvider);
+
+                // TODO: This is ad-hoc workaround for default primary command.
+                if (BuiltInPrimaryCommand.IsBuiltInCommand(commandCollection.Primary))
+                {
+                    transformers = commandCollection.All
+                        .Select(x => x.CommandType)
+                        .Distinct()
+                        .SelectMany(x => FilterHelper.GetFilters<ICoconaHelpTransformer>(x, _serviceProvider))
+                        .ToArray();
+                }
+
                 foreach (var transformer in transformers)
                 {
                     transformer.TransformHelp(help, commandCollection.Primary);
