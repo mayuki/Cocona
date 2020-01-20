@@ -34,7 +34,7 @@ namespace Cocona.Command.BuiltIn
                 Array.Empty<CommandOptionDescriptor>(),
                 Array.Empty<CommandArgumentDescriptor>(),
                 Array.Empty<CommandOverloadDescriptor>(),
-                isPrimaryCommand: true
+                CommandFlags.Primary
             );
         }
 

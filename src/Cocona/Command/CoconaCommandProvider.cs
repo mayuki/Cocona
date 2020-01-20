@@ -189,7 +189,7 @@ namespace Cocona.Command
                 options,
                 arguments,
                 overloadDescriptors.ToArray(),
-                isSingleCommand || isPrimaryCommand
+                (isSingleCommand || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None
             );
         }
     }

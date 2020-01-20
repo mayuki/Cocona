@@ -16,7 +16,9 @@ namespace Cocona.Command
         public IReadOnlyList<string> Aliases { get; }
         public string Description { get; }
         public Type ReturnType => Method.ReturnType;
-        public bool IsPrimaryCommand { get; }
+        
+        public CommandFlags Flags { get; }
+        public bool IsPrimaryCommand => (Flags & CommandFlags.Primary) == CommandFlags.Primary;
 
         public IReadOnlyList<CommandParameterDescriptor> Parameters { get; }
         public IReadOnlyList<CommandOptionDescriptor> Options { get; }
@@ -32,7 +34,7 @@ namespace Cocona.Command
             IReadOnlyList<CommandOptionDescriptor> options,
             IReadOnlyList<CommandArgumentDescriptor> arguments,
             IReadOnlyList<CommandOverloadDescriptor> overloads,
-            bool isPrimaryCommand
+            CommandFlags flags
         )
         {
             Method = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
@@ -43,7 +45,14 @@ namespace Cocona.Command
             Options = options ?? throw new ArgumentNullException(nameof(options));
             Arguments = arguments ?? throw new ArgumentNullException(nameof(arguments));
             Overloads = overloads ?? throw new ArgumentNullException(nameof(overloads));
-            IsPrimaryCommand = isPrimaryCommand;
+            Flags = flags;
         }
+    }
+
+    [Flags]
+    public enum CommandFlags
+    {
+        None = 0,
+        Primary = 1 << 0,
     }
 }

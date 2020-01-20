@@ -40,7 +40,7 @@ namespace Cocona.Command.BuiltIn
                     GetParametersWithBuiltInOptions(x.Options, x.IsPrimaryCommand),
                     x.Arguments,
                     x.Overloads,
-                    x.IsPrimaryCommand))
+                    x.Flags))
                 .ToArray();
 
             return new CommandCollection(commands);
