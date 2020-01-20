@@ -46,7 +46,7 @@ namespace Cocona.Test.Command.ParameterBinder
 
         private CommandOptionDescriptor CreateCommandOption(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue)
         {
-            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null);
+            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null, CommandOptionFlags.None);
         }
 
         [Fact]

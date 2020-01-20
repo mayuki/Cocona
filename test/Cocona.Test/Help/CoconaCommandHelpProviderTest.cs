@@ -29,7 +29,7 @@ namespace Cocona.Test.Help
             public string GetVersion() => "1.0.0.0";
         }
 
-        private CommandDescriptor CreateCommand(string name, string description, CommandParameterDescriptor[] parameterDescriptors, bool isPrimaryCommand = false)
+        private CommandDescriptor CreateCommand(string name, string description, CommandParameterDescriptor[] parameterDescriptors, CommandFlags flags = CommandFlags.None)
         {
             return new CommandDescriptor(
                 typeof(CoconaCommandHelpProviderTest).GetMethod(nameof(CoconaCommandHelpProviderTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
@@ -40,12 +40,13 @@ namespace Cocona.Test.Help
                 parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
                 parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),
                 Array.Empty<CommandOverloadDescriptor>(),
-                isPrimaryCommand ? CommandFlags.Primary : CommandFlags.None
+                flags
             );
         }
-        private CommandOptionDescriptor CreateCommandOption(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue)
+
+        private CommandOptionDescriptor CreateCommandOption(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue, CommandOptionFlags flags = CommandOptionFlags.None)
         {
-            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null);
+            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null, flags);
         }
 
         [Fact]
@@ -84,7 +85,7 @@ namespace Cocona.Test.Help
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
                 },
-                isPrimaryCommand: true
+                CommandFlags.Primary
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
@@ -112,7 +113,7 @@ Options:
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
                 },
-                isPrimaryCommand: true
+                CommandFlags.Primary
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
@@ -138,7 +139,7 @@ Options:
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
                 },
-                isPrimaryCommand: true
+                CommandFlags.Primary
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider() { Description = "via metadata" }, new ServiceCollection().BuildServiceProvider());
@@ -162,7 +163,7 @@ Options:
                 "Test",
                 "",
                 new CommandParameterDescriptor[0],
-                isPrimaryCommand: true
+                CommandFlags.Primary
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider() { Description = "via metadata" }, new ServiceCollection().BuildServiceProvider());
@@ -246,7 +247,7 @@ Options:
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
                 },
-                isPrimaryCommand: true
+                CommandFlags.Primary
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
@@ -275,7 +276,7 @@ Options:
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
                     new CommandArgumentDescriptor(typeof(string), "arg0", 0, "Argument description", CoconaDefaultValue.None),
                 },
-                isPrimaryCommand: true
+                CommandFlags.Primary
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
@@ -307,13 +308,13 @@ Options:
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
                     CreateCommandOption(typeof(int), "bar", new [] { 'b' }, "has default value", new CoconaDefaultValue(123)),
                 },
-                isPrimaryCommand: true
+                CommandFlags.Primary
             );
             var commandDescriptor2 = CreateCommand(
                 "Test2",
                 "command2 description",
                 new CommandParameterDescriptor[0],
-                isPrimaryCommand: false
+                CommandFlags.None
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
@@ -342,13 +343,13 @@ Options:
                 "Test",
                 "command description",
                 new CommandParameterDescriptor[0],
-                isPrimaryCommand: true
+                CommandFlags.Primary
             );
             var commandDescriptor2 = CreateCommand(
                 "Test2",
                 "command2 description",
                 new CommandParameterDescriptor[0],
-                isPrimaryCommand: false
+                CommandFlags.None
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
@@ -358,6 +359,33 @@ Options:
 Usage: ExeName [command]
 
 command description
+
+Commands:
+  Test2    command2 description
+".TrimStart());
+        }
+
+        [Fact]
+        public void CreateCommandsIndexHelp_Commands_Hidden_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new CommandParameterDescriptor[0],
+                CommandFlags.Hidden
+            );
+            var commandDescriptor2 = CreateCommand(
+                "Test2",
+                "command2 description",
+                new CommandParameterDescriptor[0],
+                CommandFlags.None
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor2 }));
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName [command]
 
 Commands:
   Test2    command2 description
@@ -436,6 +464,29 @@ command description
 
 Options:
   -f, --flag=<true|false>    Boolean option (Default: True)
+".TrimStart());
+        }
+
+
+        [Fact]
+        public void CommandHelp_Options_Hidden_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new CommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(bool), "flag", new [] { 'f' }, "Boolean option", new CoconaDefaultValue(true), CommandOptionFlags.Hidden),
+                }
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandHelp(commandDescriptor);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName Test
+
+command description
 ".TrimStart());
         }
 

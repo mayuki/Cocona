@@ -84,7 +84,7 @@ namespace Cocona.Test.Command.CommandDispatcher
         public void ResolveOverload_Overload_1()
         {
             var matcher = new CoconaCommandMatcher();
-            var commandOption = new CommandOptionDescriptor(typeof(string), "mode", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null);
+            var commandOption = new CommandOptionDescriptor(typeof(string), "mode", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null, CommandOptionFlags.None);
             var command = CreateCommand(
                 "A",
                 new CommandParameterDescriptor[]
@@ -106,7 +106,7 @@ namespace Cocona.Test.Command.CommandDispatcher
         public void ResolveOverload_Overload_2()
         {
             var matcher = new CoconaCommandMatcher();
-            var commandOption = new CommandOptionDescriptor(typeof(string), "mode", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null);
+            var commandOption = new CommandOptionDescriptor(typeof(string), "mode", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null, CommandOptionFlags.None);
             var command = CreateCommand(
                 "A",
                 new CommandParameterDescriptor[]
@@ -128,8 +128,8 @@ namespace Cocona.Test.Command.CommandDispatcher
         public void ResolveOverload_Overload_NoValue()
         {
             var matcher = new CoconaCommandMatcher();
-            var commandOption0 = new CommandOptionDescriptor(typeof(bool), "foo", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null);
-            var commandOption1 = new CommandOptionDescriptor(typeof(bool), "bar", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null);
+            var commandOption0 = new CommandOptionDescriptor(typeof(bool), "foo", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null, CommandOptionFlags.None);
+            var commandOption1 = new CommandOptionDescriptor(typeof(bool), "bar", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null, CommandOptionFlags.None);
             var command = CreateCommand(
                 "A",
                 new CommandParameterDescriptor[]
@@ -151,8 +151,8 @@ namespace Cocona.Test.Command.CommandDispatcher
         public void ResolveOverload_Ambiguous()
         {
             var matcher = new CoconaCommandMatcher();
-            var commandOption0 = new CommandOptionDescriptor(typeof(bool), "foo", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null);
-            var commandOption1 = new CommandOptionDescriptor(typeof(bool), "bar", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null);
+            var commandOption0 = new CommandOptionDescriptor(typeof(bool), "foo", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null, CommandOptionFlags.None);
+            var commandOption1 = new CommandOptionDescriptor(typeof(bool), "bar", new[] { 'm' }, string.Empty, CoconaDefaultValue.None, null, CommandOptionFlags.None);
             var command = CreateCommand(
                 "A",
                 new CommandParameterDescriptor[]

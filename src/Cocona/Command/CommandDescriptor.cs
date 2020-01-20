@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Cocona.Command
 {
-    [DebuggerDisplay("Command: {Name,nq}; CommandType={CommandType.FullName,nq}; Options={Options.Count,nq}; Arguments={Arguments.Count,nq}")]
+    [DebuggerDisplay("Command: {Name,nq}; CommandType={CommandType.FullName,nq}; Options={Options.Count,nq}; Arguments={Arguments.Count,nq}; Flags={Flags,nq}")]
     public class CommandDescriptor
     {
         public MethodInfo Method { get; }
@@ -19,6 +19,7 @@ namespace Cocona.Command
         
         public CommandFlags Flags { get; }
         public bool IsPrimaryCommand => (Flags & CommandFlags.Primary) == CommandFlags.Primary;
+        public bool IsHidden => (Flags & CommandFlags.Hidden) == CommandFlags.Hidden;
 
         public IReadOnlyList<CommandParameterDescriptor> Parameters { get; }
         public IReadOnlyList<CommandOptionDescriptor> Options { get; }
@@ -54,5 +55,6 @@ namespace Cocona.Command
     {
         None = 0,
         Primary = 1 << 0,
+        Hidden = 1 << 1,
     }
 }

@@ -1,4 +1,4 @@
-﻿using Cocona.Command;
+using Cocona.Command;
 using Cocona.CommandLine;
 using FluentAssertions;
 using System;
@@ -12,7 +12,7 @@ namespace Cocona.Test.CommandLine
     {
         private CommandOptionDescriptor CreateCommandOption(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue)
         {
-            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null);
+            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null, CommandOptionFlags.None);
         }
 
         [Fact]

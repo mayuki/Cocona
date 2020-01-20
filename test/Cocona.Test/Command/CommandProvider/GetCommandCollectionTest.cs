@@ -174,16 +174,33 @@ namespace Cocona.Test.Command.CommandProvider
         }
 
         [Fact]
-        public void DontTreatPublicMethodsAsCommand_Multiple()
+        public void Hidden_Command()
         {
-            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands_Multiple) }, treatPublicMethodsAsCommands: false);
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTest_HiddenCommand) });
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.Primary.Should().BeNull();
             commands.All.Should().HaveCount(2);
-            commands.All[0].Name.Should().Be("B");
-            commands.All[1].Name.Should().Be("C");
+            commands.All[0].Name.Should().Be("A");
+            commands.All[0].Flags.Should().HaveFlag(CommandFlags.None);
+            commands.All[0].IsHidden.Should().BeFalse();
+            commands.All[1].Name.Should().Be("B");
+            commands.All[1].Flags.Should().HaveFlag(CommandFlags.Hidden);
+            commands.All[1].IsHidden.Should().BeTrue();
         }
+
+        [Fact]
+        public void Hidden_Option()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTest_HiddenOption) });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+            commands.All[0].Name.Should().Be("A");
+            commands.All[0].Options[0].Flags.Should().HaveFlag(CommandOptionFlags.Hidden);
+            commands.All[0].Options[1].Flags.Should().HaveFlag(CommandOptionFlags.None);
+        }
+
 
         public class CommandTestDefaultPrimaryCommand_Argument
         {
@@ -297,7 +314,6 @@ namespace Cocona.Test.Command.CommandProvider
             public void B() { }
         }
 
-
         public class CommandTestDontTreatPublicMethodsAsCommands_Multiple
         {
             public void A() { }
@@ -309,5 +325,17 @@ namespace Cocona.Test.Command.CommandProvider
             public void C() { }
         }
 
+        public class CommandTest_HiddenCommand
+        {
+            public void A() { }
+
+            [Hidden]
+            public void B() { }
+        }
+
+        public class CommandTest_HiddenOption
+        {
+            public void A([Hidden]bool option0, bool option1) { }
+        }
     }
 }

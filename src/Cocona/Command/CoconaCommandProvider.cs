@@ -96,6 +96,7 @@ namespace Cocona.Command
             var aliases = commandAttr?.Aliases ?? Array.Empty<string>();
 
             var isPrimaryCommand = methodInfo.GetCustomAttribute<PrimaryCommandAttribute>() != null;
+            var isHidden = methodInfo.GetCustomAttribute<HiddenAttribute>() != null;
 
             var allOptions = new Dictionary<string, CommandOptionDescriptor>(StringComparer.OrdinalIgnoreCase);
             var allOptionShortNames = new HashSet<char>();
@@ -144,6 +145,7 @@ namespace Cocona.Command
                     var optionDesc = optionAttr?.Description ?? string.Empty;
                     var optionShortNames = optionAttr?.ShortNames ?? Array.Empty<char>();
                     var optionValueName = optionAttr?.ValueName ?? x.ParameterType.Name;
+                    var optionIsHidden = x.GetCustomAttribute<HiddenAttribute>() != null;
 
                     // If the option type is bool, the option has always default value (false).
                     if (!defaultValue.HasValue && x.ParameterType == typeof(bool))
@@ -156,7 +158,7 @@ namespace Cocona.Command
                     if (allOptionShortNames.Any() && optionShortNames.Any() && allOptionShortNames.IsSupersetOf(optionShortNames))
                         throw new CoconaException($"Short name option '{string.Join(",", optionShortNames)}' is already exists.");
 
-                    var option = new CommandOptionDescriptor(x.ParameterType, optionName, optionShortNames, optionDesc, defaultValue, optionValueName);
+                    var option = new CommandOptionDescriptor(x.ParameterType, optionName, optionShortNames, optionDesc, defaultValue, optionValueName, optionIsHidden ? CommandOptionFlags.Hidden : CommandOptionFlags.None);
                     allOptions.Add(optionName, option);
                     allOptionShortNames.UnionWith(optionShortNames);
 
@@ -180,6 +182,9 @@ namespace Cocona.Command
                     )));
             }
 
+            var flags = ((isHidden) ? CommandFlags.Hidden : CommandFlags.None) |
+                        ((isSingleCommand || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None);
+
             return new CommandDescriptor(
                 methodInfo,
                 commandName,
@@ -189,7 +194,7 @@ namespace Cocona.Command
                 options,
                 arguments,
                 overloadDescriptors.ToArray(),
-                (isSingleCommand || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None
+                flags
             );
         }
     }

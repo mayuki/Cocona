@@ -32,9 +32,9 @@ namespace Cocona.Help
                 sb.Append(command.Name);
             }
 
-            if (command.Options.Any())
+            if (command.Options.Any(x => !x.IsHidden))
             {
-                foreach (var opt in command.Options)
+                foreach (var opt in command.Options.Where(x => !x.IsHidden))
                 {
                     sb.Append(" ");
                     if (opt.OptionType == typeof(bool))
@@ -134,7 +134,7 @@ namespace Cocona.Help
             }
 
             // Commands
-            var commandsExceptPrimary = commandCollection.All.Where(x => !x.IsPrimaryCommand).ToArray();
+            var commandsExceptPrimary = commandCollection.All.Where(x => !x.IsPrimaryCommand && !x.IsHidden).ToArray();
             if (commandsExceptPrimary.Any())
             {
                 help.Children.Add(new HelpSection(HelpSectionId.Commands,
@@ -217,13 +217,14 @@ namespace Cocona.Help
 
         private void AddHelpForCommandOptions(HelpMessage help, IEnumerable<CommandOptionDescriptor> options)
         {
-            if (options.Any())
+            if (options.Any(x => !x.IsHidden))
             {
                 help.Children.Add(new HelpSection(HelpSectionId.Options,
                     new HelpHeading("Options:"),
                     new HelpSection(
                         new HelpLabelDescriptionList(
                             options
+                                .Where(x => !x.IsHidden)
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
                                         BuildParameterLabel(x),
