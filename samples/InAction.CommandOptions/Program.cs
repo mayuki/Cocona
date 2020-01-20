@@ -25,9 +25,19 @@ namespace CoconaSample.InAction.CommandOptions
             Alice, Karen, Other
         }
 
+        // dotnet run -- booleantruebydefault --dryRun=false
         public void BooleanTrueByDefault(bool dryRun = true)
         {
             Console.WriteLine($"DryRun: {dryRun}");
+        }
+
+        // dotnet run -- array -I../path/to/foo -I../foo/bar/baz
+        public void Array([Option('I')]string[] include)
+        {
+            foreach (var item in include)
+            {
+                Console.WriteLine(item);
+            }
         }
 
         public void HiddenOptionInHelp(bool visible, [Hidden]bool hidden)
