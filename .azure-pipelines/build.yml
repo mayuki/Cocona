@@ -35,7 +35,7 @@ jobs:
         testRunner: VSTest
         testResultsFiles: '**/*.trx'
 
-    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" --include-symbols --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
+    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
       displayName: dotnet pack
 
     # Publish to Azure Artifacts
@@ -76,7 +76,7 @@ jobs:
     - script: dotnet build -c Release
       displayName: dotnet build
 
-    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" --include-symbols --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
+    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
       displayName: dotnet pack
 
     # Publish to NuGet.org
