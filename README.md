@@ -4,7 +4,7 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
 [![Build Status](https://dev.azure.com/misuzilla/Cocona/_apis/build/status/Cocona?branchName=master)](https://dev.azure.com/misuzilla/Cocona/_build/latest?definitionId=18&branchName=master) [![NuGet Package: Cocona](https://img.shields.io/nuget/vpre/Cocona)](https://www.nuget.org/packages/Cocona)
 
 ### ⏱ Create a console application with Cocona in seconds.
-![](docs/assets/intro-in-seconds.svg)
+![](docs/assets/intro-in-seconds.gif)
 
 ## Feature
 - 🚀 **Make it easy to build console applications on .NET Core.**
