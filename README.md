@@ -8,7 +8,7 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
 
 ## Feature
 - 🚀 **Make it easy to build console applications on .NET Core.**
-    - `public` method as a command ™ by default
+    - `public` method as a command ™
     - Provides ASP.NET Core MVC-like development experience to console application development.
 - ✨ **Command-line option semantics like UNIX tools standard. (`getopt`/`getopt_long` like options)**
     - Your app can handle both `-rf /` and `-r -f /` :-)
@@ -38,8 +38,8 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
     - [Dependency Injection](#dependency-injection)
     - [Configuration](#configuration)
     - [Logging](#logging)
-- Advanced
-    - Help customization
+- [Advanced](#advanced)
+    - [Help customization](#help-customization)
 - [Related projects](#related-projects)
 - [License](#license)
 
@@ -325,6 +325,9 @@ class Program : CoconaConsoleAppBase
     }
 }
 ```
+## Advanced
+### Help customization
+- See also: [CoconaSample.Advanced.HelpTransformer](samples/Advanced.HelpTransformer)
 
 ## Related projects
 - [Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework): It heavily inspired Cocona.
