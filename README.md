@@ -234,6 +234,13 @@ class Program : CoconaConsoleAppBase
 - See also: [CoconaSample.InAction.HandleShutdownSignal](samples/InAction.HandleShutdownSignal)
 
 ### Command filter
+Cocona has filter mechanism like ASP.NET Core's action filter. Filters allow custom processing before or after you run a command.
+
+- `ICommandFilter` interface
+- `CommandFilterAttribute` attribute
+- `IFilterProvider` interface
+- `IFilterMetadata` interface
+
 ```csharp
 class Program
 {
