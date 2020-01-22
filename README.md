@@ -29,18 +29,21 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
 - [Command-line handling basics](#command-line-handling-basics)
     - [Command](#command)
     - [Options](#options)
-    - Arguments
-    - Exit code
+     - [Arguments](#arguments)
+     - Exit code
+        - Return value
+        - Non-local exit by Exception
 - Sub-commands
 - Cocona in action
-    - Logging
+    - Shutdown
+    - Filter
     - Dependency Injection
     - Configuration
-    - Shutdown
-    - Middleware
+    - Logging
 - Advanced
     - Help customization
     - Customize providers
+- [Related projects](#related-projects)
 - [License](#license)
 
 ## Installing
@@ -61,7 +64,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        // Parse command-line and dispatch command.
+        // Parse command-line and execute a command by Cocona.
         CoconaApp.Run<Program>(args);
     }
 
@@ -80,8 +83,8 @@ Usage: ConsoleAppSample [--name <String>]
 
 Options:
   --name <String>    (Required)
-  -h, --help    Show help message
-  --version     Show version
+  -h, --help         Show help message
+  --version          Show version
 
 $ dotnet run -- --name Cocona
 Hello Cocona
@@ -133,18 +136,54 @@ Cocona exposes method parameters as command-line options (also known as flags).
 public void Hello(string name, bool hey) { ... }
 ```
 
-If the parameters are [optional argument](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/named-and-optional-arguments#optional-arguments), Cocona will treat those as optional command options. (That is, the parameters are treated as **required option** by default).
+If method parameters are [optional argument](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/named-and-optional-arguments#optional-arguments), Cocona treats those as optional command options. (That is, the parameters are treated as **required option** by default excepts boolean).
+If a type of parameter is boolean, it's assumed that `false` default value is specified.
 
 ```csharp
 // `--name "default user"` is specified implicity.
 public void Hello(string name = "default user") { ... }
 ```
 
-Do you want to use short-name option `-f` instead of `--force`. You can specify short-name to an option using `OptionAttribute`.
+Do you want to use short-name option `-f` instead of `--force`?
+You can specify short-name to an option using `OptionAttribute`.
 
 ```csharp
-public void Remove([Option('f')]bool force) { ... }
+// The command allows `-f` or `--force` option.
+// Cocona's command-line parser accepts getopt-like styles. See below.
+// $ remove --force --recursive
+// $ remove -r -f
+// $ remove -rf
+public void Remove([Option('f')]bool force, [Option('r')bool recursive) { ... }
 ```
+
+If a type of parameter is `T[]` or `IEnumerable<T>`, a command accepts one or more options by the same name.
+```csharp
+// $ compile -I../path/to/foo.h -I/usr/include/bar.h -I/usr/include/baz.h nantoka.c
+// include = new [] { "../path/to/foo.h", "/usr/include/bar.h", "/usr/include/baz.h" };
+public void Compile([Option('I')]string[] include, [Argument]string file) { ... }
+```
+
+- See also: [CoconaSample.InAction.CommandOptions](samples/InAction.CommandOptions)
+
+## Arguments
+Command-line arguments are defined as method parameters as same as options.
+
+```csharp
+// ./app alice karen
+public void Hello([Argument]string from, [Argument]string to) { ... }
+```
+
+You can define a parameter as `T[]`. It allows defining `cp`-like command which accepts many file paths and one destination path (`cp file1 file2 file3 dest`).
+
+```csharp
+// ./copy file1 file2 file3 dest
+public void Copy([Argument]string[] src, [Argument]string dest) { ... }
+```
+
+- See also: [CoconaSample.InAction.ManyArguments](samples/InAction.ManyArguments)
+
+## Related projects
+- [Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework): The root of the idea for .NET Core console application developer experience.
 
 ## License
 MIT License
