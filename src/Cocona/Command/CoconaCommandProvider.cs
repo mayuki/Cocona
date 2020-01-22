@@ -13,12 +13,16 @@ namespace Cocona.Command
         private static readonly Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> _emptyOverloads = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>();
         private readonly Lazy<CommandCollection> _commandCollection;
         private readonly bool _treatPublicMethodsAsCommands;
+        private readonly bool _enableConvertOptionNameToLowerCase;
+        private readonly bool _enableConvertCommandNameToLowerCase;
 
-        public CoconaCommandProvider(Type[] targetTypes, bool treatPublicMethodsAsCommands = true)
+        public CoconaCommandProvider(Type[] targetTypes, bool treatPublicMethodsAsCommands = true, bool enableConvertOptionNameToLowerCase = false, bool enableConvertCommandNameToLowerCase = false)
         {
             _targetTypes = targetTypes ?? throw new ArgumentNullException(nameof(targetTypes));
             _commandCollection = new Lazy<CommandCollection>(GetCommandCollectionCore);
             _treatPublicMethodsAsCommands = treatPublicMethodsAsCommands;
+            _enableConvertOptionNameToLowerCase = enableConvertOptionNameToLowerCase;
+            _enableConvertCommandNameToLowerCase = enableConvertCommandNameToLowerCase;
         }
 
         public CommandCollection GetCommandCollection()
@@ -95,6 +99,8 @@ namespace Cocona.Command
             var description = commandAttr?.Description ?? string.Empty;
             var aliases = commandAttr?.Aliases ?? Array.Empty<string>();
 
+            if (_enableConvertCommandNameToLowerCase) commandName = ToCommandCase(commandName);
+
             var isPrimaryCommand = methodInfo.GetCustomAttribute<PrimaryCommandAttribute>() != null;
             var isHidden = methodInfo.GetCustomAttribute<HiddenAttribute>() != null;
 
@@ -147,6 +153,8 @@ namespace Cocona.Command
                     var optionValueName = optionAttr?.ValueName ?? x.ParameterType.Name;
                     var optionIsHidden = x.GetCustomAttribute<HiddenAttribute>() != null;
 
+                    if (_enableConvertOptionNameToLowerCase) optionName = ToCommandCase(optionName);
+
                     // If the option type is bool, the option has always default value (false).
                     if (!defaultValue.HasValue && x.ParameterType == typeof(bool))
                     {
@@ -196,6 +204,29 @@ namespace Cocona.Command
                 overloadDescriptors.ToArray(),
                 flags
             );
+        }
+
+        public static string ToCommandCase(string value)
+        {
+            var sb = new StringBuilder(value.Length);
+            for (var i = 0; i < value.Length; i++)
+            {
+                var c = value[i];
+                if (Char.IsUpper(c))
+                {
+                    if (sb.Length != 0 && Char.IsLower(value[i - 1]))
+                    {
+                        sb.Append('-');
+                    }
+                    sb.Append(Char.ToLowerInvariant(c));
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+
+            return sb.ToString();
         }
     }
 

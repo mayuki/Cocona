@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.Hosting
                     services.TryAddSingleton<ICoconaCommandProvider>(serviceProvider =>
                     {
                         var options = serviceProvider.GetService<IOptions<CoconaAppOptions>>().Value;
-                        return new CoconaBuiltInCommandProvider(new CoconaCommandProvider(options.CommandTypes.ToArray(), options.TreatPublicMethodsAsCommands));
+                        return new CoconaBuiltInCommandProvider(new CoconaCommandProvider(options.CommandTypes.ToArray(), options.TreatPublicMethodsAsCommands, options.EnableConvertOptionNameToLowerCase, options.EnableConvertCommandNameToLowerCase));
                     });
                     services.TryAddSingleton<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
                     services.TryAddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();

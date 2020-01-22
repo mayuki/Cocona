@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Cocona.Command.BuiltIn
 {
@@ -33,7 +34,7 @@ namespace Cocona.Command.BuiltIn
             commands = commands
                 .Select(x => new CommandDescriptor(
                     x.Method,
-                    x.Name.ToLower(),
+                    x.Name,
                     x.Aliases,
                     x.Description,
                     x.Parameters,
