@@ -30,10 +30,8 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
     - [Command](#command)
     - [Options](#options)
      - [Arguments](#arguments)
-     - Exit code
-        - Return value
-        - Non-local exit by Exception
-- Sub-commands
+     - [Exit code](#exit-code)
+- [Sub-commands](#sub-commands)
 - Cocona in action
     - Shutdown
     - Filter
@@ -165,7 +163,7 @@ public void Compile([Option('I')]string[] include, [Argument]string file) { ... 
 
 - See also: [CoconaSample.InAction.CommandOptions](samples/InAction.CommandOptions)
 
-## Arguments
+### Arguments
 Command-line arguments are defined as method parameters as same as options.
 
 ```csharp
@@ -182,8 +180,30 @@ public void Copy([Argument]string[] src, [Argument]string dest) { ... }
 
 - See also: [CoconaSample.InAction.ManyArguments](samples/InAction.ManyArguments)
 
+### Exit code
+```csharp
+// Exit Code: 0
+public void NoReturn() { }
+
+// Exit Code: 123
+public int Return() { return 123; }
+
+// Exit Code: 255
+public async Task<int> ReturnAsync() { return 255; }
+
+// Exit Code: -1
+public async ValueTask<int> ReturnValueTaskAsync() { return -1; }
+
+// Exit Code: 128
+public void Throw() { throw new CommandExitedException(128); }
+```
+
+- See also: [CoconaSample.InAction.ExitCode](samples/InAction.ExitCode)
+
+### Sub-commands
+
 ## Related projects
-- [Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework): The root of the idea for .NET Core console application developer experience.
+- [Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework): It heavily inspired Cocona.
 
 ## License
 MIT License
