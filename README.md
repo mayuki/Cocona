@@ -32,15 +32,14 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
      - [Arguments](#arguments)
      - [Exit code](#exit-code)
 - [Sub-commands](#sub-commands)
-- Cocona in action
-    - Shutdown
-    - Filter
-    - Dependency Injection
-    - Configuration
-    - Logging
+- [Cocona in action](#cocona-in-action)
+    - [Shutdown event handling](#shutdown-event-handling)
+    - [Command filter](#command-filter)
+    - [Dependency Injection](#dependency-injection)
+    - [Configuration](#configuration)
+    - [Logging](#logging)
 - Advanced
     - Help customization
-    - Customize providers
 - [Related projects](#related-projects)
 - [License](#license)
 
@@ -62,7 +61,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        // Parse command-line and execute a command by Cocona.
+        // Cocona parses command-line and executes a command.
         CoconaApp.Run<Program>(args);
     }
 
@@ -201,6 +200,131 @@ public void Throw() { throw new CommandExitedException(128); }
 - See also: [CoconaSample.InAction.ExitCode](samples/InAction.ExitCode)
 
 ### Sub-commands
+
+- See also: [CoconaSample.GettingStarted.SubCommandApp](samples/GettingStarted.SubCommandApp)
+
+#### PrimaryCommand
+```csharp
+[PrimaryCommand]
+public void Primary() { ... }
+
+[Command]
+public void Hello() { ... }
+
+[Command]
+public void Goodbye() { ... }
+```
+
+## Cocona in action
+### Shutdown event handling
+```csharp
+class Program : CoconaConsoleAppBase
+{
+    ...
+    public async Task RunAsync()
+    {
+        while (!Context.CancellationToken.IsCancellationRequested)
+        {
+            await Task.Delay(100);
+        }
+    }
+}
+```
+
+- See also: [CoconaSample.InAction.HandleShutdownSignal](samples/InAction.HandleShutdownSignal)
+
+### Command filter
+```csharp
+class Program
+{
+    static void Main(string[] args)
+    {
+        CoconaApp.Run<Program>(args);
+    }
+
+    [SampleCommandFilter]
+    public void Hello()
+    {
+        Console.WriteLine($"Hello Konnichiwa");
+    }
+}
+
+class SampleCommandFilterAttribute : CommandFilterAttribute
+{
+    public override async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+    {
+        Console.WriteLine($"Before Command: {ctx.Command.Name}");
+        try
+        {
+            return await next(ctx);
+        }
+        finally
+        {
+            Console.WriteLine($"End Command: {ctx.Command.Name}");
+        }
+    }
+}
+```
+
+- See also: [CoconaSample.InAction.CommandFilter](samples/InAction.CommandFilter)
+
+### Dependency Injection
+```csharp
+class Program
+{
+    public Program(ILogger<Program> logger)
+    {
+        logger.LogInformation("Create Instance");
+    }
+
+    static void Main(string[] args)
+    {
+        CoconaApp.Create()
+            .ConfigureServices(services =>
+            {
+                services.AddTransient<MyService>();
+            })
+            .Run<Program>(args);
+    }
+
+    public void Hello([FromService]MyService myService)
+    {
+        myService.Hello("Hello Konnichiwa!");
+    }
+}
+
+class MyService
+{
+    private readonly ILogger _logger;
+
+    public MyService(ILogger<MyService> logger)
+    {
+        _logger = logger;
+    }
+
+    public void Hello(string message)
+    {
+        _logger.LogInformation(message);
+    }
+}
+```
+
+- See also: [CoconaSample.InAction.DependencyInjection](samples/InAction.DependencyInjection)
+
+### Configuration
+- See also: [CoconaSample.InAction.AppConfiguration](samples/InAction.AppConfiguration)
+
+### Logging
+```csharp
+class Program : CoconaConsoleAppBase
+{
+    ...
+    public async Task RunAsync()
+    {
+        Context.Logger.LogInformation("Hello Konnichiwa!");
+    }
+}
+```
 
 ## Related projects
 - [Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework): It heavily inspired Cocona.
