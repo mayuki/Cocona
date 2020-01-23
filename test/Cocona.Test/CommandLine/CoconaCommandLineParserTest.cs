@@ -263,12 +263,11 @@ namespace Cocona.Test.CommandLine
             );
             parsed.Should().NotBeNull();
             parsed.Options.Should().BeEmpty();
-            parsed.Arguments.Should().HaveCount(5);
+            parsed.Arguments.Should().HaveCount(4);
             parsed.Arguments[0].Value.Should().Be("src1");
             parsed.Arguments[1].Value.Should().Be("src2");
             parsed.Arguments[2].Value.Should().Be("src3");
             parsed.Arguments[3].Value.Should().Be("dest");
-            parsed.Arguments[4].Value.Should().Be("--");
             parsed.UnknownOptions.Should().BeEmpty();
         }
 
@@ -1234,5 +1233,100 @@ namespace Cocona.Test.CommandLine
             parsed.Arguments[2].Value.Should().Be("--");
             parsed.UnknownOptions.Should().BeEmpty();
         }
+
+        [Fact]
+        public void ParseCommand_Mixed_Options_Arguments()
+        {
+            var args = new[] { "-", "arg1", "-r", "arg2", "--force" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().HaveCount(2);
+            parsed.Options[0].Option.Name.Should().Be("recursive");
+            parsed.Options[1].Option.Name.Should().Be("force");
+            parsed.Arguments.Should().HaveCount(3);
+            parsed.Arguments[0].Value.Should().Be("-");
+            parsed.Arguments[1].Value.Should().Be("arg1");
+            parsed.Arguments[2].Value.Should().Be("arg2");
+            parsed.UnknownOptions.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ParseCommand_Mixed_Options_Arguments_EndOfOptions()
+        {
+            var args = new[] { "-", "arg1", "-r", "--", "arg2", "--force" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg3", 0, "", CoconaDefaultValue.None),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().HaveCount(1);
+            parsed.Options[0].Option.Name.Should().Be("recursive");
+            parsed.Arguments.Should().HaveCount(4);
+            parsed.Arguments[0].Value.Should().Be("-");
+            parsed.Arguments[1].Value.Should().Be("arg1");
+            parsed.Arguments[2].Value.Should().Be("arg2");
+            parsed.Arguments[3].Value.Should().Be("--force");
+            parsed.UnknownOptions.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ParseCommand_Mixed_Options_Arguments_EndOfOptions_Last()
+        {
+            var args = new[] { "-", "arg1", "-r", "arg2", "--force", "--" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().HaveCount(2);
+            parsed.Options[0].Option.Name.Should().Be("recursive");
+            parsed.Options[1].Option.Name.Should().Be("force");
+            parsed.Arguments.Should().HaveCount(3);
+            parsed.Arguments[0].Value.Should().Be("-");
+            parsed.Arguments[1].Value.Should().Be("arg1");
+            parsed.Arguments[2].Value.Should().Be("arg2");
+            parsed.UnknownOptions.Should().BeEmpty();
+        }
+
     }
 }

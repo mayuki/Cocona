@@ -42,28 +42,31 @@ namespace Cocona.CommandLine
                 .ToDictionary(k => k.ShortName, v => v.Option);
 
             var arguments = new List<CommandArgument>();
-
-            // parse options
-            var index = 0;
             var options = new List<CommandOption>();
             var unknownOptions = new List<string>();
+            var optionsCompleted = false;
+
+            // parse options and arguments
+            var index = 0;
             for (var i = 0; i < args.Count; i++)
             {
-                if (!args[i].StartsWith("-"))
+                if (!args[i].StartsWith("-") || optionsCompleted)
                 {
-                    break;
+                    arguments.Add(new CommandArgument(args[i]));
+                    continue;
                 }
 
                 index++;
 
-                // end of options
-                if (args[i] == "--")
-                {
-                    break;
-                }
-
                 if (args[i].StartsWith("--"))
                 {
+                    // end of options
+                    if (args[i] == "--")
+                    {
+                        optionsCompleted = true;
+                        continue;
+                    }
+
                     // long-named
                     var equalPos = args[i].IndexOf('=');
                     if (equalPos > -1)
@@ -174,7 +177,7 @@ namespace Cocona.CommandLine
                 }
             }
 
-            arguments.AddRange(args.Skip(index).Select(x => new CommandArgument(x)));
+            //arguments.AddRange(args.Skip(index).Select(x => new CommandArgument(x)));
 
             return new ParsedCommandLine(options, arguments, unknownOptions);
         }
