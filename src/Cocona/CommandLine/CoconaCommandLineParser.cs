@@ -41,6 +41,8 @@ namespace Cocona.CommandLine
                 .SelectMany(xs => xs.ShortName.Select(x => (ShortName: x, Option: xs)))
                 .ToDictionary(k => k.ShortName, v => v.Option);
 
+            var arguments = new List<CommandArgument>();
+
             // parse options
             var index = 0;
             var options = new List<CommandOption>();
@@ -111,6 +113,11 @@ namespace Cocona.CommandLine
 
                     unknownOptions.Add(args[i].Substring(2).ToString());
                 }
+                else if (args[i].Length == 1)
+                {
+                    // '-' hyphen
+                    arguments.Add(new CommandArgument("-"));
+                }
                 else
                 {
                     // short-named
@@ -167,7 +174,7 @@ namespace Cocona.CommandLine
                 }
             }
 
-            var arguments = args.Skip(index).Select(x => new CommandArgument(x)).ToArray();
+            arguments.AddRange(args.Skip(index).Select(x => new CommandArgument(x)));
 
             return new ParsedCommandLine(options, arguments, unknownOptions);
         }

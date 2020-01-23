@@ -1099,5 +1099,111 @@ namespace Cocona.Test.CommandLine
             parsed.Arguments.Should().BeEmpty();
             parsed.UnknownOptions.Should().BeEmpty();
         }
+
+        [Fact]
+        public void ParseCommand_Single_Hyphen()
+        {
+            var args = new[] { "-" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().BeEmpty();
+            parsed.Arguments.Should().HaveCount(1);
+            parsed.Arguments[0].Value.Should().Be("-");
+            parsed.UnknownOptions.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ParseCommand_Single_Hyphen_2()
+        {
+            var args = new[] { "-", "a" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().BeEmpty();
+            parsed.Arguments.Should().HaveCount(2);
+            parsed.Arguments[0].Value.Should().Be("-");
+            parsed.Arguments[1].Value.Should().Be("a");
+            parsed.UnknownOptions.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ParseCommand_Single_Hyphen_3()
+        {
+            var args = new[] { "--", "-" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().BeEmpty();
+            parsed.Arguments.Should().HaveCount(1);
+            parsed.Arguments[0].Value.Should().Be("-");
+            parsed.UnknownOptions.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ParseCommand_Single_Hyphen_4()
+        {
+            var args = new[] { "--", "-", "a" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().BeEmpty();
+            parsed.Arguments.Should().HaveCount(2);
+            parsed.Arguments[0].Value.Should().Be("-");
+            parsed.Arguments[1].Value.Should().Be("a");
+            parsed.UnknownOptions.Should().BeEmpty();
+        }
     }
 }
