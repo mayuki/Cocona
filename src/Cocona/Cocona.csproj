@@ -12,7 +12,7 @@
     <PackageProjectUrl>https://github.com/mayuki/Cocona</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mayuki/Cocona</RepositoryUrl>
     <PackageIcon>icon.png</PackageIcon>
-    <PackageTags>CLI Framework Console</PackageTags>
+    <PackageTags>CommandLine CLI Framework Console</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     
     <SignAssembly>true</SignAssembly>
