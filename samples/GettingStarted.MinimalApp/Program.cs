@@ -10,9 +10,9 @@ namespace CoconaSample.GettingStarted.MinimalApp
             CoconaApp.Run<Program>(args);
         }
 
-        public void Hello(bool toUppperCase, [Argument]string name)
+        public void Hello(bool toUpperCase, [Argument]string name)
         {
-            Console.WriteLine($"Hello {(toUppperCase ? name.ToUpper() : name)}");
+            Console.WriteLine($"Hello {(toUpperCase ? name.ToUpper() : name)}");
         }
     }
 }
