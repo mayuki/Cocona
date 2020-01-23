@@ -26,15 +26,15 @@ namespace Cocona.Command.Dispatcher.Middlewares
             }
             catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.InsufficientArgument)
             {
-                _console.Error.WriteLine($"Error: Argument '{paramEx.Argument!.Name}' is required.");
+                _console.Error.WriteLine($"Error: Argument '{paramEx.Argument!.Name}' is required. See '--help' for usage.");
             }
             catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.InsufficientOption)
             {
-                _console.Error.WriteLine($"Error: Option '--{paramEx.Option!.Name}' is required.");
+                _console.Error.WriteLine($"Error: Option '--{paramEx.Option!.Name}' is required. See '--help' for usage.");
             }
             catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.InsufficientOptionValue)
             {
-                _console.Error.WriteLine($"Error: Option '--{paramEx.Option!.Name}' requires a value.");
+                _console.Error.WriteLine($"Error: Option '--{paramEx.Option!.Name}' requires a value. See '--help' for usage.");
             }
             catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.TypeNotSupported)
             {
