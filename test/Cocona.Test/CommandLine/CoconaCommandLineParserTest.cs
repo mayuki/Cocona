@@ -1205,5 +1205,34 @@ namespace Cocona.Test.CommandLine
             parsed.Arguments[1].Value.Should().Be("a");
             parsed.UnknownOptions.Should().BeEmpty();
         }
+
+        [Fact]
+        public void ParseCommand_AfterEndOfOptions_Hyphen()
+        {
+            var args = new[] { "--", "-", "a", "--" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new CommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().BeEmpty();
+            parsed.Arguments.Should().HaveCount(3);
+            parsed.Arguments[0].Value.Should().Be("-");
+            parsed.Arguments[1].Value.Should().Be("a");
+            parsed.Arguments[2].Value.Should().Be("--");
+            parsed.UnknownOptions.Should().BeEmpty();
+        }
     }
 }
