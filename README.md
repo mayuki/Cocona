@@ -33,6 +33,7 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
     - [Sub-commands](#sub-commands)
 - [Cocona in action](#cocona-in-action)
     - [Exit code](#exit-code)
+    - [Validation](#validation)
     - [Shutdown event handling](#shutdown-event-handling)
     - [Command filter](#command-filter)
     - [Dependency Injection](#dependency-injection)
@@ -263,6 +264,47 @@ public void Throw() { throw new CommandExitedException(128); }
 ```
 
 - See also: [CoconaSample.InAction.ExitCode](samples/InAction.ExitCode)
+
+### Validation
+Cocona can use attributes to validate options and arguments. Same as ASP.NET Core MVC. 
+
+`System.ComponentModel.DataAnnotations.ValidationAttribute` inherited attributes:
+
+- `RangeAttribute`
+- `MaxLangeAttribute`
+- `MinLengthAttribute`
+- ...
+
+```csharp
+class Program
+{
+    static void Main(string[] args)
+    {
+        CoconaApp.Run<Program>(args);
+    }
+
+    public void Run([Range(1, 128)]int width, [Range(1, 128)]int height, [Argument][PathExists]string filePath)
+    {
+        Console.WriteLine($"Size: {width}x{height}");
+        Console.WriteLine($"Path: {filePath}");
+    }
+}
+
+class PathExistsAttribute : ValidationAttribute
+{
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    {
+        if (value is string path && (Directory.Exists(path) || Directory.Exists(path)))
+        {
+            return ValidationResult.Success;
+        }
+        return new ValidationResult($"The path '{value}' is not found.");
+    }
+}
+```
+
+- See also: [CoconaSample.InAction.Validation](samples/InAction.Validation)
+
 ### Shutdown event handling
 ```csharp
 class Program : CoconaConsoleAppBase
@@ -384,7 +426,7 @@ class Program : CoconaConsoleAppBase
 - See also: [CoconaSample.Advanced.HelpTransformer](samples/Advanced.HelpTransformer)
 
 ## Related projects
-- [Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework): It heavily inspired Cocona.
+- [Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework): ConsoleAppFramework heavily inspired Cocona.
 
 ## License
 MIT License
