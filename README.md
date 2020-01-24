@@ -268,7 +268,7 @@ public void Throw() { throw new CommandExitedException(128); }
 ### Validation
 Cocona can use attributes to validate options and arguments. Same as ASP.NET Core MVC. 
 
-`System.ComponentModel.DataAnnotations.ValidationAttribute` inherited attributes:
+An attribute of validator inherits `System.ComponentModel.DataAnnotations.ValidationAttribute` attribute. Belows are pre-defined attributes in .NET Core:
 
 - `RangeAttribute`
 - `MaxLangeAttribute`
