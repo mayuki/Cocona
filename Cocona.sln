@@ -50,6 +50,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.AppCo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.MultipleCommandTypes", "samples\InAction.MultipleCommandTypes\CoconaSample.InAction.MultipleCommandTypes.csproj", "{1BFA17E7-748E-420C-9219-E91EF8258032}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.Validation", "samples\InAction.Validation\CoconaSample.InAction.Validation.csproj", "{D16A9914-6434-4FFC-8649-371D2A852322}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -128,6 +130,10 @@ Global
 		{1BFA17E7-748E-420C-9219-E91EF8258032}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BFA17E7-748E-420C-9219-E91EF8258032}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BFA17E7-748E-420C-9219-E91EF8258032}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D16A9914-6434-4FFC-8649-371D2A852322}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D16A9914-6434-4FFC-8649-371D2A852322}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D16A9914-6434-4FFC-8649-371D2A852322}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D16A9914-6434-4FFC-8649-371D2A852322}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -149,6 +155,7 @@ Global
 		{98AE66A4-0C9D-4ADA-9F8F-CA6D4BAEDC27} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 		{55D4B44C-4377-42BB-AAAB-52B42DFA65EA} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 		{1BFA17E7-748E-420C-9219-E91EF8258032} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
+		{D16A9914-6434-4FFC-8649-371D2A852322} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8DBA26EF-235B-4656-A5DD-00C266A42735}

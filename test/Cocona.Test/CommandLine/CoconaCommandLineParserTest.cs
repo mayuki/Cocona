@@ -12,7 +12,7 @@ namespace Cocona.Test.CommandLine
     {
         private CommandOptionDescriptor CreateCommandOption(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue)
         {
-            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null, CommandOptionFlags.None);
+            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null, CommandOptionFlags.None, Array.Empty<Attribute>());
         }
 
         [Fact]
@@ -60,8 +60,8 @@ namespace Cocona.Test.CommandLine
                 new CommandOptionDescriptor[] { },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -83,8 +83,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -106,8 +106,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -129,8 +129,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -154,8 +154,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -182,8 +182,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -210,8 +210,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -233,8 +233,8 @@ namespace Cocona.Test.CommandLine
                 new CommandOptionDescriptor[] { },
                 new CommandArgumentDescriptor[]
                 {
-                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -257,8 +257,8 @@ namespace Cocona.Test.CommandLine
                 new CommandOptionDescriptor[] { },
                 new CommandArgumentDescriptor[]
                 {
-                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -284,8 +284,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -311,8 +311,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -338,8 +338,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -366,8 +366,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -538,8 +538,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -568,8 +568,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -598,8 +598,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                        new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -630,8 +630,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -657,8 +657,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -688,8 +688,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -719,8 +719,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -752,8 +752,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -779,8 +779,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -810,8 +810,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -841,8 +841,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -874,8 +874,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -900,8 +900,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -926,8 +926,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -1114,8 +1114,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -1140,8 +1140,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -1167,8 +1167,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -1193,8 +1193,8 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -1220,9 +1220,9 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -1249,9 +1249,9 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -1280,10 +1280,10 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg3", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg3", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();
@@ -1312,9 +1312,9 @@ namespace Cocona.Test.CommandLine
                 },
                 new CommandArgumentDescriptor[]
                 {
-                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
             parsed.Should().NotBeNull();

@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Cocona.Command.Binder.Validation;
 
 namespace Microsoft.Extensions.Hosting
 {
@@ -34,12 +35,20 @@ namespace Microsoft.Extensions.Hosting
                     services.TryAddSingleton<ICoconaCommandProvider>(serviceProvider =>
                     {
                         var options = serviceProvider.GetService<IOptions<CoconaAppOptions>>().Value;
-                        return new CoconaBuiltInCommandProvider(new CoconaCommandProvider(options.CommandTypes.ToArray(), options.TreatPublicMethodsAsCommands, options.EnableConvertOptionNameToLowerCase, options.EnableConvertCommandNameToLowerCase));
+                        return new CoconaBuiltInCommandProvider(
+                            new CoconaCommandProvider(
+                                options.CommandTypes.ToArray(),
+                                options.TreatPublicMethodsAsCommands,
+                                options.EnableConvertOptionNameToLowerCase,
+                                options.EnableConvertCommandNameToLowerCase
+                            )
+                        );
                     });
                     services.TryAddSingleton<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
                     services.TryAddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
                     services.TryAddSingleton<ICoconaApplicationMetadataProvider, CoconaApplicationMetadataProvider>();
                     services.TryAddSingleton<ICoconaConsoleProvider, CoconaConsoleProvider>();
+                    services.TryAddSingleton<ICoconaParameterValidatorProvider, DataAnnotationsParameterValidatorProvider>();
 
                     services.TryAddTransient<ICoconaParameterBinder, CoconaParameterBinder>();
                     services.TryAddTransient<ICoconaValueConverter, CoconaValueConverter>();

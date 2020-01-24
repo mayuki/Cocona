@@ -30,5 +30,6 @@ namespace Cocona.Command.Binder
         InsufficientArgument,
         MultipleArrayInArgument,
         TypeNotSupported,
+        ValidationFailed,
     }
 }

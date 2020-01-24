@@ -41,7 +41,7 @@ namespace Cocona.Test.Help
             }
         }
 
-        private CommandDescriptor CreateCommand<T>(string methodName, CommandParameterDescriptor[] parameterDescriptors, bool isPrimaryCommand)
+        private CommandDescriptor CreateCommand<T>(string methodName, ICommandParameterDescriptor[] parameterDescriptors, bool isPrimaryCommand)
         {
             return new CommandDescriptor(
                 typeof(T).GetMethod(methodName, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
@@ -61,7 +61,7 @@ namespace Cocona.Test.Help
         {
             var commandDescriptor = CreateCommand<TestCommand>(
                 nameof(TestCommand.A),
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 isPrimaryCommand: false
             );
 
@@ -82,7 +82,7 @@ Hello, Konnichiwa!
         {
             var commandDescriptor = CreateCommand<TestCommand_InheritedAttribute>(
                 nameof(TestCommand_InheritedAttribute.A),
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 isPrimaryCommand: false
             );
 
@@ -103,7 +103,7 @@ Hi!
         {
             var commandDescriptor = CreateCommand<TestCommand>(
                 nameof(TestCommand.A),
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 isPrimaryCommand: true
             );
 
@@ -124,17 +124,17 @@ Hello, Konnichiwa!
         {
             var commandDescriptor = CreateCommand<TestCommand_Primary>(
                 nameof(TestCommand_Primary.Default),
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 isPrimaryCommand: true
             );
             var commandDescriptor1 = CreateCommand<TestCommand_Primary>(
                 nameof(TestCommand_Primary.A),
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 isPrimaryCommand: false
             );
             var commandDescriptor2 = CreateCommand<TestCommand_Primary>(
                 nameof(TestCommand_Primary.B),
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 isPrimaryCommand: false
             );
 
@@ -159,17 +159,17 @@ Hello, Konnichiwa!
         {
             var commandDescriptor = CreateCommand<TestCommand_Primary_InheritedAttribute>(
                 nameof(TestCommand_Primary_InheritedAttribute.Default),
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 isPrimaryCommand: true
             );
             var commandDescriptor1 = CreateCommand<TestCommand_Primary_InheritedAttribute>(
                 nameof(TestCommand_Primary_InheritedAttribute.A),
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 isPrimaryCommand: false
             );
             var commandDescriptor2 = CreateCommand<TestCommand_Primary_InheritedAttribute>(
                 nameof(TestCommand_Primary_InheritedAttribute.B),
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 isPrimaryCommand: false
             );
 

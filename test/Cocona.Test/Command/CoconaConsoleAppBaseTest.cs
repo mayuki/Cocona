@@ -1,4 +1,4 @@
-﻿using Cocona.Application;
+using Cocona.Application;
 using Cocona.Command;
 using Cocona.Command.Binder;
 using Cocona.Command.Dispatcher;
@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Cocona.Command.Binder.Validation;
 using Xunit;
 
 namespace Cocona.Test.Command
@@ -20,6 +21,7 @@ namespace Cocona.Test.Command
         private ServiceCollection CreateDefaultServices<TCommand>(string[] args)
         {
             var services = new ServiceCollection();
+            services.AddSingleton<ICoconaParameterValidatorProvider, DataAnnotationsParameterValidatorProvider>();
             services.AddSingleton<ICoconaCommandProvider>(serviceProvider => new CoconaCommandProvider(new Type[] { typeof(TCommand) }));
             services.AddSingleton<ICoconaCommandLineArgumentProvider>(serviceProvider => new CoconaCommandLineArgumentProvider(args));
             services.AddTransient<ICoconaParameterBinder, CoconaParameterBinder>();

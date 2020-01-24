@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace Cocona.Command
 {
     [DebuggerDisplay("Option: --{Name,nq} (Type={OptionType.FullName,nq}; IsRequired={IsRequired,nq}); Flags={Flags,nq}")]
-    public class CommandOptionDescriptor : CommandParameterDescriptor
+    public class CommandOptionDescriptor : ICommandParameterDescriptor
     {
         public Type OptionType { get; }
         public string Name { get; }
@@ -13,12 +13,13 @@ namespace Cocona.Command
         public string ValueName { get; }
         public string Description { get; }
         public CoconaDefaultValue DefaultValue { get; }
-        
+        public IReadOnlyList<Attribute> ParameterAttributes { get; }
+
         public CommandOptionFlags Flags { get; }
         public bool IsHidden => (Flags & CommandOptionFlags.Hidden) == CommandOptionFlags.Hidden;
         public bool IsRequired => !DefaultValue.HasValue;
 
-        public CommandOptionDescriptor(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue, string? valueName, CommandOptionFlags flags)
+        public CommandOptionDescriptor(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue, string? valueName, CommandOptionFlags flags, IReadOnlyList<Attribute> parameterAttributes)
         {
             OptionType = optionType ?? throw new ArgumentNullException(nameof(optionType));
             Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -27,6 +28,7 @@ namespace Cocona.Command
             DefaultValue = defaultValue;
             ValueName = valueName ?? OptionType.Name;
             Flags = flags;
+            ParameterAttributes = parameterAttributes;
 
             if (String.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("A name of the command option must not be empty.", nameof(name));

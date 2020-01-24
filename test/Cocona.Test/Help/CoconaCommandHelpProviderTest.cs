@@ -29,7 +29,7 @@ namespace Cocona.Test.Help
             public string GetVersion() => "1.0.0.0";
         }
 
-        private CommandDescriptor CreateCommand(string name, string description, CommandParameterDescriptor[] parameterDescriptors, CommandFlags flags = CommandFlags.None)
+        private CommandDescriptor CreateCommand(string name, string description, ICommandParameterDescriptor[] parameterDescriptors, CommandFlags flags = CommandFlags.None)
         {
             return new CommandDescriptor(
                 typeof(CoconaCommandHelpProviderTest).GetMethod(nameof(CoconaCommandHelpProviderTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
@@ -46,7 +46,7 @@ namespace Cocona.Test.Help
 
         private CommandOptionDescriptor CreateCommandOption(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue, CommandOptionFlags flags = CommandOptionFlags.None)
         {
-            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null, flags);
+            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null, flags, Array.Empty<Attribute>());
         }
 
         [Fact]
@@ -57,15 +57,15 @@ namespace Cocona.Test.Help
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(string), "option0", Array.Empty<char>(), "option description - option0", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "option1", Array.Empty<char>(), "option description - option1", CoconaDefaultValue.None),
-                    new CommandIgnoredParameterDescriptor(typeof(bool), true),
-                    new CommandServiceParameterDescriptor(typeof(bool)),
-                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "description - arg0", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg1", 1, "description - arg1", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "arg2", 2, "description - arg2", CoconaDefaultValue.None),
+                    new CommandIgnoredParameterDescriptor(typeof(bool), "ignored0", true),
+                    new CommandServiceParameterDescriptor(typeof(bool), "fromService0"),
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "description - arg0", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 1, "description - arg1", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 2, "description - arg2", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
 
@@ -80,7 +80,7 @@ namespace Cocona.Test.Help
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
@@ -108,7 +108,7 @@ Options:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
@@ -134,7 +134,7 @@ Options:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
@@ -162,7 +162,7 @@ Options:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "",
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 CommandFlags.Primary
             );
 
@@ -182,7 +182,7 @@ via metadata
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
@@ -209,12 +209,12 @@ Options:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
-                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "src files", CoconaDefaultValue.None),
-                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "dest dir", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string[]), "src", 0, "src files", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "dest", 0, "dest dir", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 }
             );
 
@@ -242,7 +242,7 @@ Options:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
@@ -270,11 +270,11 @@ Options:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
-                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "Argument description", CoconaDefaultValue.None),
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "Argument description", CoconaDefaultValue.None, Array.Empty<Attribute>()),
                 },
                 CommandFlags.Primary
             );
@@ -302,7 +302,7 @@ Options:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
                     CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
@@ -313,7 +313,7 @@ Options:
             var commandDescriptor2 = CreateCommand(
                 "Test2",
                 "command2 description",
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 CommandFlags.None
             );
 
@@ -342,13 +342,13 @@ Options:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 CommandFlags.Primary
             );
             var commandDescriptor2 = CreateCommand(
                 "Test2",
                 "command2 description",
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 CommandFlags.None
             );
 
@@ -371,13 +371,13 @@ Commands:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 CommandFlags.Hidden
             );
             var commandDescriptor2 = CreateCommand(
                 "Test2",
                 "command2 description",
-                new CommandParameterDescriptor[0],
+                new ICommandParameterDescriptor[0],
                 CommandFlags.None
             );
 
@@ -398,7 +398,7 @@ Commands:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(CommandHelpEnumValue), "enum", new [] { 'e' }, "Enum option", CoconaDefaultValue.None),
                 }
@@ -423,7 +423,7 @@ Options:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(bool), "flag", new [] { 'f' }, "Boolean option", new CoconaDefaultValue(false)),
                 }
@@ -448,7 +448,7 @@ Options:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(bool), "flag", new [] { 'f' }, "Boolean option", new CoconaDefaultValue(true)),
                 }
@@ -474,7 +474,7 @@ Options:
             var commandDescriptor = CreateCommand(
                 "Test",
                 "command description",
-                new CommandParameterDescriptor[]
+                new ICommandParameterDescriptor[]
                 {
                     CreateCommandOption(typeof(bool), "flag", new [] { 'f' }, "Boolean option", new CoconaDefaultValue(true), CommandOptionFlags.Hidden),
                 }

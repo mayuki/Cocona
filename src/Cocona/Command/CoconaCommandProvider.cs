@@ -116,8 +116,9 @@ namespace Cocona.Command
                     var ignoreAttr = x.GetCustomAttribute<IgnoreAttribute>();
                     if (ignoreAttr != null)
                     {
-                        return (CommandParameterDescriptor)new CommandIgnoredParameterDescriptor(
+                        return (ICommandParameterDescriptor)new CommandIgnoredParameterDescriptor(
                             x.ParameterType,
+                            x.Name,
                             x.HasDefaultValue
                                 ? x.DefaultValue
                                 : x.ParameterType.IsValueType
@@ -137,13 +138,19 @@ namespace Cocona.Command
 
                         defaultArgOrder++;
 
-                        return (CommandParameterDescriptor)new CommandArgumentDescriptor(x.ParameterType, argName, argOrder, argDesc, defaultValue);
+                        return (ICommandParameterDescriptor)new CommandArgumentDescriptor(
+                            x.ParameterType,
+                            argName,
+                            argOrder,
+                            argDesc,
+                            defaultValue,
+                            x.GetCustomAttributes(true).OfType<Attribute>().ToArray());
                     }
 
                     var fromServiceAttr = x.GetCustomAttribute<FromServiceAttribute>();
                     if (fromServiceAttr != null)
                     {
-                        return (CommandParameterDescriptor)new CommandServiceParameterDescriptor(x.ParameterType);
+                        return (ICommandParameterDescriptor)new CommandServiceParameterDescriptor(x.ParameterType, x.Name);
                     }
 
                     var optionAttr = x.GetCustomAttribute<OptionAttribute>();
@@ -166,11 +173,19 @@ namespace Cocona.Command
                     if (allOptionShortNames.Any() && optionShortNames.Any() && allOptionShortNames.IsSupersetOf(optionShortNames))
                         throw new CoconaException($"Short name option '{string.Join(",", optionShortNames)}' is already exists.");
 
-                    var option = new CommandOptionDescriptor(x.ParameterType, optionName, optionShortNames, optionDesc, defaultValue, optionValueName, optionIsHidden ? CommandOptionFlags.Hidden : CommandOptionFlags.None);
+                    var option = new CommandOptionDescriptor(
+                        x.ParameterType,
+                        optionName,
+                        optionShortNames,
+                        optionDesc,
+                        defaultValue,
+                        optionValueName,
+                        optionIsHidden ? CommandOptionFlags.Hidden : CommandOptionFlags.None,
+                        x.GetCustomAttributes(true).OfType<Attribute>().ToArray());
                     allOptions.Add(optionName, option);
                     allOptionShortNames.UnionWith(optionShortNames);
 
-                    return (CommandParameterDescriptor)option;
+                    return (ICommandParameterDescriptor)option;
                 })
                 .ToArray();
 

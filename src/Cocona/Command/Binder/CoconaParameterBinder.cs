@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Cocona.Command.Binder.Validation;
 
 namespace Cocona.Command.Binder
 {
@@ -11,11 +12,13 @@ namespace Cocona.Command.Binder
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ICoconaValueConverter _valueConverter;
+        private readonly ICoconaParameterValidatorProvider _validatorProvider;
 
-        public CoconaParameterBinder(IServiceProvider serviceProvider, ICoconaValueConverter valueConverter)
+        public CoconaParameterBinder(IServiceProvider serviceProvider, ICoconaValueConverter valueConverter, ICoconaParameterValidatorProvider validatorProvider)
         {
             _serviceProvider = serviceProvider;
             _valueConverter = valueConverter;
+            _validatorProvider = validatorProvider;
         }
 
         public object?[] Bind(CommandDescriptor commandDescriptor, IReadOnlyList<CommandOption> commandOptionValues, IReadOnlyList<CommandArgument> commandArgumentValues)
@@ -116,13 +119,28 @@ namespace Cocona.Command.Binder
             return bindParams;
         }
 
+        private object? Validate(ICommandParameterDescriptor commandParameter, object? value)
+        {
+            var ctx = new CoconaParameterValidationContext(commandParameter, value);
+            foreach (var validator in _validatorProvider.CreateValidators(commandParameter))
+            {
+                var validationFailed = validator.Validate(ctx).FirstOrDefault();
+                if (validationFailed != null)
+                {
+                    throw new ParameterBinderException(ParameterBinderResult.ValidationFailed, validationFailed.Message);
+                }
+            }
+
+            return value;
+        }
+
         private object? ConvertTo(CommandOptionDescriptor option, Type type, string value)
         {
             try
             {
-                return _valueConverter.ConvertTo(type, value);
+                return Validate(option, _valueConverter.ConvertTo(type, value));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is ParameterBinderException))
             {
                 throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Option '{option.Name}' requires {type.Name} value. '{value}' cannot be converted to {type.Name} value.", option: option, innerException: ex);
             }
@@ -132,9 +150,9 @@ namespace Cocona.Command.Binder
         {
             try
             {
-                return _valueConverter.ConvertTo(type, value);
+                return Validate(argument, _valueConverter.ConvertTo(type, value));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is ParameterBinderException))
             {
                 throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Argument '{argument.Name}' requires {type.Name} value. '{value}' cannot be converted to {type.Name} value.", argument: argument, innerException: ex);
             }

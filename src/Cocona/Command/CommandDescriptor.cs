@@ -21,7 +21,7 @@ namespace Cocona.Command
         public bool IsPrimaryCommand => (Flags & CommandFlags.Primary) == CommandFlags.Primary;
         public bool IsHidden => (Flags & CommandFlags.Hidden) == CommandFlags.Hidden;
 
-        public IReadOnlyList<CommandParameterDescriptor> Parameters { get; }
+        public IReadOnlyList<ICommandParameterDescriptor> Parameters { get; }
         public IReadOnlyList<CommandOptionDescriptor> Options { get; }
         public IReadOnlyList<CommandArgumentDescriptor> Arguments { get; }
         public IReadOnlyList<CommandOverloadDescriptor> Overloads { get; }
@@ -31,7 +31,7 @@ namespace Cocona.Command
             string name,
             IReadOnlyList<string> aliases,
             string description,
-            IReadOnlyList<CommandParameterDescriptor> parameters,
+            IReadOnlyList<ICommandParameterDescriptor> parameters,
             IReadOnlyList<CommandOptionDescriptor> options,
             IReadOnlyList<CommandArgumentDescriptor> arguments,
             IReadOnlyList<CommandOverloadDescriptor> overloads,
