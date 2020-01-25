@@ -33,16 +33,21 @@ namespace Cocona.CommandLine
             }
         }
 
-        public ParsedCommandLine ParseCommand(IReadOnlyList<string> args, IReadOnlyList<CommandOptionDescriptor> optionDescs, IReadOnlyList<CommandArgumentDescriptor> argumentDescs)
+        public ParsedCommandLine ParseCommand(IReadOnlyList<string> args, IReadOnlyList<CommandOptionDescriptor> optionDescriptors, IReadOnlyList<CommandArgumentDescriptor> argumentDescriptors)
         {
-            var optionbyLongName = optionDescs
-                .ToDictionary(k => k.Name);
-            var optionbyShortName = optionDescs
-                .SelectMany(xs => xs.ShortName.Select(x => (ShortName: x, Option: xs)))
-                .ToDictionary(k => k.ShortName, v => v.Option);
+            var optionByLongName = new Dictionary<string, CommandOptionDescriptor>(optionDescriptors.Count);
+            var optionByShortName = new Dictionary<char, CommandOptionDescriptor>(optionDescriptors.Count);
+            foreach (var option in optionDescriptors)
+            {
+                optionByLongName[option.Name] = option;
+                foreach (var shortName in option.ShortName)
+                {
+                    optionByShortName[shortName] = option;
+                }
+            }
 
-            var arguments = new List<CommandArgument>();
-            var options = new List<CommandOption>();
+            var arguments = new List<CommandArgument>(10);
+            var options = new List<CommandOption>(10);
             var unknownOptions = new List<string>();
             var optionsCompleted = false;
 
@@ -75,7 +80,7 @@ namespace Cocona.CommandLine
                         var partLeft = args[i].Substring(2, equalPos - 2);
                         var partRight = args[i].Substring(equalPos + 1);
 
-                        if (optionbyLongName.TryGetValue(partLeft, out var option))
+                        if (optionByLongName.TryGetValue(partLeft, out var option))
                         {
                             if (option.OptionType == typeof(bool))
                             {
@@ -97,7 +102,7 @@ namespace Cocona.CommandLine
                     {
                         // --option
                         // --option value
-                        if (optionbyLongName.TryGetValue(args[i].Substring(2), out var option))
+                        if (optionByLongName.TryGetValue(args[i].Substring(2), out var option))
                         {
                             if (option.OptionType == typeof(bool))
                             {
@@ -107,7 +112,7 @@ namespace Cocona.CommandLine
                             else
                             {
                                 // Non-boolean (the option may have some value)
-                                options.Add(new CommandOption(option, (i + 1 == args.Count) ? null : args[++i])); // consume a next argment
+                                options.Add(new CommandOption(option, (i + 1 == args.Count) ? null : args[++i])); // consume a next argument
                                 index++;
                             }
                             continue;
@@ -126,7 +131,7 @@ namespace Cocona.CommandLine
                     // short-named
                     for (var j = 1; j < args[i].Length; j++)
                     {
-                        if (optionbyShortName.TryGetValue(args[i][j], out var option))
+                        if (optionByShortName.TryGetValue(args[i][j], out var option))
                         {
                             if (option.OptionType == typeof(bool))
                             {
@@ -176,8 +181,6 @@ namespace Cocona.CommandLine
                     }
                 }
             }
-
-            //arguments.AddRange(args.Skip(index).Select(x => new CommandArgument(x)));
 
             return new ParsedCommandLine(options, arguments, unknownOptions);
         }
