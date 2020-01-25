@@ -63,14 +63,18 @@ namespace Cocona.Command.Binder
 
             // arguments
             index = 0;
-            var orderedArgDescWithParamIndex = commandDescriptor.Parameters
-                .Select((x, i) => (Param: x, ParameterIndex: i))
-                .Where(x => x.Param is CommandArgumentDescriptor)
-                .Select(x => (Argument: (CommandArgumentDescriptor)x.Param, x.ParameterIndex))
-                .OrderBy(k => k.Argument.Order)
-                .ToArray();
+            var orderedArgDescWithParamIndex = new List<(CommandArgumentDescriptor Argument, int ParameterIndex)>(commandDescriptor.Parameters.Count);
+            for (var i = 0; i < commandDescriptor.Parameters.Count; i++)
+            {
+                var paramDescriptor = commandDescriptor.Parameters[i];
+                if (paramDescriptor is CommandArgumentDescriptor commandArgumentDescriptor)
+                {
+                    orderedArgDescWithParamIndex.Add((commandArgumentDescriptor, i));
+                }
+            }
+            orderedArgDescWithParamIndex.Sort((a, b) => a.Argument.Order.CompareTo(b.Argument.Order));
 
-            for (var i = 0; i < orderedArgDescWithParamIndex.Length; i++)
+            for (var i = 0; i < orderedArgDescWithParamIndex.Count; i++)
             {
                 var argDesc = orderedArgDescWithParamIndex[i];
                 if (commandArgumentValues.Count == index)
@@ -93,7 +97,7 @@ namespace Cocona.Command.Binder
                     //      [ arg0,   arg1, arg2,  arg3,   arg4 ]
                     //                              <-------o
                     var indexRev = commandArgumentValues.Count - 1;
-                    for (var j = orderedArgDescWithParamIndex.Length - 1; j > i; j--)
+                    for (var j = orderedArgDescWithParamIndex.Count - 1; j > i; j--)
                     {
                         var argDesc2 = orderedArgDescWithParamIndex[j];
 
