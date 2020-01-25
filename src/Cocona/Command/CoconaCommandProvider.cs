@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 
 namespace Cocona.Command
 {
@@ -19,7 +21,7 @@ namespace Cocona.Command
         public CoconaCommandProvider(Type[] targetTypes, bool treatPublicMethodsAsCommands = true, bool enableConvertOptionNameToLowerCase = false, bool enableConvertCommandNameToLowerCase = false)
         {
             _targetTypes = targetTypes ?? throw new ArgumentNullException(nameof(targetTypes));
-            _commandCollection = new Lazy<CommandCollection>(GetCommandCollectionCore);
+            _commandCollection = new Lazy<CommandCollection>(GetCommandCollectionCore, LazyThreadSafetyMode.None);
             _treatPublicMethodsAsCommands = treatPublicMethodsAsCommands;
             _enableConvertOptionNameToLowerCase = enableConvertOptionNameToLowerCase;
             _enableConvertCommandNameToLowerCase = enableConvertCommandNameToLowerCase;
@@ -28,51 +30,63 @@ namespace Cocona.Command
         public CommandCollection GetCommandCollection()
             => _commandCollection.Value;
 
+        [MethodImpl(MethodImplOptions.NoOptimization)]
         private CommandCollection GetCommandCollectionCore()
         {
-            var candidateMethods = _targetTypes
-                .Where(x => x.GetCustomAttribute<IgnoreAttribute>() == null) // class-level ignore
-                .Where(x => !x.IsAbstract && (!x.IsGenericType || x.IsConstructedGenericType)) // non-abstract, non-generic, closed-generic
-                .SelectMany(xs => xs.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                .Where(x => !x.IsSpecialName && x.DeclaringType != typeof(object)) // non-property && not declared in object
-                .Where(x => (_treatPublicMethodsAsCommands && x.IsPublic)  // ((treatPublicMethodAsCommands && public) || has-command attr || has-primary-command attr)
-                    || x.GetCustomAttributes<CommandAttribute>(inherit: true).Any()
-                    || x.GetCustomAttributes<PrimaryCommandAttribute>(inherit: true).Any())
-                .Where(x => x.GetCustomAttribute<IgnoreAttribute>() == null); // method-level ignore
+            var commandMethods = new List<MethodInfo>(10);
+            var overloadCommandMethods = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(10);
 
-            var commandMethods = new List<MethodInfo>();
-            var overloadCommandMethods = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>();
-
-            foreach (var method in candidateMethods)
+            // Command types
+            foreach (var type in _targetTypes)
             {
-                var commandOverloadAttr = method.GetCustomAttribute<CommandOverloadAttribute>();
-                if (commandOverloadAttr != null)
+                if (type.IsAbstract || (type.IsGenericType && type.IsConstructedGenericType)) continue;
+
+                if (type.GetCustomAttribute<IgnoreAttribute>() != null) continue;
+
+                // Command methods
+                foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
-                    if (!overloadCommandMethods.TryGetValue(commandOverloadAttr.TargetCommand, out var overloads))
+                    if (method.IsSpecialName || method.DeclaringType == typeof(object)) continue;
+
+                    if (
+                        (_treatPublicMethodsAsCommands && method.IsPublic) ||
+                        (method.GetCustomAttribute<CommandAttribute>(inherit: true) != null) ||
+                        (method.GetCustomAttribute<PrimaryCommandAttribute>(inherit: true) != null)
+                    )
                     {
-                        overloads = new List<(MethodInfo Method, CommandOverloadAttribute Attribute)>();
-                        overloadCommandMethods.Add(commandOverloadAttr.TargetCommand, overloads);
+                        if (method.GetCustomAttribute<IgnoreAttribute>() != null) continue;
+
+                        var commandOverloadAttr = method.GetCustomAttribute<CommandOverloadAttribute>();
+                        if (commandOverloadAttr != null)
+                        {
+                            if (!overloadCommandMethods.TryGetValue(commandOverloadAttr.TargetCommand, out var overloads))
+                            {
+                                overloads = new List<(MethodInfo Method, CommandOverloadAttribute Attribute)>();
+                                overloadCommandMethods.Add(commandOverloadAttr.TargetCommand, overloads);
+                            }
+                            overloads.Add((method, commandOverloadAttr));
+                        }
+                        else
+                        {
+                            commandMethods.Add(method);
+                        }
                     }
-                    overloads.Add((method, commandOverloadAttr));
-                }
-                else
-                {
-                    commandMethods.Add(method);
                 }
             }
 
             var hasMultipleCommand = commandMethods.Count > 1;
             var commandNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var commands = new List<CommandDescriptor>();
-            foreach (var command in commandMethods.Select(x => CreateCommand(x, !hasMultipleCommand, overloadCommandMethods)))
+            var commands = new List<CommandDescriptor>(commandMethods.Count);
+            foreach (var commandMethod in commandMethods)
             {
+                var command = CreateCommand(commandMethod, !hasMultipleCommand, overloadCommandMethods);
                 if (commandNames.Contains(command.Name))
                 {
                     throw new CoconaException($"Command '{command.Name}' has already exists. (Method: {command.Method.Name})");
                 }
                 commandNames.Add(command.Name);
 
-                if (command.Aliases.Any())
+                if (command.Aliases.Count != 0)
                 {
                     foreach (var alias in command.Aliases)
                     {
@@ -90,6 +104,8 @@ namespace Cocona.Command
             return new CommandCollection(commands);
         }
 
+        // NOTE: Avoid JIT optimization to improve responsiveness at first time.
+        [MethodImpl(MethodImplOptions.NoOptimization)]
         public CommandDescriptor CreateCommand(MethodInfo methodInfo, bool isSingleCommand, Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> overloadCommandMethods)
         {
             ThrowHelper.ArgumentNull(methodInfo, nameof(methodInfo));
@@ -107,90 +123,105 @@ namespace Cocona.Command
             var allOptions = new Dictionary<string, CommandOptionDescriptor>(StringComparer.OrdinalIgnoreCase);
             var allOptionShortNames = new HashSet<char>();
 
+            var methodParameters = methodInfo.GetParameters();
+
+            var parameters = new List<ICommandParameterDescriptor>(methodParameters.Length);
+            var options = new List<CommandOptionDescriptor>(methodParameters.Length);
+            var arguments = new List<CommandArgumentDescriptor>(methodParameters.Length);
+
             var defaultArgOrder = 0;
-            var parameters = methodInfo.GetParameters()
-                .Select((x, i) =>
+
+            for (var i = 0; i < methodParameters.Length; i++)
+            {
+                var methodParam = methodParameters[i];
+                var defaultValue = methodParam.HasDefaultValue ? new CoconaDefaultValue(methodParam.DefaultValue) : CoconaDefaultValue.None;
+
+                var ignoreAttr = methodParam.GetCustomAttribute<IgnoreAttribute>();
+                if (ignoreAttr != null)
                 {
-                    var defaultValue = x.HasDefaultValue ? new CoconaDefaultValue(x.DefaultValue) : CoconaDefaultValue.None;
+                    var ignoreParamDescriptor = new CommandIgnoredParameterDescriptor(
+                        methodParam.ParameterType,
+                        methodParam.Name,
+                        methodParam.HasDefaultValue
+                            ? methodParam.DefaultValue
+                            : methodParam.ParameterType.IsValueType
+                                ? Activator.CreateInstance(methodParam.ParameterType)
+                                : null
+                    );
 
-                    var ignoreAttr = x.GetCustomAttribute<IgnoreAttribute>();
-                    if (ignoreAttr != null)
-                    {
-                        return (ICommandParameterDescriptor)new CommandIgnoredParameterDescriptor(
-                            x.ParameterType,
-                            x.Name,
-                            x.HasDefaultValue
-                                ? x.DefaultValue
-                                : x.ParameterType.IsValueType
-                                    ? Activator.CreateInstance(x.ParameterType)
-                                    : null
-                        );
-                    }
+                    parameters.Add(ignoreParamDescriptor);
+                    continue;
+                }
 
-                    var argumentAttr = x.GetCustomAttribute<ArgumentAttribute>();
-                    if (argumentAttr != null)
-                    {
-                        if (!isSingleCommand && isPrimaryCommand) throw new CoconaException("A primary command with multiple commands cannot handle/have any arguments.");
+                var argumentAttr = methodParam.GetCustomAttribute<ArgumentAttribute>();
+                if (argumentAttr != null)
+                {
+                    if (!isSingleCommand && isPrimaryCommand) throw new CoconaException("A primary command with multiple commands cannot handle/have any arguments.");
 
-                        var argName = argumentAttr.Name ?? x.Name;
-                        var argDesc = argumentAttr.Description ?? string.Empty;
-                        var argOrder = argumentAttr.Order != 0 ? argumentAttr.Order : defaultArgOrder;
+                    var argName = argumentAttr.Name ?? methodParam.Name;
+                    var argDesc = argumentAttr.Description ?? string.Empty;
+                    var argOrder = argumentAttr.Order != 0 ? argumentAttr.Order : defaultArgOrder;
 
-                        defaultArgOrder++;
+                    defaultArgOrder++;
 
-                        return (ICommandParameterDescriptor)new CommandArgumentDescriptor(
-                            x.ParameterType,
-                            argName,
-                            argOrder,
-                            argDesc,
-                            defaultValue,
-                            x.GetCustomAttributes(true).OfType<Attribute>().ToArray());
-                    }
+                    var commandArgDescriptor = new CommandArgumentDescriptor(
+                        methodParam.ParameterType,
+                        argName,
+                        argOrder,
+                        argDesc,
+                        defaultValue,
+                        methodParam.GetCustomAttributes(true).OfType<Attribute>().ToArray());
 
-                    var fromServiceAttr = x.GetCustomAttribute<FromServiceAttribute>();
-                    if (fromServiceAttr != null)
-                    {
-                        return (ICommandParameterDescriptor)new CommandServiceParameterDescriptor(x.ParameterType, x.Name);
-                    }
+                    parameters.Add(commandArgDescriptor);
+                    arguments.Add(commandArgDescriptor);
+                    continue;
+                }
 
-                    var optionAttr = x.GetCustomAttribute<OptionAttribute>();
-                    var optionName = optionAttr?.Name ?? x.Name;
+                var fromServiceAttr = methodParam.GetCustomAttribute<FromServiceAttribute>();
+                if (fromServiceAttr != null)
+                {
+                    var serviceParamDescriptor = new CommandServiceParameterDescriptor(methodParam.ParameterType, methodParam.Name);
+                    parameters.Add(serviceParamDescriptor);
+                    continue;
+                }
+
+                var optionAttr = methodParam.GetCustomAttribute<OptionAttribute>();
+                {
+                    var optionName = optionAttr?.Name ?? methodParam.Name;
                     var optionDesc = optionAttr?.Description ?? string.Empty;
                     var optionShortNames = optionAttr?.ShortNames ?? Array.Empty<char>();
-                    var optionValueName = optionAttr?.ValueName ?? x.ParameterType.Name;
-                    var optionIsHidden = x.GetCustomAttribute<HiddenAttribute>() != null;
+                    var optionValueName = optionAttr?.ValueName ?? methodParam.ParameterType.Name;
+                    var optionIsHidden = methodParam.GetCustomAttribute<HiddenAttribute>() != null;
 
                     if (_enableConvertOptionNameToLowerCase) optionName = ToCommandCase(optionName);
 
                     // If the option type is bool, the option has always default value (false).
-                    if (!defaultValue.HasValue && x.ParameterType == typeof(bool))
+                    if (!defaultValue.HasValue && methodParam.ParameterType == typeof(bool))
                     {
                         defaultValue = new CoconaDefaultValue(false);
                     }
 
                     if (allOptions.ContainsKey(optionName))
                         throw new CoconaException($"Option '{optionName}' is already exists.");
-                    if (allOptionShortNames.Any() && optionShortNames.Any() && allOptionShortNames.IsSupersetOf(optionShortNames))
+                    if (allOptionShortNames.Count != 0 && optionShortNames.Count != 0 && allOptionShortNames.IsSupersetOf(optionShortNames))
                         throw new CoconaException($"Short name option '{string.Join(",", optionShortNames)}' is already exists.");
 
-                    var option = new CommandOptionDescriptor(
-                        x.ParameterType,
+                    var optionDescriptor = new CommandOptionDescriptor(
+                        methodParam.ParameterType,
                         optionName,
                         optionShortNames,
                         optionDesc,
                         defaultValue,
                         optionValueName,
                         optionIsHidden ? CommandOptionFlags.Hidden : CommandOptionFlags.None,
-                        x.GetCustomAttributes(true).OfType<Attribute>().ToArray());
-                    allOptions.Add(optionName, option);
+                        methodParam.GetCustomAttributes<Attribute>(true).ToArray());
+                    allOptions.Add(optionName, optionDescriptor);
                     allOptionShortNames.UnionWith(optionShortNames);
 
-                    return (ICommandParameterDescriptor)option;
-                })
-                .ToArray();
-
-            var options = parameters.OfType<CommandOptionDescriptor>().ToList();
-            var arguments = parameters.OfType<CommandArgumentDescriptor>().ToArray();
+                    options.Add(optionDescriptor);
+                    parameters.Add(optionDescriptor);
+                }
+            }
 
             // Overloaded commands
             var overloadDescriptors = new List<CommandOverloadDescriptor>();
