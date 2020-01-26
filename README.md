@@ -103,7 +103,7 @@ $ ./app --name Cocona
 #### Public method as a command ™
 By default, Cocona treats `public` methods as commands.
 
-If an app has one public method, Cocona calls it on startup. If there are two or more, they are treated as sub-commands. (see also [Sub commands](#sub-commands))
+If an application has one public method, Cocona calls it on startup. If there are more than one, they are treated as sub-commands. (see also [Sub commands](#sub-commands))
 
 ```csharp
 // Treats a method name as a command name. (Below method is named `command`)
@@ -136,7 +136,7 @@ public void Hello(string name, bool hey) { ... }
 ```
 
 If method parameters are [optional argument](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/named-and-optional-arguments#optional-arguments), Cocona treats those as optional command options. (That is, the parameters are treated as **required option** by default excepts boolean).
-If a type of parameter is boolean, it's assumed that `false` default value is specified.
+If a parameter is boolean, it's assumed that `false` default value is specified.
 
 ```csharp
 // `--name "default user"` is specified implicity.
@@ -155,7 +155,7 @@ You can specify short-name to an option using `OptionAttribute`.
 public void Remove([Option('f')]bool force, [Option('r')bool recursive) { ... }
 ```
 
-If a type of parameter is `T[]` or `IEnumerable<T>`, a command accepts one or more options by the same name.
+If a parameter is `T[]` or `IEnumerable<T>`, a command accepts one or more options by the same name.
 ```csharp
 // $ compile -I../path/to/foo.h -I/usr/include/bar.h -I/usr/include/baz.h nantoka.c
 // include = new [] { "../path/to/foo.h", "/usr/include/bar.h", "/usr/include/baz.h" };
@@ -266,14 +266,16 @@ public void Throw() { throw new CommandExitedException(128); }
 - See also: [CoconaSample.InAction.ExitCode](samples/InAction.ExitCode)
 
 ### Validation
-Cocona can use attributes to validate options and arguments. Same as ASP.NET Core MVC. 
+Cocona can use attributes to validate options and arguments. It is similar to ASP.NET Core MVC. 
 
-An attribute of validator inherits `System.ComponentModel.DataAnnotations.ValidationAttribute` attribute. Belows are pre-defined attributes in .NET Core:
+.NET Core (`System.ComponentModel.DataAnnotations`) has some pre-defined attributes:
 
 - `RangeAttribute`
 - `MaxLangeAttribute`
 - `MinLengthAttribute`
 - ...
+
+If you want to implement custom validation attribute, it should inherit `System.ComponentModel.DataAnnotations.ValidationAttribute` attribute. 
 
 ```csharp
 class Program
@@ -365,9 +367,7 @@ class SampleCommandFilterAttribute : CommandFilterAttribute
 - See also: [CoconaSample.InAction.CommandFilter](samples/InAction.CommandFilter)
 
 ### Dependency Injection
-If a constructor has parameters, Cocona injects an instance obtained from IServiceProvider into the parameter.
-
-If a command method parameter is marked as `[FromService]`, Cocona will also inject an instance into the parameter.
+If a constructor has parameters, Cocona injects an instance obtained from IServiceProvider into the parameter. Cocona will also inject an instance into the parameter if a command method parameter is marked as `[FromService]`.
 
 ```csharp
 class Program
