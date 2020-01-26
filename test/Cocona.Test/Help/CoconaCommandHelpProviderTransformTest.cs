@@ -56,6 +56,13 @@ namespace Cocona.Test.Help
             );
         }
 
+        private IServiceProvider CreateServiceProvider()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
+            return services.BuildServiceProvider();
+        }
+
         [Fact]
         public void Transform_CreateCommandHelp()
         {
@@ -65,7 +72,7 @@ namespace Cocona.Test.Help
                 isPrimaryCommand: false
             );
 
-            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), CreateServiceProvider());
             var help = provider.CreateCommandHelp(commandDescriptor);
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
@@ -86,7 +93,7 @@ Hello, Konnichiwa!
                 isPrimaryCommand: false
             );
 
-            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), CreateServiceProvider());
             var help = provider.CreateCommandHelp(commandDescriptor);
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
@@ -107,7 +114,7 @@ Hi!
                 isPrimaryCommand: true
             );
 
-            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), CreateServiceProvider());
             var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
@@ -138,7 +145,7 @@ Hello, Konnichiwa!
                 isPrimaryCommand: false
             );
 
-            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), CreateServiceProvider());
             var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor1, commandDescriptor2 }));
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
@@ -173,7 +180,7 @@ Hello, Konnichiwa!
                 isPrimaryCommand: false
             );
 
-            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), CreateServiceProvider());
             var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor1, commandDescriptor2 }));
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"

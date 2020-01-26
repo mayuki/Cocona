@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Cocona.Application;
 using Cocona.Command;
 using Cocona.Filters;
 using Cocona.Help.DocumentModel;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Cocona.Help
 {
@@ -30,7 +30,7 @@ namespace Cocona.Help
 
         public IFilterMetadata CreateInstance(IServiceProvider serviceProvider)
         {
-            return (IFilterMetadata)ActivatorUtilities.CreateInstance(serviceProvider, Transformer);
+            return (IFilterMetadata)((ICoconaInstanceActivator)serviceProvider.GetService(typeof(ICoconaInstanceActivator))).GetServiceOrCreateInstance(serviceProvider, Transformer)!;
         }
     }
 }

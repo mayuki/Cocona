@@ -1,10 +1,11 @@
-﻿using Cocona.Command.Dispatcher;
+using Cocona.Command.Dispatcher;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Cocona.Application;
 using Xunit;
 
 namespace Cocona.Test.Command.CommandDispatcher
@@ -16,6 +17,7 @@ namespace Cocona.Test.Command.CommandDispatcher
         {
             var services = new ServiceCollection();
             {
+                services.AddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
                 services.AddTransient<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
             }
             var serviceProvider = services.BuildServiceProvider();
@@ -23,7 +25,7 @@ namespace Cocona.Test.Command.CommandDispatcher
             var builder = serviceProvider.GetService<ICoconaCommandDispatcherPipelineBuilder>();
             builder.Should().NotBeNull();
             var pipeline = builder.Build();
-            var result = await pipeline(new CommandDispatchContext(null, null, null));
+            var result = await pipeline(new CommandDispatchContext(null, null, null, default));
             result.Should().Be(0);
         }
 
@@ -32,6 +34,7 @@ namespace Cocona.Test.Command.CommandDispatcher
         {
             var services = new ServiceCollection();
             {
+                services.AddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
                 services.AddTransient<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
             }
             var serviceProvider = services.BuildServiceProvider();
@@ -45,7 +48,7 @@ namespace Cocona.Test.Command.CommandDispatcher
                 return 123;
             });
             var pipeline = builder.Build();
-            var result = await pipeline(new CommandDispatchContext(null, null, null));
+            var result = await pipeline(new CommandDispatchContext(null, null, null, default));
             result.Should().Be(123);
             called.Should().BeTrue();
         }
@@ -55,6 +58,7 @@ namespace Cocona.Test.Command.CommandDispatcher
         {
             var services = new ServiceCollection();
             {
+                services.AddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
                 services.AddTransient<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
                 services.AddSingleton<List<string>>(); // for log
             }
@@ -65,7 +69,7 @@ namespace Cocona.Test.Command.CommandDispatcher
             builder.Should().NotBeNull();
             builder.UseMiddleware<TestMiddleware>();
             var pipeline = builder.Build();
-            var result = await pipeline(new CommandDispatchContext(null, null, null));
+            var result = await pipeline(new CommandDispatchContext(null, null, null, default));
             result.Should().Be(456);
             log.Should().NotBeEmpty();
             log[0].Should().Be("Called");
@@ -76,6 +80,7 @@ namespace Cocona.Test.Command.CommandDispatcher
         {
             var services = new ServiceCollection();
             {
+                services.AddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
                 services.AddTransient<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
                 services.AddSingleton<List<string>>(); // for log
             }
@@ -88,7 +93,7 @@ namespace Cocona.Test.Command.CommandDispatcher
             builder.UseMiddleware<Test3Middleware>();
             builder.UseMiddleware<Test4Middleware>();
             var pipeline = builder.Build();
-            var result = await pipeline(new CommandDispatchContext(null, null, null));
+            var result = await pipeline(new CommandDispatchContext(null, null, null, default));
             result.Should().Be(0);
             log.Should().NotBeEmpty();
             log[0].Should().Be("Begin:Test2Middleware");

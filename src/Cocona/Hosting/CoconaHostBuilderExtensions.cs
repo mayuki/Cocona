@@ -30,6 +30,7 @@ namespace Microsoft.Extensions.Hosting
                 })
                 .ConfigureServices(services =>
                 {
+                    services.TryAddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
                     services.TryAddSingleton<ICoconaCommandLineArgumentProvider>(serviceProvider =>
                         new CoconaCommandLineArgumentProvider(args));
                     services.TryAddSingleton<ICoconaCommandProvider>(serviceProvider =>

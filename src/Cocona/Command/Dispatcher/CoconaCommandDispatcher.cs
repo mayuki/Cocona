@@ -1,7 +1,5 @@
 using Cocona.Application;
 using Cocona.CommandLine;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Text;
@@ -18,8 +16,7 @@ namespace Cocona.Command.Dispatcher
         private readonly ICoconaCommandLineArgumentProvider _commandLineArgumentProvider;
         private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
         private readonly ICoconaCommandMatcher _commandMatcher;
-        private readonly ICoconaAppContextAccessor _contextAccessor;
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly ICoconaInstanceActivator _activator;
 
         public CoconaCommandDispatcher(
             IServiceProvider serviceProvider,
@@ -28,8 +25,7 @@ namespace Cocona.Command.Dispatcher
             ICoconaCommandLineArgumentProvider commandLineArgumentProvider,
             ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
             ICoconaCommandMatcher commandMatcher,
-            ICoconaAppContextAccessor contextAccessor,
-            ILoggerFactory loggerFactory
+            ICoconaInstanceActivator activator
         )
         {
             _serviceProvider = serviceProvider;
@@ -38,8 +34,7 @@ namespace Cocona.Command.Dispatcher
             _commandLineArgumentProvider = commandLineArgumentProvider;
             _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
             _commandMatcher = commandMatcher;
-            _contextAccessor = contextAccessor;
-            _loggerFactory = loggerFactory;
+            _activator = activator;
         }
 
         public async ValueTask<int> DispatchAsync(CancellationToken cancellationToken)
@@ -94,16 +89,11 @@ namespace Cocona.Command.Dispatcher
                 var parsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments);
                 var dispatchAsync = _dispatcherPipelineBuilder.Build();
 
-                _contextAccessor.Current = new CoconaAppContext(
-                    cancellationToken,
-                    _loggerFactory.CreateLogger(matchedCommand.CommandType)
-                );
-
                 // Dispatch command.
-                var commandInstance = ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, matchedCommand.CommandType);
+                var commandInstance = _activator.GetServiceOrCreateInstance(_serviceProvider, matchedCommand.CommandType);
                 try
                 {
-                    var ctx = new CommandDispatchContext(matchedCommand, parsedCommandLine, commandInstance);
+                    var ctx = new CommandDispatchContext(matchedCommand, parsedCommandLine, commandInstance!, cancellationToken);
                     return await dispatchAsync(ctx);
                 }
                 finally

@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,10 +17,12 @@ namespace Cocona.Command.Dispatcher
     {
         private readonly List<(Type? Type, object? Instance)> _typesOrInstances = new List<(Type? Type, object? Instance)>();
         private readonly IServiceProvider _serviceProvider;
+        private readonly ICoconaInstanceActivator _activator;
 
-        public CoconaCommandDispatcherPipelineBuilder(IServiceProvider serviceProvider)
+        public CoconaCommandDispatcherPipelineBuilder(IServiceProvider serviceProvider, ICoconaInstanceActivator activator)
         {
             _serviceProvider = serviceProvider;
+            _activator = activator;
         }
 
         public ICoconaCommandDispatcherPipelineBuilder UseMiddleware<T>()
@@ -59,7 +60,7 @@ namespace Cocona.Command.Dispatcher
                     // Optimization: Directly initialize well-known middlewares.
                     if (typeOrInstance.Type == typeof(CoconaCommandInvokeMiddleware))
                     {
-                        var m = new CoconaCommandInvokeMiddleware(next, _serviceProvider.GetRequiredService<ICoconaParameterBinder>());
+                        var m = new CoconaCommandInvokeMiddleware(next, GetRequiredService<ICoconaParameterBinder>(_serviceProvider));
                         next = m.DispatchAsync;
                         continue;
                     }
@@ -71,25 +72,19 @@ namespace Cocona.Command.Dispatcher
                     }
                     else if (typeOrInstance.Type == typeof(HandleExceptionAndExitMiddleware))
                     {
-                        var m = new HandleExceptionAndExitMiddleware(next, _serviceProvider.GetRequiredService<ICoconaConsoleProvider>());
+                        var m = new HandleExceptionAndExitMiddleware(next, GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
                         next = m.DispatchAsync;
                         continue;
                     }
                     else if (typeOrInstance.Type == typeof(HandleParameterBindExceptionMiddleware))
                     {
-                        var m = new HandleParameterBindExceptionMiddleware(next, _serviceProvider.GetRequiredService<ICoconaConsoleProvider>());
-                        next = m.DispatchAsync;
-                        continue;
-                    }
-                    else if (typeOrInstance.Type == typeof(InitializeConsoleAppMiddleware))
-                    {
-                        var m = new InitializeConsoleAppMiddleware(next, _serviceProvider.GetRequiredService<ICoconaAppContextAccessor>());
+                        var m = new HandleParameterBindExceptionMiddleware(next, GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
                         next = m.DispatchAsync;
                         continue;
                     }
                     else if (typeOrInstance.Type == typeof(RejectUnknownOptionsMiddleware))
                     {
-                        var m = new RejectUnknownOptionsMiddleware(next, _serviceProvider.GetRequiredService<ICoconaConsoleProvider>());
+                        var m = new RejectUnknownOptionsMiddleware(next, GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
                         next = m.DispatchAsync;
                         continue;
                     }
@@ -97,20 +92,28 @@ namespace Cocona.Command.Dispatcher
                     {
                         var m = new BuiltInCommandMiddleware(
                             next,
-                            _serviceProvider.GetRequiredService<ICoconaHelpRenderer>(),
-                            _serviceProvider.GetRequiredService<ICoconaCommandHelpProvider>(),
-                            _serviceProvider.GetRequiredService<ICoconaCommandProvider>(),
-                            _serviceProvider.GetRequiredService<ICoconaConsoleProvider>());
+                            GetRequiredService<ICoconaHelpRenderer>(_serviceProvider),
+                            GetRequiredService<ICoconaCommandHelpProvider>(_serviceProvider),
+                            GetRequiredService<ICoconaCommandProvider>(_serviceProvider),
+                            GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
                         next = m.DispatchAsync;
                         continue;
                     }
 
-                    var middleware = (CommandDispatcherMiddleware)ActivatorUtilities.CreateInstance(_serviceProvider, typeOrInstance.Type, next);
-                    next = middleware.DispatchAsync;
+                    if (typeOrInstance.Type != null)
+                    {
+                        var middleware = (CommandDispatcherMiddleware)_activator.CreateInstance(_serviceProvider, typeOrInstance.Type, new object[] { next })!;
+                        next = middleware.DispatchAsync;
+                    }
                 }
             }
 
             return next;
+        }
+
+        private T GetRequiredService<T>(IServiceProvider serviceProvider)
+        {
+            return (T)(serviceProvider.GetService(typeof(T)) ?? new InvalidOperationException());
         }
     }
 }

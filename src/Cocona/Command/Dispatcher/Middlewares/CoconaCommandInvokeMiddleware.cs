@@ -1,8 +1,8 @@
-﻿using Cocona.Command.Binder;
-using Microsoft.Extensions.DependencyInjection;
+using Cocona.Command.Binder;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using Cocona.Application;
 
 namespace Cocona.Command.Dispatcher.Middlewares
 {

@@ -1,7 +1,8 @@
-﻿using Cocona.CommandLine;
+using Cocona.CommandLine;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace Cocona.Command.Dispatcher
 {
@@ -13,11 +14,14 @@ namespace Cocona.Command.Dispatcher
 
         public ParsedCommandLine ParsedCommandLine { get; }
 
-        public CommandDispatchContext(CommandDescriptor command, ParsedCommandLine parsedCommandLine, object commandTarget)
+        public CancellationToken CancellationToken { get; }
+
+        public CommandDispatchContext(CommandDescriptor command, ParsedCommandLine parsedCommandLine, object commandTarget, CancellationToken cancellationToken)
         {
             Command = command;
             ParsedCommandLine = parsedCommandLine;
             CommandTarget = commandTarget;
+            CancellationToken = cancellationToken;
         }
     }
 }

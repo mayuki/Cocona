@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <nullable>enable</nullable>
     <WarningsAsErrors>RS0030</WarningsAsErrors>
+    <NoWarn>1701;1702;1591</NoWarn>
 
     <!-- NuGet Package Information -->
     <Description>Micro-framework for .NET Core console application. Cocona makes it easy and blazing-fast to build console applications on .NET Core.</Description>
@@ -18,7 +19,6 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>StrongNameKey.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

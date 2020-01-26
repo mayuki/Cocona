@@ -31,8 +31,10 @@ namespace Cocona.Test.Command.CommandDispatcher
             services.AddTransient<ICoconaCommandMatcher, CoconaCommandMatcher>();
             services.AddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
+            services.AddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
             services.AddSingleton<ICoconaCommandDispatcherPipelineBuilder>(
-                serviceProvider => new CoconaCommandDispatcherPipelineBuilder(serviceProvider).UseMiddleware<CoconaCommandInvokeMiddleware>());
+                serviceProvider => new CoconaCommandDispatcherPipelineBuilder(serviceProvider, serviceProvider.GetService<ICoconaInstanceActivator>())
+                    .UseMiddleware<CoconaCommandInvokeMiddleware>());
 
             services.AddSingleton<TestCommand>();
             services.AddSingleton<TestMultipleCommand>();
