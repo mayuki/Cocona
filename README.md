@@ -365,6 +365,10 @@ class SampleCommandFilterAttribute : CommandFilterAttribute
 - See also: [CoconaSample.InAction.CommandFilter](samples/InAction.CommandFilter)
 
 ### Dependency Injection
+If a constructor has parameters, Cocona injects an instance obtained from IServiceProvider into the parameter.
+
+If a command method parameter is marked as `[FromService]`, Cocona will also inject an instance into the parameter.
+
 ```csharp
 class Program
 {
