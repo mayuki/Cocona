@@ -418,13 +418,23 @@ class MyService
 ```csharp
 class Program : CoconaConsoleAppBase
 {
-    ...
+    static void Main(string[] args)
+    {
+        CoconaApp.Create()
+            .ConfigureLogging(logging =>
+            {
+                logging.AddDebug();
+            })
+            .Run<Program>(args);
+    }
+
     public async Task RunAsync()
     {
         Context.Logger.LogInformation("Hello Konnichiwa!");
     }
 }
 ```
+
 ## Advanced
 ### Help customization
 - See also: [CoconaSample.Advanced.HelpTransformer](samples/Advanced.HelpTransformer)
