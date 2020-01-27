@@ -16,6 +16,10 @@ namespace CoconaSample.InAction.DependencyInjection
         static void Main(string[] args)
         {
             CoconaApp.Create()
+                .ConfigureLogging(logging =>
+                {
+                    logging.AddDebug();
+                })
                 .ConfigureServices(services =>
                 {
                     services.AddTransient<MyService>();
