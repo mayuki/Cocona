@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Cocona.Hosting
 {
@@ -62,6 +63,17 @@ namespace Cocona.Hosting
         public CoconaAppHostBuilder ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
         {
             _builder.ConfigureAppConfiguration(configureDelegate);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a delegate for configuring the provided <see cref="ILoggingBuilder"/>. This may be called multiple times. See also <seealso cref="HostingHostBuilderExtensions.ConfigureLogging(Microsoft.Extensions.Hosting.IHostBuilder,System.Action{Microsoft.Extensions.Hosting.HostBuilderContext,Microsoft.Extensions.Logging.ILoggingBuilder})"/>.
+        /// </summary>
+        /// <param name="configureLogging"></param>
+        /// <returns></returns>
+        public CoconaAppHostBuilder ConfigureLogging(Action<ILoggingBuilder> configureLogging)
+        {
+            _builder.ConfigureLogging(configureLogging);
             return this;
         }
 
