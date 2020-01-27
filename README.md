@@ -152,7 +152,7 @@ You can specify short-name to an option using `OptionAttribute`.
 // $ remove --force --recursive
 // $ remove -r -f
 // $ remove -rf
-public void Remove([Option('f')]bool force, [Option('r')bool recursive) { ... }
+public void Remove([Option('f')]bool force, [Option('r')]bool recursive) { ... }
 ```
 
 If a parameter is `T[]` or `IEnumerable<T>`, a command accepts one or more options by the same name.
