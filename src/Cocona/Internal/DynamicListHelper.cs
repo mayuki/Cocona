@@ -1,4 +1,4 @@
-﻿using Cocona.Command.Binder;
+using Cocona.Command.Binder;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -37,6 +37,28 @@ namespace Cocona.Internal
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Gets a type of a list or array element.
+        /// </summary>
+        /// <param name="valueType"></param>
+        /// <returns></returns>
+        public static Type GetElementType(Type valueType)
+        {
+            if (IsArrayOrEnumerableLike(valueType))
+            {
+                if (valueType.IsArray)
+                {
+                    return valueType.GetElementType();
+                }
+                else
+                {
+                    return valueType.GetGenericArguments()[0];
+                }
+            }
+
+            return valueType;
         }
 
         /// <summary>

@@ -190,7 +190,7 @@ namespace Cocona.Command
                     var optionName = optionAttr?.Name ?? methodParam.Name;
                     var optionDesc = optionAttr?.Description ?? string.Empty;
                     var optionShortNames = optionAttr?.ShortNames ?? Array.Empty<char>();
-                    var optionValueName = optionAttr?.ValueName ?? methodParam.ParameterType.Name;
+                    var optionValueName = optionAttr?.ValueName ?? (DynamicListHelper.IsArrayOrEnumerableLike(methodParam.ParameterType) ? DynamicListHelper.GetElementType(methodParam.ParameterType) : methodParam.ParameterType).Name;
                     var optionIsHidden = methodParam.GetCustomAttribute<HiddenAttribute>() != null;
 
                     if (_enableConvertOptionNameToLowerCase) optionName = ToCommandCase(optionName);
