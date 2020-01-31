@@ -1,35 +1,32 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Cocona</RootNamespace>
+
     <nullable>enable</nullable>
     <WarningsAsErrors>RS0030</WarningsAsErrors>
     <NoWarn>1701;1702;1591</NoWarn>
 
     <!-- NuGet Package Information -->
-    <Description>Micro-framework for .NET Core console application. Cocona makes it easy and fast to build console applications on .NET Core.</Description>
+    <Description>Core component for Cocona. Micro-framework for .NET Core console application.</Description>
 
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>StrongNameKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\Cocona\StrongNameKey.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="BannedSymbols.txt" />
     <None Include="..\..\docs\assets\icon.png" Pack="true" PackagePath="/" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Cocona.Core\Cocona.Core.csproj" />
   </ItemGroup>
 </Project>

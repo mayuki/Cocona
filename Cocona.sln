@@ -46,11 +46,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Advanced.Gener
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Advanced.JsonValueConverter", "samples\Advanced.JsonValueConverter\CoconaSample.Advanced.JsonValueConverter.csproj", "{98AE66A4-0C9D-4ADA-9F8F-CA6D4BAEDC27}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.AppConfiguration", "samples\InAction.AppConfiguration\CoconaSample.InAction.AppConfiguration.csproj", "{55D4B44C-4377-42BB-AAAB-52B42DFA65EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.AppConfiguration", "samples\InAction.AppConfiguration\CoconaSample.InAction.AppConfiguration.csproj", "{55D4B44C-4377-42BB-AAAB-52B42DFA65EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.MultipleCommandTypes", "samples\InAction.MultipleCommandTypes\CoconaSample.InAction.MultipleCommandTypes.csproj", "{1BFA17E7-748E-420C-9219-E91EF8258032}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.MultipleCommandTypes", "samples\InAction.MultipleCommandTypes\CoconaSample.InAction.MultipleCommandTypes.csproj", "{1BFA17E7-748E-420C-9219-E91EF8258032}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.InAction.Validation", "samples\InAction.Validation\CoconaSample.InAction.Validation.csproj", "{D16A9914-6434-4FFC-8649-371D2A852322}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.InAction.Validation", "samples\InAction.Validation\CoconaSample.InAction.Validation.csproj", "{D16A9914-6434-4FFC-8649-371D2A852322}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cocona.Core", "src\Cocona.Core\Cocona.Core.csproj", "{609ADF08-EE49-412F-B510-F67832B944AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -134,6 +136,10 @@ Global
 		{D16A9914-6434-4FFC-8649-371D2A852322}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D16A9914-6434-4FFC-8649-371D2A852322}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D16A9914-6434-4FFC-8649-371D2A852322}.Release|Any CPU.Build.0 = Release|Any CPU
+		{609ADF08-EE49-412F-B510-F67832B944AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{609ADF08-EE49-412F-B510-F67832B944AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{609ADF08-EE49-412F-B510-F67832B944AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{609ADF08-EE49-412F-B510-F67832B944AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
