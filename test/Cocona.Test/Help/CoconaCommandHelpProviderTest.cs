@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Cocona.Internal;
 using Xunit;
 
 namespace Cocona.Test.Help
@@ -46,7 +47,9 @@ namespace Cocona.Test.Help
 
         private CommandOptionDescriptor CreateCommandOption(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue, CommandOptionFlags flags = CommandOptionFlags.None)
         {
-            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null, flags, Array.Empty<Attribute>());
+            var optionValueName = (DynamicListHelper.IsArrayOrEnumerableLike(optionType) ? DynamicListHelper.GetElementType(optionType) : optionType).Name;
+
+            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, optionValueName, flags, Array.Empty<Attribute>());
         }
 
         [Fact]
@@ -490,11 +493,60 @@ command description
 ".TrimStart());
         }
 
+        [Fact]
+        public void CommandHelp_Options_Array_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new ICommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(int[]), "option0", new [] { 'o' }, "Int option values", CoconaDefaultValue.None),
+                }
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandHelp(commandDescriptor);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName Test [--option0 <Int32>...]
+
+command description
+
+Options:
+  -o, --option0 <Int32>...    Int option values (Required)
+".TrimStart());
+        }
+
+        [Fact]
+        public void CommandHelp_Options_Generics_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new ICommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(List<int>), "option0", new [] { 'o' }, "Int option values", CoconaDefaultValue.None),
+                }
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandHelp(commandDescriptor);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName Test [--option0 <Int32>...]
+
+command description
+
+Options:
+  -o, --option0 <Int32>...    Int option values (Required)
+".TrimStart());
+        }
+
         public enum CommandHelpEnumValue
         {
             Alice, Karen, Other
         }
-
 
         [Fact]
         public void CreateVersionHelp_VersionOnly()

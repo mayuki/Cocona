@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Cocona.Internal;
 
 namespace Cocona.Help
 {
@@ -47,6 +48,10 @@ namespace Cocona.Help
                         {
                             sb.Append($"[--{opt.Name}]");
                         }
+                    }
+                    else if (DynamicListHelper.IsArrayOrEnumerableLike(opt.OptionType))
+                    {
+                        sb.Append($"[--{opt.Name} <{opt.ValueName}>...]");
                     }
                     else
                     {
@@ -247,7 +252,9 @@ namespace Cocona.Help
                         ? option.DefaultValue.HasValue && option.DefaultValue.Value.Equals(true)
                             ? "=<true|false>"
                             : ""
-                        : $" <{option.ValueName}>"
+                        : DynamicListHelper.IsArrayOrEnumerableLike(option.OptionType)
+                            ? $" <{option.ValueName}>..."
+                            : $" <{option.ValueName}>"
                 );
         }
 
