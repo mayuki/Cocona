@@ -1,6 +1,7 @@
 using Cocona.Internal;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -110,15 +111,18 @@ namespace Cocona.Command
         {
             ThrowHelper.ArgumentNull(methodInfo, nameof(methodInfo));
 
-            var commandAttr = methodInfo.GetCustomAttribute<CommandAttribute>();
+            // Collect Method attributes
+            var (commandAttr, primaryCommandAttr, commandHiddenAttr)
+                = AttributeHelper.GetAttributes<CommandAttribute, PrimaryCommandAttribute, HiddenAttribute>(methodInfo.GetCustomAttributes(typeof(Attribute), true));
+
             var commandName = commandAttr?.Name ?? methodInfo.Name;
             var description = commandAttr?.Description ?? string.Empty;
             var aliases = commandAttr?.Aliases ?? Array.Empty<string>();
 
             if (_enableConvertCommandNameToLowerCase) commandName = ToCommandCase(commandName);
 
-            var isPrimaryCommand = methodInfo.GetCustomAttribute<PrimaryCommandAttribute>() != null;
-            var isHidden = methodInfo.GetCustomAttribute<HiddenAttribute>() != null;
+            var isPrimaryCommand = primaryCommandAttr != null;
+            var isHidden = commandHiddenAttr != null;
 
             var allOptions = new Dictionary<string, CommandOptionDescriptor>(StringComparer.OrdinalIgnoreCase);
             var allOptionShortNames = new HashSet<char>();
@@ -136,7 +140,11 @@ namespace Cocona.Command
                 var methodParam = methodParameters[i];
                 var defaultValue = methodParam.HasDefaultValue ? new CoconaDefaultValue(methodParam.DefaultValue) : CoconaDefaultValue.None;
 
-                var ignoreAttr = methodParam.GetCustomAttribute<IgnoreAttribute>();
+                // Collect Parameter attributes
+                var attrs = methodParam.GetCustomAttributes(typeof(Attribute), true);
+                var (ignoreAttr, optionAttr, argumentAttr, fromServiceAttr, hiddenAttr)
+                    = AttributeHelper.GetAttributes<IgnoreAttribute, OptionAttribute, ArgumentAttribute, FromServiceAttribute, HiddenAttribute>(attrs);
+
                 if (ignoreAttr != null)
                 {
                     var ignoreParamDescriptor = new CommandIgnoredParameterDescriptor(
@@ -153,7 +161,6 @@ namespace Cocona.Command
                     continue;
                 }
 
-                var argumentAttr = methodParam.GetCustomAttribute<ArgumentAttribute>();
                 if (argumentAttr != null)
                 {
                     if (!isSingleCommand && isPrimaryCommand) throw new CoconaException("A primary command with multiple commands cannot handle/have any arguments.");
@@ -170,14 +177,13 @@ namespace Cocona.Command
                         argOrder,
                         argDesc,
                         defaultValue,
-                        methodParam.GetCustomAttributes(true).OfType<Attribute>().ToArray());
+                        methodParam.GetCustomAttributes<Attribute>(true).ToArray());
 
                     parameters.Add(commandArgDescriptor);
                     arguments.Add(commandArgDescriptor);
                     continue;
                 }
 
-                var fromServiceAttr = methodParam.GetCustomAttribute<FromServiceAttribute>();
                 if (fromServiceAttr != null)
                 {
                     var serviceParamDescriptor = new CommandServiceParameterDescriptor(methodParam.ParameterType, methodParam.Name);
@@ -185,13 +191,13 @@ namespace Cocona.Command
                     continue;
                 }
 
-                var optionAttr = methodParam.GetCustomAttribute<OptionAttribute>();
+                // If a parameter has no OptionAttribute, it treated as option.
                 {
                     var optionName = optionAttr?.Name ?? methodParam.Name;
                     var optionDesc = optionAttr?.Description ?? string.Empty;
                     var optionShortNames = optionAttr?.ShortNames ?? Array.Empty<char>();
                     var optionValueName = optionAttr?.ValueName ?? (DynamicListHelper.IsArrayOrEnumerableLike(methodParam.ParameterType) ? DynamicListHelper.GetElementType(methodParam.ParameterType) : methodParam.ParameterType).Name;
-                    var optionIsHidden = methodParam.GetCustomAttribute<HiddenAttribute>() != null;
+                    var optionIsHidden = hiddenAttr != null;
 
                     if (_enableConvertOptionNameToLowerCase) optionName = ToCommandCase(optionName);
 
@@ -206,6 +212,9 @@ namespace Cocona.Command
                     if (allOptionShortNames.Count != 0 && optionShortNames.Count != 0 && allOptionShortNames.IsSupersetOf(optionShortNames))
                         throw new CoconaException($"Short name option '{string.Join(",", optionShortNames)}' is already exists.");
 
+                    var attrsArray = new Attribute[attrs.Length];
+                    Array.Copy(attrs, attrsArray, attrs.Length);
+
                     var optionDescriptor = new CommandOptionDescriptor(
                         methodParam.ParameterType,
                         optionName,
@@ -214,26 +223,33 @@ namespace Cocona.Command
                         defaultValue,
                         optionValueName,
                         optionIsHidden ? CommandOptionFlags.Hidden : CommandOptionFlags.None,
-                        methodParam.GetCustomAttributes<Attribute>(true).ToArray());
+                        attrsArray);
                     allOptions.Add(optionName, optionDescriptor);
                     allOptionShortNames.UnionWith(optionShortNames);
 
                     options.Add(optionDescriptor);
                     parameters.Add(optionDescriptor);
+                    continue;
                 }
             }
 
             // Overloaded commands
-            var overloadDescriptors = new List<CommandOverloadDescriptor>();
+            var overloadDescriptors = Array.Empty<CommandOverloadDescriptor>();
             if (overloadCommandMethods.TryGetValue(commandName, out var overloads))
             {
-                overloadDescriptors.AddRange(overloads
-                    .Select(x => new CommandOverloadDescriptor(
-                        (allOptions.TryGetValue(x.Attribute.OptionName, out var name) ? name : throw new CoconaException($"Command option overload '{x.Attribute.OptionName}' was not found in overload target '{methodInfo.Name}'.")),
-                        x.Attribute.OptionValue,
-                        CreateCommand(x.Method, isSingleCommand, _emptyOverloads),
-                        x.Attribute.Comparer != null ? (IEqualityComparer<string>)Activator.CreateInstance(x.Attribute.Comparer) : null
-                    )));
+                overloadDescriptors = new CommandOverloadDescriptor[overloads.Count];
+                for (var i = 0; i < overloadDescriptors.Length; i++)
+                {
+                    var overload = overloads[i];
+                    var overloadDescriptor = new CommandOverloadDescriptor(
+                        (allOptions.TryGetValue(overload.Attribute.OptionName, out var name) ? name : throw new CoconaException($"Command option overload '{overload.Attribute.OptionName}' was not found in overload target '{methodInfo.Name}'.")),
+                        overload.Attribute.OptionValue,
+                        CreateCommand(overload.Method, isSingleCommand, _emptyOverloads),
+                        overload.Attribute.Comparer != null ? (IEqualityComparer<string>)Activator.CreateInstance(overload.Attribute.Comparer) : null
+                    );
+
+                    overloadDescriptors[i] = overloadDescriptor;
+                }
             }
 
             var flags = ((isHidden) ? CommandFlags.Hidden : CommandFlags.None) |
@@ -247,7 +263,7 @@ namespace Cocona.Command
                 parameters,
                 options,
                 arguments,
-                overloadDescriptors.ToArray(),
+                overloadDescriptors,
                 flags
             );
         }
