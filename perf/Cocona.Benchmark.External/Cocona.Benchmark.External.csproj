@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.0" />
+    <PackageReference Include="CliFx" Version="0.0.8" />
+    <PackageReference Include="clipr" Version="1.6.1" />
+    <PackageReference Include="CommandLineParser" Version="2.7.82" />
+    <PackageReference Include="ConsoleAppFramework" Version="2.0.2" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.5.0" />
+    <PackageReference Include="PowerArgs" Version="3.6.0" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20071.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Cocona.Lite\Cocona.Lite.csproj" />
+    <ProjectReference Include="..\..\src\Cocona\Cocona.csproj" />
+  </ItemGroup>
+</Project>
