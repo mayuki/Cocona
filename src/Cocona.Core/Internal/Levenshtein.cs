@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Cocona.Internal
 {
-    internal static class Levenshtein
+    public static class Levenshtein
     {
         /// <summary>
         /// Get levenshtein distance of two string values.

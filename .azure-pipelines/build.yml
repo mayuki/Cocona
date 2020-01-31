@@ -36,7 +36,9 @@ jobs:
         testResultsFiles: '**/*.trx'
 
     - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
-      displayName: dotnet pack
+      displayName: dotnet pack Cocona
+    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Core/Cocona.Core.csproj
+      displayName: dotnet pack Cocona.Core
 
     # Publish to Azure Artifacts
     - task: NuGetAuthenticate@0
@@ -103,7 +105,9 @@ jobs:
       displayName: dotnet build
 
     - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
-      displayName: dotnet pack
+      displayName: dotnet pack Cocona
+    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Core/Cocona.Core.csproj
+      displayName: dotnet pack Cocona.Core
 
     # Publish to NuGet.org
     - task: NuGetCommand@2
