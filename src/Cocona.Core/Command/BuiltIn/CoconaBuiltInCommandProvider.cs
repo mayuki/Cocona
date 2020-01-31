@@ -31,20 +31,24 @@ namespace Cocona.Command.BuiltIn
             }
 
             // Rewrite all command names as lower-case and inject built-in help and version help
-            commands = commands
-                .Select(x => new CommandDescriptor(
-                    x.Method,
-                    x.Name,
-                    x.Aliases,
-                    x.Description,
-                    x.Parameters,
-                    GetParametersWithBuiltInOptions(x.Options, x.IsPrimaryCommand),
-                    x.Arguments,
-                    x.Overloads,
-                    x.Flags))
-                .ToArray();
+            var newCommands = new CommandDescriptor[commands.Count];
+            for (var i = 0; i < commands.Count; i++)
+            {
+                var command = commands[i];
+                newCommands[i] = new CommandDescriptor(
+                    command.Method,
+                    command.Name,
+                    command.Aliases,
+                    command.Description,
+                    command.Parameters,
+                    GetParametersWithBuiltInOptions(command.Options, command.IsPrimaryCommand),
+                    command.Arguments,
+                    command.Overloads,
+                    command.Flags
+                );
+            }
 
-            return new CommandCollection(commands);
+            return new CommandCollection(newCommands);
         }
 
         private IReadOnlyList<CommandOptionDescriptor> GetParametersWithBuiltInOptions(IReadOnlyList<CommandOptionDescriptor> options, bool isPrimaryCommand)

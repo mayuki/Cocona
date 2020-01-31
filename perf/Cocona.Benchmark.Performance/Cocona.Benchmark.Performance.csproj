@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.0" />
+    <PackageReference Include="Cocona" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Cocona.Core\Cocona.Core.csproj" />
+  </ItemGroup>
+
+  <Target Name="AddCustomAliases" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'Cocona' AND '%(ReferencePath.NuGetPackageId)' == 'Cocona' AND '%(ReferencePath.NuGetPackageVersion)' == '1.1.0'">
+        <Aliases>Cocona_v1_1_0</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
+</Project>

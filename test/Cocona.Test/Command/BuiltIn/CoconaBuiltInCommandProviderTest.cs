@@ -61,16 +61,16 @@ namespace Cocona.Test.Command.BuiltIn
             var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInHelpUserOptionCommand) }));
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
-            commands.All[0].Options.Should().HaveCount(2); // --help, --version
+            commands.All[0].Options.Should().HaveCount(2); // --version, --help
             commands.All[0].Name.Should().Be("A_PrimaryHasVersionOption");
-            commands.All[0].Options[0].Should().NotBe(BuiltInCommandOption.Version); // User-implmented --version
+            commands.All[0].Options[0].Should().NotBe(BuiltInCommandOption.Version); // User-implemented --version
             commands.All[0].Options[1].Should().Be(BuiltInCommandOption.Help);
             commands.All[1].Name.Should().Be("B_HasShortHelpOption");
             commands.All[1].Options.Should().HaveCount(1); // -h
-            commands.All[1].Options[0].Should().NotBe(BuiltInCommandOption.Help);  // User-implmented -h
+            commands.All[1].Options[0].Should().NotBe(BuiltInCommandOption.Help);  // User-implemented -h
             commands.All[2].Name.Should().Be("C_HasLongHelpOption");
             commands.All[2].Options.Should().HaveCount(1); // --help
-            commands.All[2].Options[0].Should().NotBe(BuiltInCommandOption.Help);  // User-implmented --help
+            commands.All[2].Options[0].Should().NotBe(BuiltInCommandOption.Help);  // User-implemented --help
         }
 
         public class CommandTestBuiltInPrimaryCommand
