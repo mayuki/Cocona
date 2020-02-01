@@ -26,7 +26,15 @@ namespace Cocona.Lite.Hosting
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 #pragma warning restore RS0030 // Do not used banned APIs
 
-            Environment.ExitCode = await Task.Run(async () => await commandDispatcher.DispatchAsync(linkedCancellationToken.Token));
+            var task = commandDispatcher.DispatchAsync(linkedCancellationToken.Token);
+            if (task.IsCompleted)
+            {
+                Environment.ExitCode = task.Result;
+            }
+            else
+            {
+                Environment.ExitCode = await task;
+            }
 
             _waitForShutdown.Set();
         }
