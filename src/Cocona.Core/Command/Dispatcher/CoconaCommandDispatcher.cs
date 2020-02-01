@@ -17,6 +17,7 @@ namespace Cocona.Command.Dispatcher
         private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
         private readonly ICoconaCommandMatcher _commandMatcher;
         private readonly ICoconaInstanceActivator _activator;
+        private readonly ICoconaAppContextAccessor _appContext;
 
         public CoconaCommandDispatcher(
             IServiceProvider serviceProvider,
@@ -25,7 +26,8 @@ namespace Cocona.Command.Dispatcher
             ICoconaCommandLineArgumentProvider commandLineArgumentProvider,
             ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
             ICoconaCommandMatcher commandMatcher,
-            ICoconaInstanceActivator activator
+            ICoconaInstanceActivator activator,
+            ICoconaAppContextAccessor appContext
         )
         {
             _serviceProvider = serviceProvider;
@@ -35,6 +37,7 @@ namespace Cocona.Command.Dispatcher
             _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
             _commandMatcher = commandMatcher;
             _activator = activator;
+            _appContext = appContext;
         }
 
         public async ValueTask<int> DispatchAsync(CancellationToken cancellationToken)
@@ -88,6 +91,9 @@ namespace Cocona.Command.Dispatcher
 
                 var parsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments);
                 var dispatchAsync = _dispatcherPipelineBuilder.Build();
+
+                // Set CoconaAppContext
+                _appContext.Current = new CoconaAppContext(cancellationToken);
 
                 // Dispatch command.
                 var commandInstance = _activator.GetServiceOrCreateInstance(_serviceProvider, matchedCommand.CommandType);

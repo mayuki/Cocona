@@ -3,7 +3,20 @@ using System.Collections.Generic;
 
 namespace Cocona.Lite
 {
-    public class CoconaLiteServiceProvider : IServiceProvider
+    public interface ICoconaLiteServiceCollection
+    {
+        void AddTransient<TService, TImplementation>()
+            where TImplementation : TService;
+
+        void AddSingleton<TService, TImplementation>()
+            where TImplementation : TService;
+
+        void AddSingleton<TService>(TService instance);
+
+        void AddSingleton<TService>(Func<IServiceProvider, TService> factory);
+    }
+
+    public class CoconaLiteServiceProvider : IServiceProvider, ICoconaLiteServiceCollection
     {
         private readonly Dictionary<Type, Func<IServiceProvider, object>> _factories = new Dictionary<Type, Func<IServiceProvider, object>>();
 
