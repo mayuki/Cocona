@@ -17,7 +17,7 @@ namespace Cocona.Command.Dispatcher.Middlewares
             _serviceProvider = serviceProvider;
         }
 
-        public override async ValueTask<int> DispatchAsync(CommandDispatchContext ctx)
+        public override ValueTask<int> DispatchAsync(CommandDispatchContext ctx)
         {
             var filters = FilterHelper.GetFilters<ICommandFilter>(ctx.Command.Method, _serviceProvider);
 
@@ -29,7 +29,7 @@ namespace Cocona.Command.Dispatcher.Middlewares
                 next = (ctx2) => filter.OnCommandExecutionAsync(ctx2, next_);
             }
 
-            return await next(new CoconaCommandExecutingContext(ctx.Command, ctx.ParsedCommandLine, ctx.CommandTarget));
+            return next(new CoconaCommandExecutingContext(ctx.Command, ctx.ParsedCommandLine, ctx.CommandTarget));
         }
     }
 }
