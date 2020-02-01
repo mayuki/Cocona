@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 
 namespace Cocona.Command.Dispatcher
@@ -8,6 +8,7 @@ namespace Cocona.Command.Dispatcher
         ICoconaCommandDispatcherPipelineBuilder UseMiddleware<T>()
             where T: CommandDispatcherMiddleware;
         ICoconaCommandDispatcherPipelineBuilder UseMiddleware(Func<CommandDispatchDelegate, CommandDispatchContext, ValueTask<int>> commandDispatchDelegate);
+        ICoconaCommandDispatcherPipelineBuilder UseMiddleware(Func<CommandDispatchDelegate, IServiceProvider, CommandDispatcherMiddleware> factory);
 
         CommandDispatchDelegate Build();
     }
