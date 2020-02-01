@@ -41,7 +41,12 @@ namespace Cocona.Lite
         public void AddSingleton<TService, TImplementation>()
             where TImplementation : TService
         {
-            AddSingleton(_ => (TService)SimpleActivator.CreateInstance(this, typeof(TImplementation)));
+            _factories[typeof(TService)] = provider =>
+            {
+                var instance = (TService)SimpleActivator.CreateInstance(this, typeof(TImplementation));
+                _factories[typeof(TService)] = _ => instance!;
+                return instance!;
+            };
         }
 
         public void AddSingleton<TService>(TService instance)
