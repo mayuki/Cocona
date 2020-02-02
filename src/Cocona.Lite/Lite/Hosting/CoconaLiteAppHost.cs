@@ -37,6 +37,11 @@ namespace Cocona.Lite.Hosting
             }
 
             _waitForShutdown.Set();
+
+#pragma warning disable RS0030 // Do not used banned APIs
+            Console.CancelKeyPress -= OnCancelKeyPress;
+            AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
+#pragma warning restore RS0030 // Do not used banned APIs
         }
 
         private void OnProcessExit(object sender, EventArgs e)
