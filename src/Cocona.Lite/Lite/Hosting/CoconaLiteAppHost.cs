@@ -1,7 +1,11 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Cocona.Application;
+using Cocona.Command;
 using Cocona.Command.Dispatcher;
+using Cocona.Internal;
 
 namespace Cocona.Lite.Hosting
 {
@@ -20,20 +24,60 @@ namespace Cocona.Lite.Hosting
         {
             var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
             var commandDispatcher = _serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var console = _serviceProvider.GetService<ICoconaConsoleProvider>();
 
 #pragma warning disable RS0030 // Do not used banned APIs
             Console.CancelKeyPress += OnCancelKeyPress;
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 #pragma warning restore RS0030 // Do not used banned APIs
 
-            var task = commandDispatcher.DispatchAsync(linkedCancellationToken.Token);
-            if (task.IsCompleted)
+            try
             {
-                Environment.ExitCode = task.Result;
+                var task = commandDispatcher.DispatchAsync(linkedCancellationToken.Token);
+                if (task.IsCompleted)
+                {
+                    Environment.ExitCode = task.Result;
+                }
+                else
+                {
+                    Environment.ExitCode = await task;
+                }
             }
-            else
+            catch (CommandNotFoundException cmdNotFoundEx)
             {
-                Environment.ExitCode = await task;
+                if (string.IsNullOrWhiteSpace(cmdNotFoundEx.Command))
+                {
+                    console.Error.WriteLine($"Error: {cmdNotFoundEx.Message}");
+                }
+                else
+                {
+                    console.Error.WriteLine($"Error: '{cmdNotFoundEx.Command}' is not a command. See '--help' for usage.");
+                }
+
+                var similarCommands = cmdNotFoundEx.ImplementedCommands.All.Where(x => Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
+                if (similarCommands.Any())
+                {
+                    console.Error.WriteLine();
+                    console.Error.WriteLine("Similar commands:");
+                    foreach (var c in similarCommands)
+                    {
+                        console.Error.WriteLine($"  {c.Name}");
+                    }
+                }
+
+                Environment.ExitCode = 1;
+            }
+            catch (OperationCanceledException ex) when (ex.CancellationToken == _cancellationTokenSource.Token)
+            {
+                // NOTE: Ignore OperationCanceledException that was thrown by non-user code.
+                Environment.ExitCode = 0;
+            }
+            catch (Exception ex)
+            {
+                console.Error.WriteLine($"Unhandled Exception: {ex.GetType().FullName}: {ex.Message}");
+                console.Error.WriteLine(ex.StackTrace);
+
+                Environment.ExitCode = 1;
             }
 
             _waitForShutdown.Set();
