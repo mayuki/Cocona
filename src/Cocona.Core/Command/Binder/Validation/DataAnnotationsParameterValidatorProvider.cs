@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
@@ -8,10 +8,13 @@ namespace Cocona.Command.Binder.Validation
     {
         public IEnumerable<ICoconaParameterValidator> CreateValidators(ICommandParameterDescriptor parameter)
         {
-            return parameter
-                .ParameterAttributes
-                .OfType<ValidationAttribute>()
-                .Select(x => new DataAnnotationsParameterValidator(x));
+            foreach (var attr in parameter.ParameterAttributes)
+            {
+                if (attr is ValidationAttribute validationAttr)
+                {
+                    yield return new DataAnnotationsParameterValidator(validationAttr);
+                }
+            }
         }
     }
 }

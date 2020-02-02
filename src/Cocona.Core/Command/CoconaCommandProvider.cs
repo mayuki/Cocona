@@ -48,16 +48,16 @@ namespace Cocona.Command
                 foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
                     if (method.IsSpecialName || method.DeclaringType == typeof(object)) continue;
+                    if (!_treatPublicMethodsAsCommands && !method.IsPublic) continue;
 
-                    if (
-                        (_treatPublicMethodsAsCommands && method.IsPublic) ||
-                        (method.GetCustomAttribute<CommandAttribute>(inherit: true) != null) ||
-                        (method.GetCustomAttribute<PrimaryCommandAttribute>(inherit: true) != null)
-                    )
+                    var (commandAttr, primaryCommandAttr, ignoreAttribute, commandOverloadAttr)
+                        = AttributeHelper.GetAttributes<CommandAttribute, PrimaryCommandAttribute, IgnoreAttribute, CommandOverloadAttribute>(
+                            method.GetCustomAttributes(typeof(Attribute), true));
+
+                    if ((_treatPublicMethodsAsCommands && method.IsPublic) || commandAttr != null || primaryCommandAttr != null)
                     {
-                        if (method.GetCustomAttribute<IgnoreAttribute>() != null) continue;
+                        if (ignoreAttribute != null) continue;
 
-                        var commandOverloadAttr = method.GetCustomAttribute<CommandOverloadAttribute>();
                         if (commandOverloadAttr != null)
                         {
                             if (!overloadCommandMethods.TryGetValue(commandOverloadAttr.TargetCommand, out var overloads))

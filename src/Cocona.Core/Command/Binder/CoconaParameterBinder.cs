@@ -26,6 +26,7 @@ namespace Cocona.Command.Binder
             var bindParams = new object?[commandDescriptor.Parameters.Count];
             var optionValueByOption = commandOptionValues.ToLookup(k => k.Option, v => v.Value);
 
+            var orderedArgDescWithParamIndex = new List<(CommandArgumentDescriptor Argument, int ParameterIndex)>(commandDescriptor.Parameters.Count);
             var index = 0;
             foreach (var param in commandDescriptor.Parameters)
             {
@@ -47,11 +48,10 @@ namespace Cocona.Command.Binder
                         break;
                     case CommandArgumentDescriptor argumentDesc:
                         // NOTE: Skip processing arguments at here.
-                        index++;
+                        orderedArgDescWithParamIndex.Add((argumentDesc, index++));
                         break;
                     case CommandServiceParameterDescriptor serviceParamDesc:
                         bindParams[index++] = _serviceProvider.GetService(serviceParamDesc.ServiceType);
-                        index++;
                         break;
                     case CommandIgnoredParameterDescriptor ignoredDesc:
                         bindParams[index++] = ignoredDesc.DefaultValue;
@@ -62,17 +62,8 @@ namespace Cocona.Command.Binder
             }
 
             // arguments
-            index = 0;
-            var orderedArgDescWithParamIndex = new List<(CommandArgumentDescriptor Argument, int ParameterIndex)>(commandDescriptor.Parameters.Count);
-            for (var i = 0; i < commandDescriptor.Parameters.Count; i++)
-            {
-                var paramDescriptor = commandDescriptor.Parameters[i];
-                if (paramDescriptor is CommandArgumentDescriptor commandArgumentDescriptor)
-                {
-                    orderedArgDescWithParamIndex.Add((commandArgumentDescriptor, i));
-                }
-            }
             orderedArgDescWithParamIndex.Sort((a, b) => a.Argument.Order.CompareTo(b.Argument.Order));
+            index = 0;
 
             for (var i = 0; i < orderedArgDescWithParamIndex.Count; i++)
             {
@@ -172,7 +163,7 @@ namespace Cocona.Command.Binder
             else if (!DynamicListHelper.IsArrayOrEnumerableLike(valueType))
             {
                 // Primitive or plain object (int, bool, string ...)
-                var value = values.Last();
+                var value = values[values.Length - 1];
                 if (value == null) throw new ParameterBinderException(ParameterBinderResult.InsufficientOptionValue, option, argument);
 
                 return (option != null) ? ConvertTo(option!, valueType, value) : ConvertTo(argument!, valueType, value);

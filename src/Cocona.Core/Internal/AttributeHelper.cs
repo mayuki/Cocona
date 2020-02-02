@@ -8,6 +8,30 @@ namespace Cocona.Internal
     internal static class AttributeHelper
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (T1, T2) GetAttributes<T1, T2>(object[] attrs)
+            where T1 : Attribute
+            where T2 : Attribute
+        {
+            var attr1 = default(T1);
+            var attr2 = default(T2);
+            for (var i = 0; i < attrs.Length; i++)
+            {
+                var attr = attrs[i];
+                switch (attr)
+                {
+                    case T1 typedAttr:
+                        attr1 = typedAttr;
+                        break;
+                    case T2 typedAttr:
+                        attr2 = typedAttr;
+                        break;
+                }
+            }
+
+            return (attr1, attr2);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (T1, T2, T3) GetAttributes<T1, T2, T3>(object[] attrs)
             where T1 : Attribute
             where T2 : Attribute

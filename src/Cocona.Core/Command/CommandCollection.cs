@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,14 +15,17 @@ namespace Cocona.Command
         {
             All = commands ?? throw new ArgumentNullException(nameof(commands));
 
-            var primaries = commands.Where(x => x.IsPrimaryCommand).ToArray();
-            if (primaries.Length > 0)
+            for (var i = 0; i < commands.Count; i++)
             {
-                if (primaries.Length > 1)
+                var command = commands[i];
+                if (command.IsPrimaryCommand)
                 {
-                    throw new CoconaException($"The commands contains more then one primary command. A primary command must be only one.: {string.Join(", ", primaries.Select(x => x.Name))}");
+                    if (Primary != null)
+                    {
+                        throw new CoconaException($"The commands contains more then one primary command. A primary command must be only one.: {string.Join(", ", commands.Where(x => x.IsPrimaryCommand).Select(x => x.Name))}");
+                    }
+                    Primary = command;
                 }
-                Primary = primaries[0];
             }
         }
     }
