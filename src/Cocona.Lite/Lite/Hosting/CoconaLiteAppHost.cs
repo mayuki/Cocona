@@ -42,6 +42,11 @@ namespace Cocona.Lite.Hosting
             Console.CancelKeyPress -= OnCancelKeyPress;
             AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
 #pragma warning restore RS0030 // Do not used banned APIs
+
+            if (_serviceProvider is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
         }
 
         private void OnProcessExit(object sender, EventArgs e)
