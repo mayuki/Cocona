@@ -8,7 +8,7 @@ namespace Cocona.Internal
     internal static class AttributeHelper
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (T1, T2) GetAttributes<T1, T2>(object[] attrs)
+        public static (T1?, T2?) GetAttributes<T1, T2>(object[] attrs)
             where T1 : Attribute
             where T2 : Attribute
         {
@@ -32,7 +32,7 @@ namespace Cocona.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (T1, T2, T3) GetAttributes<T1, T2, T3>(object[] attrs)
+        public static (T1?, T2?, T3?) GetAttributes<T1, T2, T3>(object[] attrs)
             where T1 : Attribute
             where T2 : Attribute
             where T3 : Attribute
@@ -61,7 +61,7 @@ namespace Cocona.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (T1, T2, T3, T4) GetAttributes<T1, T2, T3, T4>(object[] attrs)
+        public static (T1?, T2?, T3?, T4?) GetAttributes<T1, T2, T3, T4>(object[] attrs)
             where T1 : Attribute
             where T2 : Attribute
             where T3 : Attribute
@@ -95,7 +95,7 @@ namespace Cocona.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (T1, T2, T3, T4, T5) GetAttributes<T1, T2, T3, T4, T5>(object[] attrs)
+        public static (T1?, T2?, T3?, T4?, T5?) GetAttributes<T1, T2, T3, T4, T5>(object[] attrs)
             where T1 : Attribute
             where T2 : Attribute
             where T3 : Attribute
