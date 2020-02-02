@@ -170,13 +170,16 @@ namespace Cocona.Command
 
                     defaultArgOrder++;
 
+                    var attrsArray = new Attribute[attrs.Length];
+                    Array.Copy(attrs, attrsArray, attrs.Length);
+
                     var commandArgDescriptor = new CommandArgumentDescriptor(
                         methodParam.ParameterType,
                         argName,
                         argOrder,
                         argDesc,
                         defaultValue,
-                        methodParam.GetCustomAttributes<Attribute>(true).ToArray());
+                        attrsArray);
 
                     parameters.Add(commandArgDescriptor);
                     arguments.Add(commandArgDescriptor);
