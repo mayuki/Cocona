@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Order;
 using CliFx;
 using Cocona.Benchmark.External.Commands;
@@ -15,7 +14,6 @@ using Microsoft.Extensions.Hosting;
 
 namespace Cocona.Benchmark.External
 {
-    [SimpleJob(RunStrategy.ColdStart, launchCount: 10)]
     [SimpleJob]
     [RankColumn]
     [Orderer(SummaryOrderPolicy.FastestToSlowest)]
@@ -24,7 +22,7 @@ namespace Cocona.Benchmark.External
         private static readonly string[] Arguments = { "--str", "hello world", "-i", "13", "-b" };
 
         [Benchmark(Description = "Cocona.Lite", Baseline = true)]
-        public async ValueTask ExecuteWithCoconaLite() =>
+        public async Task ExecuteWithCoconaLite() =>
             await Cocona.CoconaLiteApp.RunAsync<CoconaCommand>(Arguments);
 
         [Benchmark(Description = "Cocona")]
