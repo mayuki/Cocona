@@ -20,14 +20,14 @@ namespace Cocona.Command.Dispatcher.Middlewares
 
         public override ValueTask<int> DispatchAsync(CommandDispatchContext ctx)
         {
-            _appContext.Current = new CoconaAppContext(
-                ctx.CancellationToken,
-                _loggerFactory.CreateLogger(ctx.Command.CommandType)
-            );
-
-            if (ctx.CommandTarget is CoconaConsoleAppBase consoleApp)
+            if (_appContext.Current != null)
             {
-                consoleApp.Context = _appContext.Current!;
+                _appContext.Current.Features.Set<ILogger>(_loggerFactory.CreateLogger(ctx.Command.CommandType));
+
+                if (ctx.CommandTarget is CoconaConsoleAppBase consoleApp)
+                {
+                    consoleApp.Context = new CoconaConsoleAppContext(_appContext.Current);
+                }
             }
 
             return Next(ctx);

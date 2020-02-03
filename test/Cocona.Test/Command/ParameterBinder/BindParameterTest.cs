@@ -672,6 +672,33 @@ namespace Cocona.Test.Command.ParameterBinder
         }
 
         [Fact]
+        public void BindService_Options()
+        {
+            // void Test([FromService]MyService arg0);
+            var commandDescriptor = CreateCommand(new ICommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(int), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                    new CommandServiceParameterDescriptor(typeof(MyService), "fromService0"),
+                    CreateCommandOption(typeof(int), "option1", Array.Empty<char>(), "", CoconaDefaultValue.None),
+                }
+            );
+
+            var commandOptions = new CommandOption[]
+            {
+                new CommandOption(commandDescriptor.Options[0], "123"),
+                new CommandOption(commandDescriptor.Options[1], "456"),
+            };
+            var commandArguments = new CommandArgument[] { };
+
+            var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
+            invokeArgs.Should().NotBeNull();
+            invokeArgs.Should().HaveCount(3);
+            invokeArgs[0].Should().Be(123);
+            invokeArgs[1].Should().BeOfType<MyService>();
+            invokeArgs[2].Should().Be(456);
+        }
+
+        [Fact]
         public void BindService_Argument()
         {
             // void Test([FromService]MyService arg0);

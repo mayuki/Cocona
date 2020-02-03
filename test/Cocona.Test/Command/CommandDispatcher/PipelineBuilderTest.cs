@@ -54,6 +54,28 @@ namespace Cocona.Test.Command.CommandDispatcher
         }
 
         [Fact]
+        public async Task UseMiddleware_Factory()
+        {
+            var services = new ServiceCollection();
+            {
+                services.AddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
+                services.AddTransient<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
+                services.AddSingleton<List<string>>(); // for log
+            }
+            var serviceProvider = services.BuildServiceProvider();
+
+            var log = serviceProvider.GetService<List<string>>();
+            var builder = serviceProvider.GetService<ICoconaCommandDispatcherPipelineBuilder>();
+            builder.Should().NotBeNull();
+            builder.UseMiddleware((next, sp) => new TestMiddleware(next, sp.GetService<List<string>>()));
+            var pipeline = builder.Build();
+            var result = await pipeline(new CommandDispatchContext(null, null, null, default));
+            result.Should().Be(456);
+            log.Should().NotBeEmpty();
+            log[0].Should().Be("Called");
+        }
+
+        [Fact]
         public async Task UseMiddleware_Type()
         {
             var services = new ServiceCollection();

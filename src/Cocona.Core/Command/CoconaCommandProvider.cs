@@ -48,16 +48,16 @@ namespace Cocona.Command
                 foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
                     if (method.IsSpecialName || method.DeclaringType == typeof(object)) continue;
+                    if (!_treatPublicMethodsAsCommands && !method.IsPublic) continue;
 
-                    if (
-                        (_treatPublicMethodsAsCommands && method.IsPublic) ||
-                        (method.GetCustomAttribute<CommandAttribute>(inherit: true) != null) ||
-                        (method.GetCustomAttribute<PrimaryCommandAttribute>(inherit: true) != null)
-                    )
+                    var (commandAttr, primaryCommandAttr, ignoreAttribute, commandOverloadAttr)
+                        = AttributeHelper.GetAttributes<CommandAttribute, PrimaryCommandAttribute, IgnoreAttribute, CommandOverloadAttribute>(
+                            method.GetCustomAttributes(typeof(Attribute), true));
+
+                    if ((_treatPublicMethodsAsCommands && method.IsPublic) || commandAttr != null || primaryCommandAttr != null)
                     {
-                        if (method.GetCustomAttribute<IgnoreAttribute>() != null) continue;
+                        if (ignoreAttribute != null) continue;
 
-                        var commandOverloadAttr = method.GetCustomAttribute<CommandOverloadAttribute>();
                         if (commandOverloadAttr != null)
                         {
                             if (!overloadCommandMethods.TryGetValue(commandOverloadAttr.TargetCommand, out var overloads))
@@ -130,7 +130,6 @@ namespace Cocona.Command
             var methodParameters = methodInfo.GetParameters();
 
             var parameters = new List<ICommandParameterDescriptor>(methodParameters.Length);
-            var options = new List<CommandOptionDescriptor>(methodParameters.Length);
             var arguments = new List<CommandArgumentDescriptor>(methodParameters.Length);
 
             var defaultArgOrder = 0;
@@ -171,13 +170,16 @@ namespace Cocona.Command
 
                     defaultArgOrder++;
 
+                    var attrsArray = new Attribute[attrs.Length];
+                    Array.Copy(attrs, attrsArray, attrs.Length);
+
                     var commandArgDescriptor = new CommandArgumentDescriptor(
                         methodParam.ParameterType,
                         argName,
                         argOrder,
                         argDesc,
                         defaultValue,
-                        methodParam.GetCustomAttributes<Attribute>(true).ToArray());
+                        attrsArray);
 
                     parameters.Add(commandArgDescriptor);
                     arguments.Add(commandArgDescriptor);
@@ -227,7 +229,7 @@ namespace Cocona.Command
                     allOptions.Add(optionName, optionDescriptor);
                     allOptionShortNames.UnionWith(optionShortNames);
 
-                    options.Add(optionDescriptor);
+                    //options.Add(optionDescriptor);
                     parameters.Add(optionDescriptor);
                     continue;
                 }
@@ -255,6 +257,9 @@ namespace Cocona.Command
             var flags = ((isHidden) ? CommandFlags.Hidden : CommandFlags.None) |
                         ((isSingleCommand || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None);
 
+            var options = new CommandOptionDescriptor[allOptions.Count];
+            allOptions.Values.CopyTo(options, 0);
+
             return new CommandDescriptor(
                 methodInfo,
                 commandName,
@@ -274,9 +279,9 @@ namespace Cocona.Command
             for (var i = 0; i < value.Length; i++)
             {
                 var c = value[i];
-                if (Char.IsUpper(c))
+                if (IsInRange(c, 'A', 'Z'))
                 {
-                    if (sb.Length != 0 && Char.IsLower(value[i - 1]))
+                    if (i > 0 && IsInRange(value[i - 1], 'a', 'z'))
                     {
                         sb.Append('-');
                     }
@@ -290,5 +295,8 @@ namespace Cocona.Command
 
             return sb.ToString();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsInRange(char c, char min, char max) => (uint)(c - min) <= (uint)(max - min);
     }
 }

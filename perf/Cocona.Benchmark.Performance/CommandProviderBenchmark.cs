@@ -8,7 +8,7 @@ using BenchmarkDotNet.Engines;
 
 namespace Cocona.Benchmark.Performance
 {
-    [SimpleJob(RunStrategy.ColdStart, launchCount: 10)]
+    [SimpleJob(RunStrategy.ColdStart, launchCount: 20)]
     [SimpleJob]
     [MemoryDiagnoser]
     public class CommandProviderBenchmark

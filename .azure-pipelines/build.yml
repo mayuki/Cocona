@@ -39,6 +39,8 @@ jobs:
       displayName: dotnet pack Cocona
     - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Core/Cocona.Core.csproj
       displayName: dotnet pack Cocona.Core
+    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Lite/Cocona.Lite.csproj
+      displayName: dotnet pack Cocona.Lite
 
     # Publish to Azure Artifacts
     - task: NuGetAuthenticate@0
@@ -76,6 +78,10 @@ jobs:
 
     - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
       displayName: dotnet pack
+    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Core/Cocona.Core.csproj
+      displayName: dotnet pack Cocona.Core
+    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Lite/Cocona.Lite.csproj
+      displayName: dotnet pack Cocona.Lite
 
   # ========================================
   - job: Release
@@ -108,6 +114,8 @@ jobs:
       displayName: dotnet pack Cocona
     - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Core/Cocona.Core.csproj
       displayName: dotnet pack Cocona.Core
+    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Lite/Cocona.Lite.csproj
+      displayName: dotnet pack Cocona.Lite
 
     # Publish to NuGet.org
     - task: NuGetCommand@2

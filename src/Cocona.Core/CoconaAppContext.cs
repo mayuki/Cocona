@@ -1,8 +1,5 @@
 using Cocona.Command;
 using Cocona.CommandLine;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
@@ -19,14 +16,14 @@ namespace Cocona
         public CancellationToken CancellationToken { get; }
 
         /// <summary>
-        /// Gets a logger for a current command.
+        /// Gets a collection of features.
         /// </summary>
-        public ILogger Logger { get; }
+        public CoconaAppFeatureCollection Features { get; }
 
-        public CoconaAppContext(CancellationToken cancellationToken, ILogger logger)
+        public CoconaAppContext(CancellationToken cancellationToken)
         {
             CancellationToken = cancellationToken;
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            Features = new CoconaAppFeatureCollection();
         }
     }
 }

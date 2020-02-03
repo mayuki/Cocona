@@ -43,6 +43,12 @@ namespace Cocona.Command.Dispatcher
             return this;
         }
 
+        public ICoconaCommandDispatcherPipelineBuilder UseMiddleware(Func<CommandDispatchDelegate, IServiceProvider, CommandDispatcherMiddleware> factory)
+        {
+            _typesOrInstances.Add((null, factory));
+            return this;
+        }
+
         public CommandDispatchDelegate Build()
         {
             CommandDispatchDelegate next = (ctx) => new ValueTask<int>(0);
@@ -55,53 +61,58 @@ namespace Cocona.Command.Dispatcher
                     var next_ = next;
                     next = (ctx) => func(next_, ctx);
                 }
+                else if (typeOrInstance.Instance is Func<CommandDispatchDelegate, IServiceProvider, CommandDispatcherMiddleware> factory)
+                {
+                    next = factory(next, _serviceProvider).DispatchAsync;
+                }
                 else
                 {
                     // Optimization: Directly initialize well-known middlewares.
-                    if (typeOrInstance.Type == typeof(CoconaCommandInvokeMiddleware))
-                    {
-                        var m = new CoconaCommandInvokeMiddleware(next, GetRequiredService<ICoconaParameterBinder>(_serviceProvider));
-                        next = m.DispatchAsync;
-                        continue;
-                    }
-                    else if (typeOrInstance.Type == typeof(CommandFilterMiddleware))
-                    {
-                        var m = new CommandFilterMiddleware(next, _serviceProvider);
-                        next = m.DispatchAsync;
-                        continue;
-                    }
-                    else if (typeOrInstance.Type == typeof(HandleExceptionAndExitMiddleware))
-                    {
-                        var m = new HandleExceptionAndExitMiddleware(next, GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
-                        next = m.DispatchAsync;
-                        continue;
-                    }
-                    else if (typeOrInstance.Type == typeof(HandleParameterBindExceptionMiddleware))
-                    {
-                        var m = new HandleParameterBindExceptionMiddleware(next, GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
-                        next = m.DispatchAsync;
-                        continue;
-                    }
-                    else if (typeOrInstance.Type == typeof(RejectUnknownOptionsMiddleware))
-                    {
-                        var m = new RejectUnknownOptionsMiddleware(next, GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
-                        next = m.DispatchAsync;
-                        continue;
-                    }
-                    else if (typeOrInstance.Type == typeof(BuiltInCommandMiddleware))
-                    {
-                        var m = new BuiltInCommandMiddleware(
-                            next,
-                            GetRequiredService<ICoconaHelpRenderer>(_serviceProvider),
-                            GetRequiredService<ICoconaCommandHelpProvider>(_serviceProvider),
-                            GetRequiredService<ICoconaCommandProvider>(_serviceProvider),
-                            GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
-                        next = m.DispatchAsync;
-                        continue;
-                    }
-
                     if (typeOrInstance.Type != null)
                     {
+                        var t = typeOrInstance.Type;
+                        if (t == typeof(CoconaCommandInvokeMiddleware))
+                        {
+                            var m = new CoconaCommandInvokeMiddleware(next, GetRequiredService<ICoconaParameterBinder>(_serviceProvider));
+                            next = m.DispatchAsync;
+                            continue;
+                        }
+                        else if (t == typeof(CommandFilterMiddleware))
+                        {
+                            var m = new CommandFilterMiddleware(next, _serviceProvider);
+                            next = m.DispatchAsync;
+                            continue;
+                        }
+                        else if (t == typeof(HandleExceptionAndExitMiddleware))
+                        {
+                            var m = new HandleExceptionAndExitMiddleware(next, GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
+                            next = m.DispatchAsync;
+                            continue;
+                        }
+                        else if (t == typeof(HandleParameterBindExceptionMiddleware))
+                        {
+                            var m = new HandleParameterBindExceptionMiddleware(next, GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
+                            next = m.DispatchAsync;
+                            continue;
+                        }
+                        else if (t == typeof(RejectUnknownOptionsMiddleware))
+                        {
+                            var m = new RejectUnknownOptionsMiddleware(next, GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
+                            next = m.DispatchAsync;
+                            continue;
+                        }
+                        else if (t == typeof(BuiltInCommandMiddleware))
+                        {
+                            var m = new BuiltInCommandMiddleware(
+                                next,
+                                GetRequiredService<ICoconaHelpRenderer>(_serviceProvider),
+                                GetRequiredService<ICoconaCommandHelpProvider>(_serviceProvider),
+                                GetRequiredService<ICoconaCommandProvider>(_serviceProvider),
+                                GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
+                            next = m.DispatchAsync;
+                            continue;
+                        }
+
                         var middleware = (CommandDispatcherMiddleware)_activator.CreateInstance(_serviceProvider, typeOrInstance.Type, new object[] { next })!;
                         next = middleware.DispatchAsync;
                     }
