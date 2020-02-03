@@ -450,7 +450,7 @@ If you don't need`Microsoft.Extensions.*`, you can use a lightweight version of 
 Just install NuGet package `Cocona.Lite` instead of `Cocona`.
 
 ```sh
-$ dotnet add Cocona.Lite
+$ dotnet add package Cocona.Lite
 ```
 
 Then in your source code, use `CoconaLiteApp` class instead of `CoconaApp` class.
