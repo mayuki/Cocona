@@ -85,7 +85,7 @@ namespace Cocona.Lite.Hosting
 
             services.AddSingleton(options);
 
-            services.AddSingleton<ICoconaInstanceActivator, CoconaLiteInstanceActivator>();
+            services.AddSingleton<ICoconaInstanceActivator>(_ => new CoconaLiteInstanceActivator());
             services.AddSingleton<ICoconaCommandLineArgumentProvider>(sp =>
                 new CoconaCommandLineArgumentProvider(args));
             services.AddSingleton<ICoconaCommandProvider>(sp =>
@@ -101,19 +101,19 @@ namespace Cocona.Lite.Hosting
                     )
                 );
             });
-            services.AddSingleton<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
-            services.AddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
-            services.AddSingleton<ICoconaApplicationMetadataProvider, CoconaApplicationMetadataProvider>();
-            services.AddSingleton<ICoconaConsoleProvider, CoconaConsoleProvider>();
-            services.AddSingleton<ICoconaParameterValidatorProvider, DataAnnotationsParameterValidatorProvider>();
+            services.AddSingleton<ICoconaCommandDispatcherPipelineBuilder>(sp => new CoconaCommandDispatcherPipelineBuilder(sp, sp.GetService<ICoconaInstanceActivator>()));
+            services.AddSingleton<ICoconaAppContextAccessor>(sp => new CoconaAppContextAccessor());
+            services.AddSingleton<ICoconaApplicationMetadataProvider>(sp => new CoconaApplicationMetadataProvider());
+            services.AddSingleton<ICoconaConsoleProvider>(sp => new CoconaConsoleProvider());
+            services.AddSingleton<ICoconaParameterValidatorProvider>(sp => new DataAnnotationsParameterValidatorProvider());
 
-            services.AddSingleton<ICoconaParameterBinder, CoconaParameterBinder>();
-            services.AddSingleton<ICoconaValueConverter, CoconaValueConverter>();
-            services.AddSingleton<ICoconaCommandLineParser, CoconaCommandLineParser>();
-            services.AddSingleton<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
-            services.AddSingleton<ICoconaCommandMatcher, CoconaCommandMatcher>();
-            services.AddSingleton<ICoconaHelpRenderer, CoconaHelpRenderer>();
-            services.AddSingleton<ICoconaCommandHelpProvider, CoconaCommandHelpProvider>();
+            services.AddSingleton<ICoconaParameterBinder>(sp => new CoconaParameterBinder(sp, sp.GetService<ICoconaValueConverter>(), sp.GetService<ICoconaParameterValidatorProvider>()));
+            services.AddSingleton<ICoconaValueConverter>(sp => new CoconaValueConverter());
+            services.AddSingleton<ICoconaCommandLineParser>(sp => new CoconaCommandLineParser());
+            services.AddSingleton<ICoconaCommandDispatcher>(sp => new CoconaCommandDispatcher(sp, sp.GetService<ICoconaCommandProvider>(), sp.GetService<ICoconaCommandLineParser>(), sp.GetService<ICoconaCommandLineArgumentProvider>(), sp.GetService<ICoconaCommandDispatcherPipelineBuilder>(), sp.GetService<ICoconaCommandMatcher>(), sp.GetService<ICoconaInstanceActivator>(), sp.GetService<ICoconaAppContextAccessor>()));
+            services.AddSingleton<ICoconaCommandMatcher>(sp => new CoconaCommandMatcher());
+            services.AddSingleton<ICoconaHelpRenderer>(sp => new CoconaHelpRenderer());
+            services.AddSingleton<ICoconaCommandHelpProvider>(sp => new CoconaCommandHelpProvider(sp.GetService<ICoconaApplicationMetadataProvider>(), sp));
 
             _configureServicesDelegate?.Invoke(services);
 
@@ -126,7 +126,6 @@ namespace Cocona.Lite.Hosting
                 .UseMiddleware<CommandFilterMiddleware>()
                 .UseMiddleware((next, sp) => new InitializeCoconaLiteConsoleAppMiddleware(next, sp.GetService<ICoconaAppContextAccessor>()))
                 .UseMiddleware<CoconaCommandInvokeMiddleware>();
-
             return serviceProvider;
         }
     }
