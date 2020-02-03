@@ -9,7 +9,7 @@
     <NoWarn>1701;1702;1591</NoWarn>
 
     <!-- NuGet Package Information -->
-    <Description>Micro-framework for .NET Core console application. Cocona makes it easy and fast to build console applications on .NET Core.</Description>
+    <Description>Lightweight version of Cocona. Micro-framework for .NET Core console application. Cocona makes it easy and fast to build console applications on .NET Core.</Description>
 
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Cocona\StrongNameKey.snk</AssemblyOriginatorKeyFile>
