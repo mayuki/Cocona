@@ -7,6 +7,9 @@ using Cocona.Lite.Hosting;
 
 namespace Cocona
 {
+    /// <summary>
+    /// Initializes and starts a Cocona enabled application.
+    /// </summary>
     public class CoconaLiteApp
     {
         /// <summary>
