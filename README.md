@@ -1,7 +1,7 @@
 # ![Cocona](docs/assets/logo.svg)
 Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it easy and fast to build console applications on .NET Core.🚀
 
-[![Build Status](https://dev.azure.com/misuzilla/Cocona/_apis/build/status/Cocona?branchName=master)](https://dev.azure.com/misuzilla/Cocona/_build/latest?definitionId=18&branchName=master) [![NuGet Package: Cocona](https://img.shields.io/nuget/vpre/Cocona)](https://www.nuget.org/packages/Cocona)
+[![Build Status](https://dev.azure.com/misuzilla/Cocona/_apis/build/status/Cocona?branchName=master)](https://dev.azure.com/misuzilla/Cocona/_build/latest?definitionId=18&branchName=master) [![NuGet Package: Cocona](https://img.shields.io/nuget/vpre/Cocona?label=NuGet%3A%20Cocona)](https://www.nuget.org/packages/Cocona) [![NuGet Package: Cocona.Lite](https://img.shields.io/nuget/vpre/Cocona.Lite?label=NuGet%3A%20Cocona.Lite)](https://www.nuget.org/packages/Cocona.Lite)
 
 ### ⏱ Create a console application with Cocona in seconds.
 ![](docs/assets/intro-in-seconds.gif)
@@ -162,6 +162,21 @@ If a parameter is `T[]` or `IEnumerable<T>`, a command accepts one or more optio
 // $ compile -I../path/to/foo.h -I/usr/include/bar.h -I/usr/include/baz.h nantoka.c
 // include = new [] { "../path/to/foo.h", "/usr/include/bar.h", "/usr/include/baz.h" };
 public void Compile([Option('I')]string[] include, [Argument]string file) { ... }
+```
+
+You can also specify a description for options that appear in the help.
+```csharp
+public void HasDescription([Option(Description = "Description of the option")] int value, [Argument(Description = "Description of the argument")]string arg) { ... }
+```
+```
+Usage: CoconaSample.InAction.CommandOptions has-description [--value <Int32>] [--help] arg
+
+Arguments:
+  0: arg    Description of the argument (Required)
+
+Options:
+  --value <Int32>    Description of the option (Required)
+  -h, --help         Show help message
 ```
 
 - See also: [CoconaSample.InAction.CommandOptions](samples/InAction.CommandOptions)
@@ -437,7 +452,7 @@ class Program : CoconaConsoleAppBase
 }
 ```
 ## Performance & Cocona.Lite
-If you don't need`Microsoft.Extensions.*`, you can use a lightweight version of Cocona. 
+`Microsoft.Extensions.*` are powerful but little heavy libraries. If you don't need`Microsoft.Extensions.*`, you can use a lightweight version of Cocona. (named [Cocona.Lite](https://www.nuget.org/packages/Cocona.Lite/))
 
 ### Feature & Limitation
 - Almost the same features and APIs as Cocona (command-line, help, etc.)
