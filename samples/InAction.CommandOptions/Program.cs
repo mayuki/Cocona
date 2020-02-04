@@ -44,5 +44,10 @@ namespace CoconaSample.InAction.CommandOptions
         {
             Console.WriteLine($"Visible={visible}; Hidden={hidden}");
         }
+
+        public void HasDescription([Option(Description = "Description of the option")] int value, [Argument(Description = "Description of the argument")]string arg)
+        {
+
+        }
     }
 }
