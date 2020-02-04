@@ -13,7 +13,7 @@ namespace Cocona.Lite
 
         public object? CreateInstance(IServiceProvider serviceProvider, Type instanceType, object[]? parameters)
         {
-            if (parameters != null && parameters.Length > 0) throw new ArgumentException("SimpleCoconaInstanceActivator doesn't support extra arguments.", nameof(parameters));
+            if (parameters != null && parameters.Length > 0) throw new NotSupportedException("SimpleCoconaInstanceActivator doesn't support extra arguments.");
             return SimpleActivator.CreateInstance(serviceProvider, instanceType);
         }
     }

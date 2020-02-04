@@ -32,7 +32,8 @@ namespace Cocona.Lite
 
             for (var i = 0; i < bestMatchCtorParameters.Length; i++)
             {
-                parameterValues[i] = serviceProvider.GetService(bestMatchCtorParameters[i].ParameterType);
+                var value = serviceProvider.GetService(bestMatchCtorParameters[i].ParameterType);
+                parameterValues[i] = value ?? throw new InvalidOperationException($"Unable to resolve service for type '{bestMatchCtorParameters[i].ParameterType.FullName}' while attempting to activate '{type.FullName}'");
             }
 
             return bestMatchCtor.Invoke(parameterValues);
