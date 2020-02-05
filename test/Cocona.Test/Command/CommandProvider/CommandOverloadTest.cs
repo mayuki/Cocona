@@ -37,6 +37,17 @@ namespace Cocona.Test.Command.CommandProvider
             var provider = new CoconaCommandProvider(new[] { typeof(TestCommand_Overload_Multiple_UnknownOption) });
             Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
         }
+        
+        [Fact]
+        public void Match_CommandName_LowerCase()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(TestCommand_Overload_Single) }, enableConvertCommandNameToLowerCase: true);
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+            commands.Primary.Should().NotBeNull();
+            commands.Primary.Overloads.Should().HaveCount(2);
+        }
 
         class TestCommand_Overload_Single
         {
