@@ -119,8 +119,6 @@ namespace Cocona.Command
             var description = commandAttr?.Description ?? string.Empty;
             var aliases = commandAttr?.Aliases ?? Array.Empty<string>();
 
-            if (_enableConvertCommandNameToLowerCase) commandName = ToCommandCase(commandName);
-
             var isPrimaryCommand = primaryCommandAttr != null;
             var isHidden = commandHiddenAttr != null;
 
@@ -253,6 +251,8 @@ namespace Cocona.Command
                     overloadDescriptors[i] = overloadDescriptor;
                 }
             }
+            
+            if (_enableConvertCommandNameToLowerCase) commandName = ToCommandCase(commandName);
 
             var flags = ((isHidden) ? CommandFlags.Hidden : CommandFlags.None) |
                         ((isSingleCommand || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None);
