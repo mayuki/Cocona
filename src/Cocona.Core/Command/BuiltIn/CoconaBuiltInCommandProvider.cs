@@ -8,20 +8,20 @@ namespace Cocona.Command.BuiltIn
     public class CoconaBuiltInCommandProvider : ICoconaCommandProvider
     {
         private readonly ICoconaCommandProvider _underlyingCommandProvider;
-        private readonly Lazy<CommandCollection> _commandCollection;
+        private CommandCollection? _cachedCommandCollection;
 
         public CoconaBuiltInCommandProvider(ICoconaCommandProvider underlyingCommandProvider)
         {
             _underlyingCommandProvider = underlyingCommandProvider;
-            _commandCollection = new Lazy<CommandCollection>(GetCommandCollectionCore);
         }
 
         public CommandCollection GetCommandCollection()
-            => _commandCollection.Value;
-
-        private CommandCollection GetCommandCollectionCore()
         {
-            var commandCollection = _underlyingCommandProvider.GetCommandCollection();
+            return _cachedCommandCollection ??= GetWrappedCommandCollection(_underlyingCommandProvider.GetCommandCollection());
+        }
+
+        private CommandCollection GetWrappedCommandCollection(CommandCollection commandCollection)
+        {
             var commands = commandCollection.All;
 
             // If the collection has multiple-commands without primary command, use built-in primary command.
@@ -44,7 +44,8 @@ namespace Cocona.Command.BuiltIn
                     GetParametersWithBuiltInOptions(command.Options, command.IsPrimaryCommand),
                     command.Arguments,
                     command.Overloads,
-                    command.Flags
+                    command.Flags,
+                    (command.SubCommands != null && command.SubCommands != commandCollection) ? GetWrappedCommandCollection(command.SubCommands) : command.SubCommands
                 );
             }
 

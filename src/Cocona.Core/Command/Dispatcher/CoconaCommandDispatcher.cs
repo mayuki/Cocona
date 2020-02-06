@@ -1,10 +1,12 @@
 using Cocona.Application;
 using Cocona.CommandLine;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Cocona.Command.Features;
 
 namespace Cocona.Command.Dispatcher
 {
@@ -44,7 +46,9 @@ namespace Cocona.Command.Dispatcher
         {
             var commandCollection = _commandProvider.GetCommandCollection();
             var args = _commandLineArgumentProvider.GetArguments();
+            var subCommandStack = new List<CommandDescriptor>();
 
+            Retry:
             var matchedCommand = default(CommandDescriptor);
             if (commandCollection.All.Count > 1)
             {
@@ -62,6 +66,14 @@ namespace Cocona.Command.Dispatcher
 
                     // NOTE: Skip a first argument that is command name.
                     args = args.Skip(1).ToArray();
+
+                    // If the command have nested sub-commands, try to restart parse command.
+                    if (matchedCommand.SubCommands != null)
+                    {
+                        commandCollection = matchedCommand.SubCommands;
+                        subCommandStack.Add(matchedCommand);
+                        goto Retry;
+                    }
                 }
                 else
                 {
@@ -92,14 +104,18 @@ namespace Cocona.Command.Dispatcher
                 var parsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments);
                 var dispatchAsync = _dispatcherPipelineBuilder.Build();
 
-                // Set CoconaAppContext
-                _appContext.Current = new CoconaAppContext(cancellationToken);
-
-                // Dispatch command.
+                // Activate a command type.
                 var commandInstance = _activator.GetServiceOrCreateInstance(_serviceProvider, matchedCommand.CommandType);
+                if (commandInstance == null) throw new InvalidOperationException($"Unable to activate command type '{matchedCommand.CommandType.FullName}'");
+
+                // Set CoconaAppContext
+                _appContext.Current = new CoconaAppContext(matchedCommand, cancellationToken);
+                _appContext.Current.Features.Set<ICoconaCommandFeature>(new CoconaCommandFeature(commandCollection, matchedCommand, subCommandStack, commandInstance));
+
+                // Dispatch the command
                 try
                 {
-                    var ctx = new CommandDispatchContext(matchedCommand, parsedCommandLine, commandInstance!, cancellationToken);
+                    var ctx = new CommandDispatchContext(matchedCommand, parsedCommandLine, commandInstance, cancellationToken);
                     return await dispatchAsync(ctx);
                 }
                 finally

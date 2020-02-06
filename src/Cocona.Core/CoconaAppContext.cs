@@ -20,8 +20,14 @@ namespace Cocona
         /// </summary>
         public CoconaAppFeatureCollection Features { get; }
 
-        public CoconaAppContext(CancellationToken cancellationToken)
+        /// <summary>
+        /// Gets a executing command.
+        /// </summary>
+        public CommandDescriptor ExecutingCommand { get; }
+
+        public CoconaAppContext(CommandDescriptor command, CancellationToken cancellationToken)
         {
+            ExecutingCommand = command;
             CancellationToken = cancellationToken;
             Features = new CoconaAppFeatureCollection();
         }

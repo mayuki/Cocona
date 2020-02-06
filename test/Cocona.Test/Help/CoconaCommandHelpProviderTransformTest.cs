@@ -52,7 +52,8 @@ namespace Cocona.Test.Help
                 parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
                 parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),
                 Array.Empty<CommandOverloadDescriptor>(),
-                isPrimaryCommand ? CommandFlags.Primary : CommandFlags.None
+                isPrimaryCommand ? CommandFlags.Primary : CommandFlags.None,
+                null
             );
         }
 

@@ -21,5 +21,30 @@ namespace CoconaSample.GettingStarted.SubCommandApp
         {
             Console.WriteLine($"Goodbye {(toLowerCase ? name.ToLower() : name)}!");
         }
+
+        [SubCommands(typeof(SubCommands))]
+        public void SubCommand()
+        { }
+    }
+
+    class SubCommands
+    {
+        public void Konnichiwa()
+        {
+            Console.WriteLine("Konnichiwa!");
+        }
+
+        [SubCommands(typeof(SubSubCommands))]
+        public void SubSubCommand()
+        {
+        }
+    }
+
+    class SubSubCommands
+    {
+        public void Hauhau()
+        {
+            Console.WriteLine("Hauhau!");
+        }
     }
 }

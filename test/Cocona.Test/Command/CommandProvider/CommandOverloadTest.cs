@@ -1,4 +1,4 @@
-﻿using Cocona.Command;
+using Cocona.Command;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
