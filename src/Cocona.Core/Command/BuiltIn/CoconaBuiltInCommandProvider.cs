@@ -20,7 +20,7 @@ namespace Cocona.Command.BuiltIn
             return _cachedCommandCollection ??= GetWrappedCommandCollection(_underlyingCommandProvider.GetCommandCollection());
         }
 
-        private CommandCollection GetWrappedCommandCollection(CommandCollection commandCollection)
+        private CommandCollection GetWrappedCommandCollection(CommandCollection commandCollection, int depth = 0)
         {
             var commands = commandCollection.All;
 
@@ -41,18 +41,18 @@ namespace Cocona.Command.BuiltIn
                     command.Aliases,
                     command.Description,
                     command.Parameters,
-                    GetParametersWithBuiltInOptions(command.Options, command.IsPrimaryCommand),
+                    GetParametersWithBuiltInOptions(command.Options, command.IsPrimaryCommand, depth != 0),
                     command.Arguments,
                     command.Overloads,
                     command.Flags,
-                    (command.SubCommands != null && command.SubCommands != commandCollection) ? GetWrappedCommandCollection(command.SubCommands) : command.SubCommands
+                    (command.SubCommands != null && command.SubCommands != commandCollection) ? GetWrappedCommandCollection(command.SubCommands, depth + 1) : command.SubCommands
                 );
             }
 
             return new CommandCollection(newCommands);
         }
 
-        private IReadOnlyList<CommandOptionDescriptor> GetParametersWithBuiltInOptions(IReadOnlyList<CommandOptionDescriptor> options, bool isPrimaryCommand)
+        private IReadOnlyList<CommandOptionDescriptor> GetParametersWithBuiltInOptions(IReadOnlyList<CommandOptionDescriptor> options, bool isPrimaryCommand, bool isNestedSubCommand)
         {
             var hasHelp = options.Any(x => string.Equals(x.Name, "help", StringComparison.OrdinalIgnoreCase) || x.ShortName.Any(x => x == 'h'));
             var hasVersion = options.Any(x => string.Equals(x.Name, "version", StringComparison.OrdinalIgnoreCase));
@@ -63,7 +63,7 @@ namespace Cocona.Command.BuiltIn
             {
                 newOptions = newOptions.Concat(new[] { BuiltInCommandOption.Help });
             }
-            if (!hasVersion && isPrimaryCommand)
+            if (!hasVersion && isPrimaryCommand && !isNestedSubCommand)
             {
                 newOptions = newOptions.Concat(new[] { BuiltInCommandOption.Version });
             }

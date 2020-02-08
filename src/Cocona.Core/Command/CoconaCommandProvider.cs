@@ -34,6 +34,7 @@ namespace Cocona.Command
         {
             var commandMethods = new List<MethodInfo>(10);
             var overloadCommandMethods = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(10);
+            var subCommandStubs = new List<CommandDescriptor>();
 
             // Command types
             foreach (var type in targetTypes)
@@ -69,6 +70,37 @@ namespace Cocona.Command
                         commandMethods.Add(method);
                     }
                 }
+
+                // Nested sub-commands
+                var subCommandsAttrs = type.GetCustomAttributes<SubCommandsAttribute>();
+                foreach (var subCommandsAttr in subCommandsAttrs)
+                {
+                    if (subCommandsAttr.Type == type) throw new InvalidOperationException("Sub-commands type must not be same as command type.");
+
+                    var subCommands = GetCommandCollectionCore(new[] { subCommandsAttr.Type });
+                    var commandName = subCommandsAttr.Type.Name;
+                    if (!string.IsNullOrWhiteSpace(subCommandsAttr.CommandName))
+                    {
+                        commandName = subCommandsAttr.CommandName!;
+                    }
+
+                    if (_enableConvertCommandNameToLowerCase) commandName = ToCommandCase(commandName);
+
+                    var dummyMethod = ((Action)(() => { })).Method;
+                    var command = new CommandDescriptor(
+                        dummyMethod,
+                        commandName,
+                        Array.Empty<string>(),
+                        subCommandsAttr.Description ?? subCommands.Description,
+                        Array.Empty<ICommandParameterDescriptor>(),
+                        Array.Empty<CommandOptionDescriptor>(),
+                        Array.Empty<CommandArgumentDescriptor>(),
+                        Array.Empty<CommandOverloadDescriptor>(),
+                        CommandFlags.SubCommandsEntryPoint,
+                        subCommands
+                    );
+                    subCommandStubs.Add(command);
+                }
             }
 
             var hasMultipleCommand = commandMethods.Count > 1;
@@ -98,6 +130,8 @@ namespace Cocona.Command
                 commands.Add(command);
             }
 
+            commands.AddRange(subCommandStubs);
+
             return new CommandCollection(commands);
         }
 
@@ -108,8 +142,8 @@ namespace Cocona.Command
             ThrowHelper.ArgumentNull(methodInfo, nameof(methodInfo));
 
             // Collect Method attributes
-            var (commandAttr, primaryCommandAttr, commandHiddenAttr, subCommandsAttr)
-                = AttributeHelper.GetAttributes<CommandAttribute, PrimaryCommandAttribute, HiddenAttribute, SubCommandsAttribute>(methodInfo.GetCustomAttributes(typeof(Attribute), true));
+            var (commandAttr, primaryCommandAttr, commandHiddenAttr)
+                = AttributeHelper.GetAttributes<CommandAttribute, PrimaryCommandAttribute, HiddenAttribute>(methodInfo.GetCustomAttributes(typeof(Attribute), true));
 
             var commandName = commandAttr?.Name ?? methodInfo.Name;
             var description = commandAttr?.Description ?? string.Empty;
@@ -250,20 +284,8 @@ namespace Cocona.Command
             
             if (_enableConvertCommandNameToLowerCase) commandName = ToCommandCase(commandName);
 
-            // Nested sub commands
-            var subCommands = default(CommandCollection);
-            if (subCommandsAttr != null)
-            {
-                subCommands = GetCommandCollectionCore(new[] { subCommandsAttr.Type });
-                if (!string.IsNullOrWhiteSpace(subCommandsAttr.CommandName))
-                {
-                    commandName = subCommandsAttr.CommandName!;
-                }
-            }
-
             var flags = ((isHidden) ? CommandFlags.Hidden : CommandFlags.None) |
-                        ((isSingleCommand || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None) |
-                        (subCommands != null ? CommandFlags.SubCommandPrimary : CommandFlags.None);
+                        ((isSingleCommand || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None);
 
             var options = new CommandOptionDescriptor[allOptions.Count];
             allOptions.Values.CopyTo(options, 0);
@@ -278,7 +300,7 @@ namespace Cocona.Command
                 arguments,
                 overloadDescriptors,
                 flags,
-                subCommands
+                null
             );
         }
 

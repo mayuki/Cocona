@@ -60,6 +60,6 @@ namespace Cocona.Command
         None = 0,
         Primary = 1 << 0,
         Hidden = 1 << 1,
-        SubCommandPrimary = 1 << 2,
+        SubCommandsEntryPoint = 1 << 2,
     }
 }
