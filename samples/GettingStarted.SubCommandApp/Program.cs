@@ -34,6 +34,12 @@ namespace CoconaSample.GettingStarted.SubCommandApp
             Console.WriteLine("Konnichiwa!");
         }
 
+        [PrimaryCommand]
+        public void Primary(string nantoka)
+        {
+            Console.WriteLine($"nantoka={nantoka}");
+        }
+
         [SubCommands(typeof(SubSubCommands))]
         public void SubSubCommand()
         {

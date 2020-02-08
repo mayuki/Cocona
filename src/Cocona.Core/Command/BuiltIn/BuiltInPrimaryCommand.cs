@@ -45,8 +45,8 @@ namespace Cocona.Command.BuiltIn
 
         private void ShowDefaultMessage()
         {
-            var commandStack = _appContext.Current?.Features.Get<ICoconaNestedCommandFeature>()?.CommandStack;
-            var commandCollection = commandStack?.LastOrDefault()?.SubCommands ?? _commandProvider.GetCommandCollection();
+            var commandStack = _appContext.Current!.Features.Get<ICoconaCommandFeature>().CommandStack!;
+            var commandCollection = commandStack.LastOrDefault()?.SubCommands ?? _commandProvider.GetCommandCollection();
             _console.Output.Write(_helpRenderer.Render(_commandHelpProvider.CreateCommandsIndexHelp(commandCollection, commandStack)));
         }
 

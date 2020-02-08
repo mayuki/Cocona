@@ -108,7 +108,8 @@ namespace Cocona.Command.Dispatcher
                                 GetRequiredService<ICoconaHelpRenderer>(_serviceProvider),
                                 GetRequiredService<ICoconaCommandHelpProvider>(_serviceProvider),
                                 GetRequiredService<ICoconaCommandProvider>(_serviceProvider),
-                                GetRequiredService<ICoconaConsoleProvider>(_serviceProvider));
+                                GetRequiredService<ICoconaConsoleProvider>(_serviceProvider),
+                                GetRequiredService<ICoconaAppContextAccessor>(_serviceProvider));
                             next = m.DispatchAsync;
                             continue;
                         }

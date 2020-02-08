@@ -48,8 +48,8 @@ namespace Cocona.Command
                     if (method.IsSpecialName || method.DeclaringType == typeof(object)) continue;
                     if (!_treatPublicMethodsAsCommands && !method.IsPublic) continue;
 
-                    var (commandAttr, primaryCommandAttr, ignoreAttribute, commandOverloadAttr, subCommandsAttr)
-                        = AttributeHelper.GetAttributes<CommandAttribute, PrimaryCommandAttribute, IgnoreAttribute, CommandOverloadAttribute, SubCommandsAttribute>(
+                    var (commandAttr, primaryCommandAttr, ignoreAttribute, commandOverloadAttr)
+                        = AttributeHelper.GetAttributes<CommandAttribute, PrimaryCommandAttribute, IgnoreAttribute, CommandOverloadAttribute>(
                             method.GetCustomAttributes(typeof(Attribute), true));
 
                     if ((_treatPublicMethodsAsCommands && method.IsPublic) || commandAttr != null || primaryCommandAttr != null)

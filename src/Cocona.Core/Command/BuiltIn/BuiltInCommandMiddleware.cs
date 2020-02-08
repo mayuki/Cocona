@@ -34,13 +34,12 @@ namespace Cocona.Command.BuiltIn
             var hasHelpOption = ctx.ParsedCommandLine.Options.Any(x => x.Option == BuiltInCommandOption.Help);
             if (hasHelpOption)
             {
-                var feature = _appContext.Current?.Features.Get<ICoconaCommandFeature>();
-                var commandCollection = feature?.CommandCollection
-                                        ?? _commandProvider.GetCommandCollection();
+                var feature = _appContext.Current!.Features.Get<ICoconaCommandFeature>()!;
+                var commandCollection = feature.CommandCollection ?? _commandProvider.GetCommandCollection();
 
                 var help = (ctx.Command.IsPrimaryCommand)
-                    ? _commandHelpProvider.CreateCommandsIndexHelp(commandCollection, feature)
-                    : _commandHelpProvider.CreateCommandHelp(ctx.Command);
+                    ? _commandHelpProvider.CreateCommandsIndexHelp(commandCollection, feature.CommandStack)
+                    : _commandHelpProvider.CreateCommandHelp(ctx.Command, feature.CommandStack);
 
                 _console.Output.Write(_helpRenderer.Render(help));
                 return new ValueTask<int>(129);
