@@ -240,5 +240,68 @@ namespace Cocona.Test.Integration
         {
             public void FooBar() { }
         }
+
+        [Fact]
+        public void CoconaApp_Run_Nested()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested>(new string[] { "nested", "hello", "Karen" });
+
+            stdOut.Should().Contain("Hello Karen");
+            stdErr.Should().BeEmpty();
+            exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public void CoconaApp_Run_Nested_CommandHelp()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested>(new string[] { "nested", "hello", "--help" });
+
+            stdOut.Should().Contain("Usage:");
+            stdOut.Should().Contain(" nested hello [--help] arg0");
+            stdOut.Should().Contain("Arguments:");
+        }
+
+        [Fact]
+        public void CoconaApp_Run_Nested_Index_0()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested>(new string[] { });
+
+            stdOut.Should().Contain("Usage:");
+            stdOut.Should().Contain("Commands:");
+            stdOut.Should().Contain("  konnichiwa");
+            stdOut.Should().Contain("  nested");
+        }
+
+        [Fact]
+        public void CoconaApp_Run_Nested_Index_1()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested>(new string[] { "nested" });
+
+            stdOut.Should().Contain("Usage:");
+            stdOut.Should().Contain("Commands:");
+            stdOut.Should().Contain("  hello");
+            stdOut.Should().Contain("  bye");
+        }
+
+        [HasSubCommands(typeof(Nested))]
+        class TestCommand_Nested
+        {
+            public void Konnichiwa()
+            {
+                Console.WriteLine("Konnichiwa");
+            }
+
+            class Nested
+            {
+                public void Hello([Argument] string arg0)
+                {
+                    Console.WriteLine($"Hello {arg0}");
+                }
+                public void Bye([Argument] string arg0)
+                {
+                    Console.WriteLine($"Bye {arg0}");
+                }
+            }
+        }
     }
 }

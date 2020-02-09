@@ -74,7 +74,7 @@ namespace Cocona.Test.Help
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), CreateServiceProvider());
-            var help = provider.CreateCommandHelp(commandDescriptor);
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName A
@@ -95,7 +95,7 @@ Hello, Konnichiwa!
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), CreateServiceProvider());
-            var help = provider.CreateCommandHelp(commandDescriptor);
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName A
@@ -116,7 +116,7 @@ Hi!
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), CreateServiceProvider());
-            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }), Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName
@@ -147,7 +147,7 @@ Hello, Konnichiwa!
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), CreateServiceProvider());
-            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor1, commandDescriptor2 }));
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor1, commandDescriptor2 }), Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName [command]
@@ -182,7 +182,7 @@ Hello, Konnichiwa!
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), CreateServiceProvider());
-            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor1, commandDescriptor2 }));
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor1, commandDescriptor2 }), Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName [command]
