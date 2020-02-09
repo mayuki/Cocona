@@ -8,6 +8,18 @@
     <NoWarn>1701;1702;CS1998</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;COCONA_LITE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;COCONA_LITE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Cocona.Test\Integration\EndToEndTest.cs" Link="Integration\EndToEndTest.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
@@ -18,6 +30,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Cocona.Lite\Cocona.Lite.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Integration\" />
   </ItemGroup>
 
 </Project>

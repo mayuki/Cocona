@@ -7,8 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cocona.Application;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+
+#if COCONA_LITE
+using CoconaApp = Cocona.CoconaLiteApp;
+#endif
 
 namespace Cocona.Test.Integration
 {
