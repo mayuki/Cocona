@@ -8,7 +8,7 @@ namespace Cocona
     /// Specifies a class has a nested sub-commands.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    public class SubCommandsAttribute : Attribute
+    public class HasSubCommandsAttribute : Attribute
     {
         /// <summary>
         ///  Gets the sub-commands collection type.
@@ -25,7 +25,7 @@ namespace Cocona
         /// </summary>
         public string? Description { get; set; }
 
-        public SubCommandsAttribute(Type commandsType, string? commandName = null)
+        public HasSubCommandsAttribute(Type commandsType, string? commandName = null)
         {
             Type = commandsType ?? throw new ArgumentNullException(nameof(commandsType));
             CommandName = commandName;

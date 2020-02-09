@@ -120,21 +120,14 @@ namespace Cocona.Help
 
             // Usage
             var usageSection = new HelpSection(HelpSectionId.Usage);
-            if (subCommandStack.Count > 0)
+            var subCommandParams = (subCommandStack.Count > 0) ? string.Join(" ", subCommandStack.Select(x => x.Name)) + " " : "";
+            if (commandCollection.All.Count != 1)
             {
-                // Nested sub-command
-                usageSection.Children.Add(new HelpUsage($"Usage: {_applicationMetadataProvider.GetExecutableName()} {string.Join(" ", subCommandStack.Select(x => x.Name))} [command]"));
+                usageSection.Children.Add(new HelpUsage($"Usage: {_applicationMetadataProvider.GetExecutableName()} {subCommandParams}[command]"));
             }
-            else
+            if (commandCollection.Primary != null && (commandCollection.All.Count == 1 || commandCollection.Primary.Options.Any() || commandCollection.Primary.Arguments.Any()))
             {
-                if (commandCollection.All.Count != 1)
-                {
-                    usageSection.Children.Add(new HelpUsage($"Usage: {_applicationMetadataProvider.GetExecutableName()} [command]"));
-                }
-                if (commandCollection.Primary != null && (commandCollection.All.Count == 1 || commandCollection.Primary.Options.Any() || commandCollection.Primary.Arguments.Any()))
-                {
-                    usageSection.Children.Add(new HelpUsage($"Usage: {CreateUsageCommandOptionsAndArgs(commandCollection.Primary, subCommandStack)}"));
-                }
+                usageSection.Children.Add(new HelpUsage($"Usage: {CreateUsageCommandOptionsAndArgs(commandCollection.Primary, subCommandStack)}"));
             }
             help.Children.Add(usageSection);
 

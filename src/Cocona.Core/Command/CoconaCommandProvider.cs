@@ -34,7 +34,7 @@ namespace Cocona.Command
         {
             var commandMethods = new List<MethodInfo>(10);
             var overloadCommandMethods = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(10);
-            var subCommandStubs = new List<CommandDescriptor>();
+            var subCommandEntryPoints = new List<CommandDescriptor>();
 
             // Command types
             foreach (var type in targetTypes)
@@ -66,13 +66,15 @@ namespace Cocona.Command
                             }
                             overloads.Add((method, commandOverloadAttr));
                         }
-
-                        commandMethods.Add(method);
+                        else
+                        {
+                            commandMethods.Add(method);
+                        }
                     }
                 }
 
                 // Nested sub-commands
-                var subCommandsAttrs = type.GetCustomAttributes<SubCommandsAttribute>();
+                var subCommandsAttrs = type.GetCustomAttributes<HasSubCommandsAttribute>();
                 foreach (var subCommandsAttr in subCommandsAttrs)
                 {
                     if (subCommandsAttr.Type == type) throw new InvalidOperationException("Sub-commands type must not be same as command type.");
@@ -99,11 +101,11 @@ namespace Cocona.Command
                         CommandFlags.SubCommandsEntryPoint,
                         subCommands
                     );
-                    subCommandStubs.Add(command);
+                    subCommandEntryPoints.Add(command);
                 }
             }
 
-            var hasMultipleCommand = commandMethods.Count > 1;
+            var hasMultipleCommand = commandMethods.Count > 1 || subCommandEntryPoints.Count != 0;
             var commandNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var commands = new List<CommandDescriptor>(commandMethods.Count);
             foreach (var commandMethod in commandMethods)
@@ -130,7 +132,7 @@ namespace Cocona.Command
                 commands.Add(command);
             }
 
-            commands.AddRange(subCommandStubs);
+            commands.AddRange(subCommandEntryPoints);
 
             return new CommandCollection(commands);
         }

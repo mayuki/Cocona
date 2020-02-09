@@ -50,7 +50,12 @@ namespace Cocona.Command.Dispatcher
 
             Retry:
             var matchedCommand = default(CommandDescriptor);
-            if (commandCollection.All.Count > 1)
+            if (commandCollection.All.Count == 1 && !commandCollection.All[0].Flags.HasFlag(CommandFlags.SubCommandsEntryPoint))
+            {
+                // single-command style
+                matchedCommand = commandCollection.All[0];
+            }
+            else if (commandCollection.All.Count > 0)
             {
                 // multi-commands hosted style
                 if (_commandLineParser.TryGetCommandName(args, out var commandName))
@@ -79,14 +84,6 @@ namespace Cocona.Command.Dispatcher
                 {
                     // Use default command (NOTE: The default command must have no argument.)
                     matchedCommand = commandCollection.Primary ?? throw new CommandNotFoundException("", commandCollection, "A primary command was not found.");
-                }
-            }
-            else
-            {
-                // single-command style
-                if (commandCollection.All.Any())
-                {
-                    matchedCommand = commandCollection.All[0];
                 }
             }
 
