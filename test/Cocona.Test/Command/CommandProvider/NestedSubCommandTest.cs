@@ -180,5 +180,38 @@ namespace Cocona.Test.Command.CommandProvider
                 { }
             }
         }
+
+        [Fact]
+        public void HasManyNestedCommands()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(TestCommand_HasManyNestedCommands) });
+            var commands = provider.GetCommandCollection();
+            commands.All.Should().HaveCount(4);
+            commands.All[2].SubCommands.Should().NotBeNull(); // Hello, SubCommand, NestedSubCommand
+            commands.All[2].Name.Should().Be("nested1");
+            commands.All[2].Flags.Should().Be(CommandFlags.SubCommandsEntryPoint);
+            commands.All[3].SubCommands.Should().NotBeNull(); // Hello, SubCommand, NestedSubCommand
+            commands.All[3].Name.Should().Be("nested2");
+            commands.All[3].Flags.Should().Be(CommandFlags.SubCommandsEntryPoint);
+        }
+
+        [HasSubCommands(typeof(NestedSubCommand), "nested1")]
+        [HasSubCommands(typeof(NestedSubCommand), "nested2")]
+        class TestCommand_HasManyNestedCommands
+        {
+            public void Hello()
+            { }
+
+            public void SubCommand()
+            { }
+
+            class NestedSubCommand
+            {
+                public void SubSubCommand1()
+                { }
+                public void SubSubCommand2()
+                { }
+            }
+        }
     }
 }
