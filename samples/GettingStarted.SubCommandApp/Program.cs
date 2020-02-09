@@ -3,6 +3,7 @@ using Cocona;
 
 namespace CoconaSample.GettingStarted.SubCommandApp
 {
+    [HasSubCommands(typeof(SubCommands), Description = "Nested sub-commands")]
     class Program
     {
         static void Main(string[] args)
@@ -21,12 +22,10 @@ namespace CoconaSample.GettingStarted.SubCommandApp
         {
             Console.WriteLine($"Goodbye {(toLowerCase ? name.ToLower() : name)}!");
         }
-
-        [SubCommands(typeof(SubCommands))]
-        public void SubCommand()
-        { }
     }
 
+    // ./myapp sub-commands [command]
+    [HasSubCommands(typeof(SubSubCommands))]
     class SubCommands
     {
         public void Konnichiwa()
@@ -34,23 +33,24 @@ namespace CoconaSample.GettingStarted.SubCommandApp
             Console.WriteLine("Konnichiwa!");
         }
 
-        [PrimaryCommand]
-        public void Primary(string nantoka)
+        public void Hello()
         {
-            Console.WriteLine($"nantoka={nantoka}");
-        }
-
-        [SubCommands(typeof(SubSubCommands))]
-        public void SubSubCommand()
-        {
+            Console.WriteLine("Hello!");
         }
     }
 
+    // ./myapp sub-commands sub-sub-commands [command]
     class SubSubCommands
     {
-        public void Hauhau()
+        public void Foobar()
         {
-            Console.WriteLine("Hauhau!");
+            Console.WriteLine("Foobar!");
+        }
+
+        [PrimaryCommand]
+        public void Primary(string value)
+        {
+            Console.WriteLine($"value={value}");
         }
     }
 }
