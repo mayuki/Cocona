@@ -248,6 +248,65 @@ Similar commands:
 
 - See also: [CoconaSample.GettingStarted.SubCommandApp](samples/GettingStarted.SubCommandApp)
 
+##### Nested sub-commands
+
+Cocona also supports nested sub-commands. Specify the class that has nested sub-commands using `HasSubCommands` attribute.
+
+```csharp
+[HasSubCommands(typeof(Server), Description = "Server commands")]
+[HasSubCommands(typeof(Client), Description = "Client commands")]
+class Program
+{
+    static void Main(string[] args) => CoconaApp.Run<Program>(args);
+
+    // ./myapp info
+    public void Info() => Console.WriteLine("Show information");
+}
+
+// ./myapp server [command]
+class Server
+{
+    public void Start() => Console.WriteLine("Start");
+    public void Stop() => Console.WriteLine("Stop");
+}
+
+// ./myapp client [command]
+class Client
+{
+    public void Connect() => Console.WriteLine("Connect");
+    public void Disconnect() => Console.WriteLine("Disconnect");
+}
+```
+```bash
+$ ./SubCommandApp
+Usage: SubCommandApp [command]
+Usage: SubCommandApp [--help] [--version]
+
+SubCommandApp
+
+Commands:
+  info
+  server    Server commands
+  client    Client commands
+
+Options:
+  -h, --help    Show help message
+  --version     Show version
+
+$ ./SubCommandApp
+Usage: SubCommandApp server [command]
+Usage: SubCommandApp server [--help]
+
+SubCommandApp
+
+Commands:
+  start
+  stop
+
+Options:
+  -h, --help    Show help message
+```
+
 #### PrimaryCommand
 ```csharp
 [PrimaryCommand]
