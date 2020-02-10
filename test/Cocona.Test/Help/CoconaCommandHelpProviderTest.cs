@@ -41,7 +41,8 @@ namespace Cocona.Test.Help
                 parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
                 parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),
                 Array.Empty<CommandOverloadDescriptor>(),
-                flags
+                flags,
+                null
             );
         }
 
@@ -73,7 +74,7 @@ namespace Cocona.Test.Help
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandHelp(commandDescriptor);
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
         }
 
@@ -92,7 +93,7 @@ namespace Cocona.Test.Help
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }), Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName [--foo <String>] [--looooooong-option]
@@ -120,7 +121,7 @@ Options:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }), Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName [--foo <String>] [--looooooong-option]
@@ -146,7 +147,7 @@ Options:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider() { Description = "via metadata" }, new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }), Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName [--foo <String>] [--looooooong-option]
@@ -170,7 +171,7 @@ Options:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider() { Description = "via metadata" }, new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }), Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName
@@ -193,10 +194,38 @@ via metadata
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandHelp(commandDescriptor);
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName Test [--foo <String>] [--looooooong-option]
+
+command description
+
+Options:
+  -f, --foo <String>         Foo option (Required)
+  -l, --looooooong-option    Long name option
+".TrimStart());
+        }
+
+        [Fact]
+        public void CommandHelp_Nested_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new ICommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                }
+            );
+
+            var subCommandStack = new[] { CreateCommand("Nested", "", Array.Empty<ICommandParameterDescriptor>()) };
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandHelp(commandDescriptor, subCommandStack);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName Nested Test [--foo <String>] [--looooooong-option]
 
 command description
 
@@ -222,7 +251,7 @@ Options:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandHelp(commandDescriptor);
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName Test [--foo <String>] [--looooooong-option] src0 ... srcN dest
@@ -254,10 +283,39 @@ Options:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }), Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName [--foo <String>] [--looooooong-option]
+
+command description
+
+Options:
+  -f, --foo <String>         Foo option (Required)
+  -l, --looooooong-option    Long name option
+".TrimStart());
+        }
+
+        [Fact]
+        public void CreateCommandsIndexHelp_Nested_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new ICommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                },
+                CommandFlags.Primary
+            );
+
+            var subCommandStack = new[] {CreateCommand("Nested", "", Array.Empty<ICommandParameterDescriptor>())};
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }), subCommandStack);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName Nested [--foo <String>] [--looooooong-option]
 
 command description
 
@@ -283,7 +341,7 @@ Options:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }));
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }), Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName [--foo <String>] [--looooooong-option] arg0
@@ -321,11 +379,52 @@ Options:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor2 }));
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor2 }), Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName [command]
 Usage: ExeName [--foo <String>] [--looooooong-option] [--bar <Int32>]
+
+command description
+
+Commands:
+  Test2    command2 description
+
+Options:
+  -f, --foo <String>         Foo option (Required)
+  -l, --looooooong-option    Long name option
+  -b, --bar <Int32>          has default value (Default: 123)
+".TrimStart());
+        }
+
+        [Fact]
+        public void CreateCommandsIndexHelp_Nested_Commands_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new ICommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "foo", new [] { 'f' }, "Foo option", CoconaDefaultValue.None),
+                    CreateCommandOption(typeof(bool), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(int), "bar", new [] { 'b' }, "has default value", new CoconaDefaultValue(123)),
+                },
+                CommandFlags.Primary
+            );
+            var commandDescriptor2 = CreateCommand(
+                "Test2",
+                "command2 description",
+                new ICommandParameterDescriptor[0],
+                CommandFlags.None
+            );
+
+            var subCommandStack = new[] { CreateCommand("Nested", "", Array.Empty<ICommandParameterDescriptor>()) };
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor2 }), subCommandStack);
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName Nested [command]
+Usage: ExeName Nested [--foo <String>] [--looooooong-option] [--bar <Int32>]
 
 command description
 
@@ -356,7 +455,7 @@ Options:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor2 }));
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor2 }), Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName [command]
@@ -385,7 +484,7 @@ Commands:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor2 }));
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor, commandDescriptor2 }), Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName [command]
@@ -408,7 +507,7 @@ Commands:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandHelp(commandDescriptor);
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName Test [--enum <CommandHelpEnumValue>]
@@ -433,7 +532,7 @@ Options:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandHelp(commandDescriptor);
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName Test [--flag]
@@ -458,7 +557,7 @@ Options:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandHelp(commandDescriptor);
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName Test [--flag=<true|false>]
@@ -484,7 +583,7 @@ Options:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandHelp(commandDescriptor);
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName Test
@@ -506,7 +605,7 @@ command description
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandHelp(commandDescriptor);
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName Test [--option0 <Int32>...]
@@ -531,7 +630,7 @@ Options:
             );
 
             var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
-            var help = provider.CreateCommandHelp(commandDescriptor);
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
             var text = new CoconaHelpRenderer().Render(help);
             text.Should().Be(@"
 Usage: ExeName Test [--option0 <Int32>...]

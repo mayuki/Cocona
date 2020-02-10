@@ -41,7 +41,8 @@ namespace Cocona.Test.Command.ParameterBinder
                 parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
                 parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),
                 Array.Empty<CommandOverloadDescriptor>(),
-                CommandFlags.None
+                CommandFlags.None,
+                null
             );
         }
 

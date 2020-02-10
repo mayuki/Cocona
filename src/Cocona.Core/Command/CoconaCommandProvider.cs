@@ -14,7 +14,6 @@ namespace Cocona.Command
     {
         private readonly Type[] _targetTypes;
         private static readonly Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> _emptyOverloads = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>();
-        private readonly Lazy<CommandCollection> _commandCollection;
         private readonly bool _treatPublicMethodsAsCommands;
         private readonly bool _enableConvertOptionNameToLowerCase;
         private readonly bool _enableConvertCommandNameToLowerCase;
@@ -22,23 +21,23 @@ namespace Cocona.Command
         public CoconaCommandProvider(Type[] targetTypes, bool treatPublicMethodsAsCommands = true, bool enableConvertOptionNameToLowerCase = false, bool enableConvertCommandNameToLowerCase = false)
         {
             _targetTypes = targetTypes ?? throw new ArgumentNullException(nameof(targetTypes));
-            _commandCollection = new Lazy<CommandCollection>(GetCommandCollectionCore, LazyThreadSafetyMode.None);
             _treatPublicMethodsAsCommands = treatPublicMethodsAsCommands;
             _enableConvertOptionNameToLowerCase = enableConvertOptionNameToLowerCase;
             _enableConvertCommandNameToLowerCase = enableConvertCommandNameToLowerCase;
         }
 
         public CommandCollection GetCommandCollection()
-            => _commandCollection.Value;
+            => GetCommandCollectionCore(_targetTypes);
 
         [MethodImpl(MethodImplOptions.NoOptimization)]
-        private CommandCollection GetCommandCollectionCore()
+        private CommandCollection GetCommandCollectionCore(IReadOnlyList<Type> targetTypes)
         {
             var commandMethods = new List<MethodInfo>(10);
             var overloadCommandMethods = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(10);
+            var subCommandEntryPoints = new List<CommandDescriptor>();
 
             // Command types
-            foreach (var type in _targetTypes)
+            foreach (var type in targetTypes)
             {
                 if (type.IsAbstract || (type.IsGenericType && type.IsConstructedGenericType)) continue;
 
@@ -73,9 +72,40 @@ namespace Cocona.Command
                         }
                     }
                 }
+
+                // Nested sub-commands
+                var subCommandsAttrs = type.GetCustomAttributes<HasSubCommandsAttribute>();
+                foreach (var subCommandsAttr in subCommandsAttrs)
+                {
+                    if (subCommandsAttr.Type == type) throw new InvalidOperationException("Sub-commands type must not be same as command type.");
+
+                    var subCommands = GetCommandCollectionCore(new[] { subCommandsAttr.Type });
+                    var commandName = subCommandsAttr.Type.Name;
+                    if (!string.IsNullOrWhiteSpace(subCommandsAttr.CommandName))
+                    {
+                        commandName = subCommandsAttr.CommandName!;
+                    }
+
+                    if (_enableConvertCommandNameToLowerCase) commandName = ToCommandCase(commandName);
+
+                    var dummyMethod = ((Action)(() => { })).Method;
+                    var command = new CommandDescriptor(
+                        dummyMethod,
+                        commandName,
+                        Array.Empty<string>(),
+                        subCommandsAttr.Description ?? subCommands.Description,
+                        Array.Empty<ICommandParameterDescriptor>(),
+                        Array.Empty<CommandOptionDescriptor>(),
+                        Array.Empty<CommandArgumentDescriptor>(),
+                        Array.Empty<CommandOverloadDescriptor>(),
+                        CommandFlags.SubCommandsEntryPoint,
+                        subCommands
+                    );
+                    subCommandEntryPoints.Add(command);
+                }
             }
 
-            var hasMultipleCommand = commandMethods.Count > 1;
+            var hasMultipleCommand = commandMethods.Count > 1 || subCommandEntryPoints.Count != 0;
             var commandNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var commands = new List<CommandDescriptor>(commandMethods.Count);
             foreach (var commandMethod in commandMethods)
@@ -101,6 +131,8 @@ namespace Cocona.Command
 
                 commands.Add(command);
             }
+
+            commands.AddRange(subCommandEntryPoints);
 
             return new CommandCollection(commands);
         }
@@ -269,7 +301,8 @@ namespace Cocona.Command
                 options,
                 arguments,
                 overloadDescriptors,
-                flags
+                flags,
+                null
             );
         }
 

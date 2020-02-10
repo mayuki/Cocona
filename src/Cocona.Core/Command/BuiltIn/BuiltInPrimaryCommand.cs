@@ -2,21 +2,25 @@ using Cocona.Application;
 using Cocona.Help;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using Cocona.Command.Features;
 
 namespace Cocona.Command.BuiltIn
 {
     public class BuiltInPrimaryCommand
     {
+        private readonly ICoconaAppContextAccessor _appContext;
         private readonly ICoconaConsoleProvider _console;
         private readonly ICoconaCommandHelpProvider _commandHelpProvider;
         private readonly ICoconaHelpRenderer _helpRenderer;
         private readonly ICoconaCommandProvider _commandProvider;
         private static readonly MethodInfo _methodShowDefaultMessage = typeof(BuiltInPrimaryCommand).GetMethod(nameof(ShowDefaultMessage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
-        public BuiltInPrimaryCommand(ICoconaConsoleProvider console, ICoconaCommandHelpProvider commandHelpProvider, ICoconaHelpRenderer helpRenderer, ICoconaCommandProvider commandProvider)
+        public BuiltInPrimaryCommand(ICoconaAppContextAccessor appContext, ICoconaConsoleProvider console, ICoconaCommandHelpProvider commandHelpProvider, ICoconaHelpRenderer helpRenderer, ICoconaCommandProvider commandProvider)
         {
+            _appContext = appContext;
             _console = console;
             _commandHelpProvider = commandHelpProvider;
             _helpRenderer = helpRenderer;
@@ -34,13 +38,16 @@ namespace Cocona.Command.BuiltIn
                 Array.Empty<CommandOptionDescriptor>(),
                 Array.Empty<CommandArgumentDescriptor>(),
                 Array.Empty<CommandOverloadDescriptor>(),
-                CommandFlags.Primary
+                CommandFlags.Primary,
+                null
             );
         }
 
         private void ShowDefaultMessage()
         {
-            _console.Output.Write(_helpRenderer.Render(_commandHelpProvider.CreateCommandsIndexHelp(_commandProvider.GetCommandCollection())));
+            var commandStack = _appContext.Current!.Features.Get<ICoconaCommandFeature>().CommandStack!;
+            var commandCollection = commandStack.LastOrDefault()?.SubCommands ?? _commandProvider.GetCommandCollection();
+            _console.Output.Write(_helpRenderer.Render(_commandHelpProvider.CreateCommandsIndexHelp(commandCollection, commandStack)));
         }
 
         public static bool IsBuiltInCommand(CommandDescriptor command)

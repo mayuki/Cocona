@@ -38,6 +38,14 @@ namespace Cocona.Test.Command.CommandDispatcher
 
             services.AddSingleton<TestCommand>();
             services.AddSingleton<TestMultipleCommand>();
+            services.AddSingleton<TestNestedCommand>();
+            services.AddSingleton<TestNestedCommand.TestNestedCommand_Nested>();
+            services.AddSingleton<TestNestedCommand_Primary>();
+            services.AddSingleton<TestNestedCommand_Primary.TestNestedCommand_Primary_Nested>();
+            services.AddSingleton<TestDeepNestedCommand>();
+            services.AddSingleton<TestDeepNestedCommand.TestDeepNestedCommand_Nested>();
+            services.AddSingleton<TestDeepNestedCommand.TestDeepNestedCommand_Nested_2>();
+
             return services;
         }
 
@@ -110,6 +118,68 @@ namespace Cocona.Test.Command.CommandDispatcher
             ex.ImplementedCommands.Primary.Should().BeNull();
         }
 
+        [Fact]
+        public async Task NestedCommand_TopLevel()
+        {
+            var services = CreateDefaultServices<TestNestedCommand>(new string[] { "A" });
+            var serviceProvider = services.BuildServiceProvider();
+
+            var nestedCommand = serviceProvider.GetService<TestNestedCommand>();
+            var nestedCommandNested = serviceProvider.GetService<TestNestedCommand.TestNestedCommand_Nested>();
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var result = await dispatcher.DispatchAsync();
+
+            nestedCommand.Log.Should().Contain("A");
+            nestedCommandNested.Log.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task NestedCommand_Nested()
+        {
+            var services = CreateDefaultServices<TestNestedCommand>(new string[] { "TestNestedCommand_Nested", "B" });
+            var serviceProvider = services.BuildServiceProvider();
+
+            var nestedCommand = serviceProvider.GetService<TestNestedCommand>();
+            var nestedCommandNested = serviceProvider.GetService<TestNestedCommand.TestNestedCommand_Nested>();
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var result = await dispatcher.DispatchAsync();
+
+            nestedCommand.Log.Should().BeEmpty();
+            nestedCommandNested.Log.Should().Contain("B");
+        }
+
+        [Fact]
+        public async Task NestedCommand_Primary()
+        {
+            var services = CreateDefaultServices<TestNestedCommand_Primary>(new string[] { "TestNestedCommand_Primary_Nested" });
+            var serviceProvider = services.BuildServiceProvider();
+
+            var nestedCommand = serviceProvider.GetService<TestNestedCommand_Primary>();
+            var nestedCommandNested = serviceProvider.GetService<TestNestedCommand_Primary.TestNestedCommand_Primary_Nested>();
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var result = await dispatcher.DispatchAsync();
+
+            nestedCommand.Log.Should().BeEmpty();
+            nestedCommandNested.Log.Should().Contain("B");
+        }
+
+        [Fact]
+        public async Task DeepNestedCommand()
+        {
+            var services = CreateDefaultServices<TestDeepNestedCommand>(new string[] { "TestDeepNestedCommand_Nested", "TestDeepNestedCommand_Nested_2", "C" });
+            var serviceProvider = services.BuildServiceProvider();
+
+            var nestedCommand = serviceProvider.GetService<TestDeepNestedCommand>();
+            var nestedCommandNested = serviceProvider.GetService<TestDeepNestedCommand.TestDeepNestedCommand_Nested>();
+            var nestedCommandNested2 = serviceProvider.GetService<TestDeepNestedCommand.TestDeepNestedCommand_Nested_2>();
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var result = await dispatcher.DispatchAsync();
+
+            nestedCommand.Log.Should().BeEmpty();
+            nestedCommandNested.Log.Should().BeEmpty();
+            nestedCommandNested2.Log.Should().Contain("C");
+        }
+
         public class NoCommand
         { }
 
@@ -150,6 +220,63 @@ namespace Cocona.Test.Command.CommandDispatcher
             public void B(bool option0, [Argument]string arg0)
             {
                 Log.Add($"{nameof(TestMultipleCommand.B)}:{nameof(option0)} -> {option0}");
+            }
+        }
+
+        [HasSubCommands(typeof(TestNestedCommand_Nested))]
+        public class TestNestedCommand
+        {
+            public List<string> Log { get; } = new List<string>();
+
+            public void A() => Log.Add($"{nameof(TestNestedCommand.A)}");
+            public void Dummy() { }
+
+            public class TestNestedCommand_Nested
+            {
+                public List<string> Log { get; } = new List<string>();
+
+                public void B() => Log.Add($"{nameof(TestNestedCommand_Nested.B)}");
+                public void C() => Log.Add($"{nameof(TestNestedCommand_Nested.C)}");
+            }
+        }
+
+
+        [HasSubCommands(typeof(TestNestedCommand_Primary_Nested))]
+        public class TestNestedCommand_Primary
+        {
+            public List<string> Log { get; } = new List<string>();
+
+            public class TestNestedCommand_Primary_Nested
+            {
+                public List<string> Log { get; } = new List<string>();
+
+                public void B() => Log.Add($"{nameof(TestNestedCommand_Primary_Nested.B)}");
+            }
+        }
+
+        [HasSubCommands(typeof(TestDeepNestedCommand_Nested))]
+        public class TestDeepNestedCommand
+        {
+            public List<string> Log { get; } = new List<string>();
+
+            public void A() => Log.Add($"{nameof(TestDeepNestedCommand.A)}");
+            public void Dummy() { }
+
+            [HasSubCommands(typeof(TestDeepNestedCommand_Nested_2))]
+            public class TestDeepNestedCommand_Nested
+            {
+                public List<string> Log { get; } = new List<string>();
+
+                public void B() => Log.Add($"{nameof(TestDeepNestedCommand_Nested.B)}");
+                public void Dummy() { }
+            }
+
+            public class TestDeepNestedCommand_Nested_2
+            {
+                public List<string> Log { get; } = new List<string>();
+
+                public void C() => Log.Add($"{nameof(TestDeepNestedCommand_Nested_2.C)}");
+                public void Dummy() { }
             }
         }
     }

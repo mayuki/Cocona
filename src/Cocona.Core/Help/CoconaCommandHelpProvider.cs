@@ -22,10 +22,16 @@ namespace Cocona.Help
             _serviceProvider = serviceProvider;
         }
 
-        private string CreateUsageCommandOptionsAndArgs(CommandDescriptor command)
+        private string CreateUsageCommandOptionsAndArgs(CommandDescriptor command, IReadOnlyList<CommandDescriptor> subCommandStack)
         {
             var sb = new StringBuilder();
             sb.Append(_applicationMetadataProvider.GetExecutableName());
+
+            if (subCommandStack.Count > 0)
+            {
+                sb.Append(" ");
+                sb.Append(string.Join(" ", subCommandStack.Select(x => x.Name)));
+            }
 
             if (!command.IsPrimaryCommand)
             {
@@ -79,12 +85,12 @@ namespace Cocona.Help
             return sb.ToString();
         }
 
-        public HelpMessage CreateCommandHelp(CommandDescriptor command)
+        public HelpMessage CreateCommandHelp(CommandDescriptor command, IReadOnlyList<CommandDescriptor> subCommandStack)
         {
             var help = new HelpMessage();
 
             // Usage
-            help.Children.Add(new HelpSection(HelpSectionId.Usage, new HelpUsage($"Usage: {CreateUsageCommandOptionsAndArgs(command)}")));
+            help.Children.Add(new HelpSection(HelpSectionId.Usage, new HelpUsage($"Usage: {CreateUsageCommandOptionsAndArgs(command, subCommandStack)}")));
 
             // Description
             if (!string.IsNullOrWhiteSpace(command.Description))
@@ -108,19 +114,20 @@ namespace Cocona.Help
             return help;
         }
 
-        public HelpMessage CreateCommandsIndexHelp(CommandCollection commandCollection)
+        public HelpMessage CreateCommandsIndexHelp(CommandCollection commandCollection, IReadOnlyList<CommandDescriptor> subCommandStack)
         {
             var help = new HelpMessage();
 
             // Usage
             var usageSection = new HelpSection(HelpSectionId.Usage);
+            var subCommandParams = (subCommandStack.Count > 0) ? string.Join(" ", subCommandStack.Select(x => x.Name)) + " " : "";
             if (commandCollection.All.Count != 1)
             {
-                usageSection.Children.Add(new HelpUsage($"Usage: {_applicationMetadataProvider.GetExecutableName()} [command]"));
+                usageSection.Children.Add(new HelpUsage($"Usage: {_applicationMetadataProvider.GetExecutableName()} {subCommandParams}[command]"));
             }
             if (commandCollection.Primary != null && (commandCollection.All.Count == 1 || commandCollection.Primary.Options.Any() || commandCollection.Primary.Arguments.Any()))
             {
-                usageSection.Children.Add(new HelpUsage($"Usage: {CreateUsageCommandOptionsAndArgs(commandCollection.Primary)}"));
+                usageSection.Children.Add(new HelpUsage($"Usage: {CreateUsageCommandOptionsAndArgs(commandCollection.Primary, subCommandStack)}"));
             }
             help.Children.Add(usageSection);
 

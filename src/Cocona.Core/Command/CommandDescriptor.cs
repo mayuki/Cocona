@@ -26,6 +26,8 @@ namespace Cocona.Command
         public IReadOnlyList<CommandArgumentDescriptor> Arguments { get; }
         public IReadOnlyList<CommandOverloadDescriptor> Overloads { get; }
 
+        public CommandCollection? SubCommands { get; }
+
         public CommandDescriptor(
             MethodInfo methodInfo,
             string name,
@@ -35,7 +37,8 @@ namespace Cocona.Command
             IReadOnlyList<CommandOptionDescriptor> options,
             IReadOnlyList<CommandArgumentDescriptor> arguments,
             IReadOnlyList<CommandOverloadDescriptor> overloads,
-            CommandFlags flags
+            CommandFlags flags,
+            CommandCollection? subCommands
         )
         {
             Method = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
@@ -47,6 +50,7 @@ namespace Cocona.Command
             Arguments = arguments ?? throw new ArgumentNullException(nameof(arguments));
             Overloads = overloads ?? throw new ArgumentNullException(nameof(overloads));
             Flags = flags;
+            SubCommands = subCommands;
         }
     }
 
@@ -56,5 +60,6 @@ namespace Cocona.Command
         None = 0,
         Primary = 1 << 0,
         Hidden = 1 << 1,
+        SubCommandsEntryPoint = 1 << 2,
     }
 }

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cocona.Command.Features;
 
 namespace Cocona.Command.BuiltIn
 {
@@ -16,14 +17,16 @@ namespace Cocona.Command.BuiltIn
         private readonly ICoconaCommandHelpProvider _commandHelpProvider;
         private readonly ICoconaCommandProvider _commandProvider;
         private readonly ICoconaConsoleProvider _console;
+        private readonly ICoconaAppContextAccessor _appContext;
 
-        public BuiltInCommandMiddleware(CommandDispatchDelegate next, ICoconaHelpRenderer helpRenderer, ICoconaCommandHelpProvider commandHelpProvider, ICoconaCommandProvider commandProvider, ICoconaConsoleProvider console)
+        public BuiltInCommandMiddleware(CommandDispatchDelegate next, ICoconaHelpRenderer helpRenderer, ICoconaCommandHelpProvider commandHelpProvider, ICoconaCommandProvider commandProvider, ICoconaConsoleProvider console, ICoconaAppContextAccessor appContext)
             : base(next)
         {
             _helpRenderer = helpRenderer;
             _commandHelpProvider = commandHelpProvider;
             _commandProvider = commandProvider;
             _console = console;
+            _appContext = appContext;
         }
 
         public override ValueTask<int> DispatchAsync(CommandDispatchContext ctx)
@@ -31,9 +34,12 @@ namespace Cocona.Command.BuiltIn
             var hasHelpOption = ctx.ParsedCommandLine.Options.Any(x => x.Option == BuiltInCommandOption.Help);
             if (hasHelpOption)
             {
+                var feature = _appContext.Current!.Features.Get<ICoconaCommandFeature>()!;
+                var commandCollection = feature.CommandCollection ?? _commandProvider.GetCommandCollection();
+
                 var help = (ctx.Command.IsPrimaryCommand)
-                    ? _commandHelpProvider.CreateCommandsIndexHelp(_commandProvider.GetCommandCollection())
-                    : _commandHelpProvider.CreateCommandHelp(ctx.Command);
+                    ? _commandHelpProvider.CreateCommandsIndexHelp(commandCollection, feature.CommandStack)
+                    : _commandHelpProvider.CreateCommandHelp(ctx.Command, feature.CommandStack);
 
                 _console.Output.Write(_helpRenderer.Render(help));
                 return new ValueTask<int>(129);

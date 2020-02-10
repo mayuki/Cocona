@@ -8,24 +8,24 @@ namespace Cocona.Command.BuiltIn
     public class CoconaBuiltInCommandProvider : ICoconaCommandProvider
     {
         private readonly ICoconaCommandProvider _underlyingCommandProvider;
-        private readonly Lazy<CommandCollection> _commandCollection;
+        private CommandCollection? _cachedCommandCollection;
 
         public CoconaBuiltInCommandProvider(ICoconaCommandProvider underlyingCommandProvider)
         {
             _underlyingCommandProvider = underlyingCommandProvider;
-            _commandCollection = new Lazy<CommandCollection>(GetCommandCollectionCore);
         }
 
         public CommandCollection GetCommandCollection()
-            => _commandCollection.Value;
-
-        private CommandCollection GetCommandCollectionCore()
         {
-            var commandCollection = _underlyingCommandProvider.GetCommandCollection();
+            return _cachedCommandCollection ??= GetWrappedCommandCollection(_underlyingCommandProvider.GetCommandCollection());
+        }
+
+        private CommandCollection GetWrappedCommandCollection(CommandCollection commandCollection, int depth = 0)
+        {
             var commands = commandCollection.All;
 
             // If the collection has multiple-commands without primary command, use built-in primary command.
-            if (commandCollection.All.Count() > 1 && commandCollection.Primary == null)
+            if (commandCollection.All.Count > 1 && commandCollection.Primary == null)
             {
                 commands = commands.Concat(new[] { BuiltInPrimaryCommand.GetCommand(string.Empty) }).ToArray();
             }
@@ -41,17 +41,18 @@ namespace Cocona.Command.BuiltIn
                     command.Aliases,
                     command.Description,
                     command.Parameters,
-                    GetParametersWithBuiltInOptions(command.Options, command.IsPrimaryCommand),
+                    GetParametersWithBuiltInOptions(command.Options, command.IsPrimaryCommand, depth != 0),
                     command.Arguments,
                     command.Overloads,
-                    command.Flags
+                    command.Flags,
+                    (command.SubCommands != null && command.SubCommands != commandCollection) ? GetWrappedCommandCollection(command.SubCommands, depth + 1) : command.SubCommands
                 );
             }
 
             return new CommandCollection(newCommands);
         }
 
-        private IReadOnlyList<CommandOptionDescriptor> GetParametersWithBuiltInOptions(IReadOnlyList<CommandOptionDescriptor> options, bool isPrimaryCommand)
+        private IReadOnlyList<CommandOptionDescriptor> GetParametersWithBuiltInOptions(IReadOnlyList<CommandOptionDescriptor> options, bool isPrimaryCommand, bool isNestedSubCommand)
         {
             var hasHelp = options.Any(x => string.Equals(x.Name, "help", StringComparison.OrdinalIgnoreCase) || x.ShortName.Any(x => x == 'h'));
             var hasVersion = options.Any(x => string.Equals(x.Name, "version", StringComparison.OrdinalIgnoreCase));
@@ -62,7 +63,7 @@ namespace Cocona.Command.BuiltIn
             {
                 newOptions = newOptions.Concat(new[] { BuiltInCommandOption.Help });
             }
-            if (!hasVersion && isPrimaryCommand)
+            if (!hasVersion && isPrimaryCommand && !isNestedSubCommand)
             {
                 newOptions = newOptions.Concat(new[] { BuiltInCommandOption.Version });
             }
