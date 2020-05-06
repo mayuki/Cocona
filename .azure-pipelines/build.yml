@@ -35,6 +35,11 @@ jobs:
         testRunner: VSTest
         testResultsFiles: '**/*.trx'
 
+    - script: |
+        cd samples/GettingStarted.SubCommandApp
+        shellcheck <(dotnet run -- --completion bash)
+      displayName: Shellcheck for Bash completion
+
     - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
       displayName: dotnet pack Cocona
     - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Core/Cocona.Core.csproj
@@ -75,6 +80,11 @@ jobs:
       inputs:
         testRunner: VSTest
         testResultsFiles: '**/*.trx'
+
+    - script: |
+        cd samples/GettingStarted.SubCommandApp
+        shellcheck <(dotnet run -- --completion bash)
+      displayName: Shellcheck for Bash completion
 
     - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
       displayName: dotnet pack

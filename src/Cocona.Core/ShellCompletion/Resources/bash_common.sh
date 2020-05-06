@@ -49,7 +49,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_get_argument_index() {
 
     for param in "${params[@]}"
     do
-        __cocona_APPNAMEPLACEHOLDER_completion_debug_log ${param} index=$index options_completed=$options_completed prev_is_option=$prev_is_option
+        __cocona_APPNAMEPLACEHOLDER_completion_debug_log "$param" index=$index options_completed=$options_completed prev_is_option=$prev_is_option
         if [[ $options_completed -eq 1 ]]; then
             ((index++))
             prev_is_option=0
@@ -82,7 +82,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_index_of() {
         ((index++))
     done
 
-    return -1
+    return 255
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_handle() {
@@ -90,10 +90,11 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
 
     # subcommands
     if [[ ${#words} -gt 1 && ${#commands} -gt 0 ]]; then
-        __cocona_APPNAMEPLACEHOLDER_completion_debug_log "__cocona_APPNAMEPLACEHOLDER_completion_contains ${words[$command_depth]} ${commands[@]}"
+        __cocona_APPNAMEPLACEHOLDER_completion_debug_log "__cocona_APPNAMEPLACEHOLDER_completion_contains ${words[$command_depth]}" "${commands[@]}"
         if __cocona_APPNAMEPLACEHOLDER_completion_contains "${words[$command_depth]}" "${commands[@]}"; then
             cur_command_stack+=("${words[$command_depth]}")
-            local next="$(IFS=_; echo "${cur_command_stack[*]}")"
+            local next
+            next="$(IFS=_; echo "${cur_command_stack[*]}")"
             
             __cocona_APPNAMEPLACEHOLDER_completion_init_variables
             __cocona_APPNAMEPLACEHOLDER_completion_debug_log "__cocona_APPNAMEPLACEHOLDER_commands_$next"
@@ -148,7 +149,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
     # arguments...
     __cocona_APPNAMEPLACEHOLDER_completion_get_argument_index
     local index_of_arg=$?
-    __cocona_APPNAMEPLACEHOLDER_completion_debug_log "argument" index_of_arg=$index_of_arg type=${argument_types[$index_of_arg]} 
+    __cocona_APPNAMEPLACEHOLDER_completion_debug_log "argument" index_of_arg=$index_of_arg "type=${argument_types[$index_of_arg]}"
     case ${argument_types[$index_of_arg]} in
         default)
             __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_default
@@ -173,9 +174,10 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates() {
-    __cocona_APPNAMEPLACEHOLDER_completion_debug_log "__cocona_APPNAMEPLACEHOLDER_completion_set_candidates" $@
+    __cocona_APPNAMEPLACEHOLDER_completion_debug_log "__cocona_APPNAMEPLACEHOLDER_completion_set_candidates" "$@"
 
-    local candidates="$(IFS=' '; echo "${*:1}")"
+    local candidates
+    candidates="$(IFS=' '; echo "${*:1}")"
     COMPREPLY=($(compgen -W "${candidates}" -- "${cur}"))
 }
 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_default() {
@@ -190,25 +192,22 @@ __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_dir() {
 
 __cocona_APPNAMEPLACEHOLDER_completion_init_variables() {
     commands=()
-    switches=()
     options=()
     option_types=()
     option_candidates_providers=()
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_entrypoint() {
-    local cur prev words cword split
+    local cur prev words cword
     _init_completion -s || return
 
     #echo cur=$cur
     #echo prev=$prev
     #echo words=${words[@]}
     #echo cword=$cword
-    #echo split=$split
 
     local cur_command_stack=(root)
     local commands=()
-    local switches=()
     local options=()
     local option_types=()
     local option_candidates_providers=()
