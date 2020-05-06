@@ -284,7 +284,11 @@ namespace Cocona.Command
                 }
             }
             
-            if (_enableConvertCommandNameToLowerCase) commandName = ToCommandCase(commandName);
+            // Convert the command name to lower-case
+            if (_enableConvertCommandNameToLowerCase)
+            {
+                commandName = ToCommandCase(commandName);
+            }
 
             var flags = ((isHidden) ? CommandFlags.Hidden : CommandFlags.None) |
                         ((isSingleCommand || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None);

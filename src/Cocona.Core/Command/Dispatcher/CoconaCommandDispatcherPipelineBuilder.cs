@@ -8,6 +8,7 @@ using Cocona.Command.Binder;
 using Cocona.Command.BuiltIn;
 using Cocona.Command.Dispatcher.Middlewares;
 using Cocona.Help;
+using Cocona.ShellCompletion;
 
 namespace Cocona.Command.Dispatcher
 {
@@ -109,7 +110,8 @@ namespace Cocona.Command.Dispatcher
                                 GetRequiredService<ICoconaCommandHelpProvider>(_serviceProvider),
                                 GetRequiredService<ICoconaCommandProvider>(_serviceProvider),
                                 GetRequiredService<ICoconaConsoleProvider>(_serviceProvider),
-                                GetRequiredService<ICoconaAppContextAccessor>(_serviceProvider));
+                                GetRequiredService<ICoconaAppContextAccessor>(_serviceProvider),
+                                GetRequiredService<ICoconaShellCompletionCodeGenerator>(_serviceProvider));
                             next = m.DispatchAsync;
                             continue;
                         }

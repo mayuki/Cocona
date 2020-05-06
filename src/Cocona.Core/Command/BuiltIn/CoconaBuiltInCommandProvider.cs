@@ -56,6 +56,7 @@ namespace Cocona.Command.BuiltIn
         {
             var hasHelp = options.Any(x => string.Equals(x.Name, "help", StringComparison.OrdinalIgnoreCase) || x.ShortName.Any(x => x == 'h'));
             var hasVersion = options.Any(x => string.Equals(x.Name, "version", StringComparison.OrdinalIgnoreCase));
+            var hasCompletion = options.Any(x => string.Equals(x.Name, "completion", StringComparison.OrdinalIgnoreCase));
 
             IEnumerable<CommandOptionDescriptor> newOptions = options;
 
@@ -66,6 +67,10 @@ namespace Cocona.Command.BuiltIn
             if (!hasVersion && isPrimaryCommand && !isNestedSubCommand)
             {
                 newOptions = newOptions.Concat(new[] { BuiltInCommandOption.Version });
+            }
+            if (!hasCompletion && isPrimaryCommand && !isNestedSubCommand)
+            {
+                newOptions = newOptions.Concat(new[] { BuiltInCommandOption.Completion });
             }
 
             return newOptions.ToArray();

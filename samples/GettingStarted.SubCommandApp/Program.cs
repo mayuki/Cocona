@@ -28,9 +28,15 @@ namespace CoconaSample.GettingStarted.SubCommandApp
     [HasSubCommands(typeof(SubSubCommands))]
     class SubCommands
     {
-        public void Konnichiwa()
+        public enum Member
         {
-            Console.WriteLine("Konnichiwa!");
+            Alice,
+            Karen,
+        }
+
+        public void Konnichiwa(Member member)
+        {
+            Console.WriteLine($"Konnichiwa! {member}");
         }
 
         public void Hello()
