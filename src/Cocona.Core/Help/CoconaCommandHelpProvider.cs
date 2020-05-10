@@ -46,7 +46,7 @@ namespace Cocona.Help
                     sb.Append(" ");
                     if (opt.OptionType == typeof(bool))
                     {
-                        if (opt.DefaultValue.HasValue && opt.DefaultValue.Value.Equals(true))
+                        if (opt.DefaultValue.HasValue && opt.DefaultValue.Value != null && opt.DefaultValue.Value.Equals(true))
                         {
                             sb.Append($"[--{opt.Name}=<true|false>]");
                         }
@@ -256,7 +256,7 @@ namespace Cocona.Help
                 $"--{option.Name}" +
                 (
                     option.OptionType == typeof(bool)
-                        ? option.DefaultValue.HasValue && option.DefaultValue.Value.Equals(true)
+                        ? option.DefaultValue.HasValue && option.DefaultValue.Value != null && option.DefaultValue.Value.Equals(true)
                             ? "=<true|false>"
                             : ""
                         : DynamicListHelper.IsArrayOrEnumerableLike(option.OptionType)
@@ -271,9 +271,11 @@ namespace Cocona.Help
                 description +
                     (isRequired
                         ? " (Required)"
-                        : (valueType == typeof(bool) && defaultValue.Value.Equals(false))
+                        : (valueType == typeof(bool) && defaultValue.Value != null && defaultValue.Value.Equals(false))
                             ? ""
-                            : (" (Default: " + defaultValue.Value + ")")) +
+                            : (defaultValue.Value is null || (defaultValue.Value is string defaultValueStr && string.IsNullOrEmpty(defaultValueStr)))
+                                ? ""
+                                : (" (Default: " + defaultValue.Value + ")")) +
                     (valueType.IsEnum
                         ? " (Allowed values: " + string.Join(", ", Enum.GetNames(valueType)) + ")"
                         : "");

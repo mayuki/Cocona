@@ -88,6 +88,31 @@ namespace Cocona.Lite
             }, singleton: false);
         }
 
+        public void TryAddSingleton<TService, TImplementation>()
+            where TImplementation : TService
+        {
+            if (!_descriptorsByService.ContainsKey(typeof(TService)))
+            {
+                AddSingleton<TService, TImplementation>();
+            }
+        }
+
+        public void TryAddSingleton<TService>(TService instance)
+        {
+            if (!_descriptorsByService.ContainsKey(typeof(TService)))
+            {
+                AddSingleton<TService>(instance);
+            }
+        }
+
+        public void TryAddSingleton<TService>(Func<IServiceProvider, TService> factory)
+        {
+            if (!_descriptorsByService.ContainsKey(typeof(TService)))
+            {
+                AddSingleton<TService>(factory);
+            }
+        }
+
         public void AddSingleton<TService, TImplementation>()
             where TImplementation : TService
         {

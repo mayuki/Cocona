@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text;
 using Cocona.Command.Binder.Validation;
 using Cocona.ShellCompletion;
+using Cocona.ShellCompletion.Candidate;
 
 namespace Microsoft.Extensions.Hosting
 {
@@ -62,6 +63,9 @@ namespace Microsoft.Extensions.Hosting
 
                     services.TryAddSingleton<ICoconaShellCompletionCodeProvider, BashCoconaShellCompletionCodeProvider>();
                     services.TryAddSingleton<ICoconaShellCompletionCodeGenerator, CoconaShellCompletionCodeGenerator>();
+                    services.TryAddSingleton<ICoconaCompletionCandidatesMetadataFactory, CoconaCompletionCandidatesMetadataFactory>();
+                    services.TryAddSingleton<ICoconaCompletionCandidatesProviderFactory, CoconaCompletionCandidatesProviderFactory>();
+                    services.TryAddSingleton<ICoconaCompletionCandidates, CoconaCompletionCandidates>();
 
                     services.AddHostedService<CoconaHostedService>();
 

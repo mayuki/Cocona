@@ -36,8 +36,8 @@ namespace Cocona.Command.BuiltIn
                 "completion",
                 Array.Empty<char>(),
                 "Generate a shell completion code",
-                CoconaDefaultValue.None,
-                null,
+                new CoconaDefaultValue(null),
+                "shell",
                 CommandOptionFlags.None,
                 Array.Empty<Attribute>()
             );

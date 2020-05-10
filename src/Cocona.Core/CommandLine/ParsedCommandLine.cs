@@ -1,10 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Cocona.CommandLine
 {
     public class ParsedCommandLine
     {
+        public static ParsedCommandLine Empty { get; }
+            = new ParsedCommandLine(Array.Empty<CommandOption>(), Array.Empty<CommandArgument>(), Array.Empty<string>());
+
         public IReadOnlyList<CommandOption> Options { get; }
         public IReadOnlyList<CommandArgument> Arguments { get; }
         public IReadOnlyList<string> UnknownOptions { get; }

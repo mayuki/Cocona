@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Cocona.Application;
 using Cocona.Command;
+using Cocona.CommandLine;
+using Cocona.ShellCompletion.Candidate;
 
 namespace Cocona.ShellCompletion
 {
@@ -12,13 +14,18 @@ namespace Cocona.ShellCompletion
     {
         private readonly string _appName;
         private readonly string _appCommandName;
+        private readonly ICoconaCompletionCandidates _completionCandidates;
 
         public IReadOnlyList<string> Targets { get; } = new[] {"bash"};
 
-        public BashCoconaShellCompletionCodeProvider(ICoconaApplicationMetadataProvider applicationMetadataProvider)
+        public BashCoconaShellCompletionCodeProvider(
+            ICoconaApplicationMetadataProvider applicationMetadataProvider,
+            ICoconaCompletionCandidates completionCandidates
+        )
         {
             _appName = Regex.Replace(applicationMetadataProvider.GetProductName(), "[^a-zA-Z0-9_]", "__");
             _appCommandName = applicationMetadataProvider.GetExecutableName();
+            _completionCandidates = completionCandidates;
         }
 
         public void Generate(TextWriter writer, CommandCollection commandCollection)
@@ -86,22 +93,70 @@ namespace Cocona.ShellCompletion
         {
             foreach (var option in command.Options)
             {
-                writer.WriteLine($"    __cocona_{_appName}_completion_define_option \"--{option.Name}\" {FromOptionToCandidatesType(option)}");
+                writer.WriteLine($"    __cocona_{_appName}_completion_define_option \"--{option.Name}\" \"{FromOptionToCandidatesType(option)}\"");
             }
             foreach (var arg in command.Arguments)
             {
-                writer.WriteLine($"    __cocona_{_appName}_completion_define_argument \"--{arg.Name}\" default");
+                writer.WriteLine($"    __cocona_{_appName}_completion_define_argument \"--{arg.Name}\" \"{FromArgumentToCandidatesType(arg)}\"");
             }
 
-            static string FromOptionToCandidatesType(CommandOptionDescriptor option)
+            string FromOptionToCandidatesType(CommandOptionDescriptor option)
             {
-                return option.OptionType switch
+                if (option.OptionType == typeof(bool))
                 {
-                    _ when option.OptionType == typeof(bool) => "bool",
-                    _ when option.OptionType.IsEnum => "enum:" + String.Join(":", Enum.GetNames(option.OptionType)),
-                    _ => "default",
-                };
+                    return "bool";
+                }
+                else
+                {
+                    var candidates = _completionCandidates.GetStaticCandidatesFromOption(option);
+                    if (candidates.IsOnTheFly)
+                    {
+                        return $"dynamic:{candidates.CandidatesProviderType!.FullName}";
+                    }
+                    else
+                    {
+                        return candidates.Result!.ResultType switch
+                        {
+                            CompletionCandidateResultType.Default
+                            => "default",
+                            CompletionCandidateResultType.File
+                            => "file",
+                            CompletionCandidateResultType.Directory
+                            => "directory",
+                            CompletionCandidateResultType.Keywords
+                            => $"keywords:{string.Join(":", candidates.Result!.Values.Select(x => x.Value))}",
+                            _
+                            => "default",
+                        };
+                    }
+                }
+            }
+
+            string FromArgumentToCandidatesType(CommandArgumentDescriptor argument)
+            {
+                var candidates = _completionCandidates.GetStaticCandidatesFromArgument(argument);
+                if (candidates.IsOnTheFly)
+                {
+                    return $"dynamic:{candidates.CandidatesProviderType!.FullName}";
+                }
+                else
+                {
+                    return candidates.Result!.ResultType switch
+                    {
+                        CompletionCandidateResultType.Default
+                        => "default",
+                        CompletionCandidateResultType.File
+                        => "file",
+                        CompletionCandidateResultType.Directory
+                        => "directory",
+                        CompletionCandidateResultType.Keywords
+                        => $"keywords:{string.Join(":", candidates.Result!.Values.Select(x => x.Value))}",
+                        _
+                        => "default",
+                    };
+                }
             }
         }
     }
+
 }

@@ -124,8 +124,8 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
                 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_dir
                 return 0
                 ;;
-            enum*)
-                local keywords_str=${option_types[$index_of_option]#enum:}
+            keywords*)
+                local keywords_str=${option_types[$index_of_option]#keywords:}
                 local keywords=(${keywords_str//:/ })
                 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates "${keywords[@]}"
                 return 0

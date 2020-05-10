@@ -12,6 +12,7 @@ using Cocona.Command.Dispatcher.Middlewares;
 using Cocona.CommandLine;
 using Cocona.Help;
 using Cocona.ShellCompletion;
+using Cocona.ShellCompletion.Candidate;
 
 namespace Cocona.Lite.Hosting
 {
@@ -118,6 +119,9 @@ namespace Cocona.Lite.Hosting
 
             services.AddSingleton<ICoconaShellCompletionCodeProvider, BashCoconaShellCompletionCodeProvider>();
             services.AddSingleton<ICoconaShellCompletionCodeGenerator, CoconaShellCompletionCodeGenerator>();
+            services.AddSingleton<ICoconaCompletionCandidatesMetadataFactory, CoconaCompletionCandidatesMetadataFactory>();
+            services.AddSingleton<ICoconaCompletionCandidatesProviderFactory, CoconaCompletionCandidatesProviderFactory>();
+            services.AddSingleton<ICoconaCompletionCandidates, CoconaCompletionCandidates>();
 
             _configureServicesDelegate?.Invoke(services);
 
