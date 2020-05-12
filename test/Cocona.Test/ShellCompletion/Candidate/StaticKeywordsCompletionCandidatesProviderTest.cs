@@ -47,7 +47,7 @@ namespace Cocona.Test.ShellCompletion.Candidate
                 CoconaDefaultValue.None,
                 new Attribute[]
                 {
-                    new CompletionCandidatesAttribute(new CompletionCandidateValue("Alice", ""), new CompletionCandidateValue("Karen", "")), 
+                    new CompletionCandidatesAttribute(new [] { "Alice", "Karen" }),
                 }
             );
             var metadata = new CoconaCompletionCandidatesMetadata(

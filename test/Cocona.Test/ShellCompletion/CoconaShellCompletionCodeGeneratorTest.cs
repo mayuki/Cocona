@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using Cocona.Command;
 using Cocona.ShellCompletion;
+using Cocona.ShellCompletion.Candidate;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -63,6 +64,11 @@ namespace Cocona.Test.ShellCompletion
             {
                 writer.Write("Provider");
             }
+
+            public void GenerateOnTheFlyCandidates(TextWriter writer, IReadOnlyList<CompletionCandidateValue> values)
+            {
+                writer.Write("Provider/OnTheFly");
+            }
         }
 
         public class Test2CodeProvider : ICoconaShellCompletionCodeProvider
@@ -72,6 +78,11 @@ namespace Cocona.Test.ShellCompletion
             public void Generate(TextWriter writer, CommandCollection commandCollection)
             {
                 writer.Write("Provider2");
+            }
+
+            public void GenerateOnTheFlyCandidates(TextWriter writer, IReadOnlyList<CompletionCandidateValue> values)
+            {
+                writer.Write("Provider2/OnTheFly");
             }
         }
     }

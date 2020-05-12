@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Cocona.ShellCompletion.Candidate.Providers;
 
@@ -36,7 +37,7 @@ namespace Cocona.ShellCompletion.Candidate
             if (!typeof(ICoconaCompletionOnTheFlyCandidatesProvider).IsAssignableFrom(typeOfProvider) &&
                 !typeof(ICoconaCompletionStaticCandidatesProvider).IsAssignableFrom(typeOfProvider))
             {
-                throw new ArgumentException("The type of CompletionProvider must implement ICoconaCompletionStaticCandidatesProvider or ICoconaCompletionOnTheFlyCandidatesProvider.");
+                throw new ArgumentException($"The type '{typeOfProvider.FullName}' must implement ICoconaCompletionStaticCandidatesProvider or ICoconaCompletionOnTheFlyCandidatesProvider.");
             }
 
             CandidateType = CompletionCandidateType.Provider;
@@ -44,11 +45,11 @@ namespace Cocona.ShellCompletion.Candidate
             CandidatesProviderType = typeOfProvider;
         }
 
-        public CompletionCandidatesAttribute(params CompletionCandidateValue[] candidates)
+        public CompletionCandidatesAttribute(string[] candidates)
         {
             CandidateType = CompletionCandidateType.Provider;
             CandidatesProviderType = typeof(StaticKeywordsCompletionCandidatesProvider);
-            _candidates = candidates ?? throw new ArgumentNullException(nameof(candidates));
+            _candidates = candidates?.Select(x => new CompletionCandidateValue(x, string.Empty)).ToArray() ?? throw new ArgumentNullException(nameof(candidates));
         }
     }
 }

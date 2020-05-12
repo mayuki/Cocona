@@ -28,6 +28,7 @@ namespace Cocona.Test.Command.CommandDispatcher
             services.AddTransient<ICoconaValueConverter, CoconaValueConverter>();
             services.AddTransient<ICoconaCommandLineParser, CoconaCommandLineParser>();
             services.AddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
+            services.AddTransient<ICoconaCommandResolver, CoconaCommandResolver>();
             services.AddTransient<ICoconaCommandMatcher, CoconaCommandMatcher>();
             services.AddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
             services.AddSingleton<ILoggerFactory, LoggerFactory>();

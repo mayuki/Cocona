@@ -39,10 +39,11 @@ namespace Cocona.Test.Command.BuiltIn
             var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInPrimaryCommand) }));
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
-            commands.Primary.Options.Should().HaveCount(3); // --help, --version, --completion
+            commands.Primary.Options.Should().HaveCount(4); // --help, --version, --completion
             commands.Primary.Options[0].Should().Be(BuiltInCommandOption.Help);
             commands.Primary.Options[1].Should().Be(BuiltInCommandOption.Version);
             commands.Primary.Options[2].Should().Be(BuiltInCommandOption.Completion);
+            commands.Primary.Options[3].Should().Be(BuiltInCommandOption.CompletionCandidates);
         }
 
         [Fact]
@@ -62,7 +63,7 @@ namespace Cocona.Test.Command.BuiltIn
             var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInHelpUserOptionCommand) }));
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
-            commands.All[0].Options.Should().HaveCount(3); // --version, --help, --completion
+            commands.All[0].Options.Should().HaveCount(4); // --version, --help, --completion
             commands.All[0].Name.Should().Be("A_PrimaryHasVersionOption");
             commands.All[0].Options[0].Should().NotBe(BuiltInCommandOption.Version); // User-implemented --version
             commands.All[0].Options[1].Should().Be(BuiltInCommandOption.Help);

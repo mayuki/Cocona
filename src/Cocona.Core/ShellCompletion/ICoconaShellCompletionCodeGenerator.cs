@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Cocona.Command;
+using Cocona.ShellCompletion.Candidate;
 
 namespace Cocona.ShellCompletion
 {
@@ -12,6 +13,7 @@ namespace Cocona.ShellCompletion
         IEnumerable<string> SupportedTargets { get; }
         bool CanHandle(string target);
         void Generate(string target, TextWriter writer, CommandCollection commandCollection);
+        void GenerateOnTheFlyCandidates(string target, TextWriter writer, IReadOnlyList<CompletionCandidateValue> values);
     }
 
     public class CoconaShellCompletionCodeGenerator : ICoconaShellCompletionCodeGenerator
@@ -33,6 +35,12 @@ namespace Cocona.ShellCompletion
         {
             var provider = _providers.First(x => x.Targets.Contains(target));
             provider.Generate(writer, commandCollection);
+        }
+
+        public void GenerateOnTheFlyCandidates(string target, TextWriter writer, IReadOnlyList<CompletionCandidateValue> values)
+        {
+            var provider = _providers.First(x => x.Targets.Contains(target));
+            provider.GenerateOnTheFlyCandidates(writer, values);
         }
     }
 }

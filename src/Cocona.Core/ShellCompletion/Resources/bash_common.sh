@@ -7,21 +7,17 @@
 __cocona_APPNAMEPLACEHOLDER_completion_define_argument() {
     local argument_name=$1
     local argument_type=$2
-    local argument_candidates_provider=$3
 
     arguments+=($argument_name)
     argument_types+=($argument_type)
-    argument_candidates_providers+=(${argument_candidates_provider:-''})
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_define_option() {
     local option_name=$1
     local option_type=$2
-    local option_candidates_provider=$3
 
     options+=($option_name)
     option_types+=($option_type)
-    option_candidates_providers+=(${option_candidates_provider:-''})
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_contains() {
@@ -124,7 +120,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
                 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_dir
                 return 0
                 ;;
-            keywords*)
+            keywords:*)
                 local keywords_str=${option_types[$index_of_option]#keywords:}
                 local keywords=(${keywords_str//:/ })
                 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates "${keywords[@]}"
@@ -132,6 +128,12 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
                 ;;
             bool)
                 # continue to next argument or option
+                ;;
+            onthefly:*)
+                local onthefly_str=${option_types[$index_of_option]#onthefly:}
+                local param_name=(${onthefly_str//:/ })
+                __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_onthefly "${param_name}"
+                return 0
                 ;;
             * | default)
                 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_default
@@ -163,6 +165,18 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
             __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_dir
             return 0
             ;;
+        keywords:*)
+            local keywords_str=${argument_types[$index_of_arg]#keywords:}
+            local keywords=(${keywords_str//:/ })
+            __cocona_APPNAMEPLACEHOLDER_completion_set_candidates "${keywords[@]}"
+            return 0
+            ;;
+        onthefly:*)
+            local onthefly_str=${argument_types[$index_of_arg]#onthefly:}
+            local param_name=(${onthefly_str//:/ })
+            __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_onthefly "${param_name}"
+            return 0
+            ;;
         * | default)
             __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_default
             return 0
@@ -189,12 +203,17 @@ __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_file() {
 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_dir() {
     COMPREPLY=($(compgen -d -- "${cur}"))
 }
+__cocona_APPNAMEPLACEHOLDER_completion_set_candidates_onthefly() {
+    __cocona_APPNAMEPLACEHOLDER_completion_debug_log "__cocona_APPNAMEPLACEHOLDER_completion_set_candidates" ${words[0]} --completion-candidates bash:$1 "${words[@]:1}"
+    COMPREPLY=($(compgen -W "$(${words[0]} --completion-candidates bash:$1 "${words[@]:1}")" -- "${cur}"))
+}
 
 __cocona_APPNAMEPLACEHOLDER_completion_init_variables() {
     commands=()
     options=()
     option_types=()
-    option_candidates_providers=()
+    arguments=()
+    argument_types=()
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_entrypoint() {
@@ -205,19 +224,19 @@ __cocona_APPNAMEPLACEHOLDER_completion_entrypoint() {
     #echo prev=$prev
     #echo words=${words[@]}
     #echo cword=$cword
+    #echo split=$split
 
     local cur_command_stack=(root)
     local commands=()
     local options=()
     local option_types=()
-    local option_candidates_providers=()
     local arguments=()
     local argument_types=()
-    local argument_candidates_providers=()
 
     __cocona_APPNAMEPLACEHOLDER_commands_root
-}
 
+    #echo COMPREPLY=$COMPREPLY
+}
 __cocona_APPNAMEPLACEHOLDER_completion_entrypoint
 
 complete -F __cocona_APPNAMEPLACEHOLDER_completion_entrypoint APPCOMMANDNAMEPLACEHOLDER

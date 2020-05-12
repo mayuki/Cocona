@@ -35,6 +35,11 @@ namespace Cocona.Test.ShellCompletion
             {
                 return new StaticCompletionCandidates(CompletionCandidateResult.Default);
             }
+
+            public IReadOnlyList<CompletionCandidateValue> GetOnTheFlyCandidates(string paramName, int argSkipCount, int curPos, string? candidateHint)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

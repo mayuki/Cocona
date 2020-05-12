@@ -43,6 +43,11 @@ namespace Cocona.ShellCompletion
             }
         }
 
+        public void GenerateOnTheFlyCandidates(TextWriter writer, IReadOnlyList<CompletionCandidateValue> values)
+        {
+            writer.Write(string.Join(" ", values.Select(x => x.Value)));
+        }
+
         private void WriteRootCommandDefinition(TextWriter writer, CommandCollection commandCollection)
         {
             var subCommands = commandCollection.All.Where(x => !x.IsHidden && !x.IsPrimaryCommand).ToArray();
@@ -91,7 +96,7 @@ namespace Cocona.ShellCompletion
 
         private void WriteCommandDefineOptionAndArguments(TextWriter writer, CommandDescriptor command)
         {
-            foreach (var option in command.Options)
+            foreach (var option in command.Options.Where(x => !x.IsHidden))
             {
                 writer.WriteLine($"    __cocona_{_appName}_completion_define_option \"--{option.Name}\" \"{FromOptionToCandidatesType(option)}\"");
             }
@@ -111,7 +116,7 @@ namespace Cocona.ShellCompletion
                     var candidates = _completionCandidates.GetStaticCandidatesFromOption(option);
                     if (candidates.IsOnTheFly)
                     {
-                        return $"dynamic:{candidates.CandidatesProviderType!.FullName}";
+                        return $"onthefly:{option.Name}";
                     }
                     else
                     {
@@ -137,7 +142,7 @@ namespace Cocona.ShellCompletion
                 var candidates = _completionCandidates.GetStaticCandidatesFromArgument(argument);
                 if (candidates.IsOnTheFly)
                 {
-                    return $"dynamic:{candidates.CandidatesProviderType!.FullName}";
+                    return $"onthefly:{argument.Name}";
                 }
                 else
                 {

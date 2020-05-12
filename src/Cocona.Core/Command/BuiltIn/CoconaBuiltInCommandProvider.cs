@@ -70,7 +70,7 @@ namespace Cocona.Command.BuiltIn
             }
             if (!hasCompletion && isPrimaryCommand && !isNestedSubCommand)
             {
-                newOptions = newOptions.Concat(new[] { BuiltInCommandOption.Completion });
+                newOptions = newOptions.Concat(new[] { BuiltInCommandOption.Completion, BuiltInCommandOption.CompletionCandidates });
             }
 
             return newOptions.ToArray();

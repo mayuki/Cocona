@@ -76,7 +76,7 @@ namespace Cocona.Test.ShellCompletion.Candidate
 
         private class TestOnTheFlyProvider : ICoconaCompletionOnTheFlyCandidatesProvider
         {
-            public CompletionCandidateResult GetCandidates(CoconaCompletionCandidatesMetadata metadata, ParsedCommandLine parsedCommandLine)
+            public IReadOnlyList<CompletionCandidateValue> GetCandidates(CoconaCompletionCandidatesMetadata metadata, ParsedCommandLine parsedCommandLine)
             {
                 throw new NotImplementedException();
             }
