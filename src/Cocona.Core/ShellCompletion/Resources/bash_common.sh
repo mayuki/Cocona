@@ -131,7 +131,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
                 ;;
             onthefly:*)
                 local onthefly_str=${option_types[$index_of_option]#onthefly:}
-                local param_name=(${onthefly_str//:/ })
+                local param_name=${onthefly_str//:/ }
                 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_onthefly "${param_name}"
                 return 0
                 ;;
@@ -173,7 +173,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
             ;;
         onthefly:*)
             local onthefly_str=${argument_types[$index_of_arg]#onthefly:}
-            local param_name=(${onthefly_str//:/ })
+            local param_name=${onthefly_str//:/ }
             __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_onthefly "${param_name}"
             return 0
             ;;
@@ -204,8 +204,8 @@ __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_dir() {
     COMPREPLY=($(compgen -d -- "${cur}"))
 }
 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_onthefly() {
-    __cocona_APPNAMEPLACEHOLDER_completion_debug_log "__cocona_APPNAMEPLACEHOLDER_completion_set_candidates" ${words[0]} --completion-candidates bash:$1 "${words[@]:1}"
-    COMPREPLY=($(compgen -W "$(${words[0]} --completion-candidates bash:$1 "${words[@]:1}")" -- "${cur}"))
+    __cocona_APPNAMEPLACEHOLDER_completion_debug_log "__cocona_APPNAMEPLACEHOLDER_completion_set_candidates" "${words[0]}" --completion-candidates "bash:$1" "${words[@]:1}"
+    COMPREPLY=($(compgen -W "$(${words[0]} --completion-candidates "bash:$1" "${words[@]:1}")" -- "${cur}"))
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_init_variables() {
