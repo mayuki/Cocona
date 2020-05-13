@@ -6,15 +6,30 @@ using Cocona.ShellCompletion.Candidate.Providers;
 
 namespace Cocona.ShellCompletion.Candidate
 {
+    /// <summary>
+    /// Specifies the parameter that provides shell completion candidates.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public class CompletionCandidatesAttribute : Attribute, ICoconaCompletionCandidatesStaticKeywords
     {
         private readonly CompletionCandidateValue[] _candidates;
 
+        /// <summary>
+        /// Gets the candidate type of the parameter.
+        /// </summary>
         public CompletionCandidateType CandidateType { get; }
+
+        /// <summary>
+        /// Gets the type of a candidates provider.
+        /// </summary>
         public Type CandidatesProviderType { get; }
+
         IEnumerable<CompletionCandidateValue> ICoconaCompletionCandidatesStaticKeywords.Candidates => _candidates;
 
+        /// <summary>
+        /// Initialize a new instance of the <see cref="CompletionCandidatesAttribute"/> class with a specified <see cref="CompletionCandidateType"/>.
+        /// </summary>
+        /// <param name="candidateType">The candidate type of the parameter.</param>
         public CompletionCandidatesAttribute(CompletionCandidateType candidateType)
         {
             switch (candidateType)
@@ -32,6 +47,10 @@ namespace Cocona.ShellCompletion.Candidate
             CandidatesProviderType = typeof(StaticCompletionCandidatesProvider);
         }
 
+        /// <summary>
+        /// Initialize a new instance of the <see cref="CompletionCandidatesAttribute"/> class with a specified <see cref="Type"/> of the candidates provider.
+        /// </summary>
+        /// <param name="typeOfProvider">The <see cref="Type"/> of the candidates provider.</param>
         public CompletionCandidatesAttribute(Type typeOfProvider)
         {
             if (!typeof(ICoconaCompletionOnTheFlyCandidatesProvider).IsAssignableFrom(typeOfProvider) &&
@@ -45,6 +64,11 @@ namespace Cocona.ShellCompletion.Candidate
             CandidatesProviderType = typeOfProvider;
         }
 
+
+        /// <summary>
+        /// Initialize a new instance of the <see cref="CompletionCandidatesAttribute"/> class with a specified candidates.
+        /// </summary>
+        /// <param name="candidates">The candidate values</param>
         public CompletionCandidatesAttribute(string[] candidates)
         {
             CandidateType = CompletionCandidateType.Provider;

@@ -9,6 +9,9 @@ using Cocona.ShellCompletion.Candidate;
 
 namespace Cocona.ShellCompletion.Generators
 {
+    /// <summary>
+    /// Generates the shell completion code for Bash.
+    /// </summary>
     public class BashCoconaShellCompletionCodeGenerator : ICoconaShellCompletionCodeGenerator
     {
         private readonly string _appName;
