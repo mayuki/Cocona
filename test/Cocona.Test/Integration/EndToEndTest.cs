@@ -195,6 +195,16 @@ namespace Cocona.Test.Integration
             exitCode.Should().Be(0);
         }
 
+        [Fact]
+        public void CoconaApp_Run_Completion()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "--completion", "zsh" });
+
+            stdOut.Should().Contain("#compdef");
+            stdErr.Should().BeEmpty();
+            exitCode.Should().Be(0);
+        }
+
         class TestCommand_Multiple
         {
             public void Hello()
@@ -233,6 +243,12 @@ namespace Cocona.Test.Integration
             public void OptionTest([Option] string name, [Option('a')]int age = 17)
             {
                 Console.WriteLine($"Hello {name} ({age})!");
+            }
+
+            public enum TestValues
+            {
+                Alice,
+                Karen
             }
         }
 
