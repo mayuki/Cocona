@@ -40,10 +40,11 @@ jobs:
         shellcheck <(dotnet run -- --completion bash)
       displayName: Shellcheck for Bash completion
 
-    - script: |
-        cd samples/GettingStarted.SubCommandApp
-        shellcheck <(dotnet run -- --completion zsh)
-      displayName: Shellcheck for Zsh completion
+    # NOTE: Currently, Shellcheck doesn't support zsh script.
+    #- script: |
+    #    cd samples/GettingStarted.SubCommandApp
+    #    shellcheck <(dotnet run -- --completion zsh)
+    #  displayName: Shellcheck for Zsh completion
 
     - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
       displayName: dotnet pack Cocona
@@ -91,10 +92,11 @@ jobs:
         shellcheck <(dotnet run -- --completion bash)
       displayName: Shellcheck for Bash completion
 
-    - script: |
-        cd samples/GettingStarted.SubCommandApp
-        shellcheck <(dotnet run -- --completion zsh)
-      displayName: Shellcheck for Zsh completion
+    # NOTE: Currently, Shellcheck doesn't support zsh script.
+    #- script: |
+    #    cd samples/GettingStarted.SubCommandApp
+    #    shellcheck <(dotnet run -- --completion zsh)
+    #  displayName: Shellcheck for Zsh completion
 
     - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
       displayName: dotnet pack
