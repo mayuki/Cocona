@@ -61,7 +61,7 @@ namespace Cocona.Command.BuiltIn
 
                 if (!_shellCompletionCodeGenerator.CanHandle(opt.Value))
                 {
-                    _console.Error.Write($"Error: Shell completion for '{opt.Value}' is not supported.");
+                    _console.Error.Write($"Error: Shell completion for '{opt.Value}' is not supported. (Supported shells: {string.Join(", ", _shellCompletionCodeGenerator.SupportedTargets)})");
                     return new ValueTask<int>(1);
                 }
 
