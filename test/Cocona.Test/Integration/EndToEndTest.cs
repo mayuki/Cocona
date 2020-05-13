@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Cocona.Application;
+using Cocona.CommandLine;
+using Cocona.ShellCompletion.Candidate;
 using FluentAssertions;
 using Xunit;
 
@@ -84,11 +86,67 @@ namespace Cocona.Test.Integration
             exitCode.Should().Be(0);
         }
 
+        [Fact]
+        public void CoconaApp_Run_Single_Help()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(new string[] { "--help" });
+
+            stdOut.Should().Contain("Usage:");
+            exitCode.Should().Be(129);
+        }
+
+        [Fact]
+        public void CoconaApp_Run_Single_Version()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(new string[] { "--version" });
+
+            stdOut.Should().MatchRegex(@"[^ ]+ \d+\.\d+\.\d+");
+            exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public void CoconaApp_Run_Single_Completion()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(new string[] { "--completion", "zsh" });
+
+            stdOut.Should().Contain("#compdef");
+            stdErr.Should().BeEmpty();
+            exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public void CoconaApp_Run_Single_CompletionCandidates()
+        {
+            // NOTE: --completion-candidates option always follows --help and --version
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_Candidates>(new string[] { "--help", "--version", "--completion-candidates", "bash:name", "--", "A" });
+
+            stdOut.Should().Contain("Alice");
+            stdErr.Should().BeEmpty();
+            exitCode.Should().Be(0);
+        }
+
         class TestCommand_Single
         {
             public void Hello()
             {
                 Console.WriteLine("Hello Konnichiwa!");
+            }
+        }
+
+
+        class TestCommand_Single_Candidates
+        {
+            public void Hello([CompletionCandidates(typeof(OnTheFlyCandidatesProvider))]string name)
+            {
+                Console.WriteLine("Hello Konnichiwa!");
+            }
+
+            public class OnTheFlyCandidatesProvider : ICoconaCompletionOnTheFlyCandidatesProvider
+            {
+                public IReadOnlyList<CompletionCandidateValue> GetCandidates(CoconaCompletionCandidatesMetadata metadata, ParsedCommandLine parsedCommandLine)
+                {
+                    return new[] {new CompletionCandidateValue("Alice", ""),};
+                }
             }
         }
 
@@ -110,6 +168,27 @@ namespace Cocona.Test.Integration
             stdOut.Should().Contain("Commands:");
             stdOut.Should().Contain("  konnichiwa");
             stdOut.Should().Contain("  hello");
+            exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public void CoconaApp_Run_Multiple_Help()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "--help" });
+
+            stdOut.Should().Contain("Usage:");
+            stdOut.Should().Contain("Commands:");
+            stdOut.Should().Contain("  konnichiwa");
+            stdOut.Should().Contain("  hello");
+            exitCode.Should().Be(129);
+        }
+
+        [Fact]
+        public void CoconaApp_Run_Multiple_Version()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "--version" });
+
+            stdOut.Should().MatchRegex(@"[^ ]+ \d+\.\d+\.\d+");
             exitCode.Should().Be(0);
         }
 
@@ -196,11 +275,44 @@ namespace Cocona.Test.Integration
         }
 
         [Fact]
-        public void CoconaApp_Run_Completion()
+        public void CoconaApp_Run_Multiple_Completion()
         {
             var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "--completion", "zsh" });
 
             stdOut.Should().Contain("#compdef");
+            stdErr.Should().BeEmpty();
+            exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public void CoconaApp_Run_Multiple_CompletionCandidates()
+        {
+            // NOTE: --completion-candidates option always follows --help and --version
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(new string[] { "--help", "--version", "--completion-candidates", "bash:name", "--", "hello", "A" });
+
+            stdOut.Should().Contain("Karen");
+            stdErr.Should().BeEmpty();
+            exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public void CoconaApp_Run_Multiple_CompletionCandidates_UnknownCommand()
+        {
+            // NOTE: --completion-candidates option always follows --help and --version
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(new string[] { "--help", "--version", "--completion-candidates", "bash:name", "--", "unknown-command", "A" });
+
+            stdOut.Should().BeEmpty();
+            stdErr.Should().NotBeEmpty();
+            exitCode.Should().Be(1);
+        }
+
+        [Fact]
+        public void CoconaApp_Run_Multiple_CompletionCandidates_UnknownOption()
+        {
+            // NOTE: --completion-candidates option always follows --help and --version
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(new string[] { "--help", "--version", "--completion-candidates", "bash:unknown-option", "--", "hello", "A" });
+
+            stdOut.Should().BeEmpty();
             stdErr.Should().BeEmpty();
             exitCode.Should().Be(0);
         }
@@ -244,17 +356,38 @@ namespace Cocona.Test.Integration
             {
                 Console.WriteLine($"Hello {name} ({age})!");
             }
+        }
 
-            public enum TestValues
+        class TestCommand_Multiple_Candidates
+        {
+            public void Hello([CompletionCandidates(typeof(OnTheFlyCandidatesProvider))]string name)
             {
-                Alice,
-                Karen
+                Console.WriteLine("Hello Konnichiwa!");
+            }
+
+            public void Konnichiwa()
+            {
+                Console.WriteLine("Konnichiwa!");
+            }
+
+            public class OnTheFlyCandidatesProvider : ICoconaCompletionOnTheFlyCandidatesProvider
+            {
+                public IReadOnlyList<CompletionCandidateValue> GetCandidates(CoconaCompletionCandidatesMetadata metadata, ParsedCommandLine parsedCommandLine)
+                {
+                    return new[] { new CompletionCandidateValue("Karen", ""), };
+                }
             }
         }
 
         class TestCommand2
         {
             public void FooBar() { }
+        }
+
+        public enum TestValues
+        {
+            Alice,
+            Karen
         }
 
         [Fact]

@@ -42,7 +42,9 @@ namespace Cocona.ShellCompletion.Generators
             WriteRootCommandDefinition(writer, commandCollection);
 
             writer.WriteLine($"__cocona_{_appName}_onthefly() {{");
-            writer.WriteLine($"    local -a items; items=(${{(f)\"$(\"${{exec_command}}\" --completion-candidates \"zsh:$1\" \"${{words[@]}}\")\"}})");
+            writer.WriteLine($"    # NOTE: '--help' and '--version' options prevents to perform unintended destructive action");
+            writer.WriteLine($"    # if the command doesn't support on-the-fly candidates feature (It's fail-safe).");
+            writer.WriteLine($"    local -a items; items=(${{(f)\"$(\"${{exec_command}}\" --help --version --completion-candidates \"zsh:$1\" -- \"${{words[@]}}\")\"}})");
             writer.WriteLine($"    _describe 'items' items");
             writer.WriteLine($"}}");
 

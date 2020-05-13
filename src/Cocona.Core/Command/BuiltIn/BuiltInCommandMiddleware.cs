@@ -69,7 +69,11 @@ namespace Cocona.Command.BuiltIn
                 return new ValueTask<int>(0);
             }
 
-            // --completion-candidates <shell>:<paramName>
+            // --completion-candidates <shell>:<paramName> -- <incompleted command line...>
+            // WARN: The option must be processed before '--help' or '--version' options.
+            //       If '--completion-candidates' option is provided, '--help' and '--version' options are also always provided.
+            //       And these options prevent to perform unintended **destructive** action if the command doesn't support on-the-fly candidates feature.
+            //       Fortunately, Cocona rejects unknown options by default. This options guard is fail-safe.
             var hasCompletionCandidatesOption = ctx.ParsedCommandLine.Options.Any(x => x.Option == BuiltInCommandOption.CompletionCandidates);
             if (hasCompletionCandidatesOption)
             {
@@ -77,7 +81,7 @@ namespace Cocona.Command.BuiltIn
                 var parts = opt.Value!.Split(new[] { ':' }, 2);
                 var (shellTarget, paramName) = (parts[0], parts[1]);
 
-                var candidates = _completionCandidates.GetOnTheFlyCandidates(paramName, opt.Position + 1, 0, null);
+                var candidates = _completionCandidates.GetOnTheFlyCandidates(paramName, opt.Position + 2 /* -- */, 0, null);
                 _shellCompletionCodeGenerator.GenerateOnTheFlyCandidates(shellTarget, _console.Output, candidates);
                 return new ValueTask<int>(0);
             }
