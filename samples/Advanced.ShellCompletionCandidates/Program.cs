@@ -25,7 +25,7 @@ namespace CoconaSample.Advanced.ShellCompletionCandidates
             Console.WriteLine($"Hello {name}!");
         }
 
-        public void OnTheFly([CompletionCandidates(typeof(OnTheFlyMemberNameProvider))] string name, string group)
+        public void OnTheFly([CompletionCandidates(typeof(OnTheFlyMemberNameProvider))] string name, [CompletionCandidates(new [] { "TrySail", "Sphere" })]string group)
         {
             Console.WriteLine($"Hello {name}!");
         }
@@ -48,16 +48,16 @@ namespace CoconaSample.Advanced.ShellCompletionCandidates
     {
         private readonly CompletionCandidateValue[] _resultsSphere =
         {
-            new CompletionCandidateValue("Aki", ""),
-            new CompletionCandidateValue("Minako", ""),
-            new CompletionCandidateValue("Haruka", ""),
-            new CompletionCandidateValue("Ayahi", "")
+            new CompletionCandidateValue("Aki", "Aki Toyosaki"),
+            new CompletionCandidateValue("Minako", "Minako Kotobuki"),
+            new CompletionCandidateValue("Haruka", "Haruka Tomatsu"),
+            new CompletionCandidateValue("Ayahi", "Ayahi Takagaki")
         };
         private readonly CompletionCandidateValue[] _resultsTrySail =
         {
-            new CompletionCandidateValue("Sora", ""),
-            new CompletionCandidateValue("Momo", ""),
-            new CompletionCandidateValue("Shiina", "")
+            new CompletionCandidateValue("Sora", "Sora Amamiya"),
+            new CompletionCandidateValue("Momo", "Momo Asakura"),
+            new CompletionCandidateValue("Shiina", "Shiina Natsukawa")
         };
 
         public IReadOnlyList<CompletionCandidateValue> GetCandidates(CoconaCompletionCandidatesMetadata metadata, ParsedCommandLine parsedCommandLine)

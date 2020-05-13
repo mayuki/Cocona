@@ -119,6 +119,7 @@ namespace Cocona.Lite.Hosting
             services.AddSingleton<ICoconaCommandHelpProvider>(sp => new CoconaCommandHelpProvider(sp.GetService<ICoconaApplicationMetadataProvider>(), sp));
 
             services.AddSingleton<ICoconaShellCompletionCodeProvider, BashCoconaShellCompletionCodeProvider>();
+            services.AddSingleton<ICoconaShellCompletionCodeProvider, ZshCoconaShellCompletionCodeProvider>();
             services.AddSingleton<ICoconaShellCompletionCodeGenerator, CoconaShellCompletionCodeGenerator>();
             services.AddSingleton<ICoconaCompletionCandidatesMetadataFactory, CoconaCompletionCandidatesMetadataFactory>();
             services.AddSingleton<ICoconaCompletionCandidatesProviderFactory, CoconaCompletionCandidatesProviderFactory>();

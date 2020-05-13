@@ -62,7 +62,8 @@ namespace Microsoft.Extensions.Hosting
                     services.TryAddTransient<ICoconaHelpRenderer, CoconaHelpRenderer>();
                     services.TryAddTransient<ICoconaCommandHelpProvider, CoconaCommandHelpProvider>();
 
-                    services.TryAddSingleton<ICoconaShellCompletionCodeProvider, BashCoconaShellCompletionCodeProvider>();
+                    services.AddSingleton<ICoconaShellCompletionCodeProvider, BashCoconaShellCompletionCodeProvider>();
+                    services.AddSingleton<ICoconaShellCompletionCodeProvider, ZshCoconaShellCompletionCodeProvider>();
                     services.TryAddSingleton<ICoconaShellCompletionCodeGenerator, CoconaShellCompletionCodeGenerator>();
                     services.TryAddSingleton<ICoconaCompletionCandidatesMetadataFactory, CoconaCompletionCandidatesMetadataFactory>();
                     services.TryAddSingleton<ICoconaCompletionCandidatesProviderFactory, CoconaCompletionCandidatesProviderFactory>();
