@@ -147,12 +147,12 @@ namespace Cocona.ShellCompletion.Generators
         {
             if (option.ShortName.Any())
             {
-                return $"'{{--{option.Name},{string.Join(",", option.ShortName.Select(x => "-" + x))}}}'";
+                return $"{(option.IsEnumerableLike ? "*" : "")}'{{--{option.Name},{string.Join(",", option.ShortName.Select(x => "-" + x))}}}'";
 
             }
             else
             {
-                return $"--{option.Name}";
+                return $"{(option.IsEnumerableLike ? "*" : "")}--{option.Name}";
             }
         }
 

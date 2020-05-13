@@ -55,7 +55,7 @@ namespace Cocona.Help
                             sb.Append($"[--{opt.Name}]");
                         }
                     }
-                    else if (DynamicListHelper.IsArrayOrEnumerableLike(opt.OptionType))
+                    else if (opt.IsEnumerableLike)
                     {
                         sb.Append($"[--{opt.Name} <{opt.ValueName}>...]");
                     }
@@ -259,7 +259,7 @@ namespace Cocona.Help
                         ? option.DefaultValue.HasValue && option.DefaultValue.Value != null && option.DefaultValue.Value.Equals(true)
                             ? "=<true|false>"
                             : ""
-                        : DynamicListHelper.IsArrayOrEnumerableLike(option.OptionType)
+                        : option.IsEnumerableLike
                             ? $" <{option.ValueName}>..."
                             : $" <{option.ValueName}>"
                 );
