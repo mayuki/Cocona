@@ -6,18 +6,19 @@ using Cocona.Application;
 using Cocona.Command;
 using Cocona.ShellCompletion;
 using Cocona.ShellCompletion.Candidate;
+using Cocona.ShellCompletion.Generators;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Cocona.Test.ShellCompletion
 {
-    public class BashCoconaShellCompletionCodeProviderTest
+    public class BashCoconaShellCompletionCodeGeneratorTest
     {
         [Fact]
         public void Generate()
         {
-            var provider = new BashCoconaShellCompletionCodeProvider(new CoconaApplicationMetadataProvider(), new TestCompletionCandidates());
+            var provider = new BashCoconaShellCompletionCodeGenerator(new CoconaApplicationMetadataProvider(), new TestCompletionCandidates());
             provider.Targets.Should().BeEquivalentTo("bash");
 
             var writer = new StringWriter();

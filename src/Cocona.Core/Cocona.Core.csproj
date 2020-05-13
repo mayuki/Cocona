@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="ShellCompletion\Resources\bash_common.sh" />
+    <None Remove="ShellCompletion\Generators\Resources\bash_common.sh" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="ShellCompletion\Resources\bash_common.sh" />
+    <EmbeddedResource Include="ShellCompletion\Generators\Resources\bash_common.sh" />
   </ItemGroup>
 
   <ItemGroup>

@@ -112,7 +112,7 @@ namespace Cocona.Command.Dispatcher
                                 GetRequiredService<ICoconaCommandProvider>(_serviceProvider),
                                 GetRequiredService<ICoconaConsoleProvider>(_serviceProvider),
                                 GetRequiredService<ICoconaAppContextAccessor>(_serviceProvider),
-                                GetRequiredService<ICoconaShellCompletionCodeGenerator>(_serviceProvider),
+                                GetRequiredService<ICoconaShellCompletionCodeProvider>(_serviceProvider),
                                 GetRequiredService<ICoconaCompletionCandidates>(_serviceProvider)
 
                             );

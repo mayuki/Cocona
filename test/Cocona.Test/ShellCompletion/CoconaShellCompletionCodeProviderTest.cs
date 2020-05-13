@@ -5,24 +5,25 @@ using System.Text;
 using Cocona.Command;
 using Cocona.ShellCompletion;
 using Cocona.ShellCompletion.Candidate;
+using Cocona.ShellCompletion.Generators;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Cocona.Test.ShellCompletion
 {
-    public class CoconaShellCompletionCodeGeneratorTest
+    public class CoconaShellCompletionCodeProviderTest
     {
         [Fact]
         public void BuildGenerator()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<ICoconaShellCompletionCodeProvider, TestCodeProvider>();
-            services.AddSingleton<ICoconaShellCompletionCodeProvider, Test2CodeProvider>();
-            services.AddSingleton<ICoconaShellCompletionCodeGenerator, CoconaShellCompletionCodeGenerator>();
+            services.AddSingleton<ICoconaShellCompletionCodeGenerator, TestCodeGenerator>();
+            services.AddSingleton<ICoconaShellCompletionCodeGenerator, Test2CodeGenerator>();
+            services.AddSingleton<ICoconaShellCompletionCodeProvider, CoconaShellCompletionCodeProvider>();
             var serviceProvider = services.BuildServiceProvider();
 
-            var generator = serviceProvider.GetRequiredService<ICoconaShellCompletionCodeGenerator>();
+            var generator = serviceProvider.GetRequiredService<ICoconaShellCompletionCodeProvider>();
             generator.SupportedTargets.Should().BeEquivalentTo("test", "test2");
         }
 
@@ -30,12 +31,12 @@ namespace Cocona.Test.ShellCompletion
         public void CanHandle()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<ICoconaShellCompletionCodeProvider, TestCodeProvider>();
-            services.AddSingleton<ICoconaShellCompletionCodeProvider, Test2CodeProvider>();
-            services.AddSingleton<ICoconaShellCompletionCodeGenerator, CoconaShellCompletionCodeGenerator>();
+            services.AddSingleton<ICoconaShellCompletionCodeGenerator, TestCodeGenerator>();
+            services.AddSingleton<ICoconaShellCompletionCodeGenerator, Test2CodeGenerator>();
+            services.AddSingleton<ICoconaShellCompletionCodeProvider, CoconaShellCompletionCodeProvider>();
             var serviceProvider = services.BuildServiceProvider();
 
-            var generator = serviceProvider.GetRequiredService<ICoconaShellCompletionCodeGenerator>();
+            var generator = serviceProvider.GetRequiredService<ICoconaShellCompletionCodeProvider>();
             generator.CanHandle("test").Should().BeTrue();
             generator.CanHandle("test2").Should().BeTrue();
             generator.CanHandle("test3").Should().BeFalse();
@@ -45,18 +46,18 @@ namespace Cocona.Test.ShellCompletion
         public void Generate()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<ICoconaShellCompletionCodeProvider, TestCodeProvider>();
-            services.AddSingleton<ICoconaShellCompletionCodeProvider, Test2CodeProvider>();
-            services.AddSingleton<ICoconaShellCompletionCodeGenerator, CoconaShellCompletionCodeGenerator>();
+            services.AddSingleton<ICoconaShellCompletionCodeGenerator, TestCodeGenerator>();
+            services.AddSingleton<ICoconaShellCompletionCodeGenerator, Test2CodeGenerator>();
+            services.AddSingleton<ICoconaShellCompletionCodeProvider, CoconaShellCompletionCodeProvider>();
             var serviceProvider = services.BuildServiceProvider();
 
-            var generator = serviceProvider.GetRequiredService<ICoconaShellCompletionCodeGenerator>();
+            var generator = serviceProvider.GetRequiredService<ICoconaShellCompletionCodeProvider>();
             var writer = new StringWriter();
             generator.Generate("test2", writer, new CommandCollection(Array.Empty<CommandDescriptor>()));
             writer.ToString().Should().Be("Provider2");
         }
 
-        public class TestCodeProvider : ICoconaShellCompletionCodeProvider
+        public class TestCodeGenerator : ICoconaShellCompletionCodeGenerator
         {
             public IReadOnlyList<string> Targets => new[] {"test"};
 
@@ -71,7 +72,7 @@ namespace Cocona.Test.ShellCompletion
             }
         }
 
-        public class Test2CodeProvider : ICoconaShellCompletionCodeProvider
+        public class Test2CodeGenerator : ICoconaShellCompletionCodeGenerator
         {
             public IReadOnlyList<string> Targets => new[] { "test2" };
 

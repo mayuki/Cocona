@@ -22,7 +22,7 @@ namespace Cocona.Command.BuiltIn
         private readonly ICoconaCommandProvider _commandProvider;
         private readonly ICoconaConsoleProvider _console;
         private readonly ICoconaAppContextAccessor _appContext;
-        private readonly ICoconaShellCompletionCodeGenerator _shellCompletionCodeGenerator;
+        private readonly ICoconaShellCompletionCodeProvider _shellCompletionCodeGenerator;
         private readonly ICoconaCompletionCandidates _completionCandidates;
 
         public BuiltInCommandMiddleware(
@@ -32,7 +32,7 @@ namespace Cocona.Command.BuiltIn
             ICoconaCommandProvider commandProvider,
             ICoconaConsoleProvider console,
             ICoconaAppContextAccessor appContext,
-            ICoconaShellCompletionCodeGenerator shellCompletionCodeGenerator,
+            ICoconaShellCompletionCodeProvider shellCompletionCodeGenerator,
             ICoconaCompletionCandidates completionCandidates
         )
             : base(next)
