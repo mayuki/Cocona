@@ -1,4 +1,5 @@
-﻿using System.IO;
+using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 
 namespace Cocona.Application
@@ -7,7 +8,7 @@ namespace Cocona.Application
     {
         public string GetExecutableName()
         {
-            return Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location);
+            return Process.GetCurrentProcess().ProcessName;
         }
 
         public string GetDescription()
