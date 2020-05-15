@@ -67,7 +67,7 @@ namespace Cocona.ShellCompletion.Generators
             var subCommands = commandCollection.All.Where(x => !x.IsHidden && !x.IsPrimaryCommand).ToArray();
 
             writer.WriteLine($"__cocona_{_appName}_commands_root() {{");
-            writer.WriteLine($"    local exec_command; exec_command=\"${{words[1]}}\"");
+            writer.WriteLine($"    local exec_command; exec_command=\"${{words[1]/#\\~/$HOME}}\"");
             if (commandCollection.Primary != null)
             {
                 WriteZshArguments(writer, "root", commandCollection.Primary, subCommands);
