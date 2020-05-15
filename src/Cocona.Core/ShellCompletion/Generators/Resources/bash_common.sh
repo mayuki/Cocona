@@ -98,7 +98,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
             return 0
         fi
         if [[ $cword -eq $command_depth ]]; then
-            __cocona_APPNAMEPLACEHOLDER_completion_set_candidates "${commands[@]}"
+            __cocona_APPNAMEPLACEHOLDER_completion_set_candidates "${commands[@]}" "${options[@]}"
             return 0
         fi
     fi
