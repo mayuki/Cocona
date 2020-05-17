@@ -18,14 +18,14 @@ namespace Cocona.ShellCompletion.Generators
         /// <summary>
         /// Generates a shell code for the completion.
         /// </summary>
-        /// <param name="writer">Writer to be output.</param>
-        /// <param name="commandCollection">The command collection.</param>
+        /// <param name="writer">The <see cref="TextWriter"/> to be output.</param>
+        /// <param name="commandCollection">The <see cref="CommandCollection"/>.</param>
         void Generate(TextWriter writer, CommandCollection commandCollection);
 
         /// <summary>
         /// Generates completion candidates for shell on the fly.
         /// </summary>
-        /// <param name="writer">Writer to be output.</param>
+        /// <param name="writer">The <see cref="TextWriter"/> to be output.</param>
         /// <param name="values">The on-the-fly candidates.</param>
         void GenerateOnTheFlyCandidates(TextWriter writer, IReadOnlyList<CompletionCandidateValue> values);
     }

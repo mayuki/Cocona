@@ -2,9 +2,19 @@ using System;
 
 namespace Cocona.ShellCompletion.Candidate
 {
+    /// <summary>
+    /// The value of shell completion candidate.
+    /// </summary>
     public class CompletionCandidateValue : IEquatable<CompletionCandidateValue>
     {
+        /// <summary>
+        /// Gets the candidate value. The value will be show on the screen.
+        /// </summary>
         public string Value { get; }
+
+        /// <summary>
+        /// Gets the description of the candidate.
+        /// </summary>
         public string Description { get; }
 
         public CompletionCandidateValue(string value, string description)

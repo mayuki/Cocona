@@ -4,13 +4,23 @@ using System.Linq;
 
 namespace Cocona.ShellCompletion.Candidate
 {
+    /// <summary>
+    /// Result of a shell completion candidate generation. It contains candidate values.
+    /// </summary>
     public class CompletionCandidateResult
     {
         public static CompletionCandidateResult Default { get; } = new CompletionCandidateResult(CompletionCandidateResultType.Default);
         public static CompletionCandidateResult File { get; } = new CompletionCandidateResult(CompletionCandidateResultType.File);
         public static CompletionCandidateResult Directory { get; } = new CompletionCandidateResult(CompletionCandidateResultType.Directory);
 
+        /// <summary>
+        /// Gets the type of this result.
+        /// </summary>
         public CompletionCandidateResultType ResultType { get; }
+
+        /// <summary>
+        /// Gets the candidates values.
+        /// </summary>
         public IReadOnlyList<CompletionCandidateValue> Values { get; }
 
         public CompletionCandidateResult(CompletionCandidateResultType resultType)
