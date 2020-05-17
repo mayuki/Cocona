@@ -123,7 +123,7 @@ namespace Cocona.ShellCompletion.Generators
             }
             foreach (var arg in command.Arguments)
             {
-                writer.WriteLine($"        '{arg.Order}:{arg.Name}:{GetArgumentValues(arg)}' \\");
+                writer.WriteLine($"        '{arg.Order + 1}:{arg.Name}:{GetArgumentValues(arg)}' \\"); // NOTE: the argument index must begin at 1.
             }
 
             if (subCommands.Any())
