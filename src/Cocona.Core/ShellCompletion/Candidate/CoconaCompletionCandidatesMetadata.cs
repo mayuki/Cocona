@@ -4,6 +4,9 @@ using Cocona.Command;
 
 namespace Cocona.ShellCompletion.Candidate
 {
+    /// <summary>
+    /// Provides metadata of shell completion state to generate candidates.
+    /// </summary>
     public class CoconaCompletionCandidatesMetadata
     {
         public CompletionCandidateType CandidateType { get; }

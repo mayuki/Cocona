@@ -5,7 +5,7 @@ using System.Linq;
 namespace Cocona.ShellCompletion.Candidate
 {
     /// <summary>
-    /// Result of a shell completion candidate generation. It contains candidate values.
+    /// Result of a shell completion candidate while generating a shell script. It contains candidate values.
     /// </summary>
     public class CompletionCandidateResult
     {
