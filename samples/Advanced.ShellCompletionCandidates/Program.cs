@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Cocona;
 using Cocona.Command;
@@ -20,7 +21,7 @@ namespace CoconaSample.Advanced.ShellCompletionCandidates
             Console.WriteLine($"Hello {name}!");
         }
 
-        public void Static([CompletionCandidates(typeof(StaticMemberNameProvider))] string name)
+        public void Static([CompletionCandidates(typeof(StaticMemberNameProvider))] string[] name)
         {
             Console.WriteLine($"Hello {name}!");
         }
