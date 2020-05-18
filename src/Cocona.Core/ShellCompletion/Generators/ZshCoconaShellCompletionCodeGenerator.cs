@@ -109,7 +109,7 @@ namespace Cocona.ShellCompletion.Generators
 
             var helpOption = command.Options.FirstOrDefault(x => x.Name == "help" && x.OptionType == typeof(bool));
 
-            writer.WriteLine($"    _arguments -n -s : \\");
+            writer.WriteLine($"    _arguments -n -s -S : \\");
             foreach (var option in command.Options.Where(x => !x.IsHidden))
             {
                 if (option.OptionType == typeof(bool))
