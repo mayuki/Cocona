@@ -44,7 +44,7 @@ namespace Cocona.Test.Command.ParameterBinder
             });
 
             var binder = CreateCoconaParameterBinder();
-            var result = binder.Bind(command, new[] { new CommandOption(command.Options[0], "0") }, Array.Empty<CommandArgument>());
+            var result = binder.Bind(command, new[] { new CommandOption(command.Options[0], "0", 0) }, Array.Empty<CommandArgument>());
             result.Should().HaveCount(1);
         }
 
@@ -57,7 +57,7 @@ namespace Cocona.Test.Command.ParameterBinder
             });
 
             var binder = CreateCoconaParameterBinder();
-            var result = binder.Bind(command, new[] { new CommandOption(command.Options[0], "0") }, Array.Empty<CommandArgument>());
+            var result = binder.Bind(command, new[] { new CommandOption(command.Options[0], "0", 0) }, Array.Empty<CommandArgument>());
             result.Should().HaveCount(1);
         }
 
@@ -70,7 +70,7 @@ namespace Cocona.Test.Command.ParameterBinder
             });
 
             var binder = CreateCoconaParameterBinder();
-            var ex = Assert.Throws<ParameterBinderException>(() => binder.Bind(command, new[] { new CommandOption(command.Options[0], "123") }, Array.Empty<CommandArgument>()));
+            var ex = Assert.Throws<ParameterBinderException>(() => binder.Bind(command, new[] { new CommandOption(command.Options[0], "123", 0) }, Array.Empty<CommandArgument>()));
             ex.Result.Should().Be(ParameterBinderResult.ValidationFailed);
         }
 
@@ -83,7 +83,7 @@ namespace Cocona.Test.Command.ParameterBinder
             });
 
             var binder = CreateCoconaParameterBinder();
-            var result = binder.Bind(command, new[] { new CommandOption(command.Options[0], "0") }, Array.Empty<CommandArgument>());
+            var result = binder.Bind(command, new[] { new CommandOption(command.Options[0], "0", 0) }, Array.Empty<CommandArgument>());
             result.Should().HaveCount(1);
         }
 
@@ -97,7 +97,7 @@ namespace Cocona.Test.Command.ParameterBinder
             });
 
             var binder = CreateCoconaParameterBinder();
-            var result = binder.Bind(command, Array.Empty<CommandOption>(), new[] { new CommandArgument("0") });
+            var result = binder.Bind(command, Array.Empty<CommandOption>(), new[] { new CommandArgument("0", 0) });
             result.Should().HaveCount(1);
         }
 
@@ -110,7 +110,7 @@ namespace Cocona.Test.Command.ParameterBinder
             });
 
             var binder = CreateCoconaParameterBinder();
-            var result = binder.Bind(command, Array.Empty<CommandOption>(), new[] { new CommandArgument("0") });
+            var result = binder.Bind(command, Array.Empty<CommandOption>(), new[] { new CommandArgument("0", 0) });
             result.Should().HaveCount(1);
         }
 
@@ -123,7 +123,7 @@ namespace Cocona.Test.Command.ParameterBinder
             });
 
             var binder = CreateCoconaParameterBinder();
-            var ex = Assert.Throws<ParameterBinderException>(() => binder.Bind(command, Array.Empty<CommandOption>(), new[] { new CommandArgument("123") }));
+            var ex = Assert.Throws<ParameterBinderException>(() => binder.Bind(command, Array.Empty<CommandOption>(), new[] { new CommandArgument("123", 0) }));
             ex.Result.Should().Be(ParameterBinderResult.ValidationFailed);
         }
 
@@ -136,7 +136,7 @@ namespace Cocona.Test.Command.ParameterBinder
             });
 
             var binder = CreateCoconaParameterBinder();
-            var result = binder.Bind(command, Array.Empty<CommandOption>(), new[] { new CommandArgument("0") });
+            var result = binder.Bind(command, Array.Empty<CommandOption>(), new[] { new CommandArgument("0", 0) });
             result.Should().HaveCount(1);
         }
 

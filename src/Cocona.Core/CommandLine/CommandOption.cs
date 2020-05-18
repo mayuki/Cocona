@@ -1,4 +1,4 @@
-﻿using Cocona.Command;
+using Cocona.Command;
 using System;
 using System.Diagnostics;
 
@@ -11,10 +11,13 @@ namespace Cocona.CommandLine
 
         public string? Value { get; }
 
-        public CommandOption(CommandOptionDescriptor option, string? value)
+        public int Position { get; }
+
+        public CommandOption(CommandOptionDescriptor option, string? value, int position)
         {
             Option = option ?? throw new ArgumentNullException(nameof(option));
             Value = value;
+            Position = position;
         }
 
         public override string ToString()

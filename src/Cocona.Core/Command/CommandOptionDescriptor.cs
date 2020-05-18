@@ -19,6 +19,7 @@ namespace Cocona.Command
         public CommandOptionFlags Flags { get; }
         public bool IsHidden => (Flags & CommandOptionFlags.Hidden) == CommandOptionFlags.Hidden;
         public bool IsRequired => !DefaultValue.HasValue;
+        public bool IsEnumerableLike => DynamicListHelper.IsArrayOrEnumerableLike(OptionType);
 
         public CommandOptionDescriptor(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue, string? valueName, CommandOptionFlags flags, IReadOnlyList<Attribute> parameterAttributes)
         {

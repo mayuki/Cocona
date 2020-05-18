@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace Cocona.Command
 {
@@ -8,9 +8,9 @@ namespace Cocona.Command
         public static CoconaDefaultValue None { get; } = new CoconaDefaultValue();
 
         public bool HasValue { get; }
-        public object Value { get; }
+        public object? Value { get; }
 
-        public CoconaDefaultValue(object value)
+        public CoconaDefaultValue(object? value)
         {
             HasValue = true;
             Value = value;

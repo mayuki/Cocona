@@ -11,6 +11,9 @@ using Cocona.Command.Dispatcher;
 using Cocona.Command.Dispatcher.Middlewares;
 using Cocona.CommandLine;
 using Cocona.Help;
+using Cocona.ShellCompletion;
+using Cocona.ShellCompletion.Candidate;
+using Cocona.ShellCompletion.Generators;
 
 namespace Cocona.Lite.Hosting
 {
@@ -110,10 +113,18 @@ namespace Cocona.Lite.Hosting
             services.AddSingleton<ICoconaParameterBinder>(sp => new CoconaParameterBinder(sp, sp.GetService<ICoconaValueConverter>(), sp.GetService<ICoconaParameterValidatorProvider>()));
             services.AddSingleton<ICoconaValueConverter>(sp => new CoconaValueConverter());
             services.AddSingleton<ICoconaCommandLineParser>(sp => new CoconaCommandLineParser());
-            services.AddSingleton<ICoconaCommandDispatcher>(sp => new CoconaCommandDispatcher(sp, sp.GetService<ICoconaCommandProvider>(), sp.GetService<ICoconaCommandLineParser>(), sp.GetService<ICoconaCommandLineArgumentProvider>(), sp.GetService<ICoconaCommandDispatcherPipelineBuilder>(), sp.GetService<ICoconaCommandMatcher>(), sp.GetService<ICoconaInstanceActivator>(), sp.GetService<ICoconaAppContextAccessor>()));
+            services.AddSingleton<ICoconaCommandDispatcher>(sp => new CoconaCommandDispatcher(sp, sp.GetService<ICoconaCommandLineArgumentProvider>(), sp.GetService<ICoconaCommandResolver>(), sp.GetService<ICoconaCommandDispatcherPipelineBuilder>(), sp.GetService<ICoconaInstanceActivator>(), sp.GetService<ICoconaAppContextAccessor>()));
             services.AddSingleton<ICoconaCommandMatcher>(sp => new CoconaCommandMatcher());
+            services.AddSingleton<ICoconaCommandResolver>(sp => new CoconaCommandResolver(sp.GetService<ICoconaCommandProvider>(), sp.GetService<ICoconaCommandLineParser>(), sp.GetService<ICoconaCommandMatcher>()));
             services.AddSingleton<ICoconaHelpRenderer>(sp => new CoconaHelpRenderer());
             services.AddSingleton<ICoconaCommandHelpProvider>(sp => new CoconaCommandHelpProvider(sp.GetService<ICoconaApplicationMetadataProvider>(), sp));
+
+            services.AddSingleton<ICoconaShellCompletionCodeGenerator, BashCoconaShellCompletionCodeGenerator>();
+            services.AddSingleton<ICoconaShellCompletionCodeGenerator, ZshCoconaShellCompletionCodeGenerator>();
+            services.AddSingleton<ICoconaShellCompletionCodeProvider, CoconaShellCompletionCodeProvider>();
+            services.AddSingleton<ICoconaCompletionCandidatesMetadataFactory, CoconaCompletionCandidatesMetadataFactory>();
+            services.AddSingleton<ICoconaCompletionCandidatesProviderFactory, CoconaCompletionCandidatesProviderFactory>();
+            services.AddSingleton<ICoconaCompletionCandidates, CoconaCompletionCandidates>();
 
             _configureServicesDelegate?.Invoke(services);
 

@@ -67,6 +67,10 @@ namespace Cocona.Test.CommandLine
             parsed.Should().NotBeNull();
             parsed.Options.Should().BeEmpty();
             parsed.Arguments.Should().HaveCount(4);
+            parsed.Arguments[0].Position.Should().Be(0);
+            parsed.Arguments[1].Position.Should().Be(1);
+            parsed.Arguments[2].Position.Should().Be(2);
+            parsed.Arguments[3].Position.Should().Be(3);
             parsed.UnknownOptions.Should().BeEmpty();
         }
 
@@ -113,6 +117,7 @@ namespace Cocona.Test.CommandLine
             parsed.Should().NotBeNull();
             parsed.Options.Should().HaveCount(1);
             parsed.Options[0].Value.Should().Be("Hello");
+            parsed.Options[0].Position.Should().Be(1);
             parsed.Arguments.Should().BeEmpty();
             parsed.UnknownOptions.Should().BeEmpty();
         }
@@ -135,11 +140,16 @@ namespace Cocona.Test.CommandLine
             );
             parsed.Should().NotBeNull();
             parsed.Options.Should().HaveCount(1);
+            parsed.Options[0].Position.Should().Be(0);
             parsed.Arguments.Should().HaveCount(4);
             parsed.Arguments[0].Value.Should().Be("src1");
+            parsed.Arguments[0].Position.Should().Be(1);
             parsed.Arguments[1].Value.Should().Be("src2");
+            parsed.Arguments[1].Position.Should().Be(2);
             parsed.Arguments[2].Value.Should().Be("src3");
+            parsed.Arguments[2].Position.Should().Be(3);
             parsed.Arguments[3].Value.Should().Be("dest");
+            parsed.Arguments[3].Position.Should().Be(4);
             parsed.UnknownOptions.Should().BeEmpty();
         }
         [Fact]
@@ -160,11 +170,16 @@ namespace Cocona.Test.CommandLine
             );
             parsed.Should().NotBeNull();
             parsed.Options.Should().HaveCount(1);
+            parsed.Options[0].Position.Should().Be(0);
             parsed.Arguments.Should().HaveCount(4);
             parsed.Arguments[0].Value.Should().Be("src1");
+            parsed.Arguments[0].Position.Should().Be(2);
             parsed.Arguments[1].Value.Should().Be("src2");
+            parsed.Arguments[1].Position.Should().Be(3);
             parsed.Arguments[2].Value.Should().Be("src3");
+            parsed.Arguments[2].Position.Should().Be(4);
             parsed.Arguments[3].Value.Should().Be("dest");
+            parsed.Arguments[3].Position.Should().Be(5);
             parsed.UnknownOptions.Should().BeEmpty();
         }
 
@@ -188,11 +203,17 @@ namespace Cocona.Test.CommandLine
             );
             parsed.Should().NotBeNull();
             parsed.Options.Should().HaveCount(2);
+            parsed.Options[0].Position.Should().Be(0);
+            parsed.Options[1].Position.Should().Be(1);
             parsed.Arguments.Should().HaveCount(4);
             parsed.Arguments[0].Value.Should().Be("src1");
+            parsed.Arguments[0].Position.Should().Be(3);
             parsed.Arguments[1].Value.Should().Be("src2");
+            parsed.Arguments[1].Position.Should().Be(4);
             parsed.Arguments[2].Value.Should().Be("src3");
+            parsed.Arguments[2].Position.Should().Be(5);
             parsed.Arguments[3].Value.Should().Be("dest");
+            parsed.Arguments[3].Position.Should().Be(6);
             parsed.UnknownOptions.Should().BeEmpty();
         }
 
@@ -216,11 +237,17 @@ namespace Cocona.Test.CommandLine
             );
             parsed.Should().NotBeNull();
             parsed.Options.Should().HaveCount(2);
+            parsed.Options[0].Position.Should().Be(0);
+            parsed.Options[1].Position.Should().Be(1);
             parsed.Arguments.Should().HaveCount(4);
             parsed.Arguments[0].Value.Should().Be("src1");
+            parsed.Arguments[0].Position.Should().Be(3);
             parsed.Arguments[1].Value.Should().Be("src2");
+            parsed.Arguments[1].Position.Should().Be(4);
             parsed.Arguments[2].Value.Should().Be("src3");
+            parsed.Arguments[2].Position.Should().Be(5);
             parsed.Arguments[3].Value.Should().Be("dest");
+            parsed.Arguments[3].Position.Should().Be(6);
             parsed.UnknownOptions.Should().BeEmpty();
         }
 
@@ -344,6 +371,9 @@ namespace Cocona.Test.CommandLine
             );
             parsed.Should().NotBeNull();
             parsed.Options.Should().HaveCount(3);
+            parsed.Options[0].Position.Should().Be(0);
+            parsed.Options[1].Position.Should().Be(1);
+            parsed.Options[1].Position.Should().Be(1);
             parsed.Arguments.Should().HaveCount(4);
             parsed.Arguments[0].Value.Should().Be("src1");
             parsed.Arguments[1].Value.Should().Be("src2");
@@ -373,12 +403,18 @@ namespace Cocona.Test.CommandLine
             parsed.Should().NotBeNull();
             parsed.Options.Should().HaveCount(2);
             parsed.Options[0].Value.Should().Be("true");
+            parsed.Options[0].Position.Should().Be(0);
             parsed.Options[1].Value.Should().Be("Message");
+            parsed.Options[1].Position.Should().Be(2);
             parsed.Arguments.Should().HaveCount(4);
             parsed.Arguments[0].Value.Should().Be("src1");
+            parsed.Arguments[0].Position.Should().Be(4);
             parsed.Arguments[1].Value.Should().Be("src2");
+            parsed.Arguments[1].Position.Should().Be(5);
             parsed.Arguments[2].Value.Should().Be("src3");
+            parsed.Arguments[2].Position.Should().Be(6);
             parsed.Arguments[3].Value.Should().Be("dest");
+            parsed.Arguments[3].Position.Should().Be(7);
             parsed.UnknownOptions.Should().BeEmpty();
         }
 

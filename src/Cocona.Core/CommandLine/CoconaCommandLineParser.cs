@@ -57,7 +57,7 @@ namespace Cocona.CommandLine
             {
                 if (!args[i].StartsWith("-") || optionsCompleted)
                 {
-                    arguments.Add(new CommandArgument(args[i]));
+                    arguments.Add(new CommandArgument(args[i], i));
                     continue;
                 }
 
@@ -88,12 +88,12 @@ namespace Cocona.CommandLine
                                 var flag = string.Equals(partRight, "true", StringComparison.OrdinalIgnoreCase) || string.Equals(partRight, "1", StringComparison.OrdinalIgnoreCase)
                                     ? "true"
                                     : "false";
-                                options.Add(new CommandOption(option, flag));
+                                options.Add(new CommandOption(option, flag, i));
                             }
                             else
                             {
                                 // Non-boolean (the option may have some value)
-                                options.Add(new CommandOption(option, partRight));
+                                options.Add(new CommandOption(option, partRight, i));
                             }
                             continue;
                         }
@@ -107,12 +107,12 @@ namespace Cocona.CommandLine
                             if (option.OptionType == typeof(bool))
                             {
                                 // Boolean (flag)
-                                options.Add(new CommandOption(option, "true"));
+                                options.Add(new CommandOption(option, "true", i));
                             }
                             else
                             {
                                 // Non-boolean (the option may have some value)
-                                options.Add(new CommandOption(option, (i + 1 == args.Count) ? null : args[++i])); // consume a next argument
+                                options.Add(new CommandOption(option, (i + 1 == args.Count) ? null : args[++i], i)); // consume a next argument
                                 index++;
                             }
                             continue;
@@ -124,7 +124,7 @@ namespace Cocona.CommandLine
                 else if (args[i].Length == 1)
                 {
                     // '-' hyphen
-                    arguments.Add(new CommandArgument("-"));
+                    arguments.Add(new CommandArgument("-", i));
                 }
                 else
                 {
@@ -136,7 +136,7 @@ namespace Cocona.CommandLine
                             if (option.OptionType == typeof(bool))
                             {
                                 // Boolean (flag)
-                                options.Add(new CommandOption(option, "true"));
+                                options.Add(new CommandOption(option, "true", i));
                             }
                             else
                             {
@@ -146,14 +146,14 @@ namespace Cocona.CommandLine
                                     // ["-foo", "-I"]
                                     // -foo -I
                                     // ------^
-                                    options.Add(new CommandOption(option, null));
+                                    options.Add(new CommandOption(option, null, i));
                                 }
                                 else if (args[i].Length - 1 == j)
                                 {
                                     // ["-foo", "-I", "../path/", "-fgh", "-i", "-j"]
                                     // -foo -I ../path/ -fgh -i -j
                                     // ------^^
-                                    options.Add(new CommandOption(option, args[++i]));
+                                    options.Add(new CommandOption(option, args[++i], i));
                                     index++;
                                 }
                                 else if (args[i][j + 1] == '=')
@@ -161,14 +161,14 @@ namespace Cocona.CommandLine
                                     // ["-foo", "-I=../path/", "-fgh", "-i", "-j"]
                                     // -foo -I=../path/ -fgh -i -j
                                     // ------^^
-                                    options.Add(new CommandOption(option, args[i].Substring(j + 2)));
+                                    options.Add(new CommandOption(option, args[i].Substring(j + 2), i));
                                 }
                                 else
                                 {
                                     // ["-foo", "-I../path/", "-fgh", "-i", "-j"]
                                     // -foo -I../path/ -fgh -i -j
                                     // ------^
-                                    options.Add(new CommandOption(option, args[i].Substring(j + 1)));
+                                    options.Add(new CommandOption(option, args[i].Substring(j + 1), i));
                                 }
 
                                 break;

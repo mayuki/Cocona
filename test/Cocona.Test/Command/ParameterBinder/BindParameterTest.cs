@@ -65,7 +65,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2"), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), };
 
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
@@ -87,7 +87,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2"), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), };
 
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
@@ -109,7 +109,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1) };
 
             var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
             ex.Result.Should().Be(ParameterBinderResult.InsufficientArgument);
@@ -130,7 +130,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1) };
 
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
@@ -152,7 +152,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2"), new CommandArgument("argValue3"), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), new CommandArgument("argValue3", 3) };
 
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
@@ -176,7 +176,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2"), new CommandArgument("argValue3"), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), new CommandArgument("argValue3", 3), };
 
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
@@ -200,7 +200,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2"), new CommandArgument("argValue3"), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), new CommandArgument("argValue3", 3), };
 
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
@@ -224,7 +224,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2"), new CommandArgument("argValue3"), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), new CommandArgument("argValue3", 3), };
 
             var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
             ex.Result.Should().Be(ParameterBinderResult.MultipleArrayInArgument);
@@ -262,7 +262,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0") };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0) };
 
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
@@ -284,7 +284,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1") };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1) };
 
 
             var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
@@ -307,7 +307,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1") };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1) };
 
             var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
             ex.Result.Should().Be(ParameterBinderResult.InsufficientArgument);
@@ -328,7 +328,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2") };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2) };
 
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
@@ -352,7 +352,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1") };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1) };
 
             var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
             ex.Result.Should().Be(ParameterBinderResult.InsufficientArgument);
@@ -373,7 +373,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2"), new CommandArgument("argValue3"), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), new CommandArgument("argValue3", 3), };
             
             var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
             ex.Result.Should().Be(ParameterBinderResult.MultipleArrayInArgument);
@@ -394,7 +394,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2"), new CommandArgument("argValue3"), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), new CommandArgument("argValue3", 3), };
 
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
@@ -419,8 +419,8 @@ namespace Cocona.Test.Command.ParameterBinder
 
             var commandOptions = new CommandOption[]
             {
-                new CommandOption(commandDescriptor.Options[0], "foo"),
-                new CommandOption(commandDescriptor.Options[1], "true"),
+                new CommandOption(commandDescriptor.Options[0], "foo", 0),
+                new CommandOption(commandDescriptor.Options[1], "true", 1),
             };
             var commandArguments = new CommandArgument[] { };
 
@@ -467,7 +467,7 @@ namespace Cocona.Test.Command.ParameterBinder
 
             var commandOptions = new CommandOption[]
             {
-                new CommandOption(commandDescriptor.Options[0], null),
+                new CommandOption(commandDescriptor.Options[0], null, 0),
             };
             var commandArguments = new CommandArgument[] { };
 
@@ -492,7 +492,7 @@ namespace Cocona.Test.Command.ParameterBinder
 
             var commandOptions = new CommandOption[]
             {
-                new CommandOption(commandDescriptor.Options[0], "foo"),
+                new CommandOption(commandDescriptor.Options[0], "foo", 0),
             };
             var commandArguments = new CommandArgument[] { };
 
@@ -518,8 +518,8 @@ namespace Cocona.Test.Command.ParameterBinder
 
             var commandOptions = new CommandOption[]
             {
-                new CommandOption(commandDescriptor.Options[0], "foo"),
-                new CommandOption(commandDescriptor.Options[1], "true"),
+                new CommandOption(commandDescriptor.Options[0], "foo", 0),
+                new CommandOption(commandDescriptor.Options[1], "true", 1),
             };
             var commandArguments = new CommandArgument[] { };
 
@@ -544,9 +544,9 @@ namespace Cocona.Test.Command.ParameterBinder
 
             var commandOptions = new CommandOption[]
             {
-                new CommandOption(commandDescriptor.Options[0], "foo"),
-                new CommandOption(commandDescriptor.Options[0], "bar"),
-                new CommandOption(commandDescriptor.Options[0], "baz"),
+                new CommandOption(commandDescriptor.Options[0], "foo", 0),
+                new CommandOption(commandDescriptor.Options[0], "bar", 1),
+                new CommandOption(commandDescriptor.Options[0], "baz", 2),
             };
             var commandArguments = new CommandArgument[] { };
 
@@ -570,9 +570,9 @@ namespace Cocona.Test.Command.ParameterBinder
 
             var commandOptions = new CommandOption[]
             {
-                new CommandOption(commandDescriptor.Options[0], "foo"),
-                new CommandOption(commandDescriptor.Options[0], "bar"),
-                new CommandOption(commandDescriptor.Options[0], "baz"),
+                new CommandOption(commandDescriptor.Options[0], "foo", 0),
+                new CommandOption(commandDescriptor.Options[0], "bar", 1),
+                new CommandOption(commandDescriptor.Options[0], "baz", 2),
             };
             var commandArguments = new CommandArgument[] { };
 
@@ -596,9 +596,9 @@ namespace Cocona.Test.Command.ParameterBinder
 
             var commandOptions = new CommandOption[]
             {
-                new CommandOption(commandDescriptor.Options[0], "foo"),
-                new CommandOption(commandDescriptor.Options[0], "bar"),
-                new CommandOption(commandDescriptor.Options[0], "baz"),
+                new CommandOption(commandDescriptor.Options[0], "foo", 0),
+                new CommandOption(commandDescriptor.Options[0], "bar", 1),
+                new CommandOption(commandDescriptor.Options[0], "baz", 2),
             };
             var commandArguments = new CommandArgument[] { };
 
@@ -622,13 +622,13 @@ namespace Cocona.Test.Command.ParameterBinder
 
             var commandOptions = new CommandOption[]
             {
-                new CommandOption(commandDescriptor.Options[0], "argvalue0"),
+                new CommandOption(commandDescriptor.Options[0], "optValue0", 0),
             };
             var commandArguments = new CommandArgument[] { };
 
             var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
             ex.Option.Name.Should().Be("option0");
-            ex.Message.Should().Be("Option 'option0' requires Int32 value. 'argvalue0' cannot be converted to Int32 value.");
+            ex.Message.Should().Be("Option 'option0' requires Int32 value. 'optValue0' cannot be converted to Int32 value.");
         }
 
         [Fact]
@@ -646,11 +646,11 @@ namespace Cocona.Test.Command.ParameterBinder
             var commandOptions = new CommandOption[]
             {
             };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argvalue0") };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0) };
 
             var ex = Assert.Throws<ParameterBinderException>(() => CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments));
             ex.Argument.Name.Should().Be("arg0");
-            ex.Message.Should().Be("Argument 'arg0' requires Int32 value. 'argvalue0' cannot be converted to Int32 value.");
+            ex.Message.Should().Be("Argument 'arg0' requires Int32 value. 'argValue0' cannot be converted to Int32 value.");
         }
 
         [Fact]
@@ -664,7 +664,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2"), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), };
 
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();
@@ -686,8 +686,8 @@ namespace Cocona.Test.Command.ParameterBinder
 
             var commandOptions = new CommandOption[]
             {
-                new CommandOption(commandDescriptor.Options[0], "123"),
-                new CommandOption(commandDescriptor.Options[1], "456"),
+                new CommandOption(commandDescriptor.Options[0], "123", 0),
+                new CommandOption(commandDescriptor.Options[1], "456", 1),
             };
             var commandArguments = new CommandArgument[] { };
 
@@ -711,7 +711,7 @@ namespace Cocona.Test.Command.ParameterBinder
             );
 
             var commandOptions = new CommandOption[] { };
-            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0"), new CommandArgument("argValue1"), new CommandArgument("argValue2"), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), };
 
             var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
             invokeArgs.Should().NotBeNull();

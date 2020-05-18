@@ -13,92 +13,39 @@ namespace Cocona.Command.Dispatcher
     public class CoconaCommandDispatcher : ICoconaCommandDispatcher
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ICoconaCommandProvider _commandProvider;
-        private readonly ICoconaCommandLineParser _commandLineParser;
         private readonly ICoconaCommandLineArgumentProvider _commandLineArgumentProvider;
+        private readonly ICoconaCommandResolver _commandResolver;
         private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
-        private readonly ICoconaCommandMatcher _commandMatcher;
         private readonly ICoconaInstanceActivator _activator;
         private readonly ICoconaAppContextAccessor _appContext;
 
         public CoconaCommandDispatcher(
             IServiceProvider serviceProvider,
-            ICoconaCommandProvider commandProvider,
-            ICoconaCommandLineParser commandLineParser,
             ICoconaCommandLineArgumentProvider commandLineArgumentProvider,
+            ICoconaCommandResolver commandResolver,
             ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
-            ICoconaCommandMatcher commandMatcher,
             ICoconaInstanceActivator activator,
             ICoconaAppContextAccessor appContext
         )
         {
             _serviceProvider = serviceProvider;
-            _commandProvider = commandProvider;
-            _commandLineParser = commandLineParser;
             _commandLineArgumentProvider = commandLineArgumentProvider;
+            _commandResolver = commandResolver;
             _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
-            _commandMatcher = commandMatcher;
             _activator = activator;
             _appContext = appContext;
         }
 
         public async ValueTask<int> DispatchAsync(CancellationToken cancellationToken)
         {
-            var commandCollection = _commandProvider.GetCommandCollection();
-            var args = _commandLineArgumentProvider.GetArguments();
-            var subCommandStack = new List<CommandDescriptor>();
-
-            Retry:
-            var matchedCommand = default(CommandDescriptor);
-            if (commandCollection.All.Count == 1 && !commandCollection.All[0].Flags.HasFlag(CommandFlags.SubCommandsEntryPoint))
+            var result = _commandResolver.ParseAndResolve(_commandLineArgumentProvider.GetArguments());
+            if (result.Success)
             {
-                // single-command style
-                matchedCommand = commandCollection.All[0];
-            }
-            else if (commandCollection.All.Count > 0)
-            {
-                // multi-commands hosted style
-                if (_commandLineParser.TryGetCommandName(args, out var commandName))
-                {
-                    if (!_commandMatcher.TryGetCommand(commandName, commandCollection, out matchedCommand))
-                    {
-                        throw new CommandNotFoundException(
-                            commandName,
-                            commandCollection,
-                            $"The specified command '{commandName}' was not found."
-                        );
-                    }
+                // Found a command and dispatch.
+                var parsedCommandLine = result.ParsedCommandLine!;
+                var matchedCommand = result.MatchedCommand!;
+                var subCommandStack = result.SubCommandStack!;
 
-                    // NOTE: Skip a first argument that is command name.
-                    args = args.Skip(1).ToArray();
-
-                    // If the command have nested sub-commands, try to restart parse command.
-                    if (matchedCommand.SubCommands != null)
-                    {
-                        commandCollection = matchedCommand.SubCommands;
-                        subCommandStack.Add(matchedCommand);
-                        goto Retry;
-                    }
-                }
-                else
-                {
-                    // Use default command (NOTE: The default command must have no argument.)
-                    matchedCommand = commandCollection.Primary ?? throw new CommandNotFoundException("", commandCollection, "A primary command was not found.");
-                }
-            }
-
-            // Found a command and dispatch.
-            if (matchedCommand != null)
-            {
-                // resolve command overload
-                if (matchedCommand.Overloads.Any())
-                {
-                    // Try parse command-line for overload resolution by options.
-                    var preParsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments);
-                    matchedCommand = _commandMatcher.ResolveOverload(matchedCommand, preParsedCommandLine);
-                }
-
-                var parsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments);
                 var dispatchAsync = _dispatcherPipelineBuilder.Build();
 
                 // Activate a command type.
@@ -107,7 +54,7 @@ namespace Cocona.Command.Dispatcher
 
                 // Set CoconaAppContext
                 _appContext.Current = new CoconaAppContext(matchedCommand, cancellationToken);
-                _appContext.Current.Features.Set<ICoconaCommandFeature>(new CoconaCommandFeature(commandCollection, matchedCommand, subCommandStack, commandInstance));
+                _appContext.Current.Features.Set<ICoconaCommandFeature>(new CoconaCommandFeature(result.CommandCollection, matchedCommand, subCommandStack, commandInstance));
 
                 // Dispatch the command
                 try
@@ -123,12 +70,14 @@ namespace Cocona.Command.Dispatcher
                     }
                 }
             }
-
-            throw new CommandNotFoundException(
-                string.Empty,
-                commandCollection,
-                $"Command not yet implemented."
-            );
+            else
+            {
+                throw new CommandNotFoundException(
+                    string.Empty,
+                    result.CommandCollection,
+                    $"Command not yet implemented."
+                );
+            }
         }
     }
 }

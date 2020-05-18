@@ -14,6 +14,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cocona.Command.Binder.Validation;
+using Cocona.ShellCompletion;
+using Cocona.ShellCompletion.Candidate;
+using Cocona.ShellCompletion.Generators;
 
 namespace Microsoft.Extensions.Hosting
 {
@@ -56,8 +59,16 @@ namespace Microsoft.Extensions.Hosting
                     services.TryAddTransient<ICoconaCommandLineParser, CoconaCommandLineParser>();
                     services.TryAddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
                     services.TryAddTransient<ICoconaCommandMatcher, CoconaCommandMatcher>();
+                    services.TryAddTransient<ICoconaCommandResolver, CoconaCommandResolver>();
                     services.TryAddTransient<ICoconaHelpRenderer, CoconaHelpRenderer>();
                     services.TryAddTransient<ICoconaCommandHelpProvider, CoconaCommandHelpProvider>();
+
+                    services.AddSingleton<ICoconaShellCompletionCodeGenerator, BashCoconaShellCompletionCodeGenerator>();
+                    services.AddSingleton<ICoconaShellCompletionCodeGenerator, ZshCoconaShellCompletionCodeGenerator>();
+                    services.TryAddSingleton<ICoconaShellCompletionCodeProvider, CoconaShellCompletionCodeProvider>();
+                    services.TryAddSingleton<ICoconaCompletionCandidatesMetadataFactory, CoconaCompletionCandidatesMetadataFactory>();
+                    services.TryAddSingleton<ICoconaCompletionCandidatesProviderFactory, CoconaCompletionCandidatesProviderFactory>();
+                    services.TryAddSingleton<ICoconaCompletionCandidates, CoconaCompletionCandidates>();
 
                     services.AddHostedService<CoconaHostedService>();
 
