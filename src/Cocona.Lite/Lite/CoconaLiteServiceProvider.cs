@@ -63,6 +63,8 @@ namespace Cocona.Lite
             {
                 disposable.Dispose();
             }
+
+            _disposables.Clear();
         }
     }
 }
