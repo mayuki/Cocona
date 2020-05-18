@@ -1,26 +1,20 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Cocona.Lite
 {
-    public interface ICoconaLiteServiceCollection
+    public class CoconaLiteServiceProvider : IServiceProvider, IDisposable
     {
-        void AddTransient<TService, TImplementation>()
-            where TImplementation : TService;
+        private readonly Dictionary<Type, ServiceDescriptor[]> _descriptorsByService;
+        private readonly List<IDisposable> _disposables;
 
-        void AddSingleton<TService, TImplementation>()
-            where TImplementation : TService;
-
-        void AddSingleton<TService>(TService instance);
-
-        void AddSingleton<TService>(Func<IServiceProvider, TService> factory);
-    }
-
-    public class CoconaLiteServiceProvider : IServiceProvider, ICoconaLiteServiceCollection, IDisposable
-    {
-        private readonly Dictionary<Type, List<ServiceDescriptor>> _descriptorsByService = new Dictionary<Type, List<ServiceDescriptor>>();
-        private readonly List<IDisposable> _disposables = new List<IDisposable>(10);
+        public CoconaLiteServiceProvider(ICoconaLiteServiceCollection services)
+        {
+            _descriptorsByService = services.GroupBy(k => k.ServiceType).ToDictionary(k => k.Key, v => v.ToArray());
+            _disposables = new List<IDisposable>(10);
+        }
 
         public object GetService(Type serviceType)
         {
@@ -37,34 +31,23 @@ namespace Cocona.Lite
                 return GetServiceForArray(serviceType.GetElementType());
             }
 
-            if (_descriptorsByService.TryGetValue(serviceType, out var descriptors) && descriptors.Count != 0)
+            if (_descriptorsByService.TryGetValue(serviceType, out var descriptors) && descriptors.Length != 0)
             {
-                return descriptors[0].Factory(this);
+                return descriptors[0].Factory(this, _disposables);
             }
 
             return null!;
         }
 
-        private void AddDescriptor<TService>(Func<IServiceProvider, object> factory, bool singleton)
-        {
-            if (!_descriptorsByService.ContainsKey(typeof(TService)))
-            {
-                _descriptorsByService[typeof(TService)] = new List<ServiceDescriptor>();
-            }
-
-            var descriptor = new ServiceDescriptor(factory, singleton);
-            _descriptorsByService[typeof(TService)].Add(descriptor);
-        }
-
         private object GetServiceForArray(Type elementType)
         {
-            if (_descriptorsByService.TryGetValue(elementType, out var descriptors) && descriptors.Count != 0)
+            if (_descriptorsByService.TryGetValue(elementType, out var descriptors) && descriptors.Length != 0)
             {
                 var index = 0;
-                var typedArr = Array.CreateInstance(elementType, descriptors.Count);
+                var typedArr = Array.CreateInstance(elementType, descriptors.Length);
                 foreach (var descriptor in descriptors)
                 {
-                    typedArr.SetValue(descriptor.Factory(this), index++);
+                    typedArr.SetValue(descriptor.Factory(this, _disposables), index++);
                 }
 
                 return typedArr;
@@ -73,105 +56,12 @@ namespace Cocona.Lite
             return Array.CreateInstance(elementType, 0);
         }
 
-        public void AddTransient<TService, TImplementation>()
-            where TImplementation : TService
-        {
-            AddDescriptor<TService>((provider) =>
-            {
-                var instance = SimpleActivator.CreateInstance(this, typeof(TImplementation));
-                if (instance is IDisposable disposable)
-                {
-                    _disposables.Add(disposable);
-                }
-
-                return instance;
-            }, singleton: false);
-        }
-
-        public void TryAddSingleton<TService, TImplementation>()
-            where TImplementation : TService
-        {
-            if (!_descriptorsByService.ContainsKey(typeof(TService)))
-            {
-                AddSingleton<TService, TImplementation>();
-            }
-        }
-
-        public void TryAddSingleton<TService>(TService instance)
-        {
-            if (!_descriptorsByService.ContainsKey(typeof(TService)))
-            {
-                AddSingleton<TService>(instance);
-            }
-        }
-
-        public void TryAddSingleton<TService>(Func<IServiceProvider, TService> factory)
-        {
-            if (!_descriptorsByService.ContainsKey(typeof(TService)))
-            {
-                AddSingleton<TService>(factory);
-            }
-        }
-
-        public void AddSingleton<TService, TImplementation>()
-            where TImplementation : TService
-        {
-            AddDescriptor<TService>((provider) =>
-            {
-                var instance = (TService)SimpleActivator.CreateInstance(this, typeof(TImplementation));
-                if (instance is IDisposable disposable)
-                {
-                    _disposables.Add(disposable);
-                }
-                return instance!;
-            }, singleton: true);
-        }
-
-        public void AddSingleton<TService>(TService instance)
-        {
-            AddDescriptor<TService>(_ => instance!, singleton: true);
-        }
-
-        public void AddSingleton<TService>(Func<IServiceProvider, TService> factory)
-        {
-            AddDescriptor<TService>((provider) =>
-            {
-                var instance = factory(this);
-                if (instance is IDisposable disposable)
-                {
-                    _disposables.Add(disposable);
-                }
-                return instance!;
-            }, singleton: true);
-        }
 
         public void Dispose()
         {
             foreach (var disposable in _disposables)
             {
                 disposable.Dispose();
-            }
-        }
-
-        private class ServiceDescriptor
-        {
-            public Func<IServiceProvider, object> Factory { get; private set; }
-
-            public ServiceDescriptor(Func<IServiceProvider, object> factory, bool singleton)
-            {
-                if (singleton)
-                {
-                    Factory = services =>
-                    {
-                        var instance = factory(services);
-                        Factory = _ => instance;
-                        return instance;
-                    };
-                }
-                else
-                {
-                    Factory = factory;
-                }
             }
         }
     }

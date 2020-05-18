@@ -14,6 +14,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Cocona\StrongNameKey.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DefineConstants>COCONA_LITE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +26,7 @@
 
   <ItemGroup>
     <AdditionalFiles Include="BannedSymbols.txt" />
+    <Compile Include="..\Cocona\Hosting\CoconaServiceCollectionExtensions.cs" Link="Lite\Hosting\CoconaServiceCollectionExtensions.cs" />
     <None Include="..\..\docs\assets\icon.png" Pack="true" PackagePath="/" />
   </ItemGroup>
 
