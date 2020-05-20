@@ -1,22 +1,14 @@
-using Cocona.Application;
-using Cocona.Command;
-using Cocona.Command.Binder;
-using Cocona.Command.BuiltIn;
-using Cocona.Command.Dispatcher;
-using Cocona.CommandLine;
-using Cocona.Help;
 using Cocona.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Cocona.Command.Binder.Validation;
-using Cocona.ShellCompletion;
-using Cocona.ShellCompletion.Candidate;
-using Cocona.ShellCompletion.Generators;
+using Cocona.Application;
+using Cocona.Command;
+using Cocona.Command.BuiltIn;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.Hosting
 {
@@ -33,42 +25,8 @@ namespace Microsoft.Extensions.Hosting
                 })
                 .ConfigureServices(services =>
                 {
-                    services.TryAddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
-                    services.TryAddSingleton<ICoconaCommandLineArgumentProvider>(serviceProvider =>
-                        new CoconaCommandLineArgumentProvider(args));
-                    services.TryAddSingleton<ICoconaCommandProvider>(serviceProvider =>
-                    {
-                        var options = serviceProvider.GetService<IOptions<CoconaAppOptions>>().Value;
-                        return new CoconaBuiltInCommandProvider(
-                            new CoconaCommandProvider(
-                                options.CommandTypes.ToArray(),
-                                options.TreatPublicMethodsAsCommands,
-                                options.EnableConvertOptionNameToLowerCase,
-                                options.EnableConvertCommandNameToLowerCase
-                            )
-                        );
-                    });
-                    services.TryAddSingleton<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
-                    services.TryAddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
-                    services.TryAddSingleton<ICoconaApplicationMetadataProvider, CoconaApplicationMetadataProvider>();
-                    services.TryAddSingleton<ICoconaConsoleProvider, CoconaConsoleProvider>();
-                    services.TryAddSingleton<ICoconaParameterValidatorProvider, DataAnnotationsParameterValidatorProvider>();
-
-                    services.TryAddTransient<ICoconaParameterBinder, CoconaParameterBinder>();
-                    services.TryAddTransient<ICoconaValueConverter, CoconaValueConverter>();
-                    services.TryAddTransient<ICoconaCommandLineParser, CoconaCommandLineParser>();
-                    services.TryAddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
-                    services.TryAddTransient<ICoconaCommandMatcher, CoconaCommandMatcher>();
-                    services.TryAddTransient<ICoconaCommandResolver, CoconaCommandResolver>();
-                    services.TryAddTransient<ICoconaHelpRenderer, CoconaHelpRenderer>();
-                    services.TryAddTransient<ICoconaCommandHelpProvider, CoconaCommandHelpProvider>();
-
-                    services.AddSingleton<ICoconaShellCompletionCodeGenerator, BashCoconaShellCompletionCodeGenerator>();
-                    services.AddSingleton<ICoconaShellCompletionCodeGenerator, ZshCoconaShellCompletionCodeGenerator>();
-                    services.TryAddSingleton<ICoconaShellCompletionCodeProvider, CoconaShellCompletionCodeProvider>();
-                    services.TryAddSingleton<ICoconaCompletionCandidatesMetadataFactory, CoconaCompletionCandidatesMetadataFactory>();
-                    services.TryAddSingleton<ICoconaCompletionCandidatesProviderFactory, CoconaCompletionCandidatesProviderFactory>();
-                    services.TryAddSingleton<ICoconaCompletionCandidates, CoconaCompletionCandidates>();
+                    services.AddCoconaCore(args);
+                    services.AddCoconaShellCompletion();
 
                     services.AddHostedService<CoconaHostedService>();
 
