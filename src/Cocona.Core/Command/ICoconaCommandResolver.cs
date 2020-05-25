@@ -1,7 +1,9 @@
+using System.Collections.Generic;
+
 namespace Cocona.Command
 {
     public interface ICoconaCommandResolver
     {
-        CommandResolverResult ParseAndResolve(string[] args);
+        CommandResolverResult ParseAndResolve(IReadOnlyList<string> args);
     }
 }

@@ -7,13 +7,13 @@ namespace Cocona.CommandLine
     [DebuggerDisplay("CommandOption: {Option.Name,nq}; Value={Value,nq}")]
     public readonly struct CommandOption
     {
-        public CommandOptionDescriptor Option { get; }
+        public ICommandOptionDescriptor Option { get; }
 
         public string? Value { get; }
 
         public int Position { get; }
 
-        public CommandOption(CommandOptionDescriptor option, string? value, int position)
+        public CommandOption(ICommandOptionDescriptor option, string? value, int position)
         {
             Option = option ?? throw new ArgumentNullException(nameof(option));
             Value = value;

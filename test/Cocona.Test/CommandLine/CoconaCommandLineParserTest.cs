@@ -4,6 +4,7 @@ using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Cocona.Command.BuiltIn;
 using Xunit;
 
 namespace Cocona.Test.CommandLine
@@ -1364,5 +1365,116 @@ namespace Cocona.Test.CommandLine
             parsed.UnknownOptions.Should().BeEmpty();
         }
 
+        [Fact]
+        public void ParseCommand_OptionLikeCommands_NotSpecified()
+        {
+            var args = new string[] { };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new ICommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    new CommandOptionLikeCommandDescriptor("help", new [] { 'h' }, BuiltInOptionLikeCommands.Help.Command),
+                    new CommandOptionLikeCommandDescriptor("version", new char[] { }, BuiltInOptionLikeCommands.Version.Command),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().BeEmpty();
+            parsed.Arguments.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ParseCommand_OptionLikeCommands_HasOptionLikeCommand()
+        {
+            var args = new string[] { "--help" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new ICommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    new CommandOptionLikeCommandDescriptor("help", new [] { 'h' }, BuiltInOptionLikeCommands.Help.Command),
+                    new CommandOptionLikeCommandDescriptor("version", new char[] { }, BuiltInOptionLikeCommands.Version.Command),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().NotBeEmpty();
+            parsed.Options.Should().HaveCount(1);
+            parsed.Arguments.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ParseCommand_OptionLikeCommands_HasOptionLikeCommand_2()
+        {
+            var args = new string[] { "--include", "value", "--help" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new ICommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    new CommandOptionLikeCommandDescriptor("help", new [] { 'h' }, BuiltInOptionLikeCommands.Help.Command),
+                    new CommandOptionLikeCommandDescriptor("version", new char[] { }, BuiltInOptionLikeCommands.Version.Command),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().NotBeEmpty();
+            parsed.Options.Should().HaveCount(2);
+            parsed.Arguments.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void ParseCommand_OptionLikeCommands_HasOptionLikeCommand_IgnoreAfterOptionLike()
+        {
+            var args = new string[] { "--include", "value", "--help", "--force" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new ICommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "include", new [] { 'I' }, "", new CoconaDefaultValue(string.Empty)),
+                    CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
+                    CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
+                    new CommandOptionLikeCommandDescriptor("help", new [] { 'h' }, BuiltInOptionLikeCommands.Help.Command),
+                    new CommandOptionLikeCommandDescriptor("version", new char[] { }, BuiltInOptionLikeCommands.Version.Command),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().NotBeEmpty();
+            parsed.Options.Should().HaveCount(2);
+            parsed.Options[1].Option.Should().BeOfType<CommandOptionLikeCommandDescriptor>();
+            parsed.Arguments.Should().BeEmpty();
+        }
     }
 }

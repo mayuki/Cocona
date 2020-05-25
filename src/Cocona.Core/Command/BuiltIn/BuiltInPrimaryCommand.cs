@@ -38,6 +38,7 @@ namespace Cocona.Command.BuiltIn
                 Array.Empty<CommandOptionDescriptor>(),
                 Array.Empty<CommandArgumentDescriptor>(),
                 Array.Empty<CommandOverloadDescriptor>(),
+                Array.Empty<CommandOptionLikeCommandDescriptor>(),
                 CommandFlags.Primary,
                 null
             );

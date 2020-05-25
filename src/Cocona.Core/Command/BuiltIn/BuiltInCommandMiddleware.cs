@@ -48,66 +48,66 @@ namespace Cocona.Command.BuiltIn
 
         public override ValueTask<int> DispatchAsync(CommandDispatchContext ctx)
         {
-            // --completion <shell>
-            var hasCompletionOption = ctx.ParsedCommandLine.Options.Any(x => x.Option == BuiltInCommandOption.Completion);
-            if (hasCompletionOption)
-            {
-                var opt = ctx.ParsedCommandLine.Options.First(x => x.Option == BuiltInCommandOption.Completion);
-                if (opt.Value is null)
-                {
-                    _console.Error.Write("Error: Shell name not specified.");
-                    return new ValueTask<int>(1);
-                }
+            //// --completion <shell>
+            //var hasCompletionOption = ctx.ParsedCommandLine.Options.Any(x => x.Option == BuiltInCommandOption.Completion);
+            //if (hasCompletionOption)
+            //{
+            //    var opt = ctx.ParsedCommandLine.Options.First(x => x.Option == BuiltInCommandOption.Completion);
+            //    if (opt.Value is null)
+            //    {
+            //        _console.Error.Write("Error: Shell name not specified.");
+            //        return new ValueTask<int>(1);
+            //    }
 
-                if (!_shellCompletionCodeGenerator.CanHandle(opt.Value))
-                {
-                    _console.Error.Write($"Error: Shell completion for '{opt.Value}' is not supported. (Supported shells: {string.Join(", ", _shellCompletionCodeGenerator.SupportedTargets)})");
-                    return new ValueTask<int>(1);
-                }
+            //    if (!_shellCompletionCodeGenerator.CanHandle(opt.Value))
+            //    {
+            //        _console.Error.Write($"Error: Shell completion for '{opt.Value}' is not supported. (Supported shells: {string.Join(", ", _shellCompletionCodeGenerator.SupportedTargets)})");
+            //        return new ValueTask<int>(1);
+            //    }
 
-                _shellCompletionCodeGenerator.Generate(opt.Value, _console.Output, _commandProvider.GetCommandCollection());
-                return new ValueTask<int>(0);
-            }
+            //    _shellCompletionCodeGenerator.Generate(opt.Value, _console.Output, _commandProvider.GetCommandCollection());
+            //    return new ValueTask<int>(0);
+            //}
 
-            // --completion-candidates <shell>:<paramName> -- <incompleted command line...>
-            // WARN: The option must be processed before '--help' or '--version' options.
-            //       If '--completion-candidates' option is provided, '--help' and '--version' options are also always provided.
-            //       And these options prevent to perform unintended **destructive** action if the command doesn't support on-the-fly candidates feature.
-            //       Fortunately, Cocona rejects unknown options by default. This options guard is fail-safe.
-            var hasCompletionCandidatesOption = ctx.ParsedCommandLine.Options.Any(x => x.Option == BuiltInCommandOption.CompletionCandidates);
-            if (hasCompletionCandidatesOption)
-            {
-                var opt = ctx.ParsedCommandLine.Options.First(x => x.Option == BuiltInCommandOption.CompletionCandidates);
-                var parts = opt.Value!.Split(new[] { ':' }, 2);
-                var (shellTarget, paramName) = (parts[0], parts[1]);
+            //// --completion-candidates <shell>:<paramName> -- <incompleted command line...>
+            //// WARN: The option must be processed before '--help' or '--version' options.
+            ////       If '--completion-candidates' option is provided, '--help' and '--version' options are also always provided.
+            ////       And these options prevent to perform unintended **destructive** action if the command doesn't support on-the-fly candidates feature.
+            ////       Fortunately, Cocona rejects unknown options by default. This options guard is fail-safe.
+            //var hasCompletionCandidatesOption = ctx.ParsedCommandLine.Options.Any(x => x.Option == BuiltInCommandOption.CompletionCandidates);
+            //if (hasCompletionCandidatesOption)
+            //{
+            //    var opt = ctx.ParsedCommandLine.Options.First(x => x.Option == BuiltInCommandOption.CompletionCandidates);
+            //    var parts = opt.Value!.Split(new[] { ':' }, 2);
+            //    var (shellTarget, paramName) = (parts[0], parts[1]);
 
-                var candidates = _completionCandidates.GetOnTheFlyCandidates(paramName, opt.Position + 2 /* -- */, 0, null);
-                _shellCompletionCodeGenerator.GenerateOnTheFlyCandidates(shellTarget, _console.Output, candidates);
-                return new ValueTask<int>(0);
-            }
+            //    var candidates = _completionCandidates.GetOnTheFlyCandidates(paramName, opt.Position + 2 /* -- */, 0, null);
+            //    _shellCompletionCodeGenerator.GenerateOnTheFlyCandidates(shellTarget, _console.Output, candidates);
+            //    return new ValueTask<int>(0);
+            //}
 
-            // --help
-            var hasHelpOption = ctx.ParsedCommandLine.Options.Any(x => x.Option == BuiltInCommandOption.Help);
-            if (hasHelpOption)
-            {
-                var feature = _appContext.Current!.Features.Get<ICoconaCommandFeature>()!;
-                var commandCollection = feature.CommandCollection ?? _commandProvider.GetCommandCollection(); // nested or root
+            //// --help
+            //var hasHelpOption = ctx.ParsedCommandLine.Options.Any(x => x.Option == BuiltInCommandOption.Help);
+            //if (hasHelpOption)
+            //{
+            //    var feature = _appContext.Current!.Features.Get<ICoconaCommandFeature>()!;
+            //    var commandCollection = feature.CommandCollection ?? _commandProvider.GetCommandCollection(); // nested or root
 
-                var help = (ctx.Command.IsPrimaryCommand)
-                    ? _commandHelpProvider.CreateCommandsIndexHelp(commandCollection, feature.CommandStack)
-                    : _commandHelpProvider.CreateCommandHelp(ctx.Command, feature.CommandStack);
+            //    var help = (ctx.Command.IsPrimaryCommand)
+            //        ? _commandHelpProvider.CreateCommandsIndexHelp(commandCollection, feature.CommandStack)
+            //        : _commandHelpProvider.CreateCommandHelp(ctx.Command, feature.CommandStack);
 
-                _console.Output.Write(_helpRenderer.Render(help));
-                return new ValueTask<int>(129);
-            }
+            //    _console.Output.Write(_helpRenderer.Render(help));
+            //    return new ValueTask<int>(129);
+            //}
 
-            // --version
-            var hasVersionOption = ctx.ParsedCommandLine.Options.Any(x => x.Option == BuiltInCommandOption.Version);
-            if (hasVersionOption)
-            {
-                _console.Output.Write(_helpRenderer.Render(_commandHelpProvider.CreateVersionHelp()));
-                return new ValueTask<int>(0);
-            }
+            //// --version
+            //var hasVersionOption = ctx.ParsedCommandLine.Options.Any(x => x.Option == BuiltInCommandOption.Version);
+            //if (hasVersionOption)
+            //{
+            //    _console.Output.Write(_helpRenderer.Render(_commandHelpProvider.CreateVersionHelp()));
+            //    return new ValueTask<int>(0);
+            //}
 
             return Next(ctx);
         }

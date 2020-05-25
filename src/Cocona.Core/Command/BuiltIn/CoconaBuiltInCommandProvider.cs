@@ -27,7 +27,7 @@ namespace Cocona.Command.BuiltIn
             // If the collection has multiple-commands without primary command, use built-in primary command.
             if (commandCollection.All.Count > 1 && commandCollection.Primary == null)
             {
-                commands = commands.Concat(new[] { BuiltInPrimaryCommand.GetCommand(string.Empty) }).ToArray();
+                commands = commands.Append(BuiltInPrimaryCommand.GetCommand(string.Empty)).ToArray();
             }
 
             // Rewrite all command names as lower-case and inject built-in help and version help
@@ -41,39 +41,20 @@ namespace Cocona.Command.BuiltIn
                     command.Aliases,
                     command.Description,
                     command.Parameters,
-                    GetParametersWithBuiltInOptions(command.Options, command.IsPrimaryCommand, depth != 0),
+                    command.Options,
                     command.Arguments,
                     command.Overloads,
+                    (
+                        (command.IsPrimaryCommand && depth == 0)
+                            ? command.OptionLikeCommands.Concat(new [] { BuiltInOptionLikeCommands.CompletionCandidates, BuiltInOptionLikeCommands.Completion, BuiltInOptionLikeCommands.Help, BuiltInOptionLikeCommands.Version })
+                            : command.OptionLikeCommands.Append(BuiltInOptionLikeCommands.Help)
+                    ).ToArray(),
                     command.Flags,
                     (command.SubCommands != null && command.SubCommands != commandCollection) ? GetWrappedCommandCollection(command.SubCommands, depth + 1) : command.SubCommands
                 );
             }
 
             return new CommandCollection(newCommands);
-        }
-
-        private IReadOnlyList<CommandOptionDescriptor> GetParametersWithBuiltInOptions(IReadOnlyList<CommandOptionDescriptor> options, bool isPrimaryCommand, bool isNestedSubCommand)
-        {
-            var hasHelp = options.Any(x => string.Equals(x.Name, "help", StringComparison.OrdinalIgnoreCase) || x.ShortName.Any(x => x == 'h'));
-            var hasVersion = options.Any(x => string.Equals(x.Name, "version", StringComparison.OrdinalIgnoreCase));
-            var hasCompletion = options.Any(x => string.Equals(x.Name, "completion", StringComparison.OrdinalIgnoreCase));
-
-            IEnumerable<CommandOptionDescriptor> newOptions = options;
-
-            if (!hasHelp)
-            {
-                newOptions = newOptions.Concat(new[] { BuiltInCommandOption.Help });
-            }
-            if (!hasVersion && isPrimaryCommand && !isNestedSubCommand)
-            {
-                newOptions = newOptions.Concat(new[] { BuiltInCommandOption.Version });
-            }
-            if (!hasCompletion && isPrimaryCommand && !isNestedSubCommand)
-            {
-                newOptions = newOptions.Concat(new[] { BuiltInCommandOption.Completion, BuiltInCommandOption.CompletionCandidates });
-            }
-
-            return newOptions.ToArray();
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cocona.Command.Dispatcher;
@@ -22,7 +23,7 @@ namespace Cocona.Command
             _commandMatcher = commandMatcher;
         }
 
-        public CommandResolverResult ParseAndResolve(string[] args)
+        public CommandResolverResult ParseAndResolve(IReadOnlyList<string> args)
         {
             var commandCollection = _commandProvider.GetCommandCollection();
             var subCommandStack = new List<CommandDescriptor>();
@@ -73,11 +74,20 @@ namespace Cocona.Command
                 if (matchedCommand.Overloads.Any())
                 {
                     // Try parse command-line for overload resolution by options.
-                    var preParsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments);
+                    var preParsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options.OfType<ICommandOptionDescriptor>().Concat(matchedCommand.OptionLikeCommands).ToArray(), matchedCommand.Arguments);
                     matchedCommand = _commandMatcher.ResolveOverload(matchedCommand, preParsedCommandLine);
                 }
 
-                var parsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options, matchedCommand.Arguments);
+                var parsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options.OfType<ICommandOptionDescriptor>().Concat(matchedCommand.OptionLikeCommands).ToArray(), matchedCommand.Arguments);
+
+                // OptionLikeCommand
+                if (parsedCommandLine.Options.FirstOrDefault(x => x.Option is CommandOptionLikeCommandDescriptor) is var commandOption &&
+                    commandOption.Option is CommandOptionLikeCommandDescriptor optionLikeCommand)
+                {
+                    subCommandStack.Add(matchedCommand);
+                    matchedCommand = optionLikeCommand.Command;
+                    parsedCommandLine = _commandLineParser.ParseCommand(args.Skip(commandOption.Position + 1).ToArray(), matchedCommand.Options, matchedCommand.Arguments);
+                }
 
                 return new CommandResolverResult(true, commandCollection, parsedCommandLine, matchedCommand, subCommandStack);
             }

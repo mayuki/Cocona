@@ -8,6 +8,6 @@ namespace Cocona.ShellCompletion.Candidate
     {
         StaticCompletionCandidates GetStaticCandidatesFromOption(CommandOptionDescriptor option);
         StaticCompletionCandidates GetStaticCandidatesFromArgument(CommandArgumentDescriptor argument);
-        IReadOnlyList<CompletionCandidateValue> GetOnTheFlyCandidates(string paramName, int argSkipCount, int curPos, string? candidateHint);
+        IReadOnlyList<CompletionCandidateValue> GetOnTheFlyCandidates(string paramName, IReadOnlyList<string> args, int curPos, string? candidateHint);
     }
 }

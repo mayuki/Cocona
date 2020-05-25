@@ -5,8 +5,16 @@ using Cocona.Internal;
 
 namespace Cocona.Command
 {
+    public interface ICommandOptionDescriptor
+    {
+        string Name { get; }
+        IReadOnlyList<char> ShortName { get; }
+        string Description { get; }
+        CommandOptionFlags Flags { get; }
+    }
+
     [DebuggerDisplay("Option: --{Name,nq} (Type={OptionType.FullName,nq}; IsRequired={IsRequired,nq}); Flags={Flags,nq}")]
-    public class CommandOptionDescriptor : ICommandParameterDescriptor
+    public class CommandOptionDescriptor : ICommandOptionDescriptor, ICommandParameterDescriptor
     {
         public Type OptionType { get; }
         public string Name { get; }

@@ -98,6 +98,7 @@ namespace Cocona.Command
                         Array.Empty<CommandOptionDescriptor>(),
                         Array.Empty<CommandArgumentDescriptor>(),
                         Array.Empty<CommandOverloadDescriptor>(),
+                        Array.Empty<CommandOptionLikeCommandDescriptor>(),
                         CommandFlags.SubCommandsEntryPoint,
                         subCommands
                     );
@@ -305,6 +306,7 @@ namespace Cocona.Command
                 options,
                 arguments,
                 overloadDescriptors,
+                Array.Empty<CommandOptionLikeCommandDescriptor>(),
                 flags,
                 null
             );

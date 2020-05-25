@@ -13,9 +13,9 @@ namespace Cocona.CommandLine
     /// </summary>
     public class CoconaCommandLineParser : ICoconaCommandLineParser
     {
-        public bool TryGetCommandName(string[] args, [NotNullWhen(true)] out string? commandName)
+        public bool TryGetCommandName(IReadOnlyList<string> args, [NotNullWhen(true)] out string? commandName)
         {
-            if (args.Length == 0)
+            if (args.Count == 0)
             {
                 commandName = null;
                 return false;
@@ -26,17 +26,15 @@ namespace Cocona.CommandLine
                 commandName = null;
                 return false;
             }
-            else
-            {
-                commandName = args[0];
-                return true;
-            }
+
+            commandName = args[0];
+            return true;
         }
 
-        public ParsedCommandLine ParseCommand(IReadOnlyList<string> args, IReadOnlyList<CommandOptionDescriptor> optionDescriptors, IReadOnlyList<CommandArgumentDescriptor> argumentDescriptors)
+        public ParsedCommandLine ParseCommand(IReadOnlyList<string> args, IReadOnlyList<ICommandOptionDescriptor> optionDescriptors, IReadOnlyList<CommandArgumentDescriptor> argumentDescriptors)
         {
-            var optionByLongName = new Dictionary<string, CommandOptionDescriptor>(optionDescriptors.Count);
-            var optionByShortName = new Dictionary<char, CommandOptionDescriptor>(optionDescriptors.Count);
+            var optionByLongName = new Dictionary<string, ICommandOptionDescriptor>(optionDescriptors.Count);
+            var optionByShortName = new Dictionary<char, ICommandOptionDescriptor>(optionDescriptors.Count);
             foreach (var option in optionDescriptors)
             {
                 optionByLongName[option.Name] = option;
@@ -82,19 +80,33 @@ namespace Cocona.CommandLine
 
                         if (optionByLongName.TryGetValue(partLeft, out var option))
                         {
-                            if (option.OptionType == typeof(bool))
+                            if (option is CommandOptionDescriptor optionDesc)
                             {
-                                // Boolean (flag)
-                                var flag = string.Equals(partRight, "true", StringComparison.OrdinalIgnoreCase) || string.Equals(partRight, "1", StringComparison.OrdinalIgnoreCase)
-                                    ? "true"
-                                    : "false";
-                                options.Add(new CommandOption(option, flag, i));
+                                if (optionDesc.OptionType == typeof(bool))
+                                {
+                                    // Boolean (flag)
+                                    var flag = string.Equals(partRight, "true", StringComparison.OrdinalIgnoreCase) || string.Equals(partRight, "1", StringComparison.OrdinalIgnoreCase)
+                                        ? "true"
+                                        : "false";
+                                    options.Add(new CommandOption(optionDesc, flag, i));
+                                }
+                                else
+                                {
+                                    // Non-boolean (the option may have some value)
+                                    options.Add(new CommandOption(optionDesc, partRight, i));
+                                }
+                            }
+                            else if (option is CommandOptionLikeCommandDescriptor optionLikeCommand)
+                            {
+                                // OptionLikeCommand should be terminate process here.
+                                options.Add(new CommandOption(optionLikeCommand, null, i));
+                                break;
                             }
                             else
                             {
-                                // Non-boolean (the option may have some value)
-                                options.Add(new CommandOption(option, partRight, i));
+                                throw new NotImplementedException();
                             }
+
                             continue;
                         }
                     }
@@ -104,17 +116,31 @@ namespace Cocona.CommandLine
                         // --option value
                         if (optionByLongName.TryGetValue(args[i].Substring(2), out var option))
                         {
-                            if (option.OptionType == typeof(bool))
+                            if (option is CommandOptionDescriptor optionDesc)
                             {
-                                // Boolean (flag)
-                                options.Add(new CommandOption(option, "true", i));
+                                if (optionDesc.OptionType == typeof(bool))
+                                {
+                                    // Boolean (flag)
+                                    options.Add(new CommandOption(optionDesc, "true", i));
+                                }
+                                else
+                                {
+                                    // Non-boolean (the option may have some value)
+                                    options.Add(new CommandOption(optionDesc, (i + 1 == args.Count) ? null : args[++i], i)); // consume a next argument
+                                    index++;
+                                }
+                            }
+                            else if (option is CommandOptionLikeCommandDescriptor optionLikeCommand)
+                            {
+                                // OptionLikeCommand should be terminate process here.
+                                options.Add(new CommandOption(optionLikeCommand, null, i));
+                                break;
                             }
                             else
                             {
-                                // Non-boolean (the option may have some value)
-                                options.Add(new CommandOption(option, (i + 1 == args.Count) ? null : args[++i], i)); // consume a next argument
-                                index++;
+                                throw new NotImplementedException();
                             }
+
                             continue;
                         }
                     }
@@ -133,45 +159,58 @@ namespace Cocona.CommandLine
                     {
                         if (optionByShortName.TryGetValue(args[i][j], out var option))
                         {
-                            if (option.OptionType == typeof(bool))
+                            if (option is CommandOptionDescriptor optionDesc)
                             {
-                                // Boolean (flag)
-                                options.Add(new CommandOption(option, "true", i));
-                            }
-                            else
-                            {
-                                // Non-boolean (the option may have some value)
-                                if (args.Count == i + 1 && args[i].Length == j + 1)
+                                if (optionDesc.OptionType == typeof(bool))
                                 {
-                                    // ["-foo", "-I"]
-                                    // -foo -I
-                                    // ------^
-                                    options.Add(new CommandOption(option, null, i));
-                                }
-                                else if (args[i].Length - 1 == j)
-                                {
-                                    // ["-foo", "-I", "../path/", "-fgh", "-i", "-j"]
-                                    // -foo -I ../path/ -fgh -i -j
-                                    // ------^^
-                                    options.Add(new CommandOption(option, args[++i], i));
-                                    index++;
-                                }
-                                else if (args[i][j + 1] == '=')
-                                {
-                                    // ["-foo", "-I=../path/", "-fgh", "-i", "-j"]
-                                    // -foo -I=../path/ -fgh -i -j
-                                    // ------^^
-                                    options.Add(new CommandOption(option, args[i].Substring(j + 2), i));
+                                    // Boolean (flag)
+                                    options.Add(new CommandOption(optionDesc, "true", i));
                                 }
                                 else
                                 {
-                                    // ["-foo", "-I../path/", "-fgh", "-i", "-j"]
-                                    // -foo -I../path/ -fgh -i -j
-                                    // ------^
-                                    options.Add(new CommandOption(option, args[i].Substring(j + 1), i));
-                                }
+                                    // Non-boolean (the option may have some value)
+                                    if (args.Count == i + 1 && args[i].Length == j + 1)
+                                    {
+                                        // ["-foo", "-I"]
+                                        // -foo -I
+                                        // ------^
+                                        options.Add(new CommandOption(optionDesc, null, i));
+                                    }
+                                    else if (args[i].Length - 1 == j)
+                                    {
+                                        // ["-foo", "-I", "../path/", "-fgh", "-i", "-j"]
+                                        // -foo -I ../path/ -fgh -i -j
+                                        // ------^^
+                                        options.Add(new CommandOption(optionDesc, args[++i], i));
+                                        index++;
+                                    }
+                                    else if (args[i][j + 1] == '=')
+                                    {
+                                        // ["-foo", "-I=../path/", "-fgh", "-i", "-j"]
+                                        // -foo -I=../path/ -fgh -i -j
+                                        // ------^^
+                                        options.Add(new CommandOption(optionDesc, args[i].Substring(j + 2), i));
+                                    }
+                                    else
+                                    {
+                                        // ["-foo", "-I../path/", "-fgh", "-i", "-j"]
+                                        // -foo -I../path/ -fgh -i -j
+                                        // ------^
+                                        options.Add(new CommandOption(optionDesc, args[i].Substring(j + 1), i));
+                                    }
 
+                                    break;
+                                }
+                            }
+                            else if (option is CommandOptionLikeCommandDescriptor optionLikeCommand)
+                            {
+                                // OptionLikeCommand should be terminate process here.
+                                options.Add(new CommandOption(optionLikeCommand, null, i));
                                 break;
+                            }
+                            else
+                            {
+                                throw new NotImplementedException();
                             }
                         }
                         else

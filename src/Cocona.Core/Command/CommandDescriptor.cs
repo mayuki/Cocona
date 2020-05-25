@@ -25,6 +25,7 @@ namespace Cocona.Command
         public IReadOnlyList<CommandOptionDescriptor> Options { get; }
         public IReadOnlyList<CommandArgumentDescriptor> Arguments { get; }
         public IReadOnlyList<CommandOverloadDescriptor> Overloads { get; }
+        public IReadOnlyList<CommandOptionLikeCommandDescriptor> OptionLikeCommands { get; }
 
         public CommandCollection? SubCommands { get; }
 
@@ -37,6 +38,7 @@ namespace Cocona.Command
             IReadOnlyList<CommandOptionDescriptor> options,
             IReadOnlyList<CommandArgumentDescriptor> arguments,
             IReadOnlyList<CommandOverloadDescriptor> overloads,
+            IReadOnlyList<CommandOptionLikeCommandDescriptor> optionLikeCommands,
             CommandFlags flags,
             CommandCollection? subCommands
         )
@@ -49,6 +51,7 @@ namespace Cocona.Command
             Options = options ?? throw new ArgumentNullException(nameof(options));
             Arguments = arguments ?? throw new ArgumentNullException(nameof(arguments));
             Overloads = overloads ?? throw new ArgumentNullException(nameof(overloads));
+            OptionLikeCommands = optionLikeCommands ?? throw new ArgumentNullException(nameof(optionLikeCommands));
             Flags = flags;
             SubCommands = subCommands;
         }
@@ -61,5 +64,6 @@ namespace Cocona.Command
         Primary = 1 << 0,
         Hidden = 1 << 1,
         SubCommandsEntryPoint = 1 << 2,
+        OptionLike = 1 << 3,
     }
 }

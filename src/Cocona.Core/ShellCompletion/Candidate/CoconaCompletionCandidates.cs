@@ -26,10 +26,9 @@ namespace Cocona.ShellCompletion.Candidate
             _commandLineArgumentProvider = commandLineArgumentProvider;
         }
 
-        public IReadOnlyList<CompletionCandidateValue> GetOnTheFlyCandidates(string paramName, int argSkipCount, int curPos, string? candidateHint)
+        public IReadOnlyList<CompletionCandidateValue> GetOnTheFlyCandidates(string paramName, IReadOnlyList<string> args, int curPos, string? candidateHint)
         {
-            var args = _commandLineArgumentProvider.GetArguments();
-            var result = _commandResolver.ParseAndResolve(args.Skip(argSkipCount).ToArray()); // Skip '--completion-candidates ...' option
+            var result = _commandResolver.ParseAndResolve(args);
 
             if (result.Success)
             {
