@@ -145,8 +145,9 @@ namespace Cocona.Command
             ThrowHelper.ArgumentNull(methodInfo, nameof(methodInfo));
 
             // Collect Method attributes
-            var (commandAttr, primaryCommandAttr, commandHiddenAttr)
-                = AttributeHelper.GetAttributes<CommandAttribute, PrimaryCommandAttribute, HiddenAttribute>(methodInfo.GetCustomAttributes(typeof(Attribute), true));
+            var (commandAttr, primaryCommandAttr, commandHiddenAttr, ignoreUnknownOptionsAttr)
+                = AttributeHelper.GetAttributes<CommandAttribute, PrimaryCommandAttribute, HiddenAttribute, IgnoreUnknownOptionsAttribute>(
+                    methodInfo.GetCustomAttributes(typeof(Attribute), true));
 
             var commandName = commandAttr?.Name ?? methodInfo.Name;
             var description = commandAttr?.Description ?? string.Empty;
@@ -154,6 +155,7 @@ namespace Cocona.Command
 
             var isPrimaryCommand = primaryCommandAttr != null;
             var isHidden = commandHiddenAttr != null;
+            var isIgnoreUnknownOptions = ignoreUnknownOptionsAttr != null || methodInfo.DeclaringType.GetCustomAttribute<IgnoreUnknownOptionsAttribute>() != null;
 
             var allOptions = new Dictionary<string, CommandOptionDescriptor>(StringComparer.OrdinalIgnoreCase);
             var allOptionShortNames = new HashSet<char>();
@@ -291,8 +293,9 @@ namespace Cocona.Command
                 commandName = ToCommandCase(commandName);
             }
 
-            var flags = ((isHidden) ? CommandFlags.Hidden : CommandFlags.None) |
-                        ((isSingleCommand || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None);
+            var flags = (isHidden ? CommandFlags.Hidden : CommandFlags.None) |
+                        ((isSingleCommand || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None) |
+                        (isIgnoreUnknownOptions ? CommandFlags.IgnoreUnknownOptions : CommandFlags.None);
 
             var options = new CommandOptionDescriptor[allOptions.Count];
             allOptions.Values.CopyTo(options, 0);

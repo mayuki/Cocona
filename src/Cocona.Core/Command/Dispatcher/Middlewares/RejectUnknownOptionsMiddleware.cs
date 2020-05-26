@@ -19,8 +19,11 @@ namespace Cocona.Command.Dispatcher.Middlewares
         {
             if (ctx.ParsedCommandLine.UnknownOptions.Count > 0)
             {
-                _console.Error.WriteLine($"Error: Unknown option '{ctx.ParsedCommandLine.UnknownOptions[0]}'");
-                return new ValueTask<int>(129);
+                if (!ctx.Command.Flags.HasFlag(CommandFlags.IgnoreUnknownOptions))
+                {
+                    _console.Error.WriteLine($"Error: Unknown option '{ctx.ParsedCommandLine.UnknownOptions[0]}'");
+                    return new ValueTask<int>(129);
+                }
             }
 
             return Next(ctx);

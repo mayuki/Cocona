@@ -32,7 +32,7 @@ namespace Cocona.Command.BuiltIn
                 Array.Empty<CommandArgumentDescriptor>(),
                 Array.Empty<CommandOverloadDescriptor>(),
                 Array.Empty<CommandOptionLikeCommandDescriptor>(),
-                CommandFlags.None,
+                CommandFlags.IgnoreUnknownOptions,
                 null
             ), CommandOptionFlags.None);
 
@@ -52,7 +52,7 @@ namespace Cocona.Command.BuiltIn
                 Array.Empty<CommandArgumentDescriptor>(),
                 Array.Empty<CommandOverloadDescriptor>(),
                 Array.Empty<CommandOptionLikeCommandDescriptor>(),
-                CommandFlags.None,
+                CommandFlags.IgnoreUnknownOptions,
                 null
             ), CommandOptionFlags.None);
 
@@ -76,7 +76,7 @@ namespace Cocona.Command.BuiltIn
                 },
                 Array.Empty<CommandOverloadDescriptor>(),
                 Array.Empty<CommandOptionLikeCommandDescriptor>(),
-                CommandFlags.None,
+                CommandFlags.IgnoreUnknownOptions,
                 null
             ), CommandOptionFlags.None);
 
@@ -102,7 +102,7 @@ namespace Cocona.Command.BuiltIn
                 },
                 Array.Empty<CommandOverloadDescriptor>(),
                 Array.Empty<CommandOptionLikeCommandDescriptor>(),
-                CommandFlags.Hidden,
+                CommandFlags.Hidden | CommandFlags.IgnoreUnknownOptions,
                 null
             ), CommandOptionFlags.Hidden);
 

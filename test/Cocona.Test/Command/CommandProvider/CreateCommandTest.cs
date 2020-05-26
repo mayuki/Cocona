@@ -1,4 +1,4 @@
-﻿using Cocona.Command;
+using Cocona.Command;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
@@ -384,6 +384,42 @@ namespace Cocona.Test.Command.CommandProvider
             Assert.Throws<CoconaException>(() => new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Invalid_SameOptionShortName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>()));
         }
 
+
+        [Fact]
+        public void DefaultCommandFlags()
+        {
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_NoReturn)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            cmd.Name.Should().Be(nameof(CommandTest.Default_NoOptions_NoArguments_NoReturn));
+            cmd.Flags.Should().NotHaveFlag(CommandFlags.Hidden);
+            cmd.Flags.Should().NotHaveFlag(CommandFlags.SubCommandsEntryPoint);
+            cmd.Flags.Should().NotHaveFlag(CommandFlags.Primary);
+            cmd.Flags.Should().NotHaveFlag(CommandFlags.IgnoreUnknownOptions);
+        }
+
+        [Fact]
+        public void IgnoreUnknownOptions()
+        {
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.IgnoreUnknownOptions)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            cmd.Name.Should().Be(nameof(CommandTest.IgnoreUnknownOptions));
+            cmd.Flags.Should().HaveFlag(CommandFlags.IgnoreUnknownOptions);
+        }
+
+        [Fact]
+        public void IgnoreUnknownOptions_ClassLevel()
+        {
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest_IgnoreUnknownOptions>(nameof(CommandTest_IgnoreUnknownOptions.IgnoreUnknownOptions)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            cmd.Name.Should().Be(nameof(CommandTest.IgnoreUnknownOptions));
+            cmd.Flags.Should().HaveFlag(CommandFlags.IgnoreUnknownOptions);
+        }
+
+        [Fact]
+        public void Hidden()
+        {
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Hidden)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            cmd.Name.Should().Be(nameof(CommandTest.Hidden));
+            cmd.Flags.Should().HaveFlag(CommandFlags.Hidden);
+        }
+
         private static MethodInfo GetMethod<T>(string methodName)
         {
             return typeof(T).GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public);
@@ -416,6 +452,18 @@ namespace Cocona.Test.Command.CommandProvider
 
             public void Invalid_SameOptionName([Option("option")]string option0, [Option("option")]int option1) { }
             public void Invalid_SameOptionShortName([Option('o')]string option0, [Option('o')]int option1) { }
+
+            [Hidden]
+            public void Hidden() { }
+
+            [IgnoreUnknownOptions]
+            public void IgnoreUnknownOptions() { }
+        }
+
+        [IgnoreUnknownOptions]
+        public class CommandTest_IgnoreUnknownOptions
+        {
+            public void IgnoreUnknownOptions() { }
         }
 
     }
