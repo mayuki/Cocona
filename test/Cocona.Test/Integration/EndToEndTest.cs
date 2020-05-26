@@ -117,8 +117,7 @@ namespace Cocona.Test.Integration
         [Fact]
         public void CoconaApp_Run_Single_CompletionCandidates()
         {
-            // NOTE: --completion-candidates option always follows --help and --version
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_Candidates>(new string[] { "--help", "--version", "--completion-candidates", "bash:name", "--", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_Candidates>(new string[] { "--completion-candidates", "bash:name", "--", "A" });
 
             stdOut.Should().Contain("Alice");
             stdErr.Should().BeEmpty();
