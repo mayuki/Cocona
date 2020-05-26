@@ -66,6 +66,15 @@ namespace Cocona.Help
                 }
             }
 
+            if (command.OptionLikeCommands.Any(x => !x.IsHidden))
+            {
+                foreach (var opt in command.OptionLikeCommands.Where(x => !x.IsHidden))
+                {
+                    sb.Append(" ");
+                    sb.Append($"[--{opt.Name}]");
+                }
+            }
+
             if (command.Arguments.Any())
             {
                 foreach (var arg in command.Arguments)
