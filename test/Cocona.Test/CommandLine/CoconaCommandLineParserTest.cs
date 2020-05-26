@@ -1377,8 +1377,8 @@ namespace Cocona.Test.CommandLine
                     CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
                     CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
                     CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionLikeCommandDescriptor("help", new [] { 'h' }, BuiltInOptionLikeCommands.Help.Command),
-                    new CommandOptionLikeCommandDescriptor("version", new char[] { }, BuiltInOptionLikeCommands.Version.Command),
+                    new CommandOptionLikeCommandDescriptor("help", new [] { 'h' }, BuiltInOptionLikeCommands.Help.Command, CommandOptionFlags.None),
+                    new CommandOptionLikeCommandDescriptor("version", new char[] { }, BuiltInOptionLikeCommands.Version.Command, CommandOptionFlags.None),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -1404,8 +1404,8 @@ namespace Cocona.Test.CommandLine
                     CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
                     CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
                     CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionLikeCommandDescriptor("help", new [] { 'h' }, BuiltInOptionLikeCommands.Help.Command),
-                    new CommandOptionLikeCommandDescriptor("version", new char[] { }, BuiltInOptionLikeCommands.Version.Command),
+                    new CommandOptionLikeCommandDescriptor("help", new [] { 'h' }, BuiltInOptionLikeCommands.Help.Command, CommandOptionFlags.None),
+                    new CommandOptionLikeCommandDescriptor("version", new char[] { }, BuiltInOptionLikeCommands.Version.Command, CommandOptionFlags.None),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -1432,8 +1432,8 @@ namespace Cocona.Test.CommandLine
                     CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
                     CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
                     CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionLikeCommandDescriptor("help", new [] { 'h' }, BuiltInOptionLikeCommands.Help.Command),
-                    new CommandOptionLikeCommandDescriptor("version", new char[] { }, BuiltInOptionLikeCommands.Version.Command),
+                    new CommandOptionLikeCommandDescriptor("help", new [] { 'h' }, BuiltInOptionLikeCommands.Help.Command, CommandOptionFlags.None),
+                    new CommandOptionLikeCommandDescriptor("version", new char[] { }, BuiltInOptionLikeCommands.Version.Command, CommandOptionFlags.None),
                 },
                 new CommandArgumentDescriptor[]
                 {
@@ -1460,8 +1460,8 @@ namespace Cocona.Test.CommandLine
                     CreateCommandOption(typeof(bool), "recursive", new [] { 'r', 'R' }, "", new CoconaDefaultValue(false)),
                     CreateCommandOption(typeof(bool), "force", new [] { 'f' }, "", new CoconaDefaultValue(false)),
                     CreateCommandOption(typeof(string), "message", new [] { 'm' }, "", new CoconaDefaultValue(string.Empty)),
-                    new CommandOptionLikeCommandDescriptor("help", new [] { 'h' }, BuiltInOptionLikeCommands.Help.Command),
-                    new CommandOptionLikeCommandDescriptor("version", new char[] { }, BuiltInOptionLikeCommands.Version.Command),
+                    new CommandOptionLikeCommandDescriptor("help", new [] { 'h' }, BuiltInOptionLikeCommands.Help.Command, CommandOptionFlags.None),
+                    new CommandOptionLikeCommandDescriptor("version", new char[] { }, BuiltInOptionLikeCommands.Version.Command, CommandOptionFlags.None),
                 },
                 new CommandArgumentDescriptor[]
                 {

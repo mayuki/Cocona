@@ -130,7 +130,6 @@ namespace Cocona.Lite.Hosting
 
             IServiceProvider serviceProvider = services;
             serviceProvider.GetService<ICoconaCommandDispatcherPipelineBuilder>()
-                .UseMiddleware<BuiltInCommandMiddleware>()
                 .UseMiddleware<HandleExceptionAndExitMiddleware>()
                 .UseMiddleware<HandleParameterBindExceptionMiddleware>()
                 .UseMiddleware<RejectUnknownOptionsMiddleware>()

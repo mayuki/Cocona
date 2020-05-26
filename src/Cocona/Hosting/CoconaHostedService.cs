@@ -42,7 +42,6 @@ namespace Cocona.Hosting
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _dispatcherPipelineBuilder
-                .UseMiddleware<BuiltInCommandMiddleware>()
                 .UseMiddleware<HandleExceptionAndExitMiddleware>()
                 .UseMiddleware<HandleParameterBindExceptionMiddleware>()
                 .UseMiddleware<RejectUnknownOptionsMiddleware>()

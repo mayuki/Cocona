@@ -44,14 +44,37 @@ namespace Cocona.Command.BuiltIn
                     command.Options,
                     command.Arguments,
                     command.Overloads,
-                    (
-                        (command.IsPrimaryCommand && depth == 0)
-                            ? command.OptionLikeCommands.Concat(new [] { BuiltInOptionLikeCommands.CompletionCandidates, BuiltInOptionLikeCommands.Completion, BuiltInOptionLikeCommands.Help, BuiltInOptionLikeCommands.Version })
-                            : command.OptionLikeCommands.Append(BuiltInOptionLikeCommands.Help)
-                    ).ToArray(),
+                    BuildOptionLikeCommands(command),
                     command.Flags,
                     (command.SubCommands != null && command.SubCommands != commandCollection) ? GetWrappedCommandCollection(command.SubCommands, depth + 1) : command.SubCommands
                 );
+            }
+
+            IReadOnlyList<CommandOptionLikeCommandDescriptor> BuildOptionLikeCommands(CommandDescriptor command)
+            {
+                IEnumerable<CommandOptionLikeCommandDescriptor> optionLikeCommands = command.OptionLikeCommands;
+
+                // NOTE: ToHashSet() requires .NET Standard 2.1
+                var allNames = new HashSet<string>(command.Options.Select(x => x.Name).Concat(command.OptionLikeCommands.Select(x => x.Name)));
+                var allShortNames = new HashSet<char>(command.Options.SelectMany(x => x.ShortName).Concat(command.OptionLikeCommands.SelectMany(x => x.ShortName)));
+
+                if (!allNames.Contains(BuiltInOptionLikeCommands.Help.Name) && !allShortNames.Overlaps(BuiltInOptionLikeCommands.Help.ShortName))
+                {
+                    optionLikeCommands = optionLikeCommands.Append(BuiltInOptionLikeCommands.Help);
+                }
+
+                if (command.IsPrimaryCommand && depth == 0)
+                {
+                    // --completion-candidates, --completion, ... original ..., --version
+                    optionLikeCommands = optionLikeCommands.Prepend(BuiltInOptionLikeCommands.Completion).Prepend(BuiltInOptionLikeCommands.CompletionCandidates);
+
+                    if (!allNames.Contains(BuiltInOptionLikeCommands.Version.Name) && !allShortNames.Overlaps(BuiltInOptionLikeCommands.Version.ShortName))
+                    {
+                        optionLikeCommands = optionLikeCommands.Append(BuiltInOptionLikeCommands.Version);
+                    }
+                }
+
+                return optionLikeCommands.ToArray();
             }
 
             return new CommandCollection(newCommands);

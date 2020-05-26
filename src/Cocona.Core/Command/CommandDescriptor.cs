@@ -64,6 +64,5 @@ namespace Cocona.Command
         Primary = 1 << 0,
         Hidden = 1 << 1,
         SubCommandsEntryPoint = 1 << 2,
-        OptionLike = 1 << 3,
     }
 }

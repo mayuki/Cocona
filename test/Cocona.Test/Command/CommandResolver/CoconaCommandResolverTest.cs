@@ -289,9 +289,9 @@ namespace Cocona.Test.Command.CommandResolver
                 Array.Empty<CommandArgumentDescriptor>(),
                 Array.Empty<CommandOverloadDescriptor>(),
                 Array.Empty<CommandOptionLikeCommandDescriptor>(),
-                CommandFlags.OptionLike,
+                CommandFlags.None,
                 null
-            ));
+            ), CommandOptionFlags.None);
         }
 
         private CommandDescriptor CreateCommand(string name, ICommandParameterDescriptor[] parameterDescriptors, bool isPrimary)

@@ -32,9 +32,9 @@ namespace Cocona.Command.BuiltIn
                 Array.Empty<CommandArgumentDescriptor>(),
                 Array.Empty<CommandOverloadDescriptor>(),
                 Array.Empty<CommandOptionLikeCommandDescriptor>(),
-                CommandFlags.OptionLike,
+                CommandFlags.None,
                 null
-            ));
+            ), CommandOptionFlags.None);
 
         public static CommandOptionLikeCommandDescriptor Version { get; }
             = new CommandOptionLikeCommandDescriptor("version", Array.Empty<char>(), new CommandDescriptor(
@@ -52,9 +52,9 @@ namespace Cocona.Command.BuiltIn
                 Array.Empty<CommandArgumentDescriptor>(),
                 Array.Empty<CommandOverloadDescriptor>(),
                 Array.Empty<CommandOptionLikeCommandDescriptor>(),
-                CommandFlags.OptionLike,
+                CommandFlags.None,
                 null
-            ));
+            ), CommandOptionFlags.None);
 
         public static CommandOptionLikeCommandDescriptor Completion { get; }
             = new CommandOptionLikeCommandDescriptor("completion", Array.Empty<char>(), new CommandDescriptor(
@@ -76,9 +76,9 @@ namespace Cocona.Command.BuiltIn
                 },
                 Array.Empty<CommandOverloadDescriptor>(),
                 Array.Empty<CommandOptionLikeCommandDescriptor>(),
-                CommandFlags.OptionLike,
+                CommandFlags.None,
                 null
-            ));
+            ), CommandOptionFlags.None);
 
         public static CommandOptionLikeCommandDescriptor CompletionCandidates { get; }
             = new CommandOptionLikeCommandDescriptor("completion-candidates", Array.Empty<char>(), new CommandDescriptor(
@@ -102,9 +102,9 @@ namespace Cocona.Command.BuiltIn
                 },
                 Array.Empty<CommandOverloadDescriptor>(),
                 Array.Empty<CommandOptionLikeCommandDescriptor>(),
-                CommandFlags.OptionLike | CommandFlags.Hidden,
+                CommandFlags.Hidden,
                 null
-            ));
+            ), CommandOptionFlags.Hidden);
 
         public static ValueTask<int> ShowHelp(
             [FromService]ICoconaAppContextAccessor appContext,
@@ -171,7 +171,6 @@ namespace Cocona.Command.BuiltIn
             var candidates = completionCandidates.GetOnTheFlyCandidates(paramName, arguments, 0, null);
             shellCompletionCodeGenerator.GenerateOnTheFlyCandidates(shellTarget, console.Output, candidates);
             return new ValueTask<int>(0);
-
         }
     }
 }

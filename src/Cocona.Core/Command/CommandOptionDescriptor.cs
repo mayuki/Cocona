@@ -52,5 +52,6 @@ namespace Cocona.Command
     {
         None = 0,
         Hidden = 1 << 0,
+        OptionLikeCommand = 1 << 1,
     }
 }
