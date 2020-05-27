@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Cocona
 {
+    /// <summary>
+    /// Specifies that the command has the option-like command.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
     public class OptionLikeCommandAttribute : Attribute
     {
