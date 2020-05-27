@@ -98,7 +98,7 @@ namespace Cocona.ShellCompletion.Generators
 
         private void WriteCommandDefineOptionAndArguments(TextWriter writer, CommandDescriptor command)
         {
-            foreach (var option in command.Options.Where(x => !x.IsHidden))
+            foreach (var option in command.Options.OfType<ICommandOptionDescriptor>().Concat(command.OptionLikeCommands).Where(x => !x.Flags.HasFlag(CommandOptionFlags.Hidden)))
             {
                 writer.WriteLine($"    __cocona_{_appName}_completion_define_option \"--{option.Name}\" \"{FromOptionToCandidatesType(option)}\"");
             }
@@ -107,35 +107,42 @@ namespace Cocona.ShellCompletion.Generators
                 writer.WriteLine($"    __cocona_{_appName}_completion_define_argument \"--{arg.Name}\" \"{FromArgumentToCandidatesType(arg)}\"");
             }
 
-            string FromOptionToCandidatesType(CommandOptionDescriptor option)
+            string FromOptionToCandidatesType(ICommandOptionDescriptor option)
             {
-                if (option.OptionType == typeof(bool))
+                if (option is CommandOptionDescriptor commandOption)
                 {
-                    return "bool";
-                }
-                else
-                {
-                    var candidates = _completionCandidates.GetStaticCandidatesFromOption(option);
-                    if (candidates.IsOnTheFly)
+                    if (commandOption.OptionType == typeof(bool))
                     {
-                        return $"onthefly:{option.Name}";
+                        return "bool";
                     }
                     else
                     {
-                        return candidates.Result!.ResultType switch
+                        var candidates = _completionCandidates.GetStaticCandidatesFromOption(commandOption);
+                        if (candidates.IsOnTheFly)
                         {
-                            CompletionCandidateResultType.Default
-                            => "default",
-                            CompletionCandidateResultType.File
-                            => "file",
-                            CompletionCandidateResultType.Directory
-                            => "directory",
-                            CompletionCandidateResultType.Keywords
-                            => $"keywords:{string.Join(":", candidates.Result!.Values.Select(x => x.Value))}",
-                            _
-                            => "default",
-                        };
+                            return $"onthefly:{option.Name}";
+                        }
+                        else
+                        {
+                            return candidates.Result!.ResultType switch
+                            {
+                                CompletionCandidateResultType.Default
+                                => "default",
+                                CompletionCandidateResultType.File
+                                => "file",
+                                CompletionCandidateResultType.Directory
+                                => "directory",
+                                CompletionCandidateResultType.Keywords
+                                => $"keywords:{string.Join(":", candidates.Result!.Values.Select(x => x.Value))}",
+                                _
+                                => "default",
+                            };
+                        }
                     }
+                }
+                else
+                {
+                    return "default";
                 }
             }
 

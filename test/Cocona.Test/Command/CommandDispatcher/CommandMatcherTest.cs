@@ -28,6 +28,7 @@ namespace Cocona.Test.Command.CommandDispatcher
                 parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
                 parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),
                 overloads ?? Array.Empty<CommandOverloadDescriptor>(),
+                Array.Empty<CommandOptionLikeCommandDescriptor>(),
                 isPrimaryCommand ? CommandFlags.Primary : CommandFlags.None,
                 null
             );

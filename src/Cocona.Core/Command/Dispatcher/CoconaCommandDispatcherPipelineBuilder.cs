@@ -103,22 +103,6 @@ namespace Cocona.Command.Dispatcher
                             next = m.DispatchAsync;
                             continue;
                         }
-                        else if (t == typeof(BuiltInCommandMiddleware))
-                        {
-                            var m = new BuiltInCommandMiddleware(
-                                next,
-                                GetRequiredService<ICoconaHelpRenderer>(_serviceProvider),
-                                GetRequiredService<ICoconaCommandHelpProvider>(_serviceProvider),
-                                GetRequiredService<ICoconaCommandProvider>(_serviceProvider),
-                                GetRequiredService<ICoconaConsoleProvider>(_serviceProvider),
-                                GetRequiredService<ICoconaAppContextAccessor>(_serviceProvider),
-                                GetRequiredService<ICoconaShellCompletionCodeProvider>(_serviceProvider),
-                                GetRequiredService<ICoconaCompletionCandidates>(_serviceProvider)
-
-                            );
-                            next = m.DispatchAsync;
-                            continue;
-                        }
 
                         var middleware = (CommandDispatcherMiddleware)_activator.CreateInstance(_serviceProvider, typeOrInstance.Type, new object[] { next })!;
                         next = middleware.DispatchAsync;

@@ -42,9 +42,7 @@ namespace Cocona.ShellCompletion.Generators
             WriteRootCommandDefinition(writer, commandCollection);
 
             writer.WriteLine($"__cocona_{_appName}_onthefly() {{");
-            writer.WriteLine($"    # NOTE: '--help' and '--version' options prevents to perform unintended destructive action");
-            writer.WriteLine($"    # if the command doesn't support on-the-fly candidates feature (It's fail-safe).");
-            writer.WriteLine($"    local -a items; items=(${{(f)\"$(\"${{exec_command}}\" --help --version --completion-candidates \"zsh:$1\" -- \"${{words[@]}}\")\"}})");
+            writer.WriteLine($"    local -a items; items=(${{(f)\"$(\"${{exec_command}}\" --completion-candidates \"zsh:$1\" -- \"${{words[@]}}\")\"}})");
             writer.WriteLine($"    _describe 'items' items");
             writer.WriteLine($"}}");
 
@@ -107,18 +105,25 @@ namespace Cocona.ShellCompletion.Generators
             }
             writer.WriteLine($"    )");
 
-            var helpOption = command.Options.FirstOrDefault(x => x.Name == "help" && x.OptionType == typeof(bool));
+            var helpOption = command.OptionLikeCommands.FirstOrDefault(x => x.Name == "help");
 
             writer.WriteLine($"    _arguments -n -s -S : \\");
-            foreach (var option in command.Options.Where(x => !x.IsHidden))
+            foreach (var option in command.Options.OfType<ICommandOptionDescriptor>().Concat(command.OptionLikeCommands).Where(x => !x.Flags.HasFlag(CommandOptionFlags.Hidden)))
             {
-                if (option.OptionType == typeof(bool))
+                if (option is CommandOptionDescriptor commandOption)
                 {
-                    writer.WriteLine($"        '{GetOptions(option, helpOption)}[{option.Description}]' \\");
+                    if (commandOption.OptionType == typeof(bool))
+                    {
+                        writer.WriteLine($"        '{GetOptions(option, helpOption)}[{option.Description}]' \\");
+                    }
+                    else
+                    {
+                        writer.WriteLine($"        '{GetOptions(option, helpOption)}[{option.Description}]: :{GetArgumentValues(commandOption)}' \\");
+                    }
                 }
                 else
                 {
-                    writer.WriteLine($"        '{GetOptions(option, helpOption)}[{option.Description}]: :{GetArgumentValues(option)}' \\");
+                    writer.WriteLine($"        '{GetOptions(option, helpOption)}[{option.Description}]' \\");
                 }
             }
             foreach (var arg in command.Arguments)
@@ -149,7 +154,7 @@ namespace Cocona.ShellCompletion.Generators
             }
         }
 
-        private string GetOptions(CommandOptionDescriptor option, CommandOptionDescriptor? helpOption)
+        private string GetOptions(ICommandOptionDescriptor option, ICommandOptionDescriptor? helpOption)
         {
             var sb = new StringBuilder();
 
@@ -166,13 +171,14 @@ namespace Cocona.ShellCompletion.Generators
                 }
             }
 
+            var isEnumerableLike = option is CommandOptionDescriptor commandOption && commandOption.IsEnumerableLike;
             if (option.ShortName.Any())
             {
-                sb.Append($"{(option.IsEnumerableLike ? "*" : "")}'{{--{option.Name},{string.Join(",", option.ShortName.Select(x => "-" + x))}}}'");
+                sb.Append($"{(isEnumerableLike ? "*" : "")}'{{--{option.Name},{string.Join(",", option.ShortName.Select(x => "-" + x))}}}'");
             }
             else
             {
-                sb.Append($"{(option.IsEnumerableLike ? "*" : "")}--{option.Name}");
+                sb.Append($"{(isEnumerableLike ? "*" : "")}--{option.Name}");
             }
 
             return sb.ToString();

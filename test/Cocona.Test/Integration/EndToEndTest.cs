@@ -117,8 +117,7 @@ namespace Cocona.Test.Integration
         [Fact]
         public void CoconaApp_Run_Single_CompletionCandidates()
         {
-            // NOTE: --completion-candidates option always follows --help and --version
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_Candidates>(new string[] { "--help", "--version", "--completion-candidates", "bash:name", "--", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_Candidates>(new string[] { "--completion-candidates", "bash:name", "--", "A" });
 
             stdOut.Should().Contain("Alice");
             stdErr.Should().BeEmpty();
@@ -287,8 +286,7 @@ namespace Cocona.Test.Integration
         [Fact]
         public void CoconaApp_Run_Multiple_CompletionCandidates()
         {
-            // NOTE: --completion-candidates option always follows --help and --version
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(new string[] { "--help", "--version", "--completion-candidates", "bash:name", "--", "hello", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(new string[] { "--completion-candidates", "bash:name", "--", "hello", "A" });
 
             stdOut.Should().Contain("Karen");
             stdErr.Should().BeEmpty();
@@ -298,8 +296,7 @@ namespace Cocona.Test.Integration
         [Fact]
         public void CoconaApp_Run_Multiple_CompletionCandidates_UnknownCommand()
         {
-            // NOTE: --completion-candidates option always follows --help and --version
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(new string[] { "--help", "--version", "--completion-candidates", "bash:name", "--", "unknown-command", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(new string[] { "--completion-candidates", "bash:name", "--", "unknown-command", "A" });
 
             stdOut.Should().BeEmpty();
             stdErr.Should().NotBeEmpty();
@@ -309,8 +306,7 @@ namespace Cocona.Test.Integration
         [Fact]
         public void CoconaApp_Run_Multiple_CompletionCandidates_UnknownOption()
         {
-            // NOTE: --completion-candidates option always follows --help and --version
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(new string[] { "--help", "--version", "--completion-candidates", "bash:unknown-option", "--", "hello", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(new string[] { "--completion-candidates", "bash:unknown-option", "--", "hello", "A" });
 
             stdOut.Should().BeEmpty();
             stdErr.Should().BeEmpty();

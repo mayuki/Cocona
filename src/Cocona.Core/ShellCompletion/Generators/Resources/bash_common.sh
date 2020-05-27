@@ -205,9 +205,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_dir() {
 }
 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_onthefly() {
     __cocona_APPNAMEPLACEHOLDER_completion_debug_log "__cocona_APPNAMEPLACEHOLDER_completion_set_candidates" "${words[0]}" --completion-candidates "bash:$1" "${words[@]:1}"
-    # NOTE: '--help' and '--version' options prevents to perform unintended destructive action 
-    # if the command doesn't support on-the-fly candidates feature (It's fail-safe).
-    COMPREPLY=($(compgen -W "$(${words[0]/#\~/$HOME} --help --version --completion-candidates "bash:$1" -- "${words[@]:1}")" -- "${cur}"))
+    COMPREPLY=($(compgen -W "$(${words[0]/#\~/$HOME} --completion-candidates "bash:$1" -- "${words[@]:1}")" -- "${cur}"))
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_init_variables() {

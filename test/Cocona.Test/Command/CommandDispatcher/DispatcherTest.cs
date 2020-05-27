@@ -18,7 +18,7 @@ namespace Cocona.Test.Command.CommandDispatcher
 {
     public class DispatcherTest
     {
-        private ServiceCollection CreateDefaultServices<TCommand>(string[] args)
+        private ServiceCollection CreateDefaultServices<TCommand>(string[] args, Action<CoconaCommandDispatcherPipelineBuilder> configurePipeline = null)
         {
             var services = new ServiceCollection();
             services.AddSingleton<ICoconaParameterValidatorProvider, DataAnnotationsParameterValidatorProvider>();
@@ -30,14 +30,21 @@ namespace Cocona.Test.Command.CommandDispatcher
             services.AddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
             services.AddTransient<ICoconaCommandResolver, CoconaCommandResolver>();
             services.AddTransient<ICoconaCommandMatcher, CoconaCommandMatcher>();
+            services.AddTransient<ICoconaConsoleProvider, CoconaConsoleProvider>();
             services.AddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
             services.AddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
             services.AddSingleton<ICoconaCommandDispatcherPipelineBuilder>(
-                serviceProvider => new CoconaCommandDispatcherPipelineBuilder(serviceProvider, serviceProvider.GetService<ICoconaInstanceActivator>())
-                    .UseMiddleware<CoconaCommandInvokeMiddleware>());
+                serviceProvider =>
+                {
+                    var builder = new CoconaCommandDispatcherPipelineBuilder(serviceProvider, serviceProvider.GetService<ICoconaInstanceActivator>());
+                    configurePipeline?.Invoke(builder);
+                    builder.UseMiddleware<CoconaCommandInvokeMiddleware>();
+                    return builder;
+                });
 
             services.AddSingleton<TestCommand>();
+            services.AddSingleton<TestCommand_IgnoreUnknownOption>();
             services.AddSingleton<TestMultipleCommand>();
             services.AddSingleton<TestNestedCommand>();
             services.AddSingleton<TestNestedCommand.TestNestedCommand_Nested>();
@@ -59,6 +66,29 @@ namespace Cocona.Test.Command.CommandDispatcher
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
             var result = await dispatcher.DispatchAsync();
             serviceProvider.GetService<TestCommand>().Log[0].Should().Be($"{nameof(TestCommand.Test)}:option0 -> hogehoge");
+        }
+
+        [Fact]
+        public async Task RejectUnknownOptionMiddleware_UnknownOptions()
+        {
+            var services = CreateDefaultServices<TestCommand>(new string[] { "--option0=hogehoge", "--unknown-option" }, builder => { builder.UseMiddleware<RejectUnknownOptionsMiddleware>(); });
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var result = await dispatcher.DispatchAsync();
+            result.Should().Be(129);
+        }
+
+        [Fact]
+        public async Task RejectUnknownOptionMiddleware_IgnoreUnknownOptions()
+        {
+            var services = CreateDefaultServices<TestCommand_IgnoreUnknownOption>(new string[] { "--option0=hogehoge", "--unknown-option" }, builder => { builder.UseMiddleware<RejectUnknownOptionsMiddleware>(); });
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var result = await dispatcher.DispatchAsync();
+            result.Should().Be(0);
+            serviceProvider.GetService<TestCommand_IgnoreUnknownOption>().Log[0].Should().Be($"{nameof(TestCommand.Test)}:option0 -> hogehoge");
         }
 
         [Fact]
@@ -188,6 +218,17 @@ namespace Cocona.Test.Command.CommandDispatcher
         {
             public List<string> Log { get; } = new List<string>();
 
+            public void Test(string option0)
+            {
+                Log.Add($"{nameof(TestCommand.Test)}:{nameof(option0)} -> {option0}");
+            }
+        }
+
+        public class TestCommand_IgnoreUnknownOption
+        {
+            public List<string> Log { get; } = new List<string>();
+
+            [IgnoreUnknownOptions]
             public void Test(string option0)
             {
                 Log.Add($"{nameof(TestCommand.Test)}:{nameof(option0)} -> {option0}");

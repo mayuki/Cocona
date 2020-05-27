@@ -66,6 +66,15 @@ namespace Cocona.Help
                 }
             }
 
+            if (command.OptionLikeCommands.Any(x => !x.IsHidden))
+            {
+                foreach (var opt in command.OptionLikeCommands.Where(x => !x.IsHidden))
+                {
+                    sb.Append(" ");
+                    sb.Append($"[--{opt.Name}]");
+                }
+            }
+
             if (command.Arguments.Any())
             {
                 foreach (var arg in command.Arguments)
@@ -102,7 +111,7 @@ namespace Cocona.Help
             AddHelpForCommandArguments(help, command.Arguments);
 
             // Options
-            AddHelpForCommandOptions(help, command.Options);
+            AddHelpForCommandOptions(help, command.Options.OfType<ICommandOptionDescriptor>().Concat(command.OptionLikeCommands));
 
             // Transform help document
             var transformers = FilterHelper.GetFilters<ICoconaHelpTransformer>(command.Method, _serviceProvider);
@@ -170,7 +179,7 @@ namespace Cocona.Help
                 AddHelpForCommandArguments(help, commandCollection.Primary.Arguments);
 
                 // Options
-                AddHelpForCommandOptions(help, commandCollection.Primary.Options);
+                AddHelpForCommandOptions(help, commandCollection.Primary.Options.OfType<ICommandOptionDescriptor>().Concat(commandCollection.Primary.OptionLikeCommands));
             }
 
             // Transform help document
@@ -227,21 +236,28 @@ namespace Cocona.Help
             }
         }
 
-        private void AddHelpForCommandOptions(HelpMessage help, IEnumerable<CommandOptionDescriptor> options)
+        private void AddHelpForCommandOptions(HelpMessage help, IEnumerable<ICommandOptionDescriptor> options)
         {
-            if (options.Any(x => !x.IsHidden))
+            if (options.Any(x => !x.Flags.HasFlag(CommandOptionFlags.Hidden)))
             {
                 help.Children.Add(new HelpSection(HelpSectionId.Options,
                     new HelpHeading("Options:"),
                     new HelpSection(
                         new HelpLabelDescriptionList(
                             options
-                                .Where(x => !x.IsHidden)
+                                .Where(x => !x.Flags.HasFlag(CommandOptionFlags.Hidden))
                                 .Select((x, i) =>
-                                    new HelpLabelDescriptionListItem(
-                                        BuildParameterLabel(x),
-                                        BuildParameterDescription(x.Description, x.IsRequired, x.OptionType, x.DefaultValue)
-                                    )
+                                    x is CommandOptionDescriptor option
+                                        ? new HelpLabelDescriptionListItem(
+                                            BuildParameterLabel(option),
+                                            BuildParameterDescription(x.Description, option.IsRequired, option.OptionType, option.DefaultValue)
+                                        )
+                                        : x is CommandOptionLikeCommandDescriptor optionLikeCommand
+                                            ? new HelpLabelDescriptionListItem(
+                                                BuildParameterLabel(optionLikeCommand),
+                                                optionLikeCommand.Description
+                                            )
+                                            : throw new NotSupportedException()
                                 )
                                 .ToArray()
                         )
@@ -263,6 +279,13 @@ namespace Cocona.Help
                             ? $" <{option.ValueName}>..."
                             : $" <{option.ValueName}>"
                 );
+        }
+
+
+        private string BuildParameterLabel(CommandOptionLikeCommandDescriptor optionLikeCommand)
+        {
+            return (optionLikeCommand.ShortName.Any() ? string.Join(", ", optionLikeCommand.ShortName.Select(x => $"-{x}")) + ", " : "") +
+                   $"--{optionLikeCommand.Name}";
         }
 
         private string BuildParameterDescription(string description, bool isRequired, Type valueType, CoconaDefaultValue defaultValue)
