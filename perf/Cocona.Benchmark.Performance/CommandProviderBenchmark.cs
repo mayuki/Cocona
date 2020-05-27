@@ -64,7 +64,7 @@ namespace Cocona.Benchmark.Performance
                 treatPublicMethodsAsCommands: true,
                 enableConvertCommandNameToLowerCase: true,
                 enableConvertOptionNameToLowerCase: true
-            ));
+            ), enableShellCompletionSupport:true);
 
             var commands = provider.GetCommandCollection();
         }
