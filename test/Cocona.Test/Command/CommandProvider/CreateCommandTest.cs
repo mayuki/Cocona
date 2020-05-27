@@ -420,6 +420,26 @@ namespace Cocona.Test.Command.CommandProvider
             cmd.Flags.Should().HaveFlag(CommandFlags.Hidden);
         }
 
+
+        [Fact]
+        public void HasOptionLikeCommands()
+        {
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.HasOptionLikeCommands)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            cmd.Name.Should().Be(nameof(CommandTest.HasOptionLikeCommands));
+            cmd.OptionLikeCommands.Should().HaveCount(3);
+            cmd.OptionLikeCommands[0].Name.Should().Be("foo");
+            cmd.OptionLikeCommands[0].Flags.Should().HaveFlag(CommandOptionFlags.OptionLikeCommand);
+            cmd.OptionLikeCommands[0].ShortName.Should().BeEmpty();
+            cmd.OptionLikeCommands[1].Name.Should().Be("bar");
+            cmd.OptionLikeCommands[1].ShortName.Should().Contain('b');
+            cmd.OptionLikeCommands[1].Flags.Should().HaveFlag(CommandOptionFlags.OptionLikeCommand);
+            cmd.OptionLikeCommands[2].Name.Should().Be("hidden");
+            cmd.OptionLikeCommands[2].ShortName.Should().BeEmpty();
+            cmd.OptionLikeCommands[2].Flags.Should().HaveFlag(CommandOptionFlags.OptionLikeCommand);
+            cmd.OptionLikeCommands[2].Flags.Should().HaveFlag(CommandOptionFlags.Hidden);
+        }
+
+
         private static MethodInfo GetMethod<T>(string methodName)
         {
             return typeof(T).GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public);
@@ -458,6 +478,11 @@ namespace Cocona.Test.Command.CommandProvider
 
             [IgnoreUnknownOptions]
             public void IgnoreUnknownOptions() { }
+
+            [OptionLikeCommand("foo", new char[] { }, typeof(CommandTest), nameof(Default_NoOptions_NoArguments_NoReturn))]
+            [OptionLikeCommand("bar", new char[] { 'b' }, typeof(CommandTest), nameof(Default_NoOptions_NoArguments_NoReturn))]
+            [OptionLikeCommand("hidden", new char[] {}, typeof(CommandTest), nameof(Hidden))]
+            public void HasOptionLikeCommands() { }
         }
 
         [IgnoreUnknownOptions]

@@ -137,7 +137,7 @@ namespace Cocona.Command
 
             return new CommandCollection(commands);
         }
-
+        
         // NOTE: Avoid JIT optimization to improve responsiveness at first time.
         [MethodImpl(MethodImplOptions.NoOptimization)]
         public CommandDescriptor CreateCommand(MethodInfo methodInfo, bool isSingleCommand, Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> overloadCommandMethods)
@@ -145,17 +145,16 @@ namespace Cocona.Command
             ThrowHelper.ArgumentNull(methodInfo, nameof(methodInfo));
 
             // Collect Method attributes
-            var (commandAttr, primaryCommandAttr, commandHiddenAttr, ignoreUnknownOptionsAttr)
-                = AttributeHelper.GetAttributes<CommandAttribute, PrimaryCommandAttribute, HiddenAttribute, IgnoreUnknownOptionsAttribute>(
-                    methodInfo.GetCustomAttributes(typeof(Attribute), true));
+            var commandMethodDesc = GetCommandMethodDescriptor(methodInfo);
 
+            var commandAttr = commandMethodDesc.CommandAttribute;
             var commandName = commandAttr?.Name ?? methodInfo.Name;
             var description = commandAttr?.Description ?? string.Empty;
             var aliases = commandAttr?.Aliases ?? Array.Empty<string>();
 
-            var isPrimaryCommand = primaryCommandAttr != null;
-            var isHidden = commandHiddenAttr != null;
-            var isIgnoreUnknownOptions = ignoreUnknownOptionsAttr != null || methodInfo.DeclaringType.GetCustomAttribute<IgnoreUnknownOptionsAttribute>() != null;
+            var isPrimaryCommand = commandMethodDesc.IsPrimaryCommand;
+            var isHidden = commandMethodDesc.IsHidden;
+            var isIgnoreUnknownOptions = commandMethodDesc.IsIgnoreUnknownOptions;
 
             var allOptions = new Dictionary<string, CommandOptionDescriptor>(StringComparer.OrdinalIgnoreCase);
             var allOptionShortNames = new HashSet<char>();
@@ -286,7 +285,31 @@ namespace Cocona.Command
                     overloadDescriptors[i] = overloadDescriptor;
                 }
             }
-            
+
+            // OptionLikeCommands
+            var optionLikeCommands = Array.Empty<CommandOptionLikeCommandDescriptor>();
+            if (commandMethodDesc.OptionLikeCommands.Any())
+            {
+                optionLikeCommands = commandMethodDesc.OptionLikeCommands
+                    .Select(x =>
+                    {
+                        var methodInfoOptionLikeCommandTarget = x.CommandType.GetMethod(x.CommandMethodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                        if (methodInfoOptionLikeCommandTarget is null)
+                        {
+                            throw new InvalidOperationException($"A method of option-like command '{x.CommandMethodName}' was not found in '{x.CommandType}'");
+                        }
+
+                        var optionLikeCommandDesc = CreateCommand(methodInfoOptionLikeCommandTarget, false, _emptyOverloads);
+                        return new CommandOptionLikeCommandDescriptor(
+                            x.OptionName,
+                            x.ShortNames,
+                            optionLikeCommandDesc,
+                            CommandOptionFlags.OptionLikeCommand | (optionLikeCommandDesc.IsHidden ? CommandOptionFlags.Hidden : CommandOptionFlags.None)
+                        );
+                    })
+                    .ToArray();
+            }
+
             // Convert the command name to lower-case
             if (_enableConvertCommandNameToLowerCase)
             {
@@ -309,10 +332,63 @@ namespace Cocona.Command
                 options,
                 arguments,
                 overloadDescriptors,
-                Array.Empty<CommandOptionLikeCommandDescriptor>(),
+                optionLikeCommands,
                 flags,
                 null
             );
+        }
+
+        private CommandMethodDescriptor GetCommandMethodDescriptor(MethodInfo methodInfo)
+        {
+            var commandAttr = default(CommandAttribute);
+            var isHidden = false;
+            var isPrimaryCommand = false;
+            var isIgnoreUnknownOptions = false;
+            var optionLikeCommands = new List<OptionLikeCommandAttribute>();
+
+            foreach (var attr in methodInfo.GetCustomAttributes(true))
+            {
+                switch (attr)
+                {
+                    case CommandAttribute command:
+                        commandAttr = command;
+                        break;
+                    case HiddenAttribute _:
+                        isHidden = true;
+                        break;
+                    case PrimaryCommandAttribute _:
+                        isPrimaryCommand = true;
+                        break;
+                    case IgnoreUnknownOptionsAttribute _:
+                        isIgnoreUnknownOptions = true;
+                        break;
+                    case OptionLikeCommandAttribute optionLikeCommand:
+                        optionLikeCommands.Add(optionLikeCommand);
+                        break;
+                }
+            }
+
+            isIgnoreUnknownOptions |= methodInfo.DeclaringType.GetCustomAttribute<IgnoreUnknownOptionsAttribute>() != null;
+
+            return new CommandMethodDescriptor(commandAttr, isHidden, isPrimaryCommand, isIgnoreUnknownOptions, optionLikeCommands);
+        }
+
+        private readonly struct CommandMethodDescriptor
+        {
+            public CommandAttribute? CommandAttribute { get; }
+            public bool IsHidden { get; }
+            public bool IsPrimaryCommand { get; }
+            public bool IsIgnoreUnknownOptions { get; }
+            public IReadOnlyList<OptionLikeCommandAttribute> OptionLikeCommands { get; }
+
+            public CommandMethodDescriptor(CommandAttribute? commandAttr, bool isHidden, bool isPrimaryCommand, bool isIgnoreUnknownOptions, IReadOnlyList<OptionLikeCommandAttribute> optionLikeCommands)
+            {
+                CommandAttribute = commandAttr;
+                IsHidden = isHidden;
+                IsPrimaryCommand = isPrimaryCommand;
+                IsIgnoreUnknownOptions = isIgnoreUnknownOptions;
+                OptionLikeCommands = optionLikeCommands;
+            }
         }
 
         public static string ToCommandCase(string value)
