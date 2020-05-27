@@ -8,11 +8,14 @@ namespace Cocona.Command.BuiltIn
     public class CoconaBuiltInCommandProvider : ICoconaCommandProvider
     {
         private readonly ICoconaCommandProvider _underlyingCommandProvider;
+        private readonly bool _enableShellCompletionSupport;
+
         private CommandCollection? _cachedCommandCollection;
 
-        public CoconaBuiltInCommandProvider(ICoconaCommandProvider underlyingCommandProvider)
+        public CoconaBuiltInCommandProvider(ICoconaCommandProvider underlyingCommandProvider, bool enableShellCompletionSupport)
         {
             _underlyingCommandProvider = underlyingCommandProvider;
+            _enableShellCompletionSupport = enableShellCompletionSupport;
         }
 
         public CommandCollection GetCommandCollection()
@@ -65,8 +68,11 @@ namespace Cocona.Command.BuiltIn
 
                 if (command.IsPrimaryCommand && depth == 0)
                 {
-                    // --completion-candidates, --completion, ... original ..., --version
-                    optionLikeCommands = optionLikeCommands.Prepend(BuiltInOptionLikeCommands.Completion).Prepend(BuiltInOptionLikeCommands.CompletionCandidates);
+                    if (_enableShellCompletionSupport)
+                    {
+                        // --completion-candidates, --completion, ... original ..., --version
+                        optionLikeCommands = optionLikeCommands.Prepend(BuiltInOptionLikeCommands.Completion).Prepend(BuiltInOptionLikeCommands.CompletionCandidates);
+                    }
 
                     if (!allNames.Contains(BuiltInOptionLikeCommands.Version.Name) && !allShortNames.Overlaps(BuiltInOptionLikeCommands.Version.ShortName))
                     {

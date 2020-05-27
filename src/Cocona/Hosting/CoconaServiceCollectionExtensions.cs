@@ -54,7 +54,8 @@ namespace Microsoft.Extensions.Hosting
                         options.TreatPublicMethodsAsCommands,
                         options.EnableConvertOptionNameToLowerCase,
                         options.EnableConvertCommandNameToLowerCase
-                    )
+                    ),
+                    options.EnableShellCompletionSupport
                 );
             });
             services.TryAddSingleton<ICoconaCommandLineArgumentProvider>(serviceProvider =>

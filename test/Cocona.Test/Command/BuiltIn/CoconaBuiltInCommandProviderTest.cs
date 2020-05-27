@@ -14,7 +14,7 @@ namespace Cocona.Test.Command.BuiltIn
         [Fact]
         public void BuiltInPrimaryCommand()
         {
-            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInPrimaryCommand) }));
+            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInPrimaryCommand) }), true);
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(3); // A, B, BuiltInPrimary
@@ -24,7 +24,7 @@ namespace Cocona.Test.Command.BuiltIn
         [Fact]
         public void RewriteCommandNamesAsLowerCase()
         {
-            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInPrimaryCommand) }));
+            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInPrimaryCommand) }), true);
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(3); // A, B, BuiltInPrimary
@@ -36,7 +36,7 @@ namespace Cocona.Test.Command.BuiltIn
         [Fact]
         public void BuiltInOptionHelpAndVersionAndCompletion_BuiltInPrimaryCommand()
         {
-            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInPrimaryCommand) }));
+            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInPrimaryCommand) }), true);
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.Primary.Options.Should().HaveCount(0);
@@ -48,9 +48,21 @@ namespace Cocona.Test.Command.BuiltIn
         }
 
         [Fact]
+        public void DisableShellCompletionSupport_BuiltInOptionHelpAndVersion_BuiltInPrimaryCommand()
+        {
+            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInPrimaryCommand) }), false);
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.Primary.Options.Should().HaveCount(0);
+            commands.Primary.OptionLikeCommands.Should().HaveCount(2); // --help, --version
+            commands.Primary.OptionLikeCommands[0].Should().Be(BuiltInOptionLikeCommands.Help);
+            commands.Primary.OptionLikeCommands[1].Should().Be(BuiltInOptionLikeCommands.Version);
+        }
+
+        [Fact]
         public void BuiltInOptionHelp_NonPrimaryCommand()
         {
-            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInPrimaryCommand) }));
+            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInPrimaryCommand) }), true);
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All[0].Options.Should().HaveCount(0);
@@ -61,7 +73,7 @@ namespace Cocona.Test.Command.BuiltIn
         [Fact]
         public void BuiltInOptionHelp_UserOptions()
         {
-            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInHelpUserOptionCommand) }));
+            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInHelpUserOptionCommand) }), true);
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All[0].Options.Should().HaveCount(1); // User-implemented --version
