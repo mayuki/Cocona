@@ -1,6 +1,8 @@
 using Cocona.Command.Binder;
 using System;
+using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Cocona.Application;
 
@@ -50,7 +52,8 @@ namespace Cocona.Command.Dispatcher.Middlewares
             }
             catch (TargetInvocationException ex)
             {
-                throw ex.InnerException;
+                ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                return 1; // NOTE: This statement is unreachable.
             }
             finally
             {
