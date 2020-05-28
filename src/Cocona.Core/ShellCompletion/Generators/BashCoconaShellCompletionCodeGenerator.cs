@@ -104,7 +104,7 @@ namespace Cocona.ShellCompletion.Generators
             }
             foreach (var arg in command.Arguments)
             {
-                writer.WriteLine($"    __cocona_{_appName}_completion_define_argument \"--{arg.Name}\" \"{FromArgumentToCandidatesType(arg)}\"");
+                writer.WriteLine($"    __cocona_{_appName}_completion_define_argument \"{arg.Name}\" \"{FromArgumentToCandidatesType(arg)}\"");
             }
 
             string FromOptionToCandidatesType(ICommandOptionDescriptor option)
