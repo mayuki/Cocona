@@ -480,5 +480,27 @@ namespace Cocona.Test.Integration
             [CommandMethodForwardedTo(typeof(BuiltInOptionLikeCommands), nameof(BuiltInOptionLikeCommands.ShowHelp))]
             public void MyHelp() { }
         }
+
+        [Fact]
+        public void CoconaApp_Run_Throw()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Throw>(new string[] { "my-help" });
+
+            stdErr.Should().Contain("Unhandled Exception:");
+            stdErr.Should().Contain("ThrowCore()");
+        }
+
+        class TestCommand_Throw
+        {
+            public void Throw()
+            {
+                ThrowCore();
+            }
+
+            private void ThrowCore()
+            {
+                throw new Exception("Exception!");
+            }
+        }
     }
 }
