@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Cocona.Application;
+using Cocona.Command.BuiltIn;
 using Cocona.CommandLine;
 using Cocona.ShellCompletion.Candidate;
 using FluentAssertions;
@@ -447,6 +448,37 @@ namespace Cocona.Test.Integration
                     Console.WriteLine($"Bye {arg0}");
                 }
             }
+        }
+
+        [Fact]
+        public void CoconaApp_Run_CommandMethodForwarding_Multiple()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_CommandMethodForwarding_Multiple>(new string[] { "forward", "--option0", "OptionValue0", "ArgumentValue0" });
+
+            stdErr.Should().BeNullOrEmpty();
+            stdOut.Should().Contain("Forwarded:OptionValue0:ArgumentValue0");
+        }
+
+        [Fact]
+        public void CoconaApp_Run_CommandMethodForwarding_Multiple_BuiltInShowHelp()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_CommandMethodForwarding_Multiple>(new string[] { "my-help" });
+
+            stdErr.Should().BeNullOrEmpty();
+            stdOut.Should().Contain("Usage:");
+            stdOut.Should().Contain("Commands:");
+        }
+
+        class TestCommand_CommandMethodForwarding_Multiple
+        {
+            public void Hello() { }
+
+            [CommandMethodForwardedTo(typeof(TestCommand_CommandMethodForwarding_Multiple), nameof(TestCommand_CommandMethodForwarding_Multiple.ForwardTarget))]
+            public void Forward() { }
+            public void ForwardTarget(string option0, [Argument]string arg0) { Console.WriteLine($"Forwarded:{option0}:{arg0}"); }
+
+            [CommandMethodForwardedTo(typeof(BuiltInOptionLikeCommands), nameof(BuiltInOptionLikeCommands.ShowHelp))]
+            public void MyHelp() { }
         }
     }
 }

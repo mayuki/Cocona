@@ -71,6 +71,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Advanced.Shell
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Advanced.OptionLikeCommand", "samples\Advanced.OptionLikeCommand\CoconaSample.Advanced.OptionLikeCommand.csproj", "{974EB617-441F-4DC8-88CE-92C896E0FC58}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.Advanced.CommandMethodForwarding", "samples\Advanced.CommandMethodForwarding\CoconaSample.Advanced.CommandMethodForwarding.csproj", "{2E5BEBF1-FCDE-4DA3-9A06-4EC721E89AFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -181,6 +183,10 @@ Global
 		{974EB617-441F-4DC8-88CE-92C896E0FC58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{974EB617-441F-4DC8-88CE-92C896E0FC58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{974EB617-441F-4DC8-88CE-92C896E0FC58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E5BEBF1-FCDE-4DA3-9A06-4EC721E89AFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E5BEBF1-FCDE-4DA3-9A06-4EC721E89AFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E5BEBF1-FCDE-4DA3-9A06-4EC721E89AFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E5BEBF1-FCDE-4DA3-9A06-4EC721E89AFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -209,6 +215,7 @@ Global
 		{E3BFD00E-199E-492F-813D-3D8B2A29258F} = {D154CC2E-568E-45D3-87EB-F0EDF70A763B}
 		{1951CD16-9CFD-4DF1-A0ED-7F4EC6AE4D72} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 		{974EB617-441F-4DC8-88CE-92C896E0FC58} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
+		{2E5BEBF1-FCDE-4DA3-9A06-4EC721E89AFD} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8DBA26EF-235B-4656-A5DD-00C266A42735}

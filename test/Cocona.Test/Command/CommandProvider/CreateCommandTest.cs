@@ -420,7 +420,6 @@ namespace Cocona.Test.Command.CommandProvider
             cmd.Flags.Should().HaveFlag(CommandFlags.Hidden);
         }
 
-
         [Fact]
         public void HasOptionLikeCommands()
         {
@@ -439,6 +438,16 @@ namespace Cocona.Test.Command.CommandProvider
             cmd.OptionLikeCommands[2].Flags.Should().HaveFlag(CommandOptionFlags.Hidden);
         }
 
+        [Fact]
+        public void CommandMethodForwardedTo()
+        {
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandMethodForwardedTo)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            cmd.Name.Should().Be(nameof(CommandTest.CommandMethodForwardedTo));
+            cmd.Description.Should().Be("CommandMethodForwardedTo-description");
+            cmd.Method.Should().BeSameAs(typeof(CommandTest_CommandMethodForwardedToTarget).GetMethod(nameof(CommandTest_CommandMethodForwardedToTarget.CommandMethodForwardedToTarget)));
+            cmd.Parameters.Should().HaveCount(1);
+            cmd.ReturnType.Should().Be<int>();
+        }
 
         private static MethodInfo GetMethod<T>(string methodName)
         {
@@ -483,6 +492,10 @@ namespace Cocona.Test.Command.CommandProvider
             [OptionLikeCommand("bar", new char[] { 'b' }, typeof(CommandTest), nameof(Default_NoOptions_NoArguments_NoReturn))]
             [OptionLikeCommand("hidden", new char[] {}, typeof(CommandTest), nameof(Hidden))]
             public void HasOptionLikeCommands() { }
+
+            [Command(Description = "CommandMethodForwardedTo-description")]
+            [CommandMethodForwardedTo(typeof(CommandTest_CommandMethodForwardedToTarget), nameof(CommandTest_CommandMethodForwardedToTarget.CommandMethodForwardedToTarget))]
+            public void CommandMethodForwardedTo() => throw new NotSupportedException();
         }
 
         [IgnoreUnknownOptions]
@@ -491,5 +504,9 @@ namespace Cocona.Test.Command.CommandProvider
             public void IgnoreUnknownOptions() { }
         }
 
+        public class CommandTest_CommandMethodForwardedToTarget
+        {
+            public int CommandMethodForwardedToTarget([Argument]string arg0) => 0;
+        }
     }
 }
