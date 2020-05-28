@@ -106,7 +106,7 @@ namespace Cocona.Command.BuiltIn
                 null
             ), CommandOptionFlags.Hidden);
 
-        public static ValueTask<int> ShowHelp(
+        public ValueTask<int> ShowHelp(
             [FromService]ICoconaAppContextAccessor appContext,
             [FromService]ICoconaCommandProvider commandProvider,
             [FromService]ICoconaCommandHelpProvider commandHelpProvider,
@@ -116,16 +116,18 @@ namespace Cocona.Command.BuiltIn
         {
             var feature = appContext.Current!.Features.Get<ICoconaCommandFeature>()!;
             var commandCollection = feature.CommandCollection ?? commandProvider.GetCommandCollection(); // nested or root
-            var targetCommand = feature.CommandStack.Last();
-            var help = targetCommand.IsPrimaryCommand
-                ? commandHelpProvider.CreateCommandsIndexHelp(commandCollection, feature.CommandStack.Take(feature.CommandStack.Count - 1).ToArray())
-                : commandHelpProvider.CreateCommandHelp(targetCommand, feature.CommandStack.Take(feature.CommandStack.Count - 1).ToArray());
+            var targetCommand = feature.CommandStack.LastOrDefault(); // When directly call the method, the CommandStack may be empty.
+            var help = targetCommand is null
+                ? commandHelpProvider.CreateCommandsIndexHelp(commandCollection, Array.Empty<CommandDescriptor>())
+                : targetCommand.IsPrimaryCommand
+                    ? commandHelpProvider.CreateCommandsIndexHelp(commandCollection, feature.CommandStack.Take(feature.CommandStack.Count - 1).ToArray())
+                    : commandHelpProvider.CreateCommandHelp(targetCommand, feature.CommandStack.Take(feature.CommandStack.Count - 1).ToArray());
 
             console.Output.Write(helpRenderer.Render(help));
             return new ValueTask<int>(129);
         }
 
-        public static ValueTask<int> ShowVersion(
+        public ValueTask<int> ShowVersion(
             [FromService]ICoconaCommandHelpProvider commandHelpProvider,
             [FromService]ICoconaConsoleProvider console,
             [FromService]ICoconaHelpRenderer helpRenderer
@@ -135,7 +137,7 @@ namespace Cocona.Command.BuiltIn
             return new ValueTask<int>(0);
         }
 
-        public static ValueTask<int> GenerateCompletionSource(
+        public ValueTask<int> GenerateCompletionSource(
             [FromService]ICoconaConsoleProvider console,
             [FromService]ICoconaCommandProvider commandProvider,
             [FromService]ICoconaShellCompletionCodeProvider shellCompletionCodeProvider,
@@ -157,7 +159,7 @@ namespace Cocona.Command.BuiltIn
         //       If '--completion-candidates' option is provided, '--help' and '--version' options are also always provided.
         //       And these options prevent to perform unintended **destructive** action if the command doesn't support on-the-fly candidates feature.
         //       Fortunately, Cocona rejects unknown options by default. This options guard is fail-safe.
-        public static ValueTask<int> GetCompletionCandidates(
+        public ValueTask<int> GetCompletionCandidates(
             [FromService]ICoconaConsoleProvider console,
             [FromService]ICoconaShellCompletionCodeProvider shellCompletionCodeGenerator,
             [FromService]ICoconaCompletionCandidates completionCandidates,

@@ -146,7 +146,6 @@ namespace Cocona.Command
 
             // Collect Method attributes
             var commandMethodDesc = GetCommandMethodDescriptor(methodInfo);
-
             var commandAttr = commandMethodDesc.CommandAttribute;
             var commandName = commandAttr?.Name ?? methodInfo.Name;
             var description = commandAttr?.Description ?? string.Empty;
@@ -155,6 +154,15 @@ namespace Cocona.Command
             var isPrimaryCommand = commandMethodDesc.IsPrimaryCommand;
             var isHidden = commandMethodDesc.IsHidden;
             var isIgnoreUnknownOptions = commandMethodDesc.IsIgnoreUnknownOptions;
+
+            // If the command method should forward to another command.
+            if (commandMethodDesc.CommandMethodForwardedTo is { } cmdForwardedTo)
+            {
+                var forwardTargetMethodInfo = cmdForwardedTo.CommandType.GetMethod(cmdForwardedTo.CommandMethodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+                methodInfo = forwardTargetMethodInfo
+                             ?? throw new InvalidOperationException($"The command '{methodInfo.Name}' is specified for command method forwarding. But the destination command '{cmdForwardedTo.CommandType.Name}.{cmdForwardedTo.CommandMethodName} was not found.");
+            }
 
             var allOptions = new Dictionary<string, CommandOptionDescriptor>(StringComparer.OrdinalIgnoreCase);
             var allOptionShortNames = new HashSet<char>();
@@ -345,6 +353,7 @@ namespace Cocona.Command
             var isPrimaryCommand = false;
             var isIgnoreUnknownOptions = false;
             var optionLikeCommands = new List<OptionLikeCommandAttribute>();
+            var commandMethodForwardedToAttr = default(CommandMethodForwardedToAttribute);
 
             foreach (var attr in methodInfo.GetCustomAttributes(true))
             {
@@ -365,12 +374,15 @@ namespace Cocona.Command
                     case OptionLikeCommandAttribute optionLikeCommand:
                         optionLikeCommands.Add(optionLikeCommand);
                         break;
+                    case CommandMethodForwardedToAttribute commandMethodForwardedTo:
+                        commandMethodForwardedToAttr = commandMethodForwardedTo;
+                        break;
                 }
             }
 
             isIgnoreUnknownOptions |= methodInfo.DeclaringType.GetCustomAttribute<IgnoreUnknownOptionsAttribute>() != null;
 
-            return new CommandMethodDescriptor(commandAttr, isHidden, isPrimaryCommand, isIgnoreUnknownOptions, optionLikeCommands);
+            return new CommandMethodDescriptor(commandAttr, isHidden, isPrimaryCommand, isIgnoreUnknownOptions, optionLikeCommands, commandMethodForwardedToAttr);
         }
 
         private readonly struct CommandMethodDescriptor
@@ -380,14 +392,16 @@ namespace Cocona.Command
             public bool IsPrimaryCommand { get; }
             public bool IsIgnoreUnknownOptions { get; }
             public IReadOnlyList<OptionLikeCommandAttribute> OptionLikeCommands { get; }
+            public CommandMethodForwardedToAttribute? CommandMethodForwardedTo { get; }
 
-            public CommandMethodDescriptor(CommandAttribute? commandAttr, bool isHidden, bool isPrimaryCommand, bool isIgnoreUnknownOptions, IReadOnlyList<OptionLikeCommandAttribute> optionLikeCommands)
+            public CommandMethodDescriptor(CommandAttribute? commandAttr, bool isHidden, bool isPrimaryCommand, bool isIgnoreUnknownOptions, IReadOnlyList<OptionLikeCommandAttribute> optionLikeCommands, CommandMethodForwardedToAttribute? commandMethodForwardedTo)
             {
                 CommandAttribute = commandAttr;
                 IsHidden = isHidden;
                 IsPrimaryCommand = isPrimaryCommand;
                 IsIgnoreUnknownOptions = isIgnoreUnknownOptions;
                 OptionLikeCommands = optionLikeCommands;
+                CommandMethodForwardedTo = commandMethodForwardedTo;
             }
         }
 
