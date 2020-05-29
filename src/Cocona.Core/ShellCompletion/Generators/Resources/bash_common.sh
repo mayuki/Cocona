@@ -42,11 +42,14 @@ __cocona_APPNAMEPLACEHOLDER_completion_get_argument_index() {
     local index=0
     local options_completed=0
     local prev_is_option=0
+    local current_pos=$1
 
     for param in "${params[@]}"
     do
-        __cocona_APPNAMEPLACEHOLDER_completion_debug_log "$param" index=$index options_completed=$options_completed prev_is_option=$prev_is_option
-        if [[ $options_completed -eq 1 ]]; then
+        __cocona_APPNAMEPLACEHOLDER_completion_debug_log "$param" index=$index options_completed=$options_completed prev_is_option=$prev_is_option "current_pos=$current_pos"
+        if [[ $current_pos -eq $index ]]; then
+            break
+        elif [[ $options_completed -eq 1 ]]; then
             ((index++))
             prev_is_option=0
         elif [[ "$param" = '--' ]]; then
@@ -149,7 +152,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
     fi
 
     # arguments...
-    __cocona_APPNAMEPLACEHOLDER_completion_get_argument_index
+    __cocona_APPNAMEPLACEHOLDER_completion_get_argument_index $((cword - command_depth))
     local index_of_arg=$?
     __cocona_APPNAMEPLACEHOLDER_completion_debug_log "argument" index_of_arg=$index_of_arg "type=${argument_types[$index_of_arg]}"
     case ${argument_types[$index_of_arg]} in
