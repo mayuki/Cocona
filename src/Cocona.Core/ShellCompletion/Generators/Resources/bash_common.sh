@@ -42,11 +42,11 @@ __cocona_APPNAMEPLACEHOLDER_completion_get_argument_index() {
     local index=0
     local options_completed=0
     local prev_is_option=0
-    local -i current_pos=$1
+    local current_pos=$1
 
     for param in "${params[@]}"
     do
-        __cocona_APPNAMEPLACEHOLDER_completion_debug_log "$param" index=$index options_completed=$options_completed prev_is_option=$prev_is_option current_pos=$current_pos
+        __cocona_APPNAMEPLACEHOLDER_completion_debug_log "$param" index=$index options_completed=$options_completed prev_is_option=$prev_is_option "current_pos=$current_pos"
         if [[ $current_pos -eq $index ]]; then
             break
         elif [[ $options_completed -eq 1 ]]; then
