@@ -32,6 +32,7 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
     - [Options](#options)
     - [Arguments](#arguments)
     - [Sub-commands](#sub-commands)
+    - [Option-like commands](#option-like-commands)
 - [Cocona in action](#cocona-in-action)
     - [Exit code](#exit-code)
     - [Validation](#validation)
@@ -40,9 +41,12 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
     - [Dependency Injection](#dependency-injection)
     - [Configuration](#configuration)
     - [Logging](#logging)
+    - [Shell command-line completion](#shell-command-line-completion)
 - [Performance & Cocona.Lite](#performance--coconalite)
 - [Advanced](#advanced)
     - [Help customization](#help-customization)
+    - [CommandMethodForwardedTo attribute](#commandmethodforwardedto-attribute)
+    - [IgnoreUnknownOptions attribute](#ignoreunknownoptions-attribute)
 - [Related projects](#related-projects)
 - [License](#license)
 
@@ -319,6 +323,35 @@ public void Hello() { ... }
 public void Goodbye() { ... }
 ```
 
+### Option-like commands
+The option-like command is a way to achieve an independent command that at first glance, looks like an option in a command.
+
+For example, easy to understand examples like `--version` and `--help`.
+These are the options of a command, but they behave as a command when specified.
+
+```csharp
+[OptionLikeCommand("hello", new[] {'f'}, typeof(Program), nameof(Hello))]
+public void Execute()
+    => Console.WriteLine("Execute");
+
+private void Hello([Argument]string name)
+    => Console.WriteLine($"Hello {name}!");
+```
+```bash
+$ ./myapp
+Execute
+
+$ ./myapp --hello Alice
+Hello Alice!
+```
+
+- See: [samples/Advanced.OptionLikeCommand](samples/Advanced.OptionLikeCommand)
+
+##### Limitations
+- Any previous options or arguments specified by OptionLikeCommand will be ignored.
+    - Example: If `--foo --bar --optionlikecommand --baz arg0` and `--optionlikecommand` is an Option-like command, the command will be passed `--baz arg0`.
+- Arguments are not displayed in help.
+
 ## Cocona in action
 
 ### Exit code
@@ -510,6 +543,28 @@ class Program : CoconaConsoleAppBase
     }
 }
 ```
+
+### Shell command-line completion
+Cocona provides support for shell command-line completion (also known as tab completion).
+
+![Tab shell completion](https://user-images.githubusercontent.com/9012/83354785-effcd400-a395-11ea-8226-c21e114c746f.gif)
+
+Cocona generates a shell script for command-line completion from a command definition and allows users to use command-line completion by loading it. The `--completion` built-in option is used to specify the name of a shell to generate a script.
+
+```sh
+$ source <(./myapp --completion bash)
+or
+% ./myapp --completion zsh > ~/.zsh/functions
+```
+
+Currently, The supported shells are `bash` and `zsh`.
+
+This feature is enabled by default, or you can set the `EnableShellCompletionSupport` option to `false` if you don't need it.
+
+It is also possible to dynamically generate command-line completion candidates and to prepare candidates at script generation time. Please see the sample below for more details.
+
+- See: [samples/Advanced.ShellCompletionCandidates](samples/Advanced.ShellCompletionCandidates)
+
 ## Performance & Cocona.Lite
 `Microsoft.Extensions.*` are powerful but little heavy libraries. If you don't need`Microsoft.Extensions.*`, you can use a lightweight version of Cocona. (named [Cocona.Lite](https://www.nuget.org/packages/Cocona.Lite/))
 
@@ -561,6 +616,24 @@ Intel Core i7-8650U CPU 1.90GHz (Kaby Lake R), 1 CPU, 8 logical and 4 physical c
 ## Advanced
 ### Help customization
 - See also: [CoconaSample.Advanced.HelpTransformer](samples/Advanced.HelpTransformer)
+
+### CommandMethodForwardedTo attribute
+The `CommandMethodForwardedTo` attribute allows you to specify that the substance of the specified command method is a different method and that the operation should be forwarded.
+If this attribute is given to a command method, the destination's attribute and its implementation are used. Excepts for the `Command` and `Hidden` attributes specified by the method.
+
+For example, it can be used if the command implementation is defined in an external assembly or to call a built-in command (such as help) or compatibility purposes.
+
+```csharp
+[CommandMethodForwardedTo(typeof(BuiltInOptionLikeCommands), nameof(BuiltInOptionLikeCommands.ShowHelp))]
+public void MyHelp()
+    => throw new NotSupportedException(); // NOTE: The method body and parameters used is BuiltInOptionLikeCommands.ShowHelp.
+```
+
+- See: [samples/Advanced.CommandMethodForwarding](samples/Advanced.CommandMethodForwarding)
+
+### IgnoreUnknownOptions attribute
+Cocona treats unknown options as errors by default.
+Now, you can set the IgnoreUnknownOptions attribute to ignore unknown options.
 
 ## Related projects
 - [Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework): ConsoleAppFramework heavily inspired Cocona.
