@@ -18,6 +18,7 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
 - ❓ **Built-in help documentation support.**
     - You want to see a help message; you type `-h` or `--help`.
     - Built-in similar commands suggestion
+    - Shell command-line completion support for `bash` and `zsh`
 - 🛠 **Highly modulable/customizable CLI framework.**
     - Cocona built on top of `Microsoft.Extensions.*` framework. Cocona natively supports Logging, DI, Configuration and ConsoleLifetime.
     - Don't you need `Microsoft.Extensions.*`? [then you can use a lightweight version of Cocona (named Cocona.Lite)](#performance--coconalite).
