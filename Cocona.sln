@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		.azure-pipelines\build.yml = .azure-pipelines\build.yml
 		Directory.Build.props = Directory.Build.props
+		global.json = global.json
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -71,7 +72,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Advanced.Shell
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Advanced.OptionLikeCommand", "samples\Advanced.OptionLikeCommand\CoconaSample.Advanced.OptionLikeCommand.csproj", "{974EB617-441F-4DC8-88CE-92C896E0FC58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.Advanced.CommandMethodForwarding", "samples\Advanced.CommandMethodForwarding\CoconaSample.Advanced.CommandMethodForwarding.csproj", "{2E5BEBF1-FCDE-4DA3-9A06-4EC721E89AFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Advanced.CommandMethodForwarding", "samples\Advanced.CommandMethodForwarding\CoconaSample.Advanced.CommandMethodForwarding.csproj", "{2E5BEBF1-FCDE-4DA3-9A06-4EC721E89AFD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
