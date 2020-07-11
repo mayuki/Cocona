@@ -52,7 +52,7 @@ namespace Cocona.Command
                     // NOTE: Skip a first argument that is command name.
                     args = args.Skip(1).ToArray();
 
-                    // If the command have nested sub-commands, try to restart parse command.
+                    // If the command has nested sub-commands, try to restart parse command.
                     if (matchedCommand.SubCommands != null)
                     {
                         commandCollection = matchedCommand.SubCommands;

@@ -74,6 +74,7 @@ namespace Microsoft.Extensions.Hosting
             services.TryAddTransient<ICoconaCommandResolver, CoconaCommandResolver>();
             services.TryAddTransient<ICoconaHelpRenderer, CoconaHelpRenderer>();
             services.TryAddTransient<ICoconaCommandHelpProvider, CoconaCommandHelpProvider>();
+            services.TryAddTransient<ICoconaHelpMessageBuilder, CoconaHelpMessageBuilder>();
 
             return services;
         }
