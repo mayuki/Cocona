@@ -11,20 +11,14 @@ namespace Cocona.Command.BuiltIn
 {
     public class BuiltInPrimaryCommand
     {
-        private readonly ICoconaAppContextAccessor _appContext;
         private readonly ICoconaConsoleProvider _console;
-        private readonly ICoconaCommandHelpProvider _commandHelpProvider;
-        private readonly ICoconaHelpRenderer _helpRenderer;
-        private readonly ICoconaCommandProvider _commandProvider;
+        private readonly ICoconaHelpMessageBuilder _helpBuilder;
         private static readonly MethodInfo _methodShowDefaultMessage = typeof(BuiltInPrimaryCommand).GetMethod(nameof(ShowDefaultMessage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
-        public BuiltInPrimaryCommand(ICoconaAppContextAccessor appContext, ICoconaConsoleProvider console, ICoconaCommandHelpProvider commandHelpProvider, ICoconaHelpRenderer helpRenderer, ICoconaCommandProvider commandProvider)
+        public BuiltInPrimaryCommand(ICoconaConsoleProvider console, ICoconaHelpMessageBuilder helpBuilder)
         {
-            _appContext = appContext;
             _console = console;
-            _commandHelpProvider = commandHelpProvider;
-            _helpRenderer = helpRenderer;
-            _commandProvider = commandProvider;
+            _helpBuilder = helpBuilder;
         }
 
         public static CommandDescriptor GetCommand(string description)
@@ -46,9 +40,7 @@ namespace Cocona.Command.BuiltIn
 
         private void ShowDefaultMessage()
         {
-            var commandStack = _appContext.Current!.Features.Get<ICoconaCommandFeature>().CommandStack!;
-            var commandCollection = commandStack.LastOrDefault()?.SubCommands ?? _commandProvider.GetCommandCollection();
-            _console.Output.Write(_helpRenderer.Render(_commandHelpProvider.CreateCommandsIndexHelp(commandCollection, commandStack)));
+            _console.Output.Write(_helpBuilder.BuildAndRenderForCurrentContext());
         }
 
         public static bool IsBuiltInCommand(CommandDescriptor command)

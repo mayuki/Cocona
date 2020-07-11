@@ -22,11 +22,8 @@ namespace Cocona.Command.BuiltIn
                 "Show help message",
                 new[]
                 {
-                    new CommandServiceParameterDescriptor(typeof(ICoconaAppContextAccessor), "appContext"),
-                    new CommandServiceParameterDescriptor(typeof(ICoconaCommandProvider), "commandProvider"),
-                    new CommandServiceParameterDescriptor(typeof(ICoconaCommandHelpProvider), "commandHelpProvider"),
+                    new CommandServiceParameterDescriptor(typeof(ICoconaHelpMessageBuilder), "helpBuilder"),
                     new CommandServiceParameterDescriptor(typeof(ICoconaConsoleProvider), "console"),
-                    new CommandServiceParameterDescriptor(typeof(ICoconaHelpRenderer), "helpRenderer"),
                 },
                 Array.Empty<CommandOptionDescriptor>(),
                 Array.Empty<CommandArgumentDescriptor>(),
@@ -107,23 +104,11 @@ namespace Cocona.Command.BuiltIn
             ), CommandOptionFlags.Hidden);
 
         public ValueTask<int> ShowHelp(
-            [FromService]ICoconaAppContextAccessor appContext,
-            [FromService]ICoconaCommandProvider commandProvider,
-            [FromService]ICoconaCommandHelpProvider commandHelpProvider,
-            [FromService]ICoconaConsoleProvider console,
-            [FromService]ICoconaHelpRenderer helpRenderer
+            [FromService]ICoconaHelpMessageBuilder helpBuilder,
+            [FromService]ICoconaConsoleProvider console
         )
         {
-            var feature = appContext.Current!.Features.Get<ICoconaCommandFeature>()!;
-            var commandCollection = feature.CommandCollection ?? commandProvider.GetCommandCollection(); // nested or root
-            var targetCommand = feature.CommandStack.LastOrDefault(); // When directly call the method, the CommandStack may be empty.
-            var help = targetCommand is null
-                ? commandHelpProvider.CreateCommandsIndexHelp(commandCollection, Array.Empty<CommandDescriptor>())
-                : targetCommand.IsPrimaryCommand
-                    ? commandHelpProvider.CreateCommandsIndexHelp(commandCollection, feature.CommandStack.Take(feature.CommandStack.Count - 1).ToArray())
-                    : commandHelpProvider.CreateCommandHelp(targetCommand, feature.CommandStack.Take(feature.CommandStack.Count - 1).ToArray());
-
-            console.Output.Write(helpRenderer.Render(help));
+            console.Output.Write(helpBuilder.BuildAndRenderForCurrentContext());
             return new ValueTask<int>(129);
         }
 

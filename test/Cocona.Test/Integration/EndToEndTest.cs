@@ -184,6 +184,16 @@ namespace Cocona.Test.Integration
         }
 
         [Fact]
+        public void CoconaApp_Run_Multiple_Help_Command()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "konnichiwa", "--help" });
+
+            stdOut.Should().Contain("Usage:");
+            stdOut.Should().Contain(" konnichiwa [--help]");
+            exitCode.Should().Be(129);
+        }
+
+        [Fact]
         public void CoconaApp_Run_Multiple_Version()
         {
             var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "--version" });
