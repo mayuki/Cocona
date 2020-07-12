@@ -1,0 +1,46 @@
+name: Build-Development
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO=true
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+
+    # Build
+    - run: dotnet restore
+    - run: dotnet build -c Release
+
+    # Run Unit tests
+    - run: dotnet test -c Release --no-build --logger trx --output $GITHUB_WORKSPACE/artifacts
+    - name: Shellcheck for Bash completion
+      run: |
+        cd samples/GettingStarted.SubCommandApp
+        shellcheck <(dotnet run -- --completion bash)
+
+    # Packaging
+    - name: dotnet pack Cocona
+      run: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $GITHUB_WORKSPACE/artifacts ./src/Cocona/Cocona.csproj
+    - name: dotnet pack Cocona.Core
+      run: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $GITHUB_WORKSPACE/artifacts ./src/Cocona.Core/Cocona.Core.csproj
+    - name: dotnet pack Cocona.Lite
+      run: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $GITHUB_WORKSPACE/artifacts ./src/Cocona.Lite/Cocona.Lite.csproj
+
+    # Upload & Publish
+    - uses: actions/upload-artifact@master
+      with:
+        name: Packages
+        path: artifacts
