@@ -13,7 +13,7 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     env:
-      DOTNET_NOLOGO=true
+      DOTNET_NOLOGO: true
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-dotnet@v1
