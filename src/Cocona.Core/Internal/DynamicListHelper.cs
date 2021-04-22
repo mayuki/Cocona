@@ -50,7 +50,7 @@ namespace Cocona.Internal
             {
                 if (valueType.IsArray)
                 {
-                    return valueType.GetElementType();
+                    return valueType.GetElementType()!;
                 }
                 else
                 {
@@ -91,14 +91,14 @@ namespace Cocona.Internal
                     }
                     var listT = typeof(List<>).MakeGenericType(elementType);
 
-                    arrayOrEnumerableLike = Activator.CreateInstance(listT, new[] { typedArray });
+                    arrayOrEnumerableLike = Activator.CreateInstance(listT, new[] { typedArray })!;
                     return true;
                 }
             }
             else if (valueType.IsArray)
             {
                 // T[]
-                var elementType = valueType.GetElementType();
+                var elementType = valueType.GetElementType()!;
                 var typedArray = Array.CreateInstance(elementType, values.Length);
                 for (var i = 0; i < values.Length; i++)
                 {

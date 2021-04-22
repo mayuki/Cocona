@@ -16,7 +16,7 @@ namespace Cocona.Command.BuiltIn
     {
         public static CommandOptionLikeCommandDescriptor Help { get; }
             = new CommandOptionLikeCommandDescriptor("help", new []{ 'h'}, new CommandDescriptor(
-                typeof(BuiltInOptionLikeCommands).GetMethod(nameof(ShowHelp)),
+                typeof(BuiltInOptionLikeCommands).GetMethod(nameof(ShowHelp))!,
                 nameof(ShowHelp),
                 Array.Empty<string>(),
                 "Show help message",
@@ -35,7 +35,7 @@ namespace Cocona.Command.BuiltIn
 
         public static CommandOptionLikeCommandDescriptor Version { get; }
             = new CommandOptionLikeCommandDescriptor("version", Array.Empty<char>(), new CommandDescriptor(
-                typeof(BuiltInOptionLikeCommands).GetMethod(nameof(ShowVersion)),
+                typeof(BuiltInOptionLikeCommands).GetMethod(nameof(ShowVersion))!,
                 nameof(ShowVersion),
                 Array.Empty<string>(),
                 "Show version",
@@ -55,7 +55,7 @@ namespace Cocona.Command.BuiltIn
 
         public static CommandOptionLikeCommandDescriptor Completion { get; }
             = new CommandOptionLikeCommandDescriptor("completion", Array.Empty<char>(), new CommandDescriptor(
-                typeof(BuiltInOptionLikeCommands).GetMethod(nameof(GenerateCompletionSource)),
+                typeof(BuiltInOptionLikeCommands).GetMethod(nameof(GenerateCompletionSource))!,
                 nameof(GenerateCompletionSource),
                 Array.Empty<string>(),
                 "Generate a shell completion code",
@@ -79,7 +79,7 @@ namespace Cocona.Command.BuiltIn
 
         public static CommandOptionLikeCommandDescriptor CompletionCandidates { get; }
             = new CommandOptionLikeCommandDescriptor("completion-candidates", Array.Empty<char>(), new CommandDescriptor(
-                typeof(BuiltInOptionLikeCommands).GetMethod(nameof(GetCompletionCandidates)),
+                typeof(BuiltInOptionLikeCommands).GetMethod(nameof(GetCompletionCandidates))!,
                 nameof(GetCompletionCandidates),
                 Array.Empty<string>(),
                 "Generate a shell completion candidates",

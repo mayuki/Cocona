@@ -87,12 +87,12 @@ namespace Cocona.Lite.Hosting
             _configureServicesDelegate?.Invoke(services);
 
             var serviceProvider = new CoconaLiteServiceProvider(services);
-            serviceProvider.GetService<ICoconaCommandDispatcherPipelineBuilder>()
+            serviceProvider.GetRequiredService<ICoconaCommandDispatcherPipelineBuilder>()
                 .UseMiddleware<HandleExceptionAndExitMiddleware>()
                 .UseMiddleware<HandleParameterBindExceptionMiddleware>()
                 .UseMiddleware<RejectUnknownOptionsMiddleware>()
                 .UseMiddleware<CommandFilterMiddleware>()
-                .UseMiddleware((next, sp) => new InitializeCoconaLiteConsoleAppMiddleware(next, sp.GetService<ICoconaAppContextAccessor>()))
+                .UseMiddleware((next, sp) => new InitializeCoconaLiteConsoleAppMiddleware(next, sp.GetRequiredService<ICoconaAppContextAccessor>()))
                 .UseMiddleware<CoconaCommandInvokeMiddleware>();
             return serviceProvider;
         }

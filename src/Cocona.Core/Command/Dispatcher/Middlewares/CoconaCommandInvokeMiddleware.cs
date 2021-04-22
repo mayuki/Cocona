@@ -50,7 +50,7 @@ namespace Cocona.Command.Dispatcher.Middlewares
 
                 return 0;
             }
-            catch (TargetInvocationException ex)
+            catch (TargetInvocationException ex) when (ex.InnerException is not null)
             {
                 ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
                 return 1; // NOTE: This statement is unreachable.

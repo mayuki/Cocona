@@ -11,7 +11,7 @@ namespace Cocona.Command
     public class CommandDescriptor
     {
         public MethodInfo Method { get; }
-        public Type CommandType => Method.DeclaringType;
+        public Type CommandType => Method.DeclaringType ?? throw new InvalidOperationException("The command method must be a member of the class.");
         public string Name { get; }
         public IReadOnlyList<string> Aliases { get; }
         public string Description { get; }

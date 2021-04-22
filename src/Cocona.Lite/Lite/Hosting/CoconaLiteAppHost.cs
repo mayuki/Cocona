@@ -23,8 +23,8 @@ namespace Cocona.Lite.Hosting
         public async Task RunAsyncCore(CancellationToken cancellationToken)
         {
             var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
-            var commandDispatcher = _serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var console = _serviceProvider.GetService<ICoconaConsoleProvider>();
+            var commandDispatcher = _serviceProvider.GetRequiredService<ICoconaCommandDispatcher>();
+            var console = _serviceProvider.GetRequiredService<ICoconaConsoleProvider>();
 
 #pragma warning disable RS0030 // Do not used banned APIs
             Console.CancelKeyPress += OnCancelKeyPress;
@@ -93,13 +93,13 @@ namespace Cocona.Lite.Hosting
             }
         }
 
-        private void OnProcessExit(object sender, EventArgs e)
+        private void OnProcessExit(object? sender, EventArgs e)
         {
             _cancellationTokenSource.Cancel();
             _waitForShutdown.Wait();
         }
 
-        private void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        private void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
         {
             e.Cancel = true;
             _cancellationTokenSource.Cancel();

@@ -60,13 +60,20 @@ namespace Cocona.Command.Dispatcher
                 try
                 {
                     var ctx = new CommandDispatchContext(matchedCommand, parsedCommandLine, commandInstance, cancellationToken);
-                    return await dispatchAsync(ctx);
+                    return await dispatchAsync(ctx).ConfigureAwait(false);
                 }
                 finally
                 {
-                    if (commandInstance is IDisposable disposable)
+                    switch (commandInstance)
                     {
-                        disposable.Dispose();
+#if NET5_0 || NETSTANDARD2_1
+                        case IAsyncDisposable asyncDisposable:
+                            await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+                            break;
+#endif
+                        case IDisposable disposable:
+                            disposable.Dispose();
+                            break;
                     }
                 }
             }

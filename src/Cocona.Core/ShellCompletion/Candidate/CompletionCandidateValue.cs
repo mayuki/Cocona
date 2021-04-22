@@ -23,12 +23,12 @@ namespace Cocona.ShellCompletion.Candidate
             Description = description;
         }
 
-        public bool Equals(CompletionCandidateValue other)
+        public bool Equals(CompletionCandidateValue? other)
         {
-            return Value == other.Value && Description == other.Description;
+            return other is not null && Value == other.Value && Description == other.Description;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is CompletionCandidateValue other && Equals(other);
         }

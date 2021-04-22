@@ -28,7 +28,7 @@ namespace Cocona.Lite
             // T[]
             if (serviceType.IsArray)
             {
-                return GetServiceForArray(serviceType.GetElementType());
+                return GetServiceForArray(serviceType.GetElementType()!);
             }
 
             if (_descriptorsByService.TryGetValue(serviceType, out var descriptors) && descriptors.Length != 0)
