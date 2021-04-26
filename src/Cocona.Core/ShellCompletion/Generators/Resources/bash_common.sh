@@ -173,12 +173,14 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
             ;;
         keywords:*)
             local keywords_str=${argument_types[$index_of_arg]#keywords:}
+            # shellcheck disable=SC2206
             local keywords=(${keywords_str//:/ })
             __cocona_APPNAMEPLACEHOLDER_completion_set_candidates "${keywords[@]}"
             return 0
             ;;
         onthefly:*)
             local onthefly_str=${argument_types[$index_of_arg]#onthefly:}
+            # shellcheck disable=SC2206
             local param_name=${onthefly_str//:/ }
             __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_onthefly "${param_name}"
             return 0
