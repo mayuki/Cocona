@@ -14,7 +14,7 @@ namespace Cocona.Application
 
         public object? CreateInstance(IServiceProvider serviceProvider, Type instanceType, object[]? parameters)
         {
-            return ActivatorUtilities.CreateInstance(serviceProvider, instanceType, parameters);
+            return ActivatorUtilities.CreateInstance(serviceProvider, instanceType, parameters ?? Array.Empty<object>());
         }
     }
 }
