@@ -6,7 +6,7 @@
     <AssemblyOriginatorKeyFile>..\..\src\Cocona\StrongNameKey.snk</AssemblyOriginatorKeyFile>
     <NoWarn>1701;1702;CS1998</NoWarn>
     <nullable>annotations</nullable>
-    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+    <TargetFramework>net5.0</TargetFramework>
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
