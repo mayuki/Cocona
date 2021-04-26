@@ -38,6 +38,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_debug_log() {
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_get_argument_index() {
+    # shellcheck disable=SC2206
     local params=(${words[@]:((${#cur_command_stack[@]}))})
     local index=0
     local options_completed=0
@@ -125,6 +126,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
                 ;;
             keywords:*)
                 local keywords_str=${option_types[$index_of_option]#keywords:}
+                # shellcheck disable=SC2206
                 local keywords=(${keywords_str//:/ })
                 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates "${keywords[@]}"
                 return 0
@@ -134,6 +136,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
                 ;;
             onthefly:*)
                 local onthefly_str=${option_types[$index_of_option]#onthefly:}
+                # shellcheck disable=SC2206
                 local param_name=${onthefly_str//:/ }
                 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_onthefly "${param_name}"
                 return 0
