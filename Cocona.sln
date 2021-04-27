@@ -12,7 +12,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
-		.azure-pipelines\build.yml = .azure-pipelines\build.yml
 		Directory.Build.props = Directory.Build.props
 		global.json = global.json
 		README.md = README.md
@@ -75,6 +74,16 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoconaSample.Advanced.CommandMethodForwarding", "samples\Advanced.CommandMethodForwarding\CoconaSample.Advanced.CommandMethodForwarding.csproj", "{2E5BEBF1-FCDE-4DA3-9A06-4EC721E89AFD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoconaSample.Advanced.HelpOnDemand", "samples\Advanced.HelpOnDemand\CoconaSample.Advanced.HelpOnDemand.csproj", "{089D815D-2199-4CCA-9BAF-F7386F883063}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub Actions", "GitHub Actions", "{F7ED9A50-845E-4A47-9F4E-A0C372082D76}"
+ProjectSection(SolutionItems) = preProject
+	.github\workflows\build.yaml = .github\workflows\build.yaml
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure Pipelines", "Azure Pipelines", "{C5099F3C-62C3-45F3-BFB9-194E0CEF55DB}"
+ProjectSection(SolutionItems) = preProject
+	.azure-pipelines\build.yml = .azure-pipelines\build.yml
+EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -224,6 +233,8 @@ Global
 		{974EB617-441F-4DC8-88CE-92C896E0FC58} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 		{2E5BEBF1-FCDE-4DA3-9A06-4EC721E89AFD} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
 		{089D815D-2199-4CCA-9BAF-F7386F883063} = {26F0BA96-C75C-4BDF-A1CC-3A9F58A16D9E}
+		{F7ED9A50-845E-4A47-9F4E-A0C372082D76} = {09F6C99E-D874-4C82-90AA-A37E5BE707C4}
+		{C5099F3C-62C3-45F3-BFB9-194E0CEF55DB} = {09F6C99E-D874-4C82-90AA-A37E5BE707C4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8DBA26EF-235B-4656-A5DD-00C266A42735}

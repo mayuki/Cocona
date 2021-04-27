@@ -1,23 +1,23 @@
 ﻿__cocona_APPNAMEPLACEHOLDER_completion_define_command() {
     local command_name=$1
 
-    commands+=($command_name)
+    commands+=("$command_name")
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_define_argument() {
     local argument_name=$1
     local argument_type=$2
 
-    arguments+=($argument_name)
-    argument_types+=($argument_type)
+    arguments+=("$argument_name")
+    argument_types+=("$argument_type")
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_define_option() {
     local option_name=$1
     local option_type=$2
 
-    options+=($option_name)
-    option_types+=($option_type)
+    options+=("$option_name")
+    option_types+=("$option_type")
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_contains() {
@@ -38,6 +38,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_debug_log() {
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_get_argument_index() {
+    # shellcheck disable=SC2206
     local params=(${words[@]:((${#cur_command_stack[@]}))})
     local index=0
     local options_completed=0
@@ -125,6 +126,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
                 ;;
             keywords:*)
                 local keywords_str=${option_types[$index_of_option]#keywords:}
+                # shellcheck disable=SC2206
                 local keywords=(${keywords_str//:/ })
                 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates "${keywords[@]}"
                 return 0
@@ -134,11 +136,12 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
                 ;;
             onthefly:*)
                 local onthefly_str=${option_types[$index_of_option]#onthefly:}
+                # shellcheck disable=SC2206
                 local param_name=${onthefly_str//:/ }
                 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_onthefly "${param_name}"
                 return 0
                 ;;
-            * | default)
+            *)
                 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_default
                 return 0
                 ;;
@@ -170,17 +173,19 @@ __cocona_APPNAMEPLACEHOLDER_completion_handle() {
             ;;
         keywords:*)
             local keywords_str=${argument_types[$index_of_arg]#keywords:}
+            # shellcheck disable=SC2206
             local keywords=(${keywords_str//:/ })
             __cocona_APPNAMEPLACEHOLDER_completion_set_candidates "${keywords[@]}"
             return 0
             ;;
         onthefly:*)
             local onthefly_str=${argument_types[$index_of_arg]#onthefly:}
+            # shellcheck disable=SC2206
             local param_name=${onthefly_str//:/ }
             __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_onthefly "${param_name}"
             return 0
             ;;
-        * | default)
+        *)
             __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_default
             return 0
             ;;
@@ -195,19 +200,24 @@ __cocona_APPNAMEPLACEHOLDER_completion_set_candidates() {
 
     local candidates
     candidates="$(IFS=' '; echo "${*:1}")"
+    # shellcheck disable=SC2207
     COMPREPLY=($(compgen -W "${candidates}" -- "${cur}"))
 }
 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_default() {
+    # shellcheck disable=SC2207
     COMPREPLY=($(compgen -o default -f -- "${cur}"))
 }
 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_file() {
+    # shellcheck disable=SC2207
     COMPREPLY=($(compgen -f -- "${cur}"))
 }
 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_for_dir() {
+    # shellcheck disable=SC2207
     COMPREPLY=($(compgen -d -- "${cur}"))
 }
 __cocona_APPNAMEPLACEHOLDER_completion_set_candidates_onthefly() {
     __cocona_APPNAMEPLACEHOLDER_completion_debug_log "__cocona_APPNAMEPLACEHOLDER_completion_set_candidates" "${words[0]}" --completion-candidates "bash:$1" "${words[@]:1}"
+    # shellcheck disable=SC2207
     COMPREPLY=($(compgen -W "$(${words[0]/#\~/$HOME} --completion-candidates "bash:$1" -- "${words[@]:1}")" -- "${cur}"))
 }
 

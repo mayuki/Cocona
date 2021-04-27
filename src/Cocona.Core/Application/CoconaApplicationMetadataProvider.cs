@@ -15,7 +15,7 @@ namespace Cocona.Application
         {
             var entryAssembly = Assembly.GetEntryAssembly();
 
-            return entryAssembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title
+            return entryAssembly?.GetCustomAttribute<AssemblyTitleAttribute>()?.Title
                 ?? string.Empty;
         }
 
@@ -23,16 +23,17 @@ namespace Cocona.Application
         {
             var entryAssembly = Assembly.GetEntryAssembly();
 
-            return entryAssembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product
-                ?? entryAssembly.FullName;
+            return entryAssembly?.GetCustomAttribute<AssemblyProductAttribute>()?.Product
+                ?? entryAssembly?.FullName
+                    ?? string.Empty;
         }
 
         public string GetVersion()
         {
             var entryAssembly = Assembly.GetEntryAssembly();
 
-            return entryAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
-                ?? entryAssembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
+            return entryAssembly?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+                ?? entryAssembly?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
                     ?? "1.0.0.0";
         }
     }

@@ -13,7 +13,7 @@ namespace Cocona.Command.BuiltIn
     {
         private readonly ICoconaConsoleProvider _console;
         private readonly ICoconaHelpMessageBuilder _helpBuilder;
-        private static readonly MethodInfo _methodShowDefaultMessage = typeof(BuiltInPrimaryCommand).GetMethod(nameof(ShowDefaultMessage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        private static readonly MethodInfo _methodShowDefaultMessage = typeof(BuiltInPrimaryCommand).GetMethod(nameof(ShowDefaultMessage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
 
         public BuiltInPrimaryCommand(ICoconaConsoleProvider console, ICoconaHelpMessageBuilder helpBuilder)
         {

@@ -16,12 +16,17 @@ namespace Cocona.Command.Binder.Validation
 
         public IEnumerable<CoconaParameterValidationResult> Validate(CoconaParameterValidationContext ctx)
         {
+            if (ctx.Value is null)
+            {
+                return new[] { new CoconaParameterValidationResult(ctx.Parameter.Name, "The value must not be null.") };
+            }
+            
             var validationCtx = new ValidationContext(ctx.Value);
             validationCtx.DisplayName = ctx.Parameter.Name;
             var result = _attribute.GetValidationResult(ctx.Value, validationCtx);
-            if (result != ValidationResult.Success)
+            if (result is not null && result != ValidationResult.Success)
             {
-                return new[] { new CoconaParameterValidationResult(ctx.Parameter.Name, result.ErrorMessage) };
+                return new[] { new CoconaParameterValidationResult(ctx.Parameter.Name, result.ErrorMessage ?? string.Empty) };
             }
 
             return Array.Empty<CoconaParameterValidationResult>();

@@ -15,7 +15,7 @@ namespace Cocona.Command.Binder
             }
             else if (t == typeof(int))
             {
-                return int.Parse(value);
+                return value is null ? 0 : int.Parse(value);
             }
             else if (t == typeof(string))
             {

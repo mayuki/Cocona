@@ -43,9 +43,9 @@ namespace Microsoft.Extensions.Hosting
             services.AddSingleton<ICoconaCommandProvider>(sp =>
             {
 #if COCONA_LITE
-                var options = (CoconaLiteAppOptions)sp.GetService(typeof(CoconaLiteAppOptions));
+                var options = sp.GetRequiredService<CoconaLiteAppOptions>();
 #else
-                var options = sp.GetService<IOptions<CoconaAppOptions>>().Value;
+                var options = sp.GetRequiredService<IOptions<CoconaAppOptions>>().Value;
 #endif
 
                 return new CoconaBuiltInCommandProvider(

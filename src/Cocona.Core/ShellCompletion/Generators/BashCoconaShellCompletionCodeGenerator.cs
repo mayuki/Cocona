@@ -39,7 +39,7 @@ namespace Cocona.ShellCompletion.Generators
             WriteRootCommandDefinition(writer, commandCollection);
 
             // Write common.sh
-            using (var reader = new StreamReader(typeof(BashCoconaShellCompletionCodeGenerator).Assembly.GetManifestResourceStream("Cocona.ShellCompletion.Generators.Resources.bash_common.sh")))
+            using (var reader = new StreamReader(typeof(BashCoconaShellCompletionCodeGenerator).Assembly.GetManifestResourceStream("Cocona.ShellCompletion.Generators.Resources.bash_common.sh")!))
             {
                 writer.Write(reader.ReadToEnd().Replace("APPCOMMANDNAMEPLACEHOLDER", _appCommandName).Replace("APPNAMEPLACEHOLDER", _appName));
             }

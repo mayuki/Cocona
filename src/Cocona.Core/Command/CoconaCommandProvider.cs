@@ -184,6 +184,11 @@ namespace Cocona.Command
                 var (ignoreAttr, optionAttr, argumentAttr, fromServiceAttr, hiddenAttr)
                     = AttributeHelper.GetAttributes<IgnoreAttribute, OptionAttribute, ArgumentAttribute, FromServiceAttribute, HiddenAttribute>(attrs);
 
+                if (methodParam.Name is null)
+                {
+                    throw new CoconaException($"An unnamed parameter is not supported. (Method: {methodInfo.Name})");
+                }
+                
                 if (ignoreAttr != null)
                 {
                     var ignoreParamDescriptor = new CommandIgnoredParameterDescriptor(
@@ -287,7 +292,7 @@ namespace Cocona.Command
                         (allOptions.TryGetValue(overload.Attribute.OptionName, out var name) ? name : throw new CoconaException($"Command option overload '{overload.Attribute.OptionName}' was not found in overload target '{methodInfo.Name}'.")),
                         overload.Attribute.OptionValue,
                         CreateCommand(overload.Method, isSingleCommand, _emptyOverloads),
-                        overload.Attribute.Comparer != null ? (IEqualityComparer<string>)Activator.CreateInstance(overload.Attribute.Comparer) : null
+                        overload.Attribute.Comparer != null ? (IEqualityComparer<string>?)Activator.CreateInstance(overload.Attribute.Comparer) : null
                     );
 
                     overloadDescriptors[i] = overloadDescriptor;
@@ -380,6 +385,10 @@ namespace Cocona.Command
                 }
             }
 
+            if (methodInfo.DeclaringType is null)
+            {
+                throw new CoconaException($"The method {methodInfo.Name} doesn't have a declaring type.");
+            }
             isIgnoreUnknownOptions |= methodInfo.DeclaringType.GetCustomAttribute<IgnoreUnknownOptionsAttribute>() != null;
 
             return new CommandMethodDescriptor(commandAttr, isHidden, isPrimaryCommand, isIgnoreUnknownOptions, optionLikeCommands, commandMethodForwardedToAttr);

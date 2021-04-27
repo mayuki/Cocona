@@ -5,6 +5,7 @@ using Cocona.Application;
 using Cocona.Command;
 using Cocona.Filters;
 using Cocona.Help.DocumentModel;
+using Cocona.Internal;
 
 namespace Cocona.Help
 {
@@ -30,7 +31,7 @@ namespace Cocona.Help
 
         public IFilterMetadata CreateInstance(IServiceProvider serviceProvider)
         {
-            return (IFilterMetadata)((ICoconaInstanceActivator)serviceProvider.GetService(typeof(ICoconaInstanceActivator))).GetServiceOrCreateInstance(serviceProvider, Transformer)!;
+            return (IFilterMetadata)(serviceProvider.GetRequiredService<ICoconaInstanceActivator>()).GetServiceOrCreateInstance(serviceProvider, Transformer)!;
         }
     }
 }

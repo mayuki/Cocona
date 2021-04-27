@@ -13,9 +13,13 @@ namespace Cocona.Filters.Internal
             {
                 yield return filter;
             }
-            foreach (var filter in GetFilterFactoriesFromCustomAttributes(methodInfo.DeclaringType.GetCustomAttributes(true)))
+
+            if (methodInfo.DeclaringType is not null)
             {
-                yield return filter;
+                foreach (var filter in GetFilterFactoriesFromCustomAttributes(methodInfo.DeclaringType.GetCustomAttributes(true)))
+                {
+                    yield return filter;
+                }
             }
         }
 

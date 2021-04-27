@@ -1,6 +1,5 @@
-#if !NETSTANDARD2_1
+#if !(NET5_0 || NETSTANDARD2_1)
 #define INTERNAL_NULLABLE_ATTRIBUTES
-#endif
 
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -135,3 +134,4 @@ namespace System.Diagnostics.CodeAnalysis
         public bool ParameterValue { get; }
     }
 }
+#endif
