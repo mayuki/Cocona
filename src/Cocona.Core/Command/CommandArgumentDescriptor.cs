@@ -1,4 +1,4 @@
-﻿using Cocona.Internal;
+using Cocona.Internal;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
