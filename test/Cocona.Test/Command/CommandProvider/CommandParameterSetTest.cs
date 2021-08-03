@@ -93,15 +93,18 @@ namespace Cocona.Test.Command.CommandProvider
             paramDesc0.Name.Should().Be("BooleanOption");
             paramDesc0.DefaultValue.HasValue.Should().BeTrue();
             paramDesc0.DefaultValue.Value.Should().Be(false);
+            paramDesc0.IsRequired.Should().BeFalse();
 
             var paramDesc1 = (CommandOptionDescriptor)paramSetDesc.MemberDescriptors[1].ParameterDescriptor;
             paramDesc1.Name.Should().Be("StringOption");
             paramDesc1.DefaultValue.HasValue.Should().BeTrue();
             paramDesc1.DefaultValue.Value.Should().Be("DefaultValue");
+            paramDesc1.IsRequired.Should().BeFalse();
 
             var paramDesc2 = (CommandOptionDescriptor)paramSetDesc.MemberDescriptors[2].ParameterDescriptor;
             paramDesc2.Name.Should().Be("StringOption_WithoutHasDefaultValue");
             paramDesc2.DefaultValue.HasValue.Should().BeFalse();
+            paramDesc2.IsRequired.Should().BeTrue();
         }
 
         [Fact]

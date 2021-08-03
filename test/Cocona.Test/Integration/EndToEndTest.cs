@@ -512,5 +512,29 @@ namespace Cocona.Test.Integration
                 throw new Exception("Exception!");
             }
         }
+
+        [Fact]
+        public void CoconaApp_Run_ParameterSet()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet>(new string[] { "--option1", "argValue0", "argValue1" });
+
+            stdOut.Should().Contain("False;argValue0;True;argValue1");
+        }
+
+        class TestCommand_ParameterSet
+        {
+            public class ParameterSet : ICommandParameterSet
+            {
+                public bool Option1 { get; set; }
+
+                [Argument]
+                public string Arg0 { get; set; }
+            }
+
+            public void Run(bool option0, ParameterSet paramSet, [Argument]string arg1)
+            {
+                Console.WriteLine($"{option0};{paramSet.Arg0};{paramSet.Option1};{arg1}");
+            }
+        }
     }
 }

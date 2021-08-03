@@ -540,7 +540,7 @@ namespace Cocona.Command
                     _name = name;
                 }
 
-                public void AddArgument(CommandParameterAttributeSet attrSet, Type type, string name, CoconaDefaultValue defaultValue, Action<object, object> setter)
+                public void AddArgument(CommandParameterAttributeSet attrSet, Type type, string name, CoconaDefaultValue defaultValue, Action<object, object?> setter)
                 {
                     var argumentDescriptor = _parent.CreateArgument(attrSet, type, name, defaultValue);
                     _parent._defaultArgOrder++;
@@ -549,7 +549,7 @@ namespace Cocona.Command
                     _memberDescriptors.Add(new CommandParameterSetMemberDescriptor(argumentDescriptor, setter));
                 }
 
-                public void AddOption(CommandParameterAttributeSet attrSet, Type type, string name, CoconaDefaultValue defaultValue, Action<object, object> setter)
+                public void AddOption(CommandParameterAttributeSet attrSet, Type type, string name, CoconaDefaultValue defaultValue, Action<object, object?> setter)
                 {
                     var optionDescriptor = _parent.CreateOption(attrSet, type, name, defaultValue);
 
@@ -564,7 +564,7 @@ namespace Cocona.Command
                     _memberDescriptors.Add(new CommandParameterSetMemberDescriptor(optionDescriptor, setter));
                 }
 
-                public void AddFromService(Type type, string name, Action<object, object> setter)
+                public void AddFromService(Type type, string name, Action<object, object?> setter)
                 {
                     _memberDescriptors.Add(new CommandParameterSetMemberDescriptor(_parent.CreateFromService(type, name), setter));
                 }

@@ -24,9 +24,9 @@ namespace Cocona.Command
     public class CommandParameterSetMemberDescriptor
     {
         public ICommandParameterDescriptor ParameterDescriptor { get; }
-        public Action<object, object> Setter { get; }
+        public Action<object, object?> Setter { get; }
 
-        public CommandParameterSetMemberDescriptor(ICommandParameterDescriptor parameterDescriptor, Action<object, object> setter)
+        public CommandParameterSetMemberDescriptor(ICommandParameterDescriptor parameterDescriptor, Action<object, object?> setter)
         {
             ParameterDescriptor = parameterDescriptor;
             Setter = setter;
