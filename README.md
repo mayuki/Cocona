@@ -356,7 +356,7 @@ Hello Alice!
 
 ## Cocona in action
 
-### Paramter set
+### Parameter set
 Cocona has a mechanism called Parameter set that defines common parameters for multiple commands.
 For example, if every command receives a user name, host name, etc., it would be annoying to define them in a method for each command.
 
