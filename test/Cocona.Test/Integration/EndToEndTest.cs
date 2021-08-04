@@ -512,5 +512,102 @@ namespace Cocona.Test.Integration
                 throw new Exception("Exception!");
             }
         }
+
+        [Fact]
+        public void CoconaApp_Run_ParameterSet()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet>(new string[] { "--option1", "--option-required=alice", "argValue0", "argValue1" });
+            exitCode.Should().Be(0);
+            stdOut.Should().Contain("False;argValue0;True;argValue1");
+
+            (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet>(new string[] { "--help" });
+            stdOut.Should().Contain("0: arg0");
+            stdOut.Should().Contain("1: arg1");
+            stdOut.Should().Contain("--option0");
+            stdOut.Should().Contain("--option1");
+            stdOut.Should().MatchRegex(@"--option-has-default <String>\s+\(Default: hello\)");
+            stdOut.Should().MatchRegex(@"--option-required <String>\s+\(Required\)");
+        }
+
+        class TestCommand_ParameterSet
+        {
+            public class ParameterSet : ICommandParameterSet
+            {
+                public bool Option1 { get; set; }
+
+                [HasDefaultValue]
+                public string OptionHasDefault { get; set; } = "hello";
+                public string OptionRequired { get; set; } = "ignored";
+
+                [Argument]
+                public string Arg0 { get; set; }
+            }
+
+            public void Run(bool option0, ParameterSet paramSet, [Argument]string arg1)
+            {
+                Console.WriteLine($"{option0};{paramSet.Arg0};{paramSet.Option1};{arg1}");
+            }
+        }
+
+        [Fact]
+        public void CoconaApp_Run_ParameterSet_Record()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record>(new string[] { "--option1", "--option-required=alice", "argValue0", "argValue1" });
+            exitCode.Should().Be(0);
+            stdOut.Should().Contain("False;argValue0;True;argValue1");
+
+            (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record>(new string[] { "--help" });
+            stdOut.Should().Contain("0: arg0");
+            stdOut.Should().Contain("1: arg1");
+            stdOut.Should().Contain("--option0");
+            stdOut.Should().Contain("--option1");
+            stdOut.Should().MatchRegex(@"--option-required <String>\s+\(Required\)");
+            stdOut.Should().MatchRegex(@"--option-has-default <String>\s+\(Default: hello\)");
+        }
+
+        class TestCommand_ParameterSet_Record
+        {
+            public record ParameterSet(bool Option1, string OptionRequired, [Argument] string Arg0, string OptionHasDefault = "hello") : ICommandParameterSet;
+
+            public void Run(bool option0, ParameterSet paramSet, [Argument] string arg1)
+            {
+                Console.WriteLine($"{option0};{paramSet.Arg0};{paramSet.Option1};{arg1}");
+            }
+        }
+
+        [Fact]
+        public void CoconaApp_Run_ParameterSet_Record_MultipleCommand()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record_MultipleCommand>(new string[] { "command-a", "--option1", "--option-required=alice", "argValue0", "argValue1" });
+            exitCode.Should().Be(0);
+            stdOut.Should().Contain("A:False;argValue0;True;argValue1");
+
+            (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record_MultipleCommand>(new string[] { "--help" });
+            stdOut.Should().Contain("command-a");
+            stdOut.Should().Contain("command-b");
+
+            (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record_MultipleCommand>(new string[] { "command-a", "--help" });
+            stdOut.Should().Contain("0: arg0");
+            stdOut.Should().Contain("1: arg1");
+            stdOut.Should().Contain("--option0");
+            stdOut.Should().Contain("--option1");
+            stdOut.Should().MatchRegex(@"--option-required <String>\s+\(Required\)");
+            stdOut.Should().MatchRegex(@"--option-has-default <String>\s+\(Default: hello\)");
+        }
+
+        class TestCommand_ParameterSet_Record_MultipleCommand
+        {
+            public record ParameterSet(bool Option1, string OptionRequired, [Argument] string Arg0, string OptionHasDefault = "hello") : ICommandParameterSet;
+
+            public void CommandA(bool option0, ParameterSet paramSet, [Argument] string arg1)
+            {
+                Console.WriteLine($"A:{option0};{paramSet.Arg0};{paramSet.Option1};{arg1}");
+            }
+
+            public void CommandB(bool option0, ParameterSet paramSet, [Argument] string arg1)
+            {
+                Console.WriteLine($"B:{option0};{paramSet.Arg0};{paramSet.Option1};{arg1}");
+            }
+        }
     }
 }

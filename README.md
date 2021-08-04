@@ -1,5 +1,5 @@
 # ![Cocona](docs/assets/logo.svg)
-Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it easy and fast to build console applications on .NET Core.🚀
+Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it easy and fast to build console applications on .NET.🚀
 
 [![Build Status](https://dev.azure.com/misuzilla/Cocona/_apis/build/status/Cocona?branchName=master)](https://dev.azure.com/misuzilla/Cocona/_build/latest?definitionId=18&branchName=master) [![NuGet Package: Cocona](https://img.shields.io/nuget/vpre/Cocona?label=NuGet%3A%20Cocona)](https://www.nuget.org/packages/Cocona) [![NuGet Package: Cocona.Lite](https://img.shields.io/nuget/vpre/Cocona.Lite?label=NuGet%3A%20Cocona.Lite)](https://www.nuget.org/packages/Cocona.Lite)
 
@@ -7,7 +7,7 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
 ![](docs/assets/intro-in-seconds.gif)
 
 ## Feature
-- 🚀 **Make it easy to build console applications on .NET Core.**
+- 🚀 **Make it easy to build console applications on .NET.**
     - `public` method as a command ™
     - Provides ASP.NET Core MVC-like development experience to console application development.
 - ✨ **Command-line option semantics like UNIX tools standard. (`getopt`/`getopt_long` like options)**
@@ -35,6 +35,7 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
     - [Sub-commands](#sub-commands)
     - [Option-like commands](#option-like-commands)
 - [Cocona in action](#cocona-in-action)
+    - [Parameter set](#parameter-set)
     - [Exit code](#exit-code)
     - [Validation](#validation)
     - [Shutdown event handling](#shutdown-event-handling)
@@ -354,6 +355,66 @@ Hello Alice!
 - Arguments are not displayed in help.
 
 ## Cocona in action
+
+### Paramter set
+Cocona has a mechanism called Parameter set that defines common parameters for multiple commands.
+For example, if every command receives a user name, host name, etc., it would be annoying to define them in a method for each command.
+
+A class or `record` implements the `ICommandParameterSet` interface and treats it as a Parameter set.
+
+- See: [samples/InAction.ParameterSet](samples/InAction.ParameterSet)
+
+#### By parameterized constructor (includes record class)
+If a class (or record class) has a parameterized constructor, it is treated as part of the definition of a command method.
+
+```csharp
+public record CommonParameters(
+    [Option('t', Description = "Specifies the remote host to connect.")]
+    string Host,
+    [Option('p', Description = "Port to connect to on the remote host.")]
+    int Port,
+    [Option('u', Description = "Specifies the user to log in as on the remote host.")]
+    string User = "root",
+    [Option('f', Description = "Perform without user confirmation.")]
+    bool Force = false
+) : ICommandParameterSet;
+
+public void Add(CommonParameters commonParams, [Argument] string from, [Argument] string to)
+    => Console.WriteLine($"Add: {commonParams.User}@{commonParams.Host}:{commonParams.Port} {(commonParams.Force ? " (Force)" : "")}");
+
+public void Update(CommonParameters commonParams, [Option('r', Description = "Traverse recursively to perform.")] bool recursive, [Argument] string path)
+    => Console.WriteLine($"Update: {commonParams.User}@{commonParams.Host}:{commonParams.Port} {(commonParams.Force ? " (Force)" : "")}");
+```
+
+#### By properties (parameter-less constructor)
+If a class has a parameter-less constructor, you can mark the public property as `Option` or `Argument`.
+
+**NOTE: Option defined as a property is treated as required by default. If you want a non-required Option to have a default value, mark it with `HasDefaultValue` attribute.**
+
+```csharp
+public class CommonParameters : ICommandParameterSet
+{
+    [Option('t', Description = "Specifies the remote host to connect.")]
+    public string Host { get; set; }
+
+    [Option('p', Description = "Port to connect to on the remote host.")]
+    public int Port { get; set; }
+
+    [Option('u', Description = "Specifies the user to log in as on the remote host.")]
+    [HasDefaultValue]
+    public string User  { get; set; } = "root";
+
+    [Option('f', Description = "Perform without user confirmation.")]
+    public bool Force  { get; set; } = false;
+}
+
+public void Add(CommonParameters commonParams, [Argument] string from, [Argument] string to)
+    => Console.WriteLine($"Add: {commonParams.User}@{commonParams.Host}:{commonParams.Port} {(commonParams.Force ? " (Force)" : "")}");
+
+public void Update(CommonParameters commonParams, [Option('r', Description = "Traverse recursively to perform.")] bool recursive, [Argument] string path)
+    => Console.WriteLine($"Update: {commonParams.User}@{commonParams.Host}:{commonParams.Port} {(commonParams.Force ? " (Force)" : "")}");
+```
+
 
 ### Exit code
 ```csharp

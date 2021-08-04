@@ -32,14 +32,27 @@ namespace Cocona.Test.Command.ParameterBinder
 
         private CommandDescriptor CreateCommand(ICommandParameterDescriptor[] parameterDescriptors)
         {
+            var paramDescriptorsWithParameterSets = parameterDescriptors.SelectMany(x => x switch
+                {
+                    CommandOptionDescriptor => new ICommandParameterDescriptor[] { x },
+                    CommandArgumentDescriptor => new ICommandParameterDescriptor[] { x },
+                    CommandIgnoredParameterDescriptor => new ICommandParameterDescriptor[] { x },
+                    CommandServiceParameterDescriptor => new ICommandParameterDescriptor[] { x },
+                    CommandParameterSetDescriptor paramSetDesc => paramSetDesc.Members
+                        .Select(y => y.ParameterDescriptor).ToArray(),
+                    CommandParameterizedParameterSetDescriptor parameterizedParamSetDesc => parameterizedParamSetDesc.Parameters,
+                    _ => throw new NotSupportedException($"Type '{x.GetType().FullName}' is not supported by CreateCommand."),
+                })
+                .ToArray();
+
             return new CommandDescriptor(
-                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy)),
+                typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy))!,
                 "Test",
                 Array.Empty<string>(),
                 "",
                 parameterDescriptors,
-                parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
-                parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),
+                paramDescriptorsWithParameterSets.OfType<CommandOptionDescriptor>().ToArray(),
+                paramDescriptorsWithParameterSets.OfType<CommandArgumentDescriptor>().ToArray(),
                 Array.Empty<CommandOverloadDescriptor>(),
                 Array.Empty<CommandOptionLikeCommandDescriptor>(),
                 CommandFlags.None,
@@ -719,6 +732,141 @@ namespace Cocona.Test.Command.ParameterBinder
             invokeArgs.Should().HaveCount(2);
             invokeArgs[0].Should().BeOfType<MyService>();
             invokeArgs[1].Should().Be("argValue0");
+        }
+
+        [Fact]
+        public void BindParameterSet()
+        {
+            var commandDescriptor = CreateCommand(new ICommandParameterDescriptor[]
+                {
+                    new CommandParameterSetDescriptor(typeof(TestCommandParameterSet), "paramSet", Array.Empty<Attribute>(), new CommandParameterSetMemberDescriptor[]
+                    {
+                        new CommandParameterSetMemberDescriptor(
+                            new CommandOptionDescriptor(typeof(int), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None, null, CommandOptionFlags.None, Array.Empty<Attribute>()),
+                            (x, v) => ((TestCommandParameterSet)x).Option0 = (int)v
+                        ),
+                        new CommandParameterSetMemberDescriptor(
+                            new CommandOptionDescriptor(typeof(bool), "option1", Array.Empty<char>(), "", new CoconaDefaultValue(false), null, CommandOptionFlags.None, Array.Empty<Attribute>()),
+                            (x, v) => ((TestCommandParameterSet)x).Option1 = (bool)v
+                        ),
+                        new CommandParameterSetMemberDescriptor(
+                            new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                            (x, v) => ((TestCommandParameterSet)x).Arg0 = (string)v
+                        )
+                    }),
+                }
+            );
+
+            var commandOptions = new CommandOption[] { new CommandOption(commandDescriptor.Options[0], "123", 0), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), };
+
+            var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
+            invokeArgs.Should().NotBeNull();
+            var paramSet = invokeArgs[0].Should().BeOfType<TestCommandParameterSet>().Subject;
+            paramSet.Option0.Should().Be(123);
+            paramSet.Option1.Should().BeFalse();
+            paramSet.Arg0.Should().Be("argValue0");
+        }
+
+        [Fact]
+        public void BindParameterSet_Mixed()
+        {
+            var commandDescriptor = CreateCommand(new ICommandParameterDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandParameterSetDescriptor(typeof(TestCommandParameterSet), "paramSet", Array.Empty<Attribute>(), new CommandParameterSetMemberDescriptor[]
+                    {
+                        new CommandParameterSetMemberDescriptor(
+                            new CommandOptionDescriptor(typeof(int), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None, null, CommandOptionFlags.None, Array.Empty<Attribute>()),
+                            (x, v) => ((TestCommandParameterSet)x).Option0 = (int)v
+                        ),
+                        new CommandParameterSetMemberDescriptor(
+                            new CommandOptionDescriptor(typeof(bool), "option1", Array.Empty<char>(), "", new CoconaDefaultValue(false), null, CommandOptionFlags.None, Array.Empty<Attribute>()),
+                            (x, v) => ((TestCommandParameterSet)x).Option1 = (bool)v
+                        ),
+                        new CommandParameterSetMemberDescriptor(
+                            new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                        (x, v) => ((TestCommandParameterSet)x).Arg0 = (string)v
+                        )
+                    }),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 2, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                }
+            );
+
+            var commandOptions = new CommandOption[] { new CommandOption(commandDescriptor.Options[0], "123", 0), new CommandOption(commandDescriptor.Options[1], "true", 1), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), };
+
+            var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
+            invokeArgs.Should().NotBeNull();
+            invokeArgs.Should().HaveCount(3);
+
+            invokeArgs[0].Should().Be("argValue0");
+
+            var paramSet = invokeArgs[1].Should().BeOfType<TestCommandParameterSet>().Subject;
+            paramSet.Option0.Should().Be(123);
+            paramSet.Option1.Should().BeTrue();
+            paramSet.Arg0.Should().Be("argValue1");
+
+            invokeArgs[2].Should().Be("argValue2");
+        }
+
+        class TestCommandParameterSet : ICommandParameterSet
+        {
+            [Option]
+            public int Option0 { get; set; }
+            [Option]
+            public bool Option1 { get; set; }
+
+            [Argument]
+            public string Arg0 { get; set; }
+        }
+
+
+        [Fact]
+        public void BindParameterizedParameterSet()
+        {
+            var commandDescriptor = CreateCommand(new ICommandParameterDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandParameterizedParameterSetDescriptor(typeof(TestCommandParameterizedParameterSet), "paramSet", Array.Empty<Attribute>(), new ICommandParameterDescriptor[]
+                    {
+                        new CommandOptionDescriptor(typeof(int), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None, null, CommandOptionFlags.None, Array.Empty<Attribute>()),
+                        new CommandOptionDescriptor(typeof(bool), "option1", Array.Empty<char>(), "", new CoconaDefaultValue(false), null, CommandOptionFlags.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    }),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 2, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                }
+            );
+
+            var commandOptions = new CommandOption[] { new CommandOption(commandDescriptor.Options[0], "123", 0), new CommandOption(commandDescriptor.Options[1], "true", 1), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), };
+
+            var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
+            invokeArgs.Should().NotBeNull();
+            invokeArgs.Should().HaveCount(3);
+
+            invokeArgs[0].Should().Be("argValue0");
+
+            var paramSet = invokeArgs[1].Should().BeOfType<TestCommandParameterizedParameterSet>().Subject;
+            paramSet.Option0.Should().Be(123);
+            paramSet.Option1.Should().BeTrue();
+            paramSet.Arg0.Should().Be("argValue1");
+
+            invokeArgs[2].Should().Be("argValue2");
+        }
+
+        class TestCommandParameterizedParameterSet : ICommandParameterSet
+        {
+            public int Option0 { get; }
+            public bool Option1 { get; }
+            public string Arg0 { get; }
+
+            public TestCommandParameterizedParameterSet(int option0, bool option1, [Argument] string arg0)
+            {
+                Option0 = option0;
+                Option1 = option1;
+                Arg0 = arg0;
+            }
         }
     }
 }
