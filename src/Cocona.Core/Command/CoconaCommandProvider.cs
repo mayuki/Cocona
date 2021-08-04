@@ -19,13 +19,15 @@ namespace Cocona.Command
         private readonly bool _treatPublicMethodsAsCommands;
         private readonly bool _enableConvertOptionNameToLowerCase;
         private readonly bool _enableConvertCommandNameToLowerCase;
+        private readonly bool _enableConvertArgumentNameToLowerCase;
 
-        public CoconaCommandProvider(Type[] targetTypes, bool treatPublicMethodsAsCommands = true, bool enableConvertOptionNameToLowerCase = false, bool enableConvertCommandNameToLowerCase = false)
+        public CoconaCommandProvider(Type[] targetTypes, bool treatPublicMethodsAsCommands = true, bool enableConvertOptionNameToLowerCase = false, bool enableConvertCommandNameToLowerCase = false, bool enableConvertArgumentNameToLowerCase = false)
         {
             _targetTypes = targetTypes ?? throw new ArgumentNullException(nameof(targetTypes));
             _treatPublicMethodsAsCommands = treatPublicMethodsAsCommands;
             _enableConvertOptionNameToLowerCase = enableConvertOptionNameToLowerCase;
             _enableConvertCommandNameToLowerCase = enableConvertCommandNameToLowerCase;
+            _enableConvertArgumentNameToLowerCase = enableConvertArgumentNameToLowerCase;
         }
 
         public CommandCollection GetCommandCollection()
@@ -167,120 +169,9 @@ namespace Cocona.Command
             }
 
             var methodParameters = methodInfo.GetParameters();
-            var builder = new CommandDescriptorBuilder(_enableConvertOptionNameToLowerCase);
+            var builder = new CommandDescriptorBuilder(_enableConvertOptionNameToLowerCase, _enableConvertArgumentNameToLowerCase);
 
-            for (var i = 0; i < methodParameters.Length; i++)
-            {
-                var methodParam = methodParameters[i];
-                var defaultValue = methodParam.HasDefaultValue ? new CoconaDefaultValue(methodParam.DefaultValue) : CoconaDefaultValue.None;
-
-                // Collect Parameter attributes
-                var attrs = new CommandParameterAttributeSet(methodParam.GetCustomAttributes(typeof(Attribute), true));
-
-                if (methodParam.Name is null)
-                {
-                    throw new CoconaException($"An unnamed parameter is not supported. (Method: {methodInfo.Name})");
-                }
-                
-                if (attrs.Ignore != null)
-                {
-                    builder.AddIgnore(
-                        methodParam.ParameterType,
-                        methodParam.Name,
-                        methodParam.HasDefaultValue
-                            ? methodParam.DefaultValue
-                            : methodParam.ParameterType.IsValueType
-                                ? Activator.CreateInstance(methodParam.ParameterType)
-                                : null
-                    );
-                    continue;
-                }
-
-                // If a parameter has no OptionAttribute and a type of the parameter implements ICommandParameterSet
-                if (typeof(ICommandParameterSet).IsAssignableFrom(methodParam.ParameterType))
-                {
-                    var paramSetType = methodParam.ParameterType;
-                    var propsOrFields = paramSetType.GetMembers(BindingFlags.Public | BindingFlags.Instance)
-                        .Where(x => (x is PropertyInfo { CanWrite: true }) || (x is FieldInfo))
-                        .ToArray();
-
-                    if (paramSetType.GetConstructor(Array.Empty<Type>()) is null)
-                    {
-                        throw new CoconaException($"Type '{paramSetType.FullName}' has no parameter-less constructor.");
-                    }
-
-                    var tempInstance = default(object);
-                    var builder2 = builder.AddParameterSet(attrs, methodParam.ParameterType, methodParam.Name);
-                    foreach (var propOrField in propsOrFields)
-                    {
-                        var type = propOrField switch
-                        {
-                            PropertyInfo propInfo => propInfo.PropertyType,
-                            FieldInfo fieldInfo => fieldInfo.FieldType,
-                            _ => throw new InvalidOperationException(),
-                        };
-                        Action<object, object> setter = propOrField switch
-                        {
-                            PropertyInfo propInfo => (x, y) => propInfo.SetValue(x, y),
-                            FieldInfo fieldInfo => (x, y) => fieldInfo.SetValue(x, y),
-                            _ => throw new InvalidOperationException(),
-                        };
-                        Func<object, object?> getter = propOrField switch
-                        {
-                            PropertyInfo propInfo => (x) => propInfo.GetValue(x),
-                            FieldInfo fieldInfo => (x) => fieldInfo.GetValue(x),
-                            _ => throw new InvalidOperationException(),
-                        };
-                        var attrs2 = new CommandParameterAttributeSet(propOrField.GetCustomAttributes(typeof(Attribute), true));
-                        var defaultValue2 = CoconaDefaultValue.None;
-                        if (propOrField.GetCustomAttribute<HasDefaultValueAttribute>() is not null)
-                        {
-                            tempInstance ??= Activator.CreateInstance(paramSetType)!;
-                            defaultValue2 = new CoconaDefaultValue(getter(tempInstance));
-                        }
-
-                        if (attrs2.Argument is not null)
-                        {
-                            builder2.AddArgument(attrs2, type, propOrField.Name, defaultValue2, setter);
-                        }
-                        else if (attrs2.Ignore is not null)
-                        {
-                            // Skip
-                        }
-                        else if (attrs2.FromService is not null)
-                        {
-                            builder2.AddFromService(type, propOrField.Name, setter);
-                        }
-                        else
-                        {
-                            builder2.AddOption(attrs2, type, propOrField.Name, defaultValue2, setter);
-                        }
-                    }
-                    builder2.BuildAndAdd();
-
-                    continue;
-                }
-
-                if (attrs.Argument != null)
-                {
-                    if (!isSingleCommand && isPrimaryCommand) throw new CoconaException("A primary command with multiple commands cannot handle/have any arguments.");
-
-                    builder.AddArgument(attrs, methodParam.ParameterType, methodParam.Name, defaultValue);
-                    continue;
-                }
-
-                if (attrs.FromService != null)
-                {
-                    builder.AddFromService(methodParam.ParameterType, methodParam.Name);
-                    continue;
-                }
-                
-                // If a parameter has no OptionAttribute, it treated as option.
-                {
-                    builder.AddOption(attrs, methodParam.ParameterType, methodParam.Name, defaultValue);
-                    continue;
-                }
-            }
+            CollectParameters(methodInfo, methodParameters, builder, isPrimaryCommand, isSingleCommand);
 
             // Overloaded commands
             var overloadDescriptors = Array.Empty<CommandOverloadDescriptor>();
@@ -351,6 +242,145 @@ namespace Cocona.Command
             );
         }
 
+        private static void CollectParameters(MemberInfo memberInfo, ParameterInfo[] methodParameters, CommandDescriptorBuilder builder, bool isPrimaryCommand, bool isSingleCommand)
+        {
+            for (var i = 0; i < methodParameters.Length; i++)
+            {
+                var methodParam = methodParameters[i];
+                var defaultValue = methodParam.HasDefaultValue ? new CoconaDefaultValue(methodParam.DefaultValue) : CoconaDefaultValue.None;
+
+                // Collect Parameter attributes
+                var attrs = new CommandParameterAttributeSet(methodParam.GetCustomAttributes(typeof(Attribute), true));
+
+                if (methodParam.Name is null)
+                {
+                    throw new CoconaException($"An unnamed parameter is not supported. (Method: {memberInfo.Name})");
+                }
+
+                if (attrs.Ignore != null)
+                {
+                    builder.AddIgnore(
+                        methodParam.ParameterType,
+                        methodParam.Name,
+                        methodParam.HasDefaultValue
+                            ? methodParam.DefaultValue
+                            : methodParam.ParameterType.IsValueType
+                                ? Activator.CreateInstance(methodParam.ParameterType)
+                                : null
+                    );
+                    continue;
+                }
+
+                // If a parameter has no OptionAttribute and a type of the parameter implements ICommandParameterSet
+                if (typeof(ICommandParameterSet).IsAssignableFrom(methodParam.ParameterType))
+                {
+                    var paramSetType = methodParam.ParameterType;
+                    if (paramSetType.IsAbstract || paramSetType.IsInterface)
+                    {
+                        throw new CoconaException($"The parameter set '{paramSetType.FullName}' must be non-abstract class.");
+                    }
+
+                    var ctors = paramSetType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+                    if (!ctors.Any())
+                    {
+                        throw new CoconaException($"The parameter set '{paramSetType.FullName}' has no public constructor.");
+                    }
+
+                    if (ctors.Length > 1)
+                    {
+                        throw new CoconaException($"The parameter set '{paramSetType.FullName}' has two or more constructors.");
+                    }
+
+                    if (ctors[0].GetParameters().Length == 0)
+                    {
+                        // Parameter-less constructor.
+                        var propsOrFields = paramSetType.GetMembers(BindingFlags.Public | BindingFlags.Instance)
+                            .Where(x => (x is PropertyInfo { CanWrite: true }) || (x is FieldInfo))
+                            .ToArray();
+
+                        var tempInstance = default(object);
+                        var builder2 = builder.AddParameterSet(attrs, methodParam.ParameterType, methodParam.Name);
+                        foreach (var propOrField in propsOrFields)
+                        {
+                            var type = propOrField switch
+                            {
+                                PropertyInfo propInfo => propInfo.PropertyType,
+                                FieldInfo fieldInfo => fieldInfo.FieldType,
+                                _ => throw new InvalidOperationException(),
+                            };
+                            Action<object, object?> setter = propOrField switch
+                            {
+                                PropertyInfo propInfo => (x, y) => propInfo.SetValue(x, y),
+                                FieldInfo fieldInfo => (x, y) => fieldInfo.SetValue(x, y),
+                                _ => throw new InvalidOperationException(),
+                            };
+                            Func<object, object?> getter = propOrField switch
+                            {
+                                PropertyInfo propInfo => (x) => propInfo.GetValue(x),
+                                FieldInfo fieldInfo => (x) => fieldInfo.GetValue(x),
+                                _ => throw new InvalidOperationException(),
+                            };
+                            var attrs2 = new CommandParameterAttributeSet(propOrField.GetCustomAttributes(typeof(Attribute), true));
+                            var defaultValue2 = CoconaDefaultValue.None;
+                            if (propOrField.GetCustomAttribute<HasDefaultValueAttribute>() is not null)
+                            {
+                                tempInstance ??= Activator.CreateInstance(paramSetType)!;
+                                defaultValue2 = new CoconaDefaultValue(getter(tempInstance));
+                            }
+
+                            if (attrs2.Argument is not null)
+                            {
+                                builder2.AddArgument(attrs2, type, propOrField.Name, defaultValue2, setter);
+                            }
+                            else if (attrs2.Ignore is not null)
+                            {
+                                // Skip
+                            }
+                            else if (attrs2.FromService is not null)
+                            {
+                                builder2.AddFromService(type, propOrField.Name, setter);
+                            }
+                            else
+                            {
+                                builder2.AddOption(attrs2, type, propOrField.Name, defaultValue2, setter);
+                            }
+                        }
+
+                        builder2.BuildAndAdd();
+                    }
+                    else
+                    {
+                        // Parameterized constructor.
+                        var builder2 = builder.CreateBuilderForParameterizedParameterSet(attrs, methodParam.ParameterType, methodParam.Name);
+                        CollectParameters(ctors[0], ctors[0].GetParameters(), builder2, isPrimaryCommand, isSingleCommand);
+                        builder.AddParameterizedParameterSet(attrs, methodParam.ParameterType, methodParam.Name, builder2);
+                    }
+
+                    continue;
+                }
+
+                if (attrs.Argument != null)
+                {
+                    if (!isSingleCommand && isPrimaryCommand) throw new CoconaException("A primary command with multiple commands cannot handle/have any arguments.");
+
+                    builder.AddArgument(attrs, methodParam.ParameterType, methodParam.Name, defaultValue);
+                    continue;
+                }
+
+                if (attrs.FromService != null)
+                {
+                    builder.AddFromService(methodParam.ParameterType, methodParam.Name);
+                    continue;
+                }
+
+                // If a parameter has no OptionAttribute, it treated as option.
+                {
+                    builder.AddOption(attrs, methodParam.ParameterType, methodParam.Name, defaultValue);
+                    continue;
+                }
+            }
+        }
+
         private CommandMethodDescriptor GetCommandMethodDescriptor(MethodInfo methodInfo)
         {
             var commandAttr = default(CommandAttribute);
@@ -413,19 +443,30 @@ namespace Cocona.Command
 
         private class CommandDescriptorBuilder
         {
-            private readonly Dictionary<string, CommandOptionDescriptor> _allOptions = new Dictionary<string, CommandOptionDescriptor>(StringComparer.OrdinalIgnoreCase);
-            private readonly HashSet<char> _allOptionShortNames = new HashSet<char>();
+            private readonly Dictionary<string, CommandOptionDescriptor> _allOptions;
+            private readonly HashSet<char> _allOptionShortNames;
             private readonly List<ICommandParameterDescriptor> _parameters = new List<ICommandParameterDescriptor>();
-            private readonly List<CommandArgumentDescriptor> _arguments = new List<CommandArgumentDescriptor>();
+            private readonly List<CommandArgumentDescriptor> _arguments;
             private readonly bool _enableConvertOptionNameToLowerCase;
-            
+            private readonly bool _enableConvertArgumentNameToLowerCase;
+
             private int _defaultArgOrder = 0;
 
             public IReadOnlyDictionary<string, CommandOptionDescriptor> AllOptions => _allOptions;
 
-            public CommandDescriptorBuilder(bool enableConvertOptionNameToLowerCase)
+            public CommandDescriptorBuilder(
+                bool enableConvertOptionNameToLowerCase,
+                bool enableConvertArgumentNameToLowerCase,
+                Dictionary<string, CommandOptionDescriptor>? allOptions = default,
+                HashSet<char>? allOptionShortNames = default,
+                List<CommandArgumentDescriptor>? arguments = default
+            )
             {
                 _enableConvertOptionNameToLowerCase = enableConvertOptionNameToLowerCase;
+                _enableConvertArgumentNameToLowerCase = enableConvertArgumentNameToLowerCase;
+                _allOptions = allOptions ?? new Dictionary<string, CommandOptionDescriptor>(StringComparer.OrdinalIgnoreCase);
+                _allOptionShortNames = allOptionShortNames ?? new HashSet<char>();
+                _arguments = arguments ?? new List<CommandArgumentDescriptor>();
             }
 
             public CommandServiceParameterDescriptor CreateFromService(Type type, string name)
@@ -453,6 +494,8 @@ namespace Cocona.Command
                 var argDesc = attrSet.Argument.Description ?? string.Empty;
                 var argOrder = attrSet.Argument.Order != 0 ? attrSet.Argument.Order : _defaultArgOrder;
 
+                if (_enableConvertArgumentNameToLowerCase) argName = ToCommandCase(argName);
+
                 return new CommandArgumentDescriptor(
                     type,
                     argName,
@@ -477,7 +520,7 @@ namespace Cocona.Command
                 var optionDesc = attrSet.Option?.Description ?? string.Empty;
                 var optionShortNames = attrSet.Option?.ShortNames ?? Array.Empty<char>();
                 var optionValueName = attrSet.Option?.ValueName ?? (DynamicListHelper.IsArrayOrEnumerableLike(type) ? DynamicListHelper.GetElementType(type) : type).Name;
-                var optionIsHidden = attrSet.Ignore != null;
+                var optionIsHidden = attrSet.Hidden != null;
 
                 if (_enableConvertOptionNameToLowerCase) optionName = ToCommandCase(optionName);
 
@@ -513,11 +556,33 @@ namespace Cocona.Command
                 _parameters.Add(optionDescriptor);
             }
 
+            public CommandDescriptorBuilder CreateBuilderForParameterizedParameterSet(CommandParameterAttributeSet attrSet, Type type, string name)
+            {
+                if (attrSet.Option is not null || attrSet.Argument is not null || attrSet.FromService is not null)
+                {
+                    throw new CoconaException($"parameter set '{name}' must not be marked as Option, Argument, FromService");
+                }
+
+                // Options and Arguments are shared between current builder and nested-builder.
+                return new CommandDescriptorBuilder(_enableConvertOptionNameToLowerCase, _enableConvertArgumentNameToLowerCase, _allOptions, _allOptionShortNames, _arguments);
+            }
+
+            public void AddParameterizedParameterSet(CommandParameterAttributeSet attrSet, Type type, string name, CommandDescriptorBuilder nestedBuilder)
+            {
+                if (attrSet.Option is not null || attrSet.Argument is not null || attrSet.FromService is not null)
+                {
+                    throw new CoconaException($"parameter set '{name}' must not be marked as Option, Argument, FromService");
+                }
+
+                var (parameters, _, _) = nestedBuilder.Build();
+                _parameters.Add(new CommandParameterizedParameterSetDescriptor(type, name, attrSet.Attributes, parameters));
+            }
+
             public ParameterSetBuilder AddParameterSet(CommandParameterAttributeSet attrSet, Type type, string name)
             {
                 if (attrSet.Option is not null || attrSet.Argument is not null || attrSet.FromService is not null)
                 {
-                    throw new CoconaException($"The CommandParameterSet '{name}' must not be marked as Option, Argument, FromService");
+                    throw new CoconaException($"parameter set '{name}' must not be marked as Option, Argument, FromService");
                 }
                 return new ParameterSetBuilder(this, attrSet, type, name);
             }

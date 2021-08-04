@@ -34,11 +34,14 @@ namespace Cocona.Test.Command.ParameterBinder
         {
             var paramDescriptorsWithParameterSets = parameterDescriptors.SelectMany(x => x switch
                 {
-                    CommandOptionDescriptor _ => new ICommandParameterDescriptor[] {x},
-                    CommandArgumentDescriptor _ => new ICommandParameterDescriptor[] {x},
-                    CommandParameterSetDescriptor paramSetDesc => paramSetDesc.MemberDescriptors
+                    CommandOptionDescriptor => new ICommandParameterDescriptor[] { x },
+                    CommandArgumentDescriptor => new ICommandParameterDescriptor[] { x },
+                    CommandIgnoredParameterDescriptor => new ICommandParameterDescriptor[] { x },
+                    CommandServiceParameterDescriptor => new ICommandParameterDescriptor[] { x },
+                    CommandParameterSetDescriptor paramSetDesc => paramSetDesc.Members
                         .Select(y => y.ParameterDescriptor).ToArray(),
-                    _ => throw new NotSupportedException(),
+                    CommandParameterizedParameterSetDescriptor parameterizedParamSetDesc => parameterizedParamSetDesc.Parameters,
+                    _ => throw new NotSupportedException($"Type '{x.GetType().FullName}' is not supported by CreateCommand."),
                 })
                 .ToArray();
 
@@ -816,6 +819,54 @@ namespace Cocona.Test.Command.ParameterBinder
 
             [Argument]
             public string Arg0 { get; set; }
+        }
+
+
+        [Fact]
+        public void BindParameterizedParameterSet()
+        {
+            var commandDescriptor = CreateCommand(new ICommandParameterDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandParameterizedParameterSetDescriptor(typeof(TestCommandParameterizedParameterSet), "paramSet", Array.Empty<Attribute>(), new ICommandParameterDescriptor[]
+                    {
+                        new CommandOptionDescriptor(typeof(int), "option0", Array.Empty<char>(), "", CoconaDefaultValue.None, null, CommandOptionFlags.None, Array.Empty<Attribute>()),
+                        new CommandOptionDescriptor(typeof(bool), "option1", Array.Empty<char>(), "", new CoconaDefaultValue(false), null, CommandOptionFlags.None, Array.Empty<Attribute>()),
+                        new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    }),
+                    new CommandArgumentDescriptor(typeof(string), "arg2", 2, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                }
+            );
+
+            var commandOptions = new CommandOption[] { new CommandOption(commandDescriptor.Options[0], "123", 0), new CommandOption(commandDescriptor.Options[1], "true", 1), };
+            var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), };
+
+            var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
+            invokeArgs.Should().NotBeNull();
+            invokeArgs.Should().HaveCount(3);
+
+            invokeArgs[0].Should().Be("argValue0");
+
+            var paramSet = invokeArgs[1].Should().BeOfType<TestCommandParameterizedParameterSet>().Subject;
+            paramSet.Option0.Should().Be(123);
+            paramSet.Option1.Should().BeTrue();
+            paramSet.Arg0.Should().Be("argValue1");
+
+            invokeArgs[2].Should().Be("argValue2");
+        }
+
+        class TestCommandParameterizedParameterSet : ICommandParameterSet
+        {
+            public int Option0 { get; }
+            public bool Option1 { get; }
+            public string Arg0 { get; }
+
+            public TestCommandParameterizedParameterSet(int option0, bool option1, [Argument] string arg0)
+            {
+                Option0 = option0;
+                Option1 = option1;
+                Arg0 = arg0;
+            }
         }
     }
 }

@@ -26,6 +26,7 @@ namespace Cocona.Command.Binder
             var bindParams = new object?[commandDescriptor.Parameters.Count];
             var optionValueByOption = commandOptionValues.ToLookup(k => k.Option, v => v.Value);
 
+            var parameterizedParamSets = new List<(CommandParameterizedParameterSetDescriptor Descriptor, object?[] Parameters, int ParameterIndex)>();
             var orderedArgDescWithSetter = new List<(CommandArgumentDescriptor Argument, Action<object?> Bind)>(commandDescriptor.Parameters.Count);
             var index = 0;
             foreach (var param in commandDescriptor.Parameters)
@@ -61,6 +62,10 @@ namespace Cocona.Command.Binder
                         break;
                     case CommandParameterSetDescriptor paramSetDesc:
                         bindParams[index++] = CreateParameterSetWithMembers(paramSetDesc, optionValueByOption, orderedArgDescWithSetter);
+                        break;
+                    case CommandParameterizedParameterSetDescriptor paramSetParameterizedDesc:
+                        // NOTE: Create an instance after parameter binding process.
+                        parameterizedParamSets.Add((paramSetParameterizedDesc, CreateParameterSetWithConstructor(paramSetParameterizedDesc, optionValueByOption, orderedArgDescWithSetter), index++));
                         break;
                     default:
                         throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"CoconaParameterBinder doesn't support '{param.GetType().FullName}' as bind target. Param: {param}");
@@ -117,13 +122,69 @@ namespace Cocona.Command.Binder
                 argDesc.Bind(ConvertTo(argDesc.Argument, argDesc.Argument.ArgumentType, commandArgumentValues[index++].Value));
             }
 
+            // Parameterized ParameterSet
+            foreach (var (paramSetDesc, paramSetBindParams, paramIndex) in parameterizedParamSets)
+            {
+                bindParams[paramIndex] = Activator.CreateInstance(paramSetDesc.ParameterSetType, paramSetBindParams);
+            }
+
+            return bindParams;
+        }
+
+        private object?[] CreateParameterSetWithConstructor(CommandParameterizedParameterSetDescriptor paramSetParameterizedDesc, ILookup<ICommandOptionDescriptor, string?> optionValueByOption,
+            List<(CommandArgumentDescriptor Argument, Action<object?> Bind)> orderedArgDescWithSetter)
+        {
+            var bindParams = new object?[paramSetParameterizedDesc.Parameters.Count];
+            var index = 0;
+
+            foreach (var param in paramSetParameterizedDesc.Parameters)
+            {
+                switch (param)
+                {
+                    case CommandOptionDescriptor optionDesc:
+                        if (optionValueByOption.Contains(optionDesc))
+                        {
+                            bindParams[index++] = CreateValue(optionDesc.OptionType, optionValueByOption[optionDesc].ToArray(), optionDesc, null);
+                        }
+                        else if (!optionDesc.IsRequired)
+                        {
+                            bindParams[index++] = optionDesc.DefaultValue.Value;
+                        }
+                        else
+                        {
+                            throw new ParameterBinderException(ParameterBinderResult.InsufficientOption, optionDesc);
+                        }
+                        break;
+                    case CommandArgumentDescriptor argumentDesc:
+                        // NOTE: Skip processing arguments at here.
+                        {
+                            var argIndex = index++;
+                            orderedArgDescWithSetter.Add((argumentDesc, x => bindParams[argIndex] = x));
+                        }
+                        break;
+                    case CommandServiceParameterDescriptor serviceParamDesc:
+                        bindParams[index++] = _serviceProvider.GetService(serviceParamDesc.ServiceType);
+                        break;
+                    case CommandIgnoredParameterDescriptor ignoredDesc:
+                        bindParams[index++] = ignoredDesc.DefaultValue;
+                        break;
+                    case CommandParameterSetDescriptor paramSetDesc:
+                        bindParams[index++] = CreateParameterSetWithMembers(paramSetDesc, optionValueByOption, orderedArgDescWithSetter);
+                        break;
+                    case CommandParameterizedParameterSetDescriptor:
+                        throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"CoconaParameterBinder doesn't support nested parameter set.");
+                    default:
+                        throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"CoconaParameterBinder doesn't support '{param.GetType().FullName}' as bind target. Param: {param}");
+                }
+            }
+
             return bindParams;
         }
 
         private object CreateParameterSetWithMembers(CommandParameterSetDescriptor paramSetDesc, ILookup<ICommandOptionDescriptor, string?> optionValueByOption, List<(CommandArgumentDescriptor Argument, Action<object?> Bind)> orderedArgDescWithSetter)
         {
             var instance = Activator.CreateInstance(paramSetDesc.ParameterSetType)!;
-            foreach (var member in paramSetDesc.MemberDescriptors)
+            foreach (var member in paramSetDesc.Members)
             {
                 switch (member.ParameterDescriptor)
                 {
@@ -156,6 +217,8 @@ namespace Cocona.Command.Binder
                     case CommandParameterSetDescriptor paramSetDesc2:
                         member.Setter(instance, CreateParameterSetWithMembers(paramSetDesc2, optionValueByOption, orderedArgDescWithSetter));
                         break;
+                    case CommandParameterizedParameterSetDescriptor:
+                        throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"CoconaParameterBinder doesn't support nested parameter set.");
                     default:
                         throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"CoconaParameterBinder doesn't support '{member.ParameterDescriptor.GetType().FullName}' as bind target. Member: {member.ParameterDescriptor.Name}");
                 }

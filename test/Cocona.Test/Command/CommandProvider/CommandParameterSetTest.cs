@@ -61,17 +61,17 @@ namespace Cocona.Test.Command.CommandProvider
             var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ArgumentWithParameterSet_Duplicated)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
         }
 
-        //[Fact]
-        //public void Record()
-        //{
-        //    var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Record)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+        [Fact]
+        public void Record()
+        {
+            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Record)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
 
-        //    command.Parameters.Should().HaveCount(1);
-        //    command.Options.Should().NotBeEmpty();
-        //    command.Arguments.Should().NotBeEmpty();
-        //    command.Options[0].Name.Should().Be("BooleanFlag");
-        //    command.Arguments[0].Name.Should().Be("Argument");
-        //}
+            command.Parameters.Should().HaveCount(1);
+            command.Options.Should().NotBeEmpty();
+            command.Arguments.Should().NotBeEmpty();
+            command.Options[0].Name.Should().Be("BooleanFlag");
+            command.Arguments[0].Name.Should().Be("Argument");
+        }
 
         [Fact]
         public void ClassIsNotMarkedAsParameterSet()
@@ -89,31 +89,67 @@ namespace Cocona.Test.Command.CommandProvider
             var paramSetDesc = ((CommandParameterSetDescriptor)command.Parameters[0]);
             
             // The boolean property is treated as optional flag implicitly.
-            var paramDesc0 = (CommandOptionDescriptor)paramSetDesc.MemberDescriptors[0].ParameterDescriptor;
+            var paramDesc0 = (CommandOptionDescriptor)paramSetDesc.Members[0].ParameterDescriptor;
             paramDesc0.Name.Should().Be("BooleanOption");
             paramDesc0.DefaultValue.HasValue.Should().BeTrue();
             paramDesc0.DefaultValue.Value.Should().Be(false);
             paramDesc0.IsRequired.Should().BeFalse();
 
-            var paramDesc1 = (CommandOptionDescriptor)paramSetDesc.MemberDescriptors[1].ParameterDescriptor;
+            var paramDesc1 = (CommandOptionDescriptor)paramSetDesc.Members[1].ParameterDescriptor;
             paramDesc1.Name.Should().Be("StringOption");
             paramDesc1.DefaultValue.HasValue.Should().BeTrue();
             paramDesc1.DefaultValue.Value.Should().Be("DefaultValue");
             paramDesc1.IsRequired.Should().BeFalse();
 
-            var paramDesc2 = (CommandOptionDescriptor)paramSetDesc.MemberDescriptors[2].ParameterDescriptor;
+            var paramDesc2 = (CommandOptionDescriptor)paramSetDesc.Members[2].ParameterDescriptor;
             paramDesc2.Name.Should().Be("StringOption_WithoutHasDefaultValue");
             paramDesc2.DefaultValue.HasValue.Should().BeFalse();
             paramDesc2.IsRequired.Should().BeTrue();
         }
 
         [Fact]
-        public void HasNoParameterlessConstructor()
+        public void AmbiguousConstructor()
         {
             Assert.Throws<CoconaException>(() =>
             {
-                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_NoParameterlessConstructor)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_AmbiguousConstructor)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
             });
+        }
+
+        [Fact]
+        public void HasNoPublicParameterlessConstructor()
+        {
+            Assert.Throws<CoconaException>(() =>
+            {
+                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_NoPublicParameterlessConstructor)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            });
+        }
+
+        [Fact]
+        public void AbstractOrInterfaceIsNotAllowed()
+        {
+            Assert.Throws<CoconaException>(() =>
+            {
+                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Abstract)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            });
+            Assert.Throws<CoconaException>(() =>
+            {
+                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Interface)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            });
+        }
+
+        [Fact]
+        public void Inheritance()
+        {
+            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Inheritance)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+
+            command.Parameters.Should().HaveCount(1);
+            command.Options.Should().NotBeEmpty();
+            command.Arguments.Should().NotBeEmpty();
+            command.Options[0].Name.Should().Be("BooleanFlag");
+            command.Options[1].Name.Should().Be("BooleanFlagImplicit");
+            command.Arguments[0].Name.Should().Be("ArgumentInherited");
+            command.Arguments[1].Name.Should().Be("Argument");
         }
 
         class CommandTest
@@ -131,7 +167,12 @@ namespace Cocona.Test.Command.CommandProvider
             public void ParameterSet_Record(TestParameterSet_Record paramSet) { }
             public void ParameterSet_DefaultValue(TestParameterSet_DefaultValue paramSet) { }
             public void ParameterSet_NotICommandParameterSet(TestParameterSet_NotICommandParameterSet paramSet) { }
-            public void ParameterSet_NoParameterlessConstructor(TestParameterSet_NoParameterlessConstructor paramSet) { }
+            public void ParameterSet_AmbiguousConstructor(TestParameterSet_AmbiguousConstructor paramSet) { }
+            public void ParameterSet_NoPublicParameterlessConstructor(TestParameterSet_NoPublicParameterlessConstructor paramSet) { }
+            public void ParameterSet_Abstract(TestParameterSet_Abstract paramSet) { }
+            public void ParameterSet_Interface(TestParameterSet_Interface paramSet) { }
+
+            public void ParameterSet_Inheritance(TestParameterSet_Inheritance paramSet) { }
         }
 
         class TestParameterSet_NotICommandParameterSet
@@ -170,7 +211,7 @@ namespace Cocona.Test.Command.CommandProvider
             [Option] private bool BooleanFlag;
         }
 
-        record TestParameterSet_Record([property: Option]bool BooleanFlag, [property: Argument] string Argument) : ICommandParameterSet;
+        record TestParameterSet_Record(bool BooleanFlag, [Argument]string Argument) : ICommandParameterSet;
 
         class TestParameterSet_DefaultValue : ICommandParameterSet
         {
@@ -180,21 +221,44 @@ namespace Cocona.Test.Command.CommandProvider
             [Option]
             public string StringOption_WithoutHasDefaultValue { get; set; } = "DefaultValue";
         }
-        class TestParameterSet_NoParameterlessConstructor : ICommandParameterSet
+        class TestParameterSet_AmbiguousConstructor : ICommandParameterSet
         {
             [Option]
             public bool BooleanFlag { get; set; }
 
-            public TestParameterSet_NoParameterlessConstructor(bool booleanFlag)
+            public TestParameterSet_AmbiguousConstructor()
             {
-                BooleanFlag = booleanFlag;
             }
+
+            public TestParameterSet_AmbiguousConstructor(bool option0)
+            {
+            }
+        }
+        class TestParameterSet_NoPublicParameterlessConstructor : ICommandParameterSet
+        {
+            [Option]
+            public bool BooleanFlag { get; set; }
+
+            private TestParameterSet_NoPublicParameterlessConstructor()
+            {
+            }
+        }
+        abstract class TestParameterSet_Abstract : ICommandParameterSet
+        {
+        }
+        interface TestParameterSet_Interface : ICommandParameterSet
+        {
+        }
+
+        class TestParameterSet_Inheritance : TestParameterSet
+        {
+            [Argument]
+            public string ArgumentInherited { get; set; }
         }
 
         private static MethodInfo GetMethod<T>(string methodName)
         {
             return typeof(T).GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public)!;
         }
-
     }
 }

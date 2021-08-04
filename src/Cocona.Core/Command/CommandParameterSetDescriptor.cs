@@ -10,17 +10,33 @@ namespace Cocona.Command
         public Type ParameterSetType { get; }
         public string Name { get; }
         public IReadOnlyList<Attribute> ParameterAttributes { get; }
-        public IReadOnlyList<CommandParameterSetMemberDescriptor> MemberDescriptors { get; }
+        public IReadOnlyList<CommandParameterSetMemberDescriptor> Members { get; }
 
-        public CommandParameterSetDescriptor(Type parameterSetType, string name, IReadOnlyList<Attribute> parameterAttributes, IReadOnlyList<CommandParameterSetMemberDescriptor> memberDescriptors)
+        public CommandParameterSetDescriptor(Type parameterSetType, string name, IReadOnlyList<Attribute> parameterAttributes, IReadOnlyList<CommandParameterSetMemberDescriptor> members)
         {
             ParameterSetType = parameterSetType ?? throw new ArgumentNullException(nameof(parameterSetType));
             Name = name ?? throw new ArgumentNullException(nameof(name));
             ParameterAttributes = parameterAttributes ?? throw new ArgumentNullException(nameof(parameterAttributes));
-            MemberDescriptors = memberDescriptors ?? throw new ArgumentNullException(nameof(memberDescriptors));
+            Members = members ?? throw new ArgumentNullException(nameof(members));
         }
     }
 
+    [DebuggerDisplay("ParameterSet (Parameterized): {Name,nq} (ParameterSetType={ParameterSetType.FullName,nq}")]
+    public class CommandParameterizedParameterSetDescriptor : ICommandParameterDescriptor
+    {
+        public Type ParameterSetType { get; }
+        public string Name { get; }
+        public IReadOnlyList<Attribute> ParameterAttributes { get; }
+        public IReadOnlyList<ICommandParameterDescriptor> Parameters { get; }
+
+        public CommandParameterizedParameterSetDescriptor(Type parameterSetType, string name, IReadOnlyList<Attribute> parameterAttributes, IReadOnlyList<ICommandParameterDescriptor> parameters)
+        {
+            ParameterSetType = parameterSetType ?? throw new ArgumentNullException(nameof(parameterSetType));
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            ParameterAttributes = parameterAttributes ?? throw new ArgumentNullException(nameof(parameterAttributes));
+            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+        }
+    }
     public class CommandParameterSetMemberDescriptor
     {
         public ICommandParameterDescriptor ParameterDescriptor { get; }

@@ -53,9 +53,10 @@ namespace Microsoft.Extensions.Hosting
                         options.CommandTypes.ToArray(),
                         options.TreatPublicMethodsAsCommands,
                         options.EnableConvertOptionNameToLowerCase,
-                        options.EnableConvertCommandNameToLowerCase
+                        options.EnableConvertCommandNameToLowerCase,
+                        options.EnableConvertArgumentNameToLowerCase
                     ),
-                    options.EnableShellCompletionSupport
+                        options.EnableShellCompletionSupport
                 );
             });
             services.TryAddSingleton<ICoconaCommandLineArgumentProvider>(serviceProvider =>
