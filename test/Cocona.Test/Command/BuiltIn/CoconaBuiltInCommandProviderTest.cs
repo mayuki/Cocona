@@ -43,7 +43,7 @@ namespace Cocona.Test.Command.BuiltIn
             commands.Primary.OptionLikeCommands.Should().HaveCount(4); // --completion-candidates, --completion, --help, --version
             commands.Primary.OptionLikeCommands[0].Should().Be(BuiltInOptionLikeCommands.CompletionCandidates); // CompletionCandidates option must be first.
             commands.Primary.OptionLikeCommands[1].Should().Be(BuiltInOptionLikeCommands.Completion);
-            commands.Primary.OptionLikeCommands[2].Should().Be(BuiltInOptionLikeCommands.Help);
+            commands.Primary.OptionLikeCommands[2].Should().Be(BuiltInOptionLikeCommands.HelpWithShortName);
             commands.Primary.OptionLikeCommands[3].Should().Be(BuiltInOptionLikeCommands.Version);
         }
 
@@ -55,7 +55,7 @@ namespace Cocona.Test.Command.BuiltIn
             commands.Should().NotBeNull();
             commands.Primary.Options.Should().HaveCount(0);
             commands.Primary.OptionLikeCommands.Should().HaveCount(2); // --help, --version
-            commands.Primary.OptionLikeCommands[0].Should().Be(BuiltInOptionLikeCommands.Help);
+            commands.Primary.OptionLikeCommands[0].Should().Be(BuiltInOptionLikeCommands.HelpWithShortName);
             commands.Primary.OptionLikeCommands[1].Should().Be(BuiltInOptionLikeCommands.Version);
         }
 
@@ -67,7 +67,7 @@ namespace Cocona.Test.Command.BuiltIn
             commands.Should().NotBeNull();
             commands.All[0].Options.Should().HaveCount(0);
             commands.All[0].OptionLikeCommands.Should().HaveCount(1); // --help
-            commands.All[0].OptionLikeCommands[0].Should().Be(BuiltInOptionLikeCommands.Help);
+            commands.All[0].OptionLikeCommands[0].Should().Be(BuiltInOptionLikeCommands.HelpWithShortName);
         }
 
         [Fact]
@@ -81,11 +81,30 @@ namespace Cocona.Test.Command.BuiltIn
             commands.All[0].Name.Should().Be("A_PrimaryHasVersionOption");
             commands.All[0].Options[0].Should().NotBe(BuiltInOptionLikeCommands.Version); // User-implemented --version
             commands.All[1].Name.Should().Be("B_HasShortHelpOption");
-            commands.All[1].OptionLikeCommands.Should().HaveCount(0); // -h
+            commands.All[1].OptionLikeCommands.Should().HaveCount(1); // --help
             commands.All[1].Options[0].Should().NotBe(BuiltInOptionLikeCommands.Help);  // User-implemented -h
+            commands.All[1].Options[0].Should().NotBe(BuiltInOptionLikeCommands.HelpWithShortName);  // User-implemented -h
             commands.All[2].Name.Should().Be("C_HasLongHelpOption");
-            commands.All[2].OptionLikeCommands.Should().HaveCount(0); // --help
+            commands.All[2].OptionLikeCommands.Should().HaveCount(0); // no built-in --help
             commands.All[2].Options[0].Should().NotBe(BuiltInOptionLikeCommands.Help);  // User-implemented --help
+            commands.All[2].Options[0].Should().NotBe(BuiltInOptionLikeCommands.HelpWithShortName);  // User-implemented --help
+        }
+
+        [Fact]
+        public void BuiltInOptionHelp_ShortNameUserOverwriteOption()
+        {
+            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInHelpShortNameUserOverwriteOptionCommand) }), true);
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All[0].Options.Should().HaveCount(1); // User-implemented --version
+            commands.All[0].OptionLikeCommands.Should().HaveCount(3); // --completion-candidates, --completion, --help
+            commands.All[0].Name.Should().Be("A_PrimaryHasVersionOption");
+            commands.All[0].Options[0].Should().NotBe(BuiltInOptionLikeCommands.Version); // User-implemented --version
+
+            commands.All[1].Name.Should().Be("B_HasShortHelpOption");
+            commands.All[1].OptionLikeCommands.Should().HaveCount(1); // built-in ---help
+            commands.All[1].Options[0].Should().NotBe(BuiltInOptionLikeCommands.Help);  // User-implemented -h
+            commands.All[1].Options[0].Should().NotBe(BuiltInOptionLikeCommands.HelpWithShortName);  // User-implemented -h
         }
 
         public class CommandTestBuiltInPrimaryCommand
@@ -100,6 +119,13 @@ namespace Cocona.Test.Command.BuiltIn
             public void A_PrimaryHasVersionOption(bool version) { }
             public void B_HasShortHelpOption([Option('h')]bool _) { }
             public void C_HasLongHelpOption([Option]bool help) { }
+        }
+
+        public class CommandTestBuiltInHelpShortNameUserOverwriteOptionCommand
+        {
+            [PrimaryCommand]
+            public void A_PrimaryHasVersionOption(bool version) { }
+            public void B_HasShortHelpOption([Option('h')] bool _) { }
         }
     }
 }

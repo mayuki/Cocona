@@ -61,9 +61,16 @@ namespace Cocona.Command.BuiltIn
                 var allNames = new HashSet<string>(command.Options.Select(x => x.Name).Concat(command.OptionLikeCommands.Select(x => x.Name)));
                 var allShortNames = new HashSet<char>(command.Options.SelectMany(x => x.ShortName).Concat(command.OptionLikeCommands.SelectMany(x => x.ShortName)));
 
-                if (!allNames.Contains(BuiltInOptionLikeCommands.Help.Name) && !allShortNames.Overlaps(BuiltInOptionLikeCommands.Help.ShortName))
+                if (!allNames.Contains(BuiltInOptionLikeCommands.Help.Name))
                 {
-                    optionLikeCommands = optionLikeCommands.Append(BuiltInOptionLikeCommands.Help);
+                    if (allShortNames.Overlaps(BuiltInOptionLikeCommands.HelpWithShortName.ShortName))
+                    {
+                        optionLikeCommands = optionLikeCommands.Append(BuiltInOptionLikeCommands.Help);
+                    }
+                    else
+                    {
+                        optionLikeCommands = optionLikeCommands.Append(BuiltInOptionLikeCommands.HelpWithShortName);
+                    }
                 }
 
                 if (command.IsPrimaryCommand && depth == 0)
