@@ -194,6 +194,16 @@ namespace Cocona.Test.Integration
         }
 
         [Fact]
+        public void CoconaApp_Run_Multiple_Help_Command_ShortOptionOverwrite()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "help-short-option-overwrite", "--help" });
+
+            stdOut.Should().Contain("Usage:");
+            stdOut.Should().Contain(" help-short-option-overwrite [--host] [--help]");
+            exitCode.Should().Be(129);
+        }
+
+        [Fact]
         public void CoconaApp_Run_Multiple_Version()
         {
             var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "--version" });
@@ -362,6 +372,11 @@ namespace Cocona.Test.Integration
             public void OptionTest([Option] string name, [Option('a')]int age = 17)
             {
                 Console.WriteLine($"Hello {name} ({age})!");
+            }
+
+            public void HelpShortOptionOverwrite([Option('h')] bool host)
+            {
+                Console.WriteLine($"Host={host}");
             }
         }
 

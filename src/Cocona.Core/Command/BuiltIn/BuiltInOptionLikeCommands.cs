@@ -14,8 +14,27 @@ namespace Cocona.Command.BuiltIn
 {
     public class BuiltInOptionLikeCommands
     {
-        public static CommandOptionLikeCommandDescriptor Help { get; }
+        public static CommandOptionLikeCommandDescriptor HelpWithShortName { get; }
             = new CommandOptionLikeCommandDescriptor("help", new []{ 'h'}, new CommandDescriptor(
+                typeof(BuiltInOptionLikeCommands).GetMethod(nameof(ShowHelp))!,
+                nameof(ShowHelp),
+                Array.Empty<string>(),
+                "Show help message",
+                new[]
+                {
+                    new CommandServiceParameterDescriptor(typeof(ICoconaHelpMessageBuilder), "helpBuilder"),
+                    new CommandServiceParameterDescriptor(typeof(ICoconaConsoleProvider), "console"),
+                },
+                Array.Empty<CommandOptionDescriptor>(),
+                Array.Empty<CommandArgumentDescriptor>(),
+                Array.Empty<CommandOverloadDescriptor>(),
+                Array.Empty<CommandOptionLikeCommandDescriptor>(),
+                CommandFlags.IgnoreUnknownOptions,
+                null
+            ), CommandOptionFlags.None);
+
+        public static CommandOptionLikeCommandDescriptor Help { get; }
+            = new CommandOptionLikeCommandDescriptor("help", Array.Empty<char>(), new CommandDescriptor(
                 typeof(BuiltInOptionLikeCommands).GetMethod(nameof(ShowHelp))!,
                 nameof(ShowHelp),
                 Array.Empty<string>(),
