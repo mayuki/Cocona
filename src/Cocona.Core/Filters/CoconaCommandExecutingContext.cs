@@ -8,9 +8,9 @@ namespace Cocona.Filters
     {
         public ParsedCommandLine ParsedCommandLine { get; }
         public CommandDescriptor Command { get; }
-        public object CommandTarget { get; }
+        public object? CommandTarget { get; }
 
-        public CoconaCommandExecutingContext(CommandDescriptor command, ParsedCommandLine parsedCommandLine, object commandTarget)
+        public CoconaCommandExecutingContext(CommandDescriptor command, ParsedCommandLine parsedCommandLine, object? commandTarget)
         {
             Command = command ?? throw new ArgumentNullException(nameof(command));
             ParsedCommandLine = parsedCommandLine ?? throw new ArgumentNullException(nameof(parsedCommandLine));

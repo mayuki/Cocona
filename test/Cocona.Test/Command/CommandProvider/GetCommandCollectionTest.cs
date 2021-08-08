@@ -201,7 +201,74 @@ namespace Cocona.Test.Command.CommandProvider
             commands.All[0].Options[1].Flags.Should().HaveFlag(CommandOptionFlags.None);
         }
 
+        [Fact]
+        public void Static_SingleCommand()
+        {
+            var method = typeof(CommandTest_Static_SingleCommand).GetMethod("A");
+            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { method! });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+            commands.All[0].Name.Should().Be("A");
+        }
+        
+        [Fact]
+        public void Static_MultipleCommands()
+        {
+            var methodA = typeof(CommandTest_Static_MultipleCommands).GetMethod("A");
+            var methodB = typeof(CommandTest_Static_MultipleCommands).GetMethod("B");
+            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA!, methodB! });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(2);
+            commands.All[0].Name.Should().Be("A");
+            commands.All[1].Name.Should().Be("B");
+        }
 
+        [Fact]
+        public void Static_MultipleCommands_Delegate()
+        {
+            Func<bool, bool, int> methodA = CommandTest_Static_MultipleCommands.A;
+            Action methodB = CommandTest_Static_MultipleCommands.B;
+            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA.Method, methodB.Method });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(2);
+            commands.All[0].Name.Should().Be("A");
+            commands.All[1].Name.Should().Be("B");
+        }
+
+        [Fact]
+        public void Delegate()
+        {
+            Action<string> methodA = new CommandTestSingleCommand().A;
+            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA.Method });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+            commands.All[0].Name.Should().Be("A");
+            commands.All[0].CommandType.Should().Be<CommandTestSingleCommand>();
+        }
+
+        [Fact]
+        public void Delegate_Unnamed_Single()
+        {
+            Action<string> methodA = (string name) => {};
+            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA.Method });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+        }
+        
+        [Fact]
+        public void Delegate_Unnamed_Multiple()
+        {
+            Action<string> methodA = (string name) => {};
+            Action<string> methodB = (string name) => {};
+            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA.Method, methodB.Method });
+            Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
+        }
+        
         public class CommandTestDefaultPrimaryCommand_Argument
         {
             public void A([Argument]string[] args) { }
@@ -336,6 +403,17 @@ namespace Cocona.Test.Command.CommandProvider
         public class CommandTest_HiddenOption
         {
             public void A([Hidden]bool option0, bool option1) { }
+        }
+
+        public static class CommandTest_Static_SingleCommand
+        {
+            public static int A(bool option0, bool option1) => 0;
+        }
+
+        public static class CommandTest_Static_MultipleCommands
+        {
+            public static int A(bool option0, bool option1) => 0;
+            public static void B() { }
         }
     }
 }

@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using System.Reflection;
 using Cocona;
 using Cocona.Application;
 using Cocona.Command;
@@ -51,6 +53,7 @@ namespace Microsoft.Extensions.Hosting
                 return new CoconaBuiltInCommandProvider(
                     new CoconaCommandProvider(
                         options.CommandTypes.ToArray(),
+                        Array.Empty<MethodInfo>(),
                         options.TreatPublicMethodsAsCommands,
                         options.EnableConvertOptionNameToLowerCase,
                         options.EnableConvertCommandNameToLowerCase,
