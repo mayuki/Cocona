@@ -1,4 +1,4 @@
-﻿using Cocona.Command;
+using Cocona.Command;
 using Cocona.CommandLine;
 using System;
 
@@ -14,7 +14,7 @@ namespace Cocona.Filters
         {
             Command = command ?? throw new ArgumentNullException(nameof(command));
             ParsedCommandLine = parsedCommandLine ?? throw new ArgumentNullException(nameof(parsedCommandLine));
-            CommandTarget = commandTarget ?? throw new ArgumentNullException(nameof(commandTarget));
+            CommandTarget = commandTarget;
         }
     }
 }
