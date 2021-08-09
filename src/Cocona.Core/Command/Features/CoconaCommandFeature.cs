@@ -6,7 +6,7 @@ namespace Cocona.Command.Features
 {
     public interface ICoconaCommandFeature
     {
-        object CommandInstance { get; }
+        object? CommandInstance { get; }
         CommandDescriptor Command { get; }
         CommandCollection CommandCollection { get; }
         IReadOnlyList<CommandDescriptor> CommandStack { get; }

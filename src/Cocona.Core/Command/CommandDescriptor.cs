@@ -11,6 +11,7 @@ namespace Cocona.Command
     public class CommandDescriptor
     {
         public MethodInfo Method { get; }
+        public object? Target { get; }
         public Type CommandType => Method.DeclaringType ?? throw new InvalidOperationException("The command method must be a member of the class.");
         public string Name { get; }
         public IReadOnlyList<string> Aliases { get; }
@@ -31,6 +32,7 @@ namespace Cocona.Command
 
         public CommandDescriptor(
             MethodInfo methodInfo,
+            object? target,
             string name,
             IReadOnlyList<string> aliases,
             string description,
@@ -44,6 +46,7 @@ namespace Cocona.Command
         )
         {
             Method = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
+            Target = target;
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Aliases = aliases ?? throw new ArgumentNullException(nameof(aliases));
             Description = description ?? throw new ArgumentNullException(nameof(description));

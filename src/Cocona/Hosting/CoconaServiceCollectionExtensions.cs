@@ -53,7 +53,7 @@ namespace Microsoft.Extensions.Hosting
                 return new CoconaBuiltInCommandProvider(
                     new CoconaCommandProvider(
                         options.CommandTypes.ToArray(),
-                        Array.Empty<MethodInfo>(),
+                        Array.Empty<Delegate>(),
                         options.TreatPublicMethodsAsCommands,
                         options.EnableConvertOptionNameToLowerCase,
                         options.EnableConvertCommandNameToLowerCase,

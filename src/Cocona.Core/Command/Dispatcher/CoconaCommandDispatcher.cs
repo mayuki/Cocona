@@ -50,7 +50,11 @@ namespace Cocona.Command.Dispatcher
 
                 // Activate a command type.
                 var commandInstance = default(object);
-                if (matchedCommand.CommandType.GetConstructors().Any() && !matchedCommand.Method.IsStatic)
+                if (matchedCommand.Target is not null)
+                {
+                    commandInstance = matchedCommand.Target;
+                }
+                else if (matchedCommand.CommandType.GetConstructors().Any() && !matchedCommand.Method.IsStatic)
                 {
                     commandInstance = _activator.GetServiceOrCreateInstance(_serviceProvider, matchedCommand.CommandType);
                     if (commandInstance == null) throw new InvalidOperationException($"Unable to activate command type '{matchedCommand.CommandType.FullName}'");
