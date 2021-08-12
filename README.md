@@ -27,6 +27,7 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
 
 ## Table of contents
 - [Installing](#installing)
+- [Requirements](#requirements)
 - [Getting Started](#getting-started)
 - [Command-line handling basics](#command-line-handling-basics)
     - [Command](#command)
@@ -49,6 +50,7 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
     - [Help customization](#help-customization)
     - [CommandMethodForwardedTo attribute](#commandmethodforwardedto-attribute)
     - [IgnoreUnknownOptions attribute](#ignoreunknownoptions-attribute)
+    - [GenericHost integration](#generichost-integration) 
 - [Related projects](#related-projects)
 - [License](#license)
 
@@ -61,6 +63,10 @@ $ dotnet add package Cocona
 ```powershell
 PS> Install-Package Cocona
 ```
+
+## Requirements
+- .NET Standard 2.0, 2.1
+- .NET 5
 
 ## Getting Started
 
@@ -299,7 +305,7 @@ Options:
   -h, --help    Show help message
   --version     Show version
 
-$ ./SubCommandApp
+$ ./SubCommandApp server
 Usage: SubCommandApp server [command]
 Usage: SubCommandApp server [--help]
 
@@ -439,7 +445,7 @@ public void Throw() { throw new CommandExitedException(128); }
 ### Validation
 Cocona can use attributes to validate options and arguments. It is similar to ASP.NET Core MVC. 
 
-.NET Core (`System.ComponentModel.DataAnnotations`) has some pre-defined attributes:
+.NET BCL (`System.ComponentModel.DataAnnotations`) has some pre-defined attributes:
 
 - `RangeAttribute`
 - `MaxLangeAttribute`
@@ -489,6 +495,19 @@ class Program : CoconaConsoleAppBase
         {
             await Task.Delay(100);
         }
+    }
+}
+```
+
+Alternatively, you can use `ICoconaAppContextAccessor` and `CoconaAppContext` to access `CancellationToken`.
+
+```csharp
+public async Task RunAsync([FromService]ICoconaAppContextAccessor contextAccessor)
+{
+    var ctx = contextAccessor.Current ?? throw new InvalidOperationException();
+    while (!ctx.CancellationToken.IsCancellationRequested)
+    {
+        await Task.Delay(100);
     }
 }
 ```
@@ -696,6 +715,31 @@ public void MyHelp()
 ### IgnoreUnknownOptions attribute
 Cocona treats unknown options as errors by default.
 Now, you can set the IgnoreUnknownOptions attribute to ignore unknown options.
+
+### GenericHost integration
+
+Cocona can be integrated with GenericHost of Microsoft.Extensions.Hosting.
+You can register the services with `UseCocona` extension method.
+
+```csharp
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        await Host.CreateDefaultBuilder()
+            .UseCocona(args, new[] { typeof(Program) })
+            .Build()
+            .RunAsync();
+    }
+
+    public void Hello()
+    {
+        Console.WriteLine($"Hello Konnichiwa!");
+    }
+}
+```
+
+- See: [samples/Advanced.GenericHost](samples/Advanced.GenericHost)
 
 ## Related projects
 - [Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework): ConsoleAppFramework heavily inspired Cocona.
