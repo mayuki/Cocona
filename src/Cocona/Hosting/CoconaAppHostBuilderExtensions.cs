@@ -37,6 +37,26 @@ namespace Cocona
         /// <summary>
         /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
         /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="args"></param>
+        /// <param name="configureOptions"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public static Task RunAsync(this CoconaAppHostBuilder builder, string[] args, Action<CoconaAppOptions>? configureOptions = null, CancellationToken cancellationToken = default)
+            => builder.RunAsync(args, Array.Empty<Type>(), configureOptions, cancellationToken);
+
+        /// <summary>
+        /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="args"></param>
+        /// <param name="configureOptions"></param>
+        public static void Run(this CoconaAppHostBuilder builder, string[] args, Action<CoconaAppOptions>? configureOptions = null)
+            => builder.Run(args, Array.Empty<Type>(), configureOptions);
+
+        /// <summary>
+        /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
+        /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="builder"></param>
         /// <param name="args"></param>
