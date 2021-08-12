@@ -18,7 +18,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void ParameterSet()
         {
-            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
 
             command.Parameters.Should().HaveCount(1);
             command.Options.Should().NotBeEmpty();
@@ -33,7 +33,7 @@ namespace Cocona.Test.Command.CommandProvider
         {
             Assert.Throws<CoconaException>(() =>
             {
-                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Option)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Option)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             });
         }
         [Fact]
@@ -41,7 +41,7 @@ namespace Cocona.Test.Command.CommandProvider
         {
             Assert.Throws<CoconaException>(() =>
             {
-                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Argument)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Argument)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             });
         }
 
@@ -50,7 +50,7 @@ namespace Cocona.Test.Command.CommandProvider
         {
             Assert.Throws<CoconaException>(() =>
             {
-                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.OptionWithParameterSet_Duplicated)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.OptionWithParameterSet_Duplicated)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             });
         }
 
@@ -58,13 +58,13 @@ namespace Cocona.Test.Command.CommandProvider
         public void Duplicated_Option_Argument()
         {
             // Arguments can be declared multiple times.
-            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ArgumentWithParameterSet_Duplicated)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ArgumentWithParameterSet_Duplicated)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
         }
 
         [Fact]
         public void Record()
         {
-            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Record)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Record)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
 
             command.Parameters.Should().HaveCount(1);
             command.Options.Should().NotBeEmpty();
@@ -76,14 +76,14 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void ClassIsNotMarkedAsParameterSet()
         {
-            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_NotICommandParameterSet)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_NotICommandParameterSet)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             command.Parameters[0].Should().NotBeOfType<CommandParameterSetDescriptor>();
         }
 
         [Fact]
         public void DefaultValue()
         {
-            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_DefaultValue)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_DefaultValue)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             command.Parameters[0].Should().BeOfType<CommandParameterSetDescriptor>();
 
             var paramSetDesc = ((CommandParameterSetDescriptor)command.Parameters[0]);
@@ -112,7 +112,7 @@ namespace Cocona.Test.Command.CommandProvider
         {
             Assert.Throws<CoconaException>(() =>
             {
-                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_AmbiguousConstructor)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_AmbiguousConstructor)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             });
         }
 
@@ -121,7 +121,7 @@ namespace Cocona.Test.Command.CommandProvider
         {
             Assert.Throws<CoconaException>(() =>
             {
-                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_NoPublicParameterlessConstructor)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_NoPublicParameterlessConstructor)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             });
         }
 
@@ -130,18 +130,18 @@ namespace Cocona.Test.Command.CommandProvider
         {
             Assert.Throws<CoconaException>(() =>
             {
-                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Abstract)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Abstract)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             });
             Assert.Throws<CoconaException>(() =>
             {
-                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Interface)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+                var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Interface)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             });
         }
 
         [Fact]
         public void Inheritance()
         {
-            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Inheritance)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>());
+            var command = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.ParameterSet_Inheritance)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
 
             command.Parameters.Should().HaveCount(1);
             command.Options.Should().NotBeEmpty();

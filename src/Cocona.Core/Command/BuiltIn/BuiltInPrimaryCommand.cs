@@ -25,6 +25,7 @@ namespace Cocona.Command.BuiltIn
         {
             return new CommandDescriptor(
                 _methodShowDefaultMessage,
+                default,
                 _methodShowDefaultMessage.Name,
                 Array.Empty<string>(),
                 description,

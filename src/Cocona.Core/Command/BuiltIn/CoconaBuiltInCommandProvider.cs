@@ -40,6 +40,7 @@ namespace Cocona.Command.BuiltIn
                 var command = commands[i];
                 newCommands[i] = new CommandDescriptor(
                     command.Method,
+                    command.Target,
                     command.Name,
                     command.Aliases,
                     command.Description,

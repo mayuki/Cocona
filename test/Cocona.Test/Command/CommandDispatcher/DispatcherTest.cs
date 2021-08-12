@@ -9,9 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cocona.Command.Binder.Validation;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
 
 namespace Cocona.Test.Command.CommandDispatcher
@@ -210,6 +212,101 @@ namespace Cocona.Test.Command.CommandDispatcher
             nestedCommandNested.Log.Should().BeEmpty();
             nestedCommandNested2.Log.Should().Contain("C");
         }
+        
+        [Fact]
+        public async Task DelegateSimpleSingleCommandDispatch()
+        {
+            var command = new TestCommandDelegate();
+            var action = new Action<string>(command.Test);
+
+            var services = CreateDefaultServices<TestCommandDelegate>(new string[] { "--option0=alice" });
+            var optionDesc = new CommandOptionDescriptor(
+                typeof(string),
+                "option0",
+                Array.Empty<char>(),
+                string.Empty,
+                CoconaDefaultValue.None,
+                default,
+                CommandOptionFlags.None,
+                Array.Empty<Attribute>());
+            var commands = new[]
+            {
+                new CommandDescriptor(
+                    action.Method,
+                    action.Target,
+                    nameof(TestCommandStatic.Test),
+                    Array.Empty<string>(),
+                    string.Empty,
+                    new [] { optionDesc },
+                    new []{ optionDesc },
+                    Array.Empty<CommandArgumentDescriptor>(),
+                    Array.Empty<CommandOverloadDescriptor>(),
+                    Array.Empty<CommandOptionLikeCommandDescriptor>(),
+                    CommandFlags.Primary,
+                    default
+                )
+            };
+            services.Replace(ServiceDescriptor.Transient<ICoconaCommandProvider>(sp => new StaticCommandsCommandProvider(commands)));
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var result = await dispatcher.DispatchAsync();
+            command.Log[0].Should().Be($"{nameof(TestCommandDelegate.Test)}:{command.Id}:option0 -> alice");
+        }
+
+        class StaticCommandsCommandProvider : ICoconaCommandProvider
+        {
+            private readonly IReadOnlyList<CommandDescriptor> _commands;
+
+            public StaticCommandsCommandProvider(IEnumerable<CommandDescriptor> commands)
+            {
+                _commands = commands.ToArray();
+            }
+            
+            public CommandCollection GetCommandCollection()
+            {
+                return new CommandCollection(_commands);
+            }
+        }
+
+        [Fact]
+        public async Task StaticSimpleSingleCommandDispatch()
+        {
+            // NOTE: Once TestCommand is passed instead of TestCommandStatic (Generic type parameter doesn't accept a static class)
+            var services = CreateDefaultServices<TestCommand>(new string[] { "--option0=alice" });
+            var optionDesc = new CommandOptionDescriptor(
+                typeof(string),
+                "option0",
+                Array.Empty<char>(),
+                string.Empty,
+                CoconaDefaultValue.None,
+                default,
+                CommandOptionFlags.None,
+                Array.Empty<Attribute>());
+            var commands = new[]
+            {
+                new CommandDescriptor(
+                    typeof(TestCommandStatic).GetMethod(nameof(TestCommandStatic.Test)),
+                    default,
+                    nameof(TestCommandStatic.Test),
+                    Array.Empty<string>(),
+                    string.Empty,
+                    new [] { optionDesc },
+                    new []{ optionDesc },
+                    Array.Empty<CommandArgumentDescriptor>(),
+                    Array.Empty<CommandOverloadDescriptor>(),
+                    Array.Empty<CommandOptionLikeCommandDescriptor>(),
+                    CommandFlags.Primary,
+                    default
+                )
+            };
+            services.Replace(ServiceDescriptor.Transient<ICoconaCommandProvider>(sp => new StaticCommandsCommandProvider(commands)));
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var result = await dispatcher.DispatchAsync();
+            TestCommandStatic.Log[0].Should().Be($"{nameof(TestCommandStatic.Test)}:option0 -> alice");
+        }
 
         public class NoCommand
         { }
@@ -321,5 +418,30 @@ namespace Cocona.Test.Command.CommandDispatcher
                 public void Dummy() { }
             }
         }
+        
+        
+        public static class TestCommandStatic
+        {
+            public static List<string> Log { get; } = new List<string>();
+
+            public static void Test(string option0)
+            {
+                Log.Clear();
+                Log.Add($"{nameof(TestCommandStatic.Test)}:{nameof(option0)} -> {option0}");
+            }
+        }
+
+        public class TestCommandDelegate
+        {
+            public List<string> Log { get; } = new List<string>();
+
+            public Guid Id { get; } = Guid.NewGuid();
+
+            public void Test(string option0)
+            {
+                Log.Add($"{nameof(TestCommandDelegate.Test)}:{Id}:{nameof(option0)} -> {option0}");
+            }
+        }
+
     }
 }

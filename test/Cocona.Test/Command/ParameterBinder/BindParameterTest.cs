@@ -47,6 +47,7 @@ namespace Cocona.Test.Command.ParameterBinder
 
             return new CommandDescriptor(
                 typeof(BindParameterTest).GetMethod(nameof(BindParameterTest.__Dummy))!,
+                default,
                 "Test",
                 Array.Empty<string>(),
                 "",

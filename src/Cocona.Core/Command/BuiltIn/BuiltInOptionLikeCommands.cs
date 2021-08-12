@@ -17,6 +17,7 @@ namespace Cocona.Command.BuiltIn
         public static CommandOptionLikeCommandDescriptor HelpWithShortName { get; }
             = new CommandOptionLikeCommandDescriptor("help", new []{ 'h'}, new CommandDescriptor(
                 typeof(BuiltInOptionLikeCommands).GetMethod(nameof(ShowHelp))!,
+                default,
                 nameof(ShowHelp),
                 Array.Empty<string>(),
                 "Show help message",
@@ -36,6 +37,7 @@ namespace Cocona.Command.BuiltIn
         public static CommandOptionLikeCommandDescriptor Help { get; }
             = new CommandOptionLikeCommandDescriptor("help", Array.Empty<char>(), new CommandDescriptor(
                 typeof(BuiltInOptionLikeCommands).GetMethod(nameof(ShowHelp))!,
+                default,
                 nameof(ShowHelp),
                 Array.Empty<string>(),
                 "Show help message",
@@ -55,6 +57,7 @@ namespace Cocona.Command.BuiltIn
         public static CommandOptionLikeCommandDescriptor Version { get; }
             = new CommandOptionLikeCommandDescriptor("version", Array.Empty<char>(), new CommandDescriptor(
                 typeof(BuiltInOptionLikeCommands).GetMethod(nameof(ShowVersion))!,
+                default,
                 nameof(ShowVersion),
                 Array.Empty<string>(),
                 "Show version",
@@ -75,6 +78,7 @@ namespace Cocona.Command.BuiltIn
         public static CommandOptionLikeCommandDescriptor Completion { get; }
             = new CommandOptionLikeCommandDescriptor("completion", Array.Empty<char>(), new CommandDescriptor(
                 typeof(BuiltInOptionLikeCommands).GetMethod(nameof(GenerateCompletionSource))!,
+                default,
                 nameof(GenerateCompletionSource),
                 Array.Empty<string>(),
                 "Generate a shell completion code",
@@ -99,6 +103,7 @@ namespace Cocona.Command.BuiltIn
         public static CommandOptionLikeCommandDescriptor CompletionCandidates { get; }
             = new CommandOptionLikeCommandDescriptor("completion-candidates", Array.Empty<char>(), new CommandDescriptor(
                 typeof(BuiltInOptionLikeCommands).GetMethod(nameof(GetCompletionCandidates))!,
+                default,
                 nameof(GetCompletionCandidates),
                 Array.Empty<string>(),
                 "Generate a shell completion candidates",

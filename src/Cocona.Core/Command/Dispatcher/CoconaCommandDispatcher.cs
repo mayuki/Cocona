@@ -49,8 +49,16 @@ namespace Cocona.Command.Dispatcher
                 var dispatchAsync = _dispatcherPipelineBuilder.Build();
 
                 // Activate a command type.
-                var commandInstance = _activator.GetServiceOrCreateInstance(_serviceProvider, matchedCommand.CommandType);
-                if (commandInstance == null) throw new InvalidOperationException($"Unable to activate command type '{matchedCommand.CommandType.FullName}'");
+                var commandInstance = default(object);
+                if (matchedCommand.Target is not null)
+                {
+                    commandInstance = matchedCommand.Target;
+                }
+                else if (matchedCommand.CommandType.GetConstructors().Any() && !matchedCommand.Method.IsStatic)
+                {
+                    commandInstance = _activator.GetServiceOrCreateInstance(_serviceProvider, matchedCommand.CommandType);
+                    if (commandInstance == null) throw new InvalidOperationException($"Unable to activate command type '{matchedCommand.CommandType.FullName}'");
+                }
 
                 // Set CoconaAppContext
                 _appContext.Current = new CoconaAppContext(matchedCommand, cancellationToken);

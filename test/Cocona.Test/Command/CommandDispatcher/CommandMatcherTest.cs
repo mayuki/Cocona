@@ -21,6 +21,7 @@ namespace Cocona.Test.Command.CommandDispatcher
         {
             return new CommandDescriptor(
                 typeof(CommandMatcherTest).GetMethod(nameof(CommandMatcherTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+                default,
                 name,
                 Array.Empty<string>(),
                 string.Empty,

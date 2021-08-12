@@ -34,6 +34,7 @@ namespace Cocona.Test.Help
         {
             return new CommandDescriptor(
                 typeof(CoconaCommandHelpProviderTest).GetMethod(nameof(CoconaCommandHelpProviderTest.__Dummy), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
+                default,
                 name,
                 Array.Empty<string>(),
                 description,

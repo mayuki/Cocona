@@ -14,7 +14,7 @@ namespace Microsoft.Extensions.Hosting
 {
     public static class CoconaHostBuilderExtensions
     {
-        public static IHostBuilder UseCocona(this IHostBuilder hostBuilder, string[] args, Type[] types)
+        public static IHostBuilder UseCocona(this IHostBuilder hostBuilder, string[] args, IEnumerable<Type> types, IEnumerable<Delegate>? methods = default)
         {
             return hostBuilder
                 .ConfigureLogging(logging =>
@@ -32,7 +32,8 @@ namespace Microsoft.Extensions.Hosting
 
                     services.Configure<CoconaAppOptions>(options =>
                     {
-                        options.CommandTypes = types;
+                        options.CommandTypes = types.ToList();
+                        options.CommandMethods = (methods ?? Array.Empty<Delegate>()).ToList();
                     });
                 });
         }

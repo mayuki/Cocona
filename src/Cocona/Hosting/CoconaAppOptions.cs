@@ -38,5 +38,10 @@ namespace Cocona.Hosting
         /// Gets a list of command types.
         /// </summary>
         public IList<Type> CommandTypes { get; set; } = new List<Type>();
+
+        /// <summary>
+        /// Gets a list of command methods.
+        /// </summary>
+        public IList<Delegate> CommandMethods { get; set; } = new List<Delegate>();
     }
 }

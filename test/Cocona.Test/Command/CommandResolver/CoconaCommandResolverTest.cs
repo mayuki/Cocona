@@ -281,6 +281,7 @@ namespace Cocona.Test.Command.CommandResolver
             Action action = () => { };
             return new CommandOptionLikeCommandDescriptor(optionName, shortNames, new CommandDescriptor(
                 action.Method,
+                default,
                 name,
                 Array.Empty<string>(),
                 "",
@@ -309,6 +310,7 @@ namespace Cocona.Test.Command.CommandResolver
             Action action = () => { };
             return new CommandDescriptor(
                 action.Method,
+                action.Target,
                 name,
                 Array.Empty<string>(),
                 "",

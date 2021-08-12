@@ -77,6 +77,24 @@ namespace Cocona.Test.Integration
             return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
         }
 
+        private (string StandardOut, string StandardError, int ExitCode) Run(string[] args, Delegate[] delegates)
+        {
+            var stdOutWriter = new StringWriter();
+            var stdErrWriter = new StringWriter();
+
+            Console.SetOut(stdOutWriter);
+            Console.SetError(stdErrWriter);
+
+            var app = CoconaApp.Create();
+            foreach (var @delegate in delegates)
+            {
+                app.AddCommand(@delegate);
+            }
+            app.Run(args);
+
+            return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
+        }
+
 
         [Fact]
         public void CoconaApp_Run_Single()
@@ -623,6 +641,51 @@ namespace Cocona.Test.Integration
             {
                 Console.WriteLine($"B:{option0};{paramSet.Arg0};{paramSet.Option1};{arg1}");
             }
+        }
+
+        [Fact]
+        public void CoconaApp_Run_AddCommand_Delegate_Static_Single()
+        {
+            var (stdOut, stdErr, exitCode) = Run(Array.Empty<string>(), new[] { new Action(TestCommand_Delegate.StaticCommandA) });
+            stdOut.Should().Contain("StaticCommandA");
+        }
+
+        [Fact]
+        public void CoconaApp_Run_AddCommand_Delegate_Static_Multiple()
+        {
+            var (stdOut, stdErr, exitCode) = Run(new [] { "static-command-b" }, new[] { new Action(TestCommand_Delegate.StaticCommandA), new Action(TestCommand_Delegate.StaticCommandB) });
+            stdOut.Should().Contain("StaticCommandB");
+        }
+
+        [Fact]
+        public void CoconaApp_Run_AddCommand_Delegate_Instance_Single()
+        {
+            var command = new TestCommand_Delegate();
+            var (stdOut, stdErr, exitCode) = Run(Array.Empty<string>(), new[] { new Action(command.InstanceCommandA) });
+            stdOut.Should().Contain($"InstanceCommandA:{command.Id}");
+        }
+
+        [Fact]
+        public void CoconaApp_Run_AddCommand_Delegate_Instance_Multiple()
+        {
+            var command = new TestCommand_Delegate();
+            var (stdOut, stdErr, exitCode) = Run(new[] { "instance-command-b" }, new[] { new Action(command.InstanceCommandA), new Action(command.InstanceCommandB) });
+            stdOut.Should().Contain($"InstanceCommandB:{command.Id}");
+        }
+
+        class TestCommand_Delegate
+        {
+            public Guid Id { get; } = Guid.NewGuid();
+
+            public static void StaticCommandA()
+                => Console.WriteLine($"{nameof(StaticCommandA)}");
+            public static void StaticCommandB()
+                => Console.WriteLine($"{nameof(StaticCommandB)}");
+
+            public void InstanceCommandA()
+                => Console.WriteLine($"{nameof(InstanceCommandA)}:{Id}");
+            public void InstanceCommandB()
+                => Console.WriteLine($"{nameof(InstanceCommandB)}:{Id}");
         }
     }
 }
