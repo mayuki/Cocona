@@ -88,7 +88,7 @@ namespace Cocona
         {
             var args = Environment.GetCommandLineArgs();
             return args.Any()
-                ? args.AsSpan(1).ToArray() // args[0] is the path to executable binary.
+                ? args.Skip(1).ToArray() // args[0] is the path to executable binary.
                 : Array.Empty<string>();
         }
     }
