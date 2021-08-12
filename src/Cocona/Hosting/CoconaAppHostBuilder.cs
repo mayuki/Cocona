@@ -98,39 +98,11 @@ namespace Cocona.Hosting
         /// <summary>
         /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="args"></param>
-        /// <param name="configureOptions"></param>
-        public void Run<T>(string[] args, Action<CoconaAppOptions>? configureOptions = null)
-            => Run(args, new[] { typeof(T) }, configureOptions);
-
-        /// <summary>
-        /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="args"></param>
-        /// <param name="configureOptions"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public Task RunAsync<T>(string[] args, Action<CoconaAppOptions>? configureOptions = null, CancellationToken cancellationToken = default)
-            => RunAsync(args, new[] { typeof(T) }, configureOptions, cancellationToken);
-
-        /// <summary>
-        /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
-        /// </summary>
         /// <param name="args"></param>
         /// <param name="commandTypes"></param>
         /// <param name="configureOptions"></param>
         public void Run(string[] args, Type[] commandTypes, Action<CoconaAppOptions>? configureOptions = null)
             => GetBuiltHost(args, commandTypes, configureOptions).Run();
-
-        /// <summary>
-        /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
-        /// </summary>
-        /// <param name="args"></param>
-        /// <param name="configureOptions"></param>
-        public void Run(string[] args, Action<CoconaAppOptions>? configureOptions = null)
-            => GetBuiltHost(args, Array.Empty<Type>(), configureOptions).Run();
 
         /// <summary>
         /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
@@ -142,16 +114,6 @@ namespace Cocona.Hosting
         /// <returns></returns>
         public Task RunAsync(string[] args, Type[] commandTypes, Action<CoconaAppOptions>? configureOptions = null, CancellationToken cancellationToken = default)
             => GetBuiltHost(args, commandTypes, configureOptions).RunAsync(cancellationToken);
-
-        /// <summary>
-        /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
-        /// </summary>
-        /// <param name="args"></param>
-        /// <param name="configureOptions"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public Task RunAsync(string[] args, Action<CoconaAppOptions>? configureOptions = null, CancellationToken cancellationToken = default)
-            => GetBuiltHost(args, Array.Empty<Type>(), configureOptions).RunAsync(cancellationToken);
 
         /// <summary>
         /// Add command definition delegate to Cocona.
@@ -174,13 +136,5 @@ namespace Cocona.Hosting
             _targetTypes.Add(commandType ?? throw new ArgumentNullException(nameof(commandType)));
             return this;
         }
-
-        /// <summary>
-        /// Add the commands type to Cocona.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public CoconaAppHostBuilder AddCommand<T>()
-            => AddCommand(typeof(T));
     }
 }

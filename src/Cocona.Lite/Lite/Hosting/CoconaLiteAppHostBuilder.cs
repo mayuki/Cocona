@@ -5,8 +5,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Cocona.Application;
-using Cocona.Command;
-using Cocona.Command.BuiltIn;
 using Cocona.Command.Dispatcher;
 using Cocona.Command.Dispatcher.Middlewares;
 
@@ -35,26 +33,6 @@ namespace Cocona.Lite.Hosting
         /// <summary>
         /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="args"></param>
-        /// <param name="configureOptions"></param>
-        public void Run<T>(string[] args, Action<CoconaLiteAppOptions>? configureOptions = null)
-            => Run(args, new[] {typeof(T)}, configureOptions);
-
-        /// <summary>
-        /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="args"></param>
-        /// <param name="configureOptions"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public Task RunAsync<T>(string[] args, Action<CoconaLiteAppOptions>? configureOptions = null, CancellationToken cancellationToken = default)
-            => RunAsync(args, new[] {typeof(T)}, configureOptions, cancellationToken);
-
-        /// <summary>
-        /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
-        /// </summary>
         /// <param name="args"></param>
         /// <param name="commandTypes"></param>
         /// <param name="configureOptions"></param>
@@ -71,24 +49,6 @@ namespace Cocona.Lite.Hosting
         /// <returns></returns>
         public Task RunAsync(string[] args, Type[] commandTypes, Action<CoconaLiteAppOptions>? configureOptions = null, CancellationToken cancellationToken = default)
             => new CoconaLiteAppHost(Build(args, commandTypes, configureOptions)).RunAsyncCore(cancellationToken);
-
-        /// <summary>
-        /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
-        /// </summary>
-        /// <param name="args"></param>
-        /// <param name="configureOptions"></param>
-        public void Run(string[] args, Action<CoconaLiteAppOptions>? configureOptions = null)
-            => new CoconaLiteAppHost(Build(args, Array.Empty<Type>(), configureOptions)).RunAsyncCore(default).GetAwaiter().GetResult();
-
-        /// <summary>
-        /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
-        /// </summary>
-        /// <param name="args"></param>
-        /// <param name="configureOptions"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public Task RunAsync(string[] args, Action<CoconaLiteAppOptions>? configureOptions = null, CancellationToken cancellationToken = default)
-            => new CoconaLiteAppHost(Build(args, Array.Empty<Type>(), configureOptions)).RunAsyncCore(cancellationToken);
 
         /// <summary>
         /// Add command definition delegate to Cocona.
@@ -111,14 +71,6 @@ namespace Cocona.Lite.Hosting
             _targetTypes.Add(commandType ?? throw new ArgumentNullException(nameof(commandType)));
             return this;
         }
-
-        /// <summary>
-        /// Add the commands type to Cocona.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public CoconaLiteAppHostBuilder AddCommand<T>()
-            => AddCommand(typeof(T));
 
         private IServiceProvider Build(string[] args, Type[] commandTypes, Action<CoconaLiteAppOptions>? configureOptions)
         {

@@ -19,5 +19,4 @@ static void Konnichiwa([Argument] string name)
     => Console.WriteLine($"Konnichiwa {name}!");
 #endif
 
-// TODO: args
-app.Run(Environment.GetCommandLineArgs().AsSpan(1).ToArray());
+app.Run();
