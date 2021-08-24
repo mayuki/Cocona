@@ -204,6 +204,29 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Static_SingleCommand()
         {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTest_Static_SingleCommand) });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(1); // If the method has no "Command" attribute, it will be ignored.
+            commands.All[0].Name.Should().Be("A");
+        }
+
+        [Fact]
+        public void Static_MultipleCommands()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTest_Static_MultipleCommands) });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(2); // If the method has no "Command" attribute, it will be ignored.
+            commands.All[0].Name.Should().Be("A");
+            commands.All[0].Method.IsStatic.Should().BeTrue();
+            commands.All[1].Name.Should().Be("B");
+            commands.All[1].Method.IsStatic.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Delegate_Static_SingleCommand()
+        {
             Func<bool, bool, int> methodA = CommandTest_Static_MultipleCommands.A;
             var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA });
             var commands = provider.GetCommandCollection();
@@ -213,7 +236,7 @@ namespace Cocona.Test.Command.CommandProvider
         }
 
         [Fact]
-        public void Static_MultipleCommands()
+        public void Delegate_Static_MultipleCommands()
         {
             Func<bool, bool, int> methodA = CommandTest_Static_MultipleCommands.A;
             Action methodB = CommandTest_Static_MultipleCommands.B;
@@ -392,15 +415,22 @@ namespace Cocona.Test.Command.CommandProvider
             public void A([Hidden]bool option0, bool option1) { }
         }
 
-        public static class CommandTest_Static_SingleCommand
+        public class CommandTest_Static_SingleCommand
         {
+            [Command]
             public static int A(bool option0, bool option1) => 0;
+
+            public static int NoCommandAttribute() => 0;
         }
 
-        public static class CommandTest_Static_MultipleCommands
+        public class CommandTest_Static_MultipleCommands
         {
+            [Command]
             public static int A(bool option0, bool option1) => 0;
+            [Command]
             public static void B() { }
+
+            public static int NoCommandAttribute() => 0;
         }
     }
 }

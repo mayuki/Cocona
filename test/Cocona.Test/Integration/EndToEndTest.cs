@@ -687,5 +687,35 @@ namespace Cocona.Test.Integration
             public void InstanceCommandB()
                 => Console.WriteLine($"{nameof(InstanceCommandB)}:{Id}");
         }
+
+
+        [Fact]
+        public void CoconaApp_Run_Static_Single()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Static_Single>(new[] { "--value", "123" });
+            stdOut.Should().Contain($"A:123");
+        }
+
+        class TestCommand_Static_Single
+        {
+            [Command]
+            public static void A(int value) => Console.WriteLine($"A:{value}");
+        }
+
+        [Fact]
+        public void CoconaApp_Run_Static_Multiple()
+        {
+            var command = new TestCommand_Delegate();
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Static_Multiple>(new[] { "b", "--value", "123" });
+            stdOut.Should().Contain($"B:123");
+        }
+
+        class TestCommand_Static_Multiple
+        {
+            [Command]
+            public static void A(int value) => Console.WriteLine($"A:{value}");
+            [Command]
+            public static void B(int value) => Console.WriteLine($"B:{value}");
+        }
     }
 }
