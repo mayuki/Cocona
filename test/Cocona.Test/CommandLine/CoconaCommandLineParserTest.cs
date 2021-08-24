@@ -1542,5 +1542,51 @@ namespace Cocona.Test.CommandLine
             parsed.Options.Should().HaveCount(1);
             parsed.Arguments.Should().HaveCount(3); // new [] { "-b", "-c", "d" }
         }
+
+        [Fact]
+        public void StopParsingOption_Order_1()
+        {
+            var args = new string[] { "-b", "value", "--foo=value", "-c", "d" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new ICommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "foo", new [] { 'a' }, "", new CoconaDefaultValue(string.Empty), CommandOptionFlags.StopParsingOptions),
+                    CreateCommandOption(typeof(string), "bar", new [] { 'b' }, "", new CoconaDefaultValue(string.Empty)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string[]), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().NotBeEmpty();
+            parsed.Options.Should().HaveCount(2);
+            parsed.Arguments.Should().HaveCount(2); // new [] { "-c", "d" }
+        }
+
+        [Fact]
+        public void StopParsingOption_Order_2()
+        {
+            var args = new string[] { "--foo=value", "-b", "value", "-c", "d" };
+            var parsed = new CoconaCommandLineParser().ParseCommand(
+                args,
+                new ICommandOptionDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "foo", new [] { 'a' }, "", new CoconaDefaultValue(string.Empty), CommandOptionFlags.StopParsingOptions),
+                    CreateCommandOption(typeof(string), "bar", new [] { 'b' }, "", new CoconaDefaultValue(string.Empty)),
+                },
+                new CommandArgumentDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(string), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string[]), "arg1", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                }
+            );
+            parsed.Should().NotBeNull();
+            parsed.Options.Should().NotBeEmpty();
+            parsed.Options.Should().HaveCount(1);
+            parsed.Arguments.Should().HaveCount(4); // new [] { "-b", "value", "-c", "d" }
+        }
     }
 }
