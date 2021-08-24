@@ -25,7 +25,7 @@ namespace Cocona.Command
         public IReadOnlyList<Attribute> ParameterAttributes { get; }
 
         public CommandOptionFlags Flags { get; }
-        public bool IsHidden => (Flags & CommandOptionFlags.Hidden) == CommandOptionFlags.Hidden;
+        public bool IsHidden => Flags.HasFlag(CommandOptionFlags.Hidden);
         public bool IsRequired => !DefaultValue.HasValue;
         public bool IsEnumerableLike => DynamicListHelper.IsArrayOrEnumerableLike(OptionType);
 
@@ -53,5 +53,6 @@ namespace Cocona.Command
         None = 0,
         Hidden = 1 << 0,
         OptionLikeCommand = 1 << 1,
+        StopParsingOptions = 1 << 2,
     }
 }

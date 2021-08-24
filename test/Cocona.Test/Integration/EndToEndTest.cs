@@ -717,5 +717,18 @@ namespace Cocona.Test.Integration
             [Command]
             public static void B(int value) => Console.WriteLine($"B:{value}");
         }
+
+        [Fact]
+        public void CoconaApp_Run_StopParsingOption()
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_StopParsingOption>(new[] { "--a", "123", "--b", "valueB", "A", "B", "C", "D" });
+            stdOut.Should().Contain($"A:123:valueB:A:B,C,D");
+        }
+
+        class TestCommand_StopParsingOption
+        {
+            public void A([Option]int a, [Option(StopParsingOptions = true)]string b, [Argument]string arg0, [Argument]string[] args)
+                => Console.WriteLine($"A:{a}:{b}:{arg0}:{string.Join(",", args)}");
+        }
     }
 }
