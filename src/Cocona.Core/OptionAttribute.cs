@@ -30,6 +30,11 @@ namespace Cocona
         /// </summary>
         public string? ValueName { get; set; }
 
+        /// <summary>
+        /// Gets or sets whether or not to stop parsing options after this option on the command line.
+        /// </summary>
+        public bool StopParsingOptions { get; set; }
+
         public OptionAttribute()
         { }
 

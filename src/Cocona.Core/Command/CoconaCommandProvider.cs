@@ -553,6 +553,7 @@ namespace Cocona.Command
                 var optionShortNames = attrSet.Option?.ShortNames ?? Array.Empty<char>();
                 var optionValueName = attrSet.Option?.ValueName ?? (DynamicListHelper.IsArrayOrEnumerableLike(type) ? DynamicListHelper.GetElementType(type) : type).Name;
                 var optionIsHidden = attrSet.Hidden != null;
+                var optionIsStopParsingOptions = attrSet.Option?.StopParsingOptions ?? false;
 
                 if (_enableConvertOptionNameToLowerCase) optionName = ToCommandCase(optionName);
 
@@ -569,7 +570,7 @@ namespace Cocona.Command
                     optionDesc,
                     defaultValue,
                     optionValueName,
-                    optionIsHidden ? CommandOptionFlags.Hidden : CommandOptionFlags.None,
+                    (optionIsHidden ? CommandOptionFlags.Hidden : CommandOptionFlags.None) | (optionIsStopParsingOptions ? CommandOptionFlags.StopParsingOptions : CommandOptionFlags.None),
                     attrSet.Attributes);
             }
 

@@ -82,6 +82,12 @@ namespace Cocona.CommandLine
                         {
                             if (option is CommandOptionDescriptor optionDesc)
                             {
+                                // If the flag has StopParsingOptions, no further options will be parsed.
+                                if (option.Flags.HasFlag(CommandOptionFlags.StopParsingOptions))
+                                {
+                                    optionsCompleted = true;
+                                }
+
                                 if (optionDesc.OptionType == typeof(bool))
                                 {
                                     // Boolean (flag)
@@ -118,6 +124,12 @@ namespace Cocona.CommandLine
                         {
                             if (option is CommandOptionDescriptor optionDesc)
                             {
+                                // If the flag has StopParsingOptions, no further options will be parsed.
+                                if (option.Flags.HasFlag(CommandOptionFlags.StopParsingOptions))
+                                {
+                                    optionsCompleted = true;
+                                }
+
                                 if (optionDesc.OptionType == typeof(bool))
                                 {
                                     // Boolean (flag)
@@ -161,6 +173,12 @@ namespace Cocona.CommandLine
                         {
                             if (option is CommandOptionDescriptor optionDesc)
                             {
+                                // If the flag has StopParsingOptions, no further options will be parsed.
+                                if (option.Flags.HasFlag(CommandOptionFlags.StopParsingOptions))
+                                {
+                                    optionsCompleted = true;
+                                }
+
                                 if (optionDesc.OptionType == typeof(bool))
                                 {
                                     // Boolean (flag)
