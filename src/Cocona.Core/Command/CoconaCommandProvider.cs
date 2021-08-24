@@ -52,10 +52,13 @@ namespace Cocona.Command
                 if (type.GetCustomAttribute<IgnoreAttribute>() != null) continue;
 
                 // Command methods
-                foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
                 {
                     if (method.IsSpecialName || method.DeclaringType == typeof(object)) continue;
                     if (!_treatPublicMethodsAsCommands && !method.IsPublic) continue;
+
+                    // If the method is static, Command attribute is required.
+                    if (method.IsStatic && method.GetCustomAttribute<CommandAttribute>() is null) continue;
 
                     var implicitCommand = (_treatPublicMethodsAsCommands && method.IsPublic);
                     AddCommandMethod(method, null, implicitCommand);
