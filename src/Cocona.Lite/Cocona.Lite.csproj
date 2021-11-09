@@ -1,11 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFrameworks>net6.0;net5.0;netstandard2.0;netstandard2.1</TargetFrameworks>
     <RootNamespace>Cocona</RootNamespace>
 
     <nullable>enable</nullable>
     <WarningsAsErrors>RS0030</WarningsAsErrors>
-    <NoWarn>1701;1702;1591</NoWarn>
+    <NoWarn>$(NoWarn);1701;1702;1591</NoWarn>
 
     <!-- NuGet Package Information -->
     <Description>Lightweight version of Cocona. Micro-framework for .NET console application. Cocona makes it easy and fast to build console applications on .NET.</Description>
@@ -14,7 +15,6 @@
     <AssemblyOriginatorKeyFile>..\Cocona\StrongNameKey.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DefineConstants>COCONA_LITE</DefineConstants>
-    <TargetFrameworks>net5.0;netstandard2.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

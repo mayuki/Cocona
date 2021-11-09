@@ -1,4 +1,4 @@
-#if !(NET5_0 || NETSTANDARD2_1)
+#if !(NET5_0 || NET5_0_OR_GREATER || NETSTANDARD2_1)
 #define INTERNAL_NULLABLE_ATTRIBUTES
 
 // Licensed to the .NET Foundation under one or more agreements.
