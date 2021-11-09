@@ -8,7 +8,7 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
 
 ## Feature
 - 🚀 **Make it easy to build console applications on .NET.**
-    - `public` method as a command ™
+    - `public` method as a command
     - Provides ASP.NET Core MVC-like development experience to console application development.
 - ✨ **Command-line option semantics like UNIX tools standard. (`getopt`/`getopt_long` like options)**
     - Your app can handle both `-rf /` and `-r -f /` :-)
@@ -67,6 +67,7 @@ PS> Install-Package Cocona
 ## Requirements
 - .NET Standard 2.0, 2.1
 - .NET 5
+- .NET 6
 
 ## Getting Started
 
@@ -80,12 +81,28 @@ class Program
         CoconaApp.Run<Program>(args);
     }
 
-    // public method as a command ™
+    // public method as a command
     public void Hello(string name)
     {
         Console.WriteLine($"Hello {name}");
     }
 }
+```
+
+If you are using .NET 6 and C# 10, you can write your code as Minimal API style.
+
+
+```csharp
+using Cocona;
+
+var app = CoconaApp.Create();
+
+app.AddCommand((string name) =>
+{
+    Console.WriteLine($"Hello {name}");
+});
+
+await app.RunAsync();
 ```
 
 ### Try to run!
