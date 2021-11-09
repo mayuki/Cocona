@@ -9,7 +9,11 @@ namespace Cocona.Command.Binder
     {
         public object? ConvertTo(Type t, string? value)
         {
-            if (t == typeof(bool))
+            if (value is null)
+            {
+                return null;
+            }
+            else if (t == typeof(bool))
             {
                 return value != null && string.Equals(value, "true", StringComparison.OrdinalIgnoreCase);
             }
