@@ -8,13 +8,13 @@ namespace Cocona.Internal
     internal static class AttributeHelper
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (T1?, T2?) GetAttributes<T1, T2>(object[] attrs)
+        public static (T1?, T2?) GetAttributes<T1, T2>(IReadOnlyList<object> attrs)
             where T1 : Attribute
             where T2 : Attribute
         {
             var attr1 = default(T1);
             var attr2 = default(T2);
-            for (var i = 0; i < attrs.Length; i++)
+            for (var i = 0; i < attrs.Count; i++)
             {
                 var attr = attrs[i];
                 switch (attr)
@@ -32,7 +32,7 @@ namespace Cocona.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (T1?, T2?, T3?) GetAttributes<T1, T2, T3>(object[] attrs)
+        public static (T1?, T2?, T3?) GetAttributes<T1, T2, T3>(IReadOnlyList<object> attrs)
             where T1 : Attribute
             where T2 : Attribute
             where T3 : Attribute
@@ -40,7 +40,7 @@ namespace Cocona.Internal
             var attr1 = default(T1);
             var attr2 = default(T2);
             var attr3 = default(T3);
-            for (var i = 0; i < attrs.Length; i++)
+            for (var i = 0; i < attrs.Count; i++)
             {
                 var attr = attrs[i];
                 switch (attr)
@@ -61,7 +61,7 @@ namespace Cocona.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (T1?, T2?, T3?, T4?) GetAttributes<T1, T2, T3, T4>(object[] attrs)
+        public static (T1?, T2?, T3?, T4?) GetAttributes<T1, T2, T3, T4>(IReadOnlyList<object> attrs)
             where T1 : Attribute
             where T2 : Attribute
             where T3 : Attribute
@@ -71,7 +71,7 @@ namespace Cocona.Internal
             var attr2 = default(T2);
             var attr3 = default(T3);
             var attr4 = default(T4);
-            for (var i = 0; i < attrs.Length; i++)
+            for (var i = 0; i < attrs.Count; i++)
             {
                 var attr = attrs[i];
                 switch (attr)
@@ -95,7 +95,7 @@ namespace Cocona.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (T1?, T2?, T3?, T4?, T5?) GetAttributes<T1, T2, T3, T4, T5>(object[] attrs)
+        public static (T1?, T2?, T3?, T4?, T5?) GetAttributes<T1, T2, T3, T4, T5>(IReadOnlyList<object> attrs)
             where T1 : Attribute
             where T2 : Attribute
             where T3 : Attribute
@@ -107,7 +107,7 @@ namespace Cocona.Internal
             var attr3 = default(T3);
             var attr4 = default(T4);
             var attr5 = default(T5);
-            for (var i = 0; i < attrs.Length; i++)
+            for (var i = 0; i < attrs.Count; i++)
             {
                 var attr = attrs[i];
                 switch (attr)
