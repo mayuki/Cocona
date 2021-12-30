@@ -12,7 +12,7 @@ namespace CoconaSample.Advanced.JsonValueConverter
     {
         static async Task Main(string[] args)
         {
-            await CoconaApp.Create()
+            await CoconaApp.CreateHostBuilder()
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton<ICoconaValueConverter, JsonValueConverter>();
