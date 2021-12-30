@@ -82,6 +82,7 @@ namespace Cocona
         /// </summary>
         /// <param name="commandTypes"></param>
         /// <param name="configureOptions"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public static Task RunAsync(Type[] commandTypes, Action<CoconaLiteAppOptions>? configureOptions = null, CancellationToken cancellationToken = default)
             => RunAsync(null, commandTypes, configureOptions, cancellationToken);

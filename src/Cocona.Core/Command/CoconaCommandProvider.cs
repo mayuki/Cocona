@@ -15,33 +15,33 @@ using System.Threading;
 
 namespace Cocona.Command
 {
+    [Flags]
+    public enum CommandProviderOptions
+    {
+        None = 0,
+        OptionNameToLowerCase = 1 << 0,
+        CommandNameToLowerCase = 1 << 2,
+        ArgumentNameToLowerCase = 1 << 3,
+        TreatPublicMethodAsCommands = 1 << 4,
+    }
+
     public class CoconaCommandProvider : ICoconaCommandProvider
     {
-        private readonly IReadOnlyList<ICommandData> _commandDataSet;
-
         private static readonly Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> _emptyOverloads = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>();
-        private readonly bool _treatPublicMethodsAsCommands;
-        private readonly bool _enableConvertOptionNameToLowerCase;
-        private readonly bool _enableConvertCommandNameToLowerCase;
-        private readonly bool _enableConvertArgumentNameToLowerCase;
 
-        public CoconaCommandProvider(Type[] targetTypes, Delegate[]? targetDelegates = default, bool treatPublicMethodsAsCommands = true, bool enableConvertOptionNameToLowerCase = false, bool enableConvertCommandNameToLowerCase = false, bool enableConvertArgumentNameToLowerCase = false)
+        private readonly IReadOnlyList<ICommandData> _commandDataSet;
+        private readonly CommandProviderOptions _options;
+
+        public CoconaCommandProvider(Type[] targetTypes, Delegate[]? targetDelegates = default, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands)
         {
-            _treatPublicMethodsAsCommands = treatPublicMethodsAsCommands;
-            _enableConvertOptionNameToLowerCase = enableConvertOptionNameToLowerCase;
-            _enableConvertCommandNameToLowerCase = enableConvertCommandNameToLowerCase;
-            _enableConvertArgumentNameToLowerCase = enableConvertArgumentNameToLowerCase;
-
+            _options = options;
             _commandDataSet = CreateCommandDataSetFromTypesAndDelegates(targetTypes, targetDelegates ?? Array.Empty<Delegate>());
         }
 
-        public CoconaCommandProvider(IReadOnlyList<ICommandData> commmands, bool treatPublicMethodsAsCommands = true, bool enableConvertOptionNameToLowerCase = false, bool enableConvertCommandNameToLowerCase = false, bool enableConvertArgumentNameToLowerCase = false)
+        public CoconaCommandProvider(IReadOnlyList<ICommandData> commmands, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands)
         {
             _commandDataSet = commmands;
-            _treatPublicMethodsAsCommands = treatPublicMethodsAsCommands;
-            _enableConvertOptionNameToLowerCase = enableConvertOptionNameToLowerCase;
-            _enableConvertCommandNameToLowerCase = enableConvertCommandNameToLowerCase;
-            _enableConvertArgumentNameToLowerCase = enableConvertArgumentNameToLowerCase;
+            _options = options;
         }
 
         public CommandCollection GetCommandCollection()
@@ -66,12 +66,12 @@ namespace Cocona.Command
                 foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
                 {
                     if (method.IsSpecialName || method.DeclaringType == typeof(object)) continue;
-                    if (!_treatPublicMethodsAsCommands && !method.IsPublic) continue;
+                    if (!_options.HasFlag(CommandProviderOptions.TreatPublicMethodAsCommands) && !method.IsPublic) continue;
 
                     // If the method is static, Command attribute is required.
                     if (method.IsStatic && method.GetCustomAttribute<CommandAttribute>() is null) continue;
 
-                    var implicitCommand = (_treatPublicMethodsAsCommands && method.IsPublic);
+                    var implicitCommand = (_options.HasFlag(CommandProviderOptions.TreatPublicMethodAsCommands) && method.IsPublic);
                     commands.Add(new TypeMethodCommandData(method, null, implicitCommand, method.GetCustomAttributes(inherit: true)));
                 }
 
@@ -88,7 +88,7 @@ namespace Cocona.Command
                         commandName = subCommandsAttr.CommandName!;
                     }
 
-                    if (_enableConvertCommandNameToLowerCase) commandName = ToCommandCase(commandName);
+                    if (_options.HasFlag(CommandProviderOptions.CommandNameToLowerCase)) commandName = ToCommandCase(commandName);
                     commands.Add(new SubCommandData(subCommandDataSet, new [] { new CommandNameMetadata(commandName) }));
                 }
             }
@@ -277,9 +277,9 @@ namespace Cocona.Command
             }
 
             var methodParameters = methodInfo.GetParameters();
-            var builder = new CommandDescriptorBuilder(_enableConvertOptionNameToLowerCase, _enableConvertArgumentNameToLowerCase);
+            var builder = new CommandDescriptorBuilder(_options);
 
-            CollectParameters(methodInfo, methodParameters, builder, isPrimaryCommand, isSingleCommand);
+            CollectParameters(methodInfo, methodParameters, builder, isPrimaryCommand, isSingleCommand, metadata);
 
             // Overloaded commands
             var overloadDescriptors = Array.Empty<CommandOverloadDescriptor>();
@@ -325,7 +325,7 @@ namespace Cocona.Command
             }
 
             // Convert the command name to lower-case
-            if (_enableConvertCommandNameToLowerCase)
+            if (_options.HasFlag(CommandProviderOptions.CommandNameToLowerCase))
             {
                 commandName = ToCommandCase(commandName);
             }
@@ -351,7 +351,7 @@ namespace Cocona.Command
             );
         }
 
-        private static void CollectParameters(MemberInfo memberInfo, ParameterInfo[] methodParameters, CommandDescriptorBuilder builder, bool isPrimaryCommand, bool isSingleCommand)
+        private static void CollectParameters(MemberInfo memberInfo, ParameterInfo[] methodParameters, CommandDescriptorBuilder builder, bool isPrimaryCommand, bool isSingleCommand, IReadOnlyList<object> commandMetadata)
         {
             for (var i = 0; i < methodParameters.Length; i++)
             {
@@ -461,7 +461,7 @@ namespace Cocona.Command
                     {
                         // Parameterized constructor.
                         var builder2 = builder.CreateBuilderForParameterizedParameterSet(attrs, methodParam.ParameterType, methodParam.Name);
-                        CollectParameters(ctors[0], ctors[0].GetParameters(), builder2, isPrimaryCommand, isSingleCommand);
+                        CollectParameters(ctors[0], ctors[0].GetParameters(), builder2, isPrimaryCommand, isSingleCommand, commandMetadata);
                         builder.AddParameterizedParameterSet(attrs, methodParam.ParameterType, methodParam.Name, builder2);
                     }
 
@@ -556,23 +556,20 @@ namespace Cocona.Command
             private readonly HashSet<char> _allOptionShortNames;
             private readonly List<ICommandParameterDescriptor> _parameters = new List<ICommandParameterDescriptor>();
             private readonly List<CommandArgumentDescriptor> _arguments;
-            private readonly bool _enableConvertOptionNameToLowerCase;
-            private readonly bool _enableConvertArgumentNameToLowerCase;
+            private readonly CommandProviderOptions _options;
 
             private int _defaultArgOrder = 0;
 
             public IReadOnlyDictionary<string, CommandOptionDescriptor> AllOptions => _allOptions;
 
             public CommandDescriptorBuilder(
-                bool enableConvertOptionNameToLowerCase,
-                bool enableConvertArgumentNameToLowerCase,
+                CommandProviderOptions options,
                 Dictionary<string, CommandOptionDescriptor>? allOptions = default,
                 HashSet<char>? allOptionShortNames = default,
                 List<CommandArgumentDescriptor>? arguments = default
             )
             {
-                _enableConvertOptionNameToLowerCase = enableConvertOptionNameToLowerCase;
-                _enableConvertArgumentNameToLowerCase = enableConvertArgumentNameToLowerCase;
+                _options = options;
                 _allOptions = allOptions ?? new Dictionary<string, CommandOptionDescriptor>(StringComparer.OrdinalIgnoreCase);
                 _allOptionShortNames = allOptionShortNames ?? new HashSet<char>();
                 _arguments = arguments ?? new List<CommandArgumentDescriptor>();
@@ -603,7 +600,7 @@ namespace Cocona.Command
                 var argDesc = attrSet.Argument.Description ?? string.Empty;
                 var argOrder = attrSet.Argument.Order != 0 ? attrSet.Argument.Order : _defaultArgOrder;
 
-                if (_enableConvertArgumentNameToLowerCase) argName = ToCommandCase(argName);
+                if (_options.HasFlag(CommandProviderOptions.ArgumentNameToLowerCase)) argName = ToCommandCase(argName);
 
                 return new CommandArgumentDescriptor(
                     type,
@@ -632,7 +629,7 @@ namespace Cocona.Command
                 var optionIsHidden = attrSet.Hidden != null;
                 var optionIsStopParsingOptions = attrSet.Option?.StopParsingOptions ?? false;
 
-                if (_enableConvertOptionNameToLowerCase) optionName = ToCommandCase(optionName);
+                if (_options.HasFlag(CommandProviderOptions.OptionNameToLowerCase)) optionName = ToCommandCase(optionName);
 
                 // If the option type is bool, the option has always default value (false).
                 if (!defaultValue.HasValue && type == typeof(bool))
@@ -674,7 +671,7 @@ namespace Cocona.Command
                 }
 
                 // Options and Arguments are shared between current builder and nested-builder.
-                return new CommandDescriptorBuilder(_enableConvertOptionNameToLowerCase, _enableConvertArgumentNameToLowerCase, _allOptions, _allOptionShortNames, _arguments);
+                return new CommandDescriptorBuilder(_options, _allOptions, _allOptionShortNames, _arguments);
             }
 
             public void AddParameterizedParameterSet(CommandParameterAttributeSet attrSet, Type type, string name, CommandDescriptorBuilder nestedBuilder)

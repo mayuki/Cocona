@@ -13,7 +13,7 @@ namespace Cocona.Test.Command.BuiltIn
         [Fact]
         public void DisableCommandNameConversion()
         {
-            var cmd = new CoconaCommandProvider(Array.Empty<Type>(), enableConvertCommandNameToLowerCase: false).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>(), options: CommandProviderOptions.TreatPublicMethodAsCommands).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             cmd.Name.Should().Be("CommandName");
             cmd.Options[0].Name.Should().Be("dryRun");
             cmd.Arguments[0].Name.Should().Be("ArgName0");
@@ -21,7 +21,7 @@ namespace Cocona.Test.Command.BuiltIn
         [Fact]
         public void EnableCommandNameConversion()
         {
-            var cmd = new CoconaCommandProvider(Array.Empty<Type>(), enableConvertCommandNameToLowerCase: true).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>(), options: CommandProviderOptions.TreatPublicMethodAsCommands | CommandProviderOptions.CommandNameToLowerCase).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             cmd.Name.Should().Be("command-name");
             cmd.Options[0].Name.Should().Be("dryRun");
             cmd.Arguments[0].Name.Should().Be("ArgName0");
@@ -29,7 +29,7 @@ namespace Cocona.Test.Command.BuiltIn
         [Fact]
         public void DisableOptionNameConversion()
         {
-            var cmd = new CoconaCommandProvider(Array.Empty<Type>(), enableConvertOptionNameToLowerCase: false).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>(), options: CommandProviderOptions.TreatPublicMethodAsCommands).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             cmd.Name.Should().Be("CommandName");
             cmd.Options[0].Name.Should().Be("dryRun");
             cmd.Arguments[0].Name.Should().Be("ArgName0");
@@ -37,7 +37,7 @@ namespace Cocona.Test.Command.BuiltIn
         [Fact]
         public void EnableOptionNameConversion()
         {
-            var cmd = new CoconaCommandProvider(Array.Empty<Type>(), enableConvertOptionNameToLowerCase: true).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>(), options: CommandProviderOptions.TreatPublicMethodAsCommands | CommandProviderOptions.OptionNameToLowerCase).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             cmd.Name.Should().Be("CommandName");
             cmd.Options[0].Name.Should().Be("dry-run");
             cmd.Arguments[0].Name.Should().Be("ArgName0");
@@ -45,7 +45,7 @@ namespace Cocona.Test.Command.BuiltIn
         [Fact]
         public void DisableArgumentNameConversion()
         {
-            var cmd = new CoconaCommandProvider(Array.Empty<Type>(), enableConvertArgumentNameToLowerCase: false).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>(), options: CommandProviderOptions.TreatPublicMethodAsCommands).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             cmd.Name.Should().Be("CommandName");
             cmd.Options[0].Name.Should().Be("dryRun");
             cmd.Arguments[0].Name.Should().Be("ArgName0");
@@ -53,7 +53,7 @@ namespace Cocona.Test.Command.BuiltIn
         [Fact]
         public void EnableArgumentNameConversion()
         {
-            var cmd = new CoconaCommandProvider(Array.Empty<Type>(), enableConvertArgumentNameToLowerCase: true).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>(), options: CommandProviderOptions.TreatPublicMethodAsCommands | CommandProviderOptions.ArgumentNameToLowerCase).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.CommandName)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
             cmd.Name.Should().Be("CommandName");
             cmd.Options[0].Name.Should().Be("dryRun");
             cmd.Arguments[0].Name.Should().Be("arg-name0");

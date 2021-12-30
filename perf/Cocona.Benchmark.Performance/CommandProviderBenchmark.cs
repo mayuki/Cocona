@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
+using Cocona.Command;
 
 namespace Cocona.Benchmark.Performance
 {
@@ -49,9 +50,7 @@ namespace Cocona.Benchmark.Performance
         {
             var provider = new global::Cocona.Command.CoconaCommandProvider(
                 new[] { typeof(TestCommand_Current) },
-                treatPublicMethodsAsCommands: true,
-                enableConvertCommandNameToLowerCase: true,
-                enableConvertOptionNameToLowerCase: true
+                options: CommandProviderOptions.TreatPublicMethodAsCommands | CommandProviderOptions.CommandNameToLowerCase | CommandProviderOptions.OptionNameToLowerCase | CommandProviderOptions.ArgumentNameToLowerCase
             );
 
             var commands = provider.GetCommandCollection();
@@ -61,10 +60,7 @@ namespace Cocona.Benchmark.Performance
         {
             var provider = new global::Cocona.Command.BuiltIn.CoconaBuiltInCommandProvider(new global::Cocona.Command.CoconaCommandProvider(
                 new[] { typeof(TestCommand_Current) },
-                treatPublicMethodsAsCommands: true,
-                enableConvertCommandNameToLowerCase: true,
-                enableConvertOptionNameToLowerCase: true,
-                enableConvertArgumentNameToLowerCase: true
+                options: CommandProviderOptions.TreatPublicMethodAsCommands | CommandProviderOptions.CommandNameToLowerCase | CommandProviderOptions.OptionNameToLowerCase | CommandProviderOptions.ArgumentNameToLowerCase
             ), enableShellCompletionSupport:true);
 
             var commands = provider.GetCommandCollection();

@@ -57,15 +57,15 @@ namespace Microsoft.Extensions.Hosting
                 var builder = new CoconaCommandsBuilder();
                 (hostOptions.ConfigureApplication ?? throw new InvalidOperationException("CoconaAppHost is not initialized yet.")).Invoke(builder);
 
+                var commandProcessOptions = CommandProviderOptions.None;
+                commandProcessOptions |= options.TreatPublicMethodsAsCommands ? CommandProviderOptions.TreatPublicMethodAsCommands : CommandProviderOptions.None;
+                commandProcessOptions |= options.EnableConvertOptionNameToLowerCase ? CommandProviderOptions.OptionNameToLowerCase : CommandProviderOptions.None;
+                commandProcessOptions |= options.EnableConvertCommandNameToLowerCase ? CommandProviderOptions.CommandNameToLowerCase : CommandProviderOptions.None;
+                commandProcessOptions |= options.EnableConvertArgumentNameToLowerCase ? CommandProviderOptions.ArgumentNameToLowerCase : CommandProviderOptions.None;
+
                 return new CoconaBuiltInCommandProvider(
-                    new CoconaCommandProvider(
-                        builder.Build(),
-                        options.TreatPublicMethodsAsCommands,
-                        options.EnableConvertOptionNameToLowerCase,
-                        options.EnableConvertCommandNameToLowerCase,
-                        options.EnableConvertArgumentNameToLowerCase
-                    ),
-                        options.EnableShellCompletionSupport
+                    new CoconaCommandProvider(builder.Build(), commandProcessOptions),
+                    options.EnableShellCompletionSupport
                 );
             });
             services.TryAddSingleton<ICoconaCommandLineArgumentProvider>(serviceProvider =>

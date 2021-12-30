@@ -154,7 +154,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void DontTreatPublicMethodsAsCommand()
         {
-            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands) }, treatPublicMethodsAsCommands: false);
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands) }, options: CommandProviderOptions.None);
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.Primary.Should().NotBeNull();
@@ -165,7 +165,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void DontTreatPublicMethodsAsCommand_Primary()
         {
-            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands_Primary) }, treatPublicMethodsAsCommands: false);
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands_Primary) }, options: CommandProviderOptions.None);
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.Primary.Should().NotBeNull();
