@@ -62,7 +62,7 @@ namespace Cocona
             var conventions = new List<Action<ICommandBuilder>>();
             var commandSource = new DelegateCommandDataSource(commandBody, conventions);
             builder.CommandDataSources.Add(commandSource);
-            return new CommandConventionBuilder(conventions);
+            return new CommandConventionBuilder(conventions).FromBuilder();
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Cocona
             var commandSource = new DelegateCommandDataSource(commandBody, conventions);
             builder.CommandDataSources.Add(commandSource);
 
-            return new CommandConventionBuilder(conventions).WithName(name);
+            return new CommandConventionBuilder(conventions).FromBuilder().WithName(name);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Cocona
             var commandSource = new SubCommandsDataSource(newBuilder.Build(), conventions);
             builder.CommandDataSources.Add(commandSource);
 
-            return new CommandConventionBuilder(conventions).WithName(name);
+            return new CommandConventionBuilder(conventions).FromBuilder().WithName(name);
         }
 
         /// <summary>

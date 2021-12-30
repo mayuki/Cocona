@@ -32,6 +32,7 @@ namespace Cocona.Test.Integration
 
             return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
         }
+
         private async Task<(string StandardOut, string StandardError, int ExitCode)> RunAsync(string[] args, Func<string[], Task> action)
         {
             var stdOutWriter = new StringWriter();

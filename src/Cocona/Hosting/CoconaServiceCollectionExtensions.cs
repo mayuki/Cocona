@@ -41,8 +41,10 @@ namespace Microsoft.Extensions.Hosting
         {
 #if COCONA_LITE
             services.AddSingleton<ICoconaInstanceActivator>(_ => new CoconaLiteInstanceActivator());
+            services.AddSingleton<ICoconaServiceProviderIsService>(sp => sp.GetRequiredService<ICoconaServiceProviderIsService>());
 #else
             services.AddSingleton<ICoconaInstanceActivator>(_ => new CoconaInstanceActivator());
+            services.AddSingleton<ICoconaServiceProviderIsService, CoconaServiceProviderIsService>();
 #endif
 
             services.AddSingleton<ICoconaCommandProvider>(sp =>
@@ -64,7 +66,7 @@ namespace Microsoft.Extensions.Hosting
                 commandProcessOptions |= options.EnableConvertArgumentNameToLowerCase ? CommandProviderOptions.ArgumentNameToLowerCase : CommandProviderOptions.None;
 
                 return new CoconaBuiltInCommandProvider(
-                    new CoconaCommandProvider(builder.Build(), commandProcessOptions),
+                    new CoconaCommandProvider(builder.Build(), commandProcessOptions, sp.GetRequiredService<ICoconaServiceProviderIsService>()),
                     options.EnableShellCompletionSupport
                 );
             });

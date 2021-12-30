@@ -40,5 +40,14 @@ namespace Cocona
             });
             return builder;
         }
+
+        internal static CommandConventionBuilder FromBuilder(this CommandConventionBuilder builder)
+        {
+            builder.Add(commandBuilder =>
+            {
+                commandBuilder.Metadata.Add(new CommandFromBuilderMetadata());
+            });
+            return builder;
+        }
     }
 }

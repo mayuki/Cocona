@@ -1,3 +1,4 @@
+using Cocona.Application;
 using Cocona.Builder;
 using Cocona.Builder.Metadata;
 using Cocona.Internal;
@@ -31,17 +32,20 @@ namespace Cocona.Command
 
         private readonly IReadOnlyList<ICommandData> _commandDataSet;
         private readonly CommandProviderOptions _options;
+        private readonly ICoconaServiceProviderIsService _serviceProviderIsService;
 
-        public CoconaCommandProvider(Type[] targetTypes, Delegate[]? targetDelegates = default, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands)
+        public CoconaCommandProvider(Type[] targetTypes, Delegate[]? targetDelegates = default, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands, ICoconaServiceProviderIsService? serviceProviderIsService = null)
         {
             _options = options;
             _commandDataSet = CreateCommandDataSetFromTypesAndDelegates(targetTypes, targetDelegates ?? Array.Empty<Delegate>());
+            _serviceProviderIsService = serviceProviderIsService ?? NullCoconaServiceProviderIsService.Instance;
         }
 
-        public CoconaCommandProvider(IReadOnlyList<ICommandData> commmands, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands)
+        public CoconaCommandProvider(IReadOnlyList<ICommandData> commmands, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands, ICoconaServiceProviderIsService? serviceProviderIsService = null)
         {
             _commandDataSet = commmands;
             _options = options;
+            _serviceProviderIsService = serviceProviderIsService ?? NullCoconaServiceProviderIsService.Instance;
         }
 
         public CommandCollection GetCommandCollection()
@@ -351,8 +355,11 @@ namespace Cocona.Command
             );
         }
 
-        private static void CollectParameters(MemberInfo memberInfo, ParameterInfo[] methodParameters, CommandDescriptorBuilder builder, bool isPrimaryCommand, bool isSingleCommand, IReadOnlyList<object> commandMetadata)
+        private void CollectParameters(MemberInfo memberInfo, ParameterInfo[] methodParameters, CommandDescriptorBuilder builder, bool isPrimaryCommand, bool isSingleCommand, IReadOnlyList<object> commandMetadata)
         {
+            // Whether the command is built with CoconaCommandsBuilder or not.
+            var isCommandFromBuilder = commandMetadata.Any(x => x is CommandFromBuilderMetadata);
+
             for (var i = 0; i < methodParameters.Length; i++)
             {
                 var methodParam = methodParameters[i];
@@ -477,6 +484,13 @@ namespace Cocona.Command
                 }
 
                 if (attrs.FromService != null)
+                {
+                    builder.AddFromService(methodParam.ParameterType, methodParam.Name);
+                    continue;
+                }
+
+                // If the command is built with CoconaCommandsBuilder, a parameter may be provided via IServiceProvider.
+                if (isCommandFromBuilder && _serviceProviderIsService.IsService(methodParam.ParameterType))
                 {
                     builder.AddFromService(methodParam.ParameterType, methodParam.Name);
                     continue;

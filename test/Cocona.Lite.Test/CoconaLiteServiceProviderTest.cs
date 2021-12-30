@@ -10,6 +10,16 @@ namespace Cocona.Lite.Test
     public class CoconaLiteServiceProviderTest
     {
         [Fact]
+        public void IsService()
+        {
+            var services = new CoconaLiteServiceCollection();
+            services.AddSingleton<IMyService, MyService>();
+            var serviceProvider = new CoconaLiteServiceProvider(services);
+            serviceProvider.IsService(typeof(IMyService)).Should().BeTrue();
+            serviceProvider.IsService(typeof(IYetAnotherService)).Should().BeFalse();
+        }
+
+        [Fact]
         public void NoDependency_Singleton_TService_TImplementation()
         {
             var services = new CoconaLiteServiceCollection();

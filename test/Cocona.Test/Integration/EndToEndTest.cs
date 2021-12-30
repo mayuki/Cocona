@@ -27,6 +27,31 @@ namespace Cocona.Test.Integration
             CreateHostBuilder,
             Shortcut,
         }
+        private (string StandardOut, string StandardError, int ExitCode) Run(string[] args, Action<string[]> action)
+        {
+            var stdOutWriter = new StringWriter();
+            var stdErrWriter = new StringWriter();
+
+            Console.SetOut(stdOutWriter);
+            Console.SetError(stdErrWriter);
+
+            action(args);
+
+            return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
+        }
+
+        private async Task<(string StandardOut, string StandardError, int ExitCode)> RunAsync(string[] args, Func<string[], Task> action)
+        {
+            var stdOutWriter = new StringWriter();
+            var stdErrWriter = new StringWriter();
+
+            Console.SetOut(stdOutWriter);
+            Console.SetError(stdErrWriter);
+
+            await action(args);
+
+            return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
+        }
 
         private (string StandardOut, string StandardError, int ExitCode) Run<T>(RunBuilderMode mode, string[] args)
         {
@@ -906,6 +931,80 @@ namespace Cocona.Test.Integration
         {
             public void A([Option]int a, [Option(StopParsingOptions = true)]string b, [Argument]string arg0, [Argument]string[] args)
                 => Console.WriteLine($"A:{a}:{b}:{arg0}:{string.Join(",", args)}");
+        }
+
+        [Fact]
+        public void ParameterInjection_CoconaApp_CreateBuilder_Delegate()
+        {
+            var (stdOut, stdErr, exitCode) = Run(new[] { "--age", "18" }, args =>
+            {
+                var builder = CoconaApp.CreateBuilder(args);
+#if COCONA_LITE
+                builder.Services.Add(new Lite.ServiceDescriptor(typeof(IMyService), (_, _) => new MyService(), singleton: true));
+#else
+                builder.Services.Add(new Microsoft.Extensions.DependencyInjection.ServiceDescriptor(typeof(IMyService), new MyService()));
+#endif
+                var app = builder.Build();
+                app.AddCommand((int age, IMyService myService) => Console.WriteLine($"Hello {myService.GetName()} ({age})!"));
+                app.Run();
+            });
+
+            stdOut.Should().Be("Hello Alice (18)!" + Environment.NewLine);
+            exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public void ParameterInjection_CoconaApp_CreateBuilder_Type()
+        {
+            {
+                var (stdOut, stdErr, exitCode) = Run(new[] { "hello-without-from-service", "--age", "18" }, args =>
+                {
+                    var builder = CoconaApp.CreateBuilder(args);
+#if COCONA_LITE
+                    builder.Services.Add(new Lite.ServiceDescriptor(typeof(IMyService), (_, _) => new MyService(), singleton: true));
+#else
+                    builder.Services.Add(new Microsoft.Extensions.DependencyInjection.ServiceDescriptor(typeof(IMyService), new MyService()));
+#endif
+                    var app = builder.Build();
+                    app.AddCommands<ParameterInjectionTestCommands>();
+                    app.Run();
+                });
+
+                stdErr.Should().Contain("'--my-service' is required");
+                exitCode.Should().Be(1);
+            }
+
+            {
+                var (stdOut, stdErr, exitCode) = Run(new[] { "hello-with-from-service", "--age", "18" }, args =>
+                {
+                    var builder = CoconaApp.CreateBuilder(args);
+#if COCONA_LITE
+                    builder.Services.Add(new Lite.ServiceDescriptor(typeof(IMyService), (_, _) => new MyService(), singleton: true));
+#else
+                    builder.Services.Add(new Microsoft.Extensions.DependencyInjection.ServiceDescriptor(typeof(IMyService), new MyService()));
+#endif
+                    var app = builder.Build();
+                    app.AddCommands<ParameterInjectionTestCommands>();
+                    app.Run();
+                });
+
+                stdOut.Should().Be("Hello Alice (18)!" + Environment.NewLine);
+                exitCode.Should().Be(0);
+            }
+        }
+        class ParameterInjectionTestCommands
+        {
+            public void HelloWithoutFromService(int age, IMyService myService) => Console.WriteLine($"Hello {myService.GetName()} ({age})!");
+            public void HelloWithFromService(int age, [FromService]IMyService myService) => Console.WriteLine($"Hello {myService.GetName()} ({age})!");
+        }
+
+        interface IMyService
+        {
+            string GetName();
+        }
+        class MyService : IMyService
+        {
+            public string GetName() => "Alice";
         }
     }
 }

@@ -20,7 +20,8 @@ namespace Cocona.Test.Builder
             var built = builder.Build();
             built.Should().HaveCount(1);
             built[0].Should().BeOfType<DelegateCommandData>();
-            built[0].Metadata.Should().BeEmpty();
+            built[0].Metadata.Should().HaveCount(1);
+            built[0].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
         }
 
         [Fact]
@@ -47,8 +48,9 @@ namespace Cocona.Test.Builder
             var built = builder.Build();
             built.Should().HaveCount(1);
             built[0].Should().BeOfType<DelegateCommandData>();
-            ((DelegateCommandData)built[0]).Metadata.Should().HaveCount(1);
-            ((DelegateCommandData)built[0]).Metadata[0].Should().BeOfType<CommandNameMetadata>().Subject.Name.Should().Be("command");
+            ((DelegateCommandData)built[0]).Metadata.Should().HaveCount(2);
+            ((DelegateCommandData)built[0]).Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            ((DelegateCommandData)built[0]).Metadata[1].Should().BeOfType<CommandNameMetadata>().Subject.Name.Should().Be("command");
         }
 
         [Fact]
@@ -64,13 +66,16 @@ namespace Cocona.Test.Builder
             var built = builder.Build();
             built.Should().HaveCount(1);
             built[0].Should().BeOfType<SubCommandData>();
-            ((SubCommandData)built[0]).Metadata.Should().HaveCount(1);
-            ((SubCommandData)built[0]).Metadata[0].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("sub-command");
+            ((SubCommandData)built[0]).Metadata.Should().HaveCount(2);
+            ((SubCommandData)built[0]).Metadata[0].Should().BeOfType< CommandFromBuilderMetadata>();
+            ((SubCommandData)built[0]).Metadata[1].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("sub-command");
             ((SubCommandData)built[0]).Children.Should().HaveCount(2);
             ((SubCommandData)built[0]).Children[0].Should().BeOfType<DelegateCommandData>();
-            ((SubCommandData)built[0]).Children[0].Metadata[0].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command1");
+            ((SubCommandData)built[0]).Children[0].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            ((SubCommandData)built[0]).Children[0].Metadata[1].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command1");
             ((SubCommandData)built[0]).Children[1].Should().BeOfType<DelegateCommandData>();
-            ((SubCommandData)built[0]).Children[1].Metadata[0].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command2");
+            ((SubCommandData)built[0]).Children[1].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            ((SubCommandData)built[0]).Children[1].Metadata[1].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command2");
         }
 
         [Fact]
@@ -98,31 +103,40 @@ namespace Cocona.Test.Builder
             built[0].Should().BeOfType<SubCommandData>();
 
             // sub-command
-            ((SubCommandData)built[0]).Metadata.Should().HaveCount(1);
-            ((SubCommandData)built[0]).Metadata[0].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("sub-command");
+            ((SubCommandData)built[0]).Metadata.Should().HaveCount(2);
+            ((SubCommandData)built[0]).Metadata[0].Should().BeOfType< CommandFromBuilderMetadata>();
+            ((SubCommandData)built[0]).Metadata[1].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("sub-command");
             ((SubCommandData)built[0]).Children.Should().HaveCount(3);
             ((SubCommandData)built[0]).Children[0].Should().BeOfType<DelegateCommandData>();
-            ((SubCommandData)built[0]).Children[0].Metadata[0].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command1");
+            ((SubCommandData)built[0]).Children[0].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            ((SubCommandData)built[0]).Children[0].Metadata[1].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command1");
             ((SubCommandData)built[0]).Children[1].Should().BeOfType<DelegateCommandData>();
-            ((SubCommandData)built[0]).Children[1].Metadata[0].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command2");
+            ((SubCommandData)built[0]).Children[1].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            ((SubCommandData)built[0]).Children[1].Metadata[1].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command2");
 
             // sub-command-nested
-            ((SubCommandData)built[0]).Children[2].Metadata.Should().HaveCount(1);
-            ((SubCommandData)built[0]).Children[2].Metadata[0].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("sub-command-nested");
+            ((SubCommandData)built[0]).Children[2].Metadata.Should().HaveCount(2);
+            ((SubCommandData)built[0]).Children[2].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            ((SubCommandData)built[0]).Children[2].Metadata[1].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("sub-command-nested");
             ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children.Should().HaveCount(3);
             ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[0].Should().BeOfType<DelegateCommandData>();
-            ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[0].Metadata[0].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command3");
+            ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[0].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[0].Metadata[1].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command3");
             ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[1].Should().BeOfType<DelegateCommandData>();
-            ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[1].Metadata[0].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command4");
+            ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[1].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[1].Metadata[1].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command4");
 
             // sub-command-nested-nested
-            ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2].Metadata.Should().HaveCount(1);
-            ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2].Metadata[0].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("sub-command-nested-nested");
+            ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2].Metadata.Should().HaveCount(2);
+            ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            ((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2].Metadata[1].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("sub-command-nested-nested");
             ((SubCommandData)((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2]).Children.Should().HaveCount(2);
             ((SubCommandData)((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2]).Children[0].Should().BeOfType<DelegateCommandData>();
-            ((SubCommandData)((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2]).Children[0].Metadata[0].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command5");
+            ((SubCommandData)((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2]).Children[0].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            ((SubCommandData)((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2]).Children[0].Metadata[1].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command5");
             ((SubCommandData)((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2]).Children[1].Should().BeOfType<DelegateCommandData>();
-            ((SubCommandData)((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2]).Children[1].Metadata[0].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command6");
+            ((SubCommandData)((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2]).Children[1].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            ((SubCommandData)((SubCommandData)((SubCommandData)built[0]).Children[2]).Children[2]).Children[1].Metadata[1].Should().BeOfType<CommandNameMetadata>().Which.Name.Should().Be("command6");
         }
 
         [Fact]
