@@ -21,7 +21,14 @@ namespace Cocona.Test.Integration
     [Collection("End to End")] // NOTE: Test cases use `Console` and does not run in parallel.
     public class EndToEndTest
     {
-        private (string StandardOut, string StandardError, int ExitCode) Run<T>(string[] args)
+        public enum RunBuilderMode
+        {
+            CreateBuilder,
+            CreateHostBuilder,
+            Shortcut,
+        }
+
+        private (string StandardOut, string StandardError, int ExitCode) Run<T>(RunBuilderMode mode, string[] args)
         {
             var stdOutWriter = new StringWriter();
             var stdErrWriter = new StringWriter();
@@ -29,13 +36,28 @@ namespace Cocona.Test.Integration
             Console.SetOut(stdOutWriter);
             Console.SetError(stdErrWriter);
 
-            CoconaApp.Create()
-                .Run<T>(args);
+            switch (mode)
+            {
+                case RunBuilderMode.CreateBuilder:
+                    var builder = CoconaApp.CreateBuilder(args);
+                    var app = builder.Build();
+                    app.AddCommands<T>();
+
+                    app.Run();
+                    break;
+                case RunBuilderMode.CreateHostBuilder:
+                    CoconaApp.CreateHostBuilder()
+                        .Run<T>(args);
+                    break;
+                case RunBuilderMode.Shortcut:
+                    CoconaApp.Run<T>(args);
+                    break;
+            }
 
             return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
         }
 
-        private async Task<(string StandardOut, string StandardError, int ExitCode)> RunAsync<T>(string[] args, CancellationToken cancellationToken)
+        private async Task<(string StandardOut, string StandardError, int ExitCode)> RunAsync<T>(RunBuilderMode mode, string[] args, CancellationToken cancellationToken)
         {
             var stdOutWriter = new StringWriter();
             var stdErrWriter = new StringWriter();
@@ -43,13 +65,28 @@ namespace Cocona.Test.Integration
             Console.SetOut(stdOutWriter);
             Console.SetError(stdErrWriter);
 
-            await CoconaApp.Create()
-                .RunAsync<T>(args, cancellationToken: cancellationToken);
+            switch (mode)
+            {
+                case RunBuilderMode.CreateBuilder:
+                    var builder = CoconaApp.CreateBuilder(args);
+                    var app = builder.Build();
+                    app.AddCommands<T>();
+
+                    await app.RunAsync(cancellationToken);
+                    break;
+                case RunBuilderMode.CreateHostBuilder:
+                    await CoconaApp.CreateHostBuilder()
+                        .RunAsync<T>(args, cancellationToken: cancellationToken);
+                    break;
+                case RunBuilderMode.Shortcut:
+                    await CoconaApp.RunAsync<T>(args, cancellationToken: cancellationToken);
+                    break;
+            }
 
             return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
         }
 
-        private (string StandardOut, string StandardError, int ExitCode) Run(string[] args, Type[] types)
+        private (string StandardOut, string StandardError, int ExitCode) Run(RunBuilderMode mode, string[] args, Type[] types)
         {
             var stdOutWriter = new StringWriter();
             var stdErrWriter = new StringWriter();
@@ -57,13 +94,31 @@ namespace Cocona.Test.Integration
             Console.SetOut(stdOutWriter);
             Console.SetError(stdErrWriter);
 
-            CoconaApp.Create()
-                .Run(args, types);
+            switch (mode)
+            {
+                case RunBuilderMode.CreateBuilder:
+                    var builder = CoconaApp.CreateBuilder(args);
+                    var app = builder.Build();
+                    foreach (var type in types)
+                    {
+                        app.AddCommands(type);
+                    }
+
+                    app.Run();
+                    break;
+                case RunBuilderMode.CreateHostBuilder:
+                    CoconaApp.CreateHostBuilder()
+                        .Run(args, types);
+                    break;
+                case RunBuilderMode.Shortcut:
+                    CoconaApp.Run(args, types);
+                    break;
+            }
 
             return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
         }
 
-        private async Task<(string StandardOut, string StandardError, int ExitCode)> RunAsync<T>(string[] args, Type[] types, CancellationToken cancellationToken)
+        private async Task<(string StandardOut, string StandardError, int ExitCode)> RunAsync<T>(RunBuilderMode mode, string[] args, Type[] types, CancellationToken cancellationToken)
         {
             var stdOutWriter = new StringWriter();
             var stdErrWriter = new StringWriter();
@@ -71,8 +126,26 @@ namespace Cocona.Test.Integration
             Console.SetOut(stdOutWriter);
             Console.SetError(stdErrWriter);
 
-            await CoconaApp.Create()
-                .RunAsync(args, types, cancellationToken: cancellationToken);
+            switch (mode)
+            {
+                case RunBuilderMode.CreateBuilder:
+                    var builder = CoconaApp.CreateBuilder(args);
+                    var app = builder.Build();
+                    foreach (var type in types)
+                    {
+                        app.AddCommands(type);
+                    }
+
+                    await app.RunAsync(cancellationToken);
+                    break;
+                case RunBuilderMode.CreateHostBuilder:
+                    await CoconaApp.CreateHostBuilder()
+                        .RunAsync(args, types, cancellationToken: cancellationToken);
+                    break;
+                case RunBuilderMode.Shortcut:
+                    await CoconaApp.RunAsync(args, types, cancellationToken: cancellationToken);
+                    break;
+            }
 
             return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
         }
@@ -85,58 +158,72 @@ namespace Cocona.Test.Integration
             Console.SetOut(stdOutWriter);
             Console.SetError(stdErrWriter);
 
-            var app = CoconaApp.Create();
+            var app = CoconaApp.Create(args);
             foreach (var @delegate in delegates)
             {
                 app.AddCommand(@delegate);
             }
-            app.Run(args);
+            app.Run();
 
             return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
         }
 
-
-        [Fact]
-        public void CoconaApp_Run_Single()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Single(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(new string[] { });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(mode, new string[] { });
 
             stdOut.Should().Be("Hello Konnichiwa!" + Environment.NewLine);
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Single_Help()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Single_Help(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(new string[] { "--help" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(mode, new string[] { "--help" });
 
             stdOut.Should().Contain("Usage:");
             exitCode.Should().Be(129);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Single_Version()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Single_Version(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(new string[] { "--version" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(mode, new string[] { "--version" });
 
             stdOut.Should().MatchRegex(@"[^ ]+ \d+\.\d+\.\d+");
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Single_Completion()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Single_Completion(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(new string[] { "--completion", "zsh" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(mode, new string[] { "--completion", "zsh" });
 
             stdOut.Should().Contain("#compdef");
             stdErr.Should().BeEmpty();
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Single_CompletionCandidates()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Single_CompletionCandidates(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_Candidates>(new string[] { "--completion-candidates", "bash:name", "--", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_Candidates>(mode, new string[] { "--completion-candidates", "bash:name", "--", "A" });
 
             stdOut.Should().Contain("Alice");
             stdErr.Should().BeEmpty();
@@ -168,19 +255,25 @@ namespace Cocona.Test.Integration
             }
         }
 
-        [Fact]
-        public void CoconaApp_Run_Multiple_Command()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_Command(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "konnichiwa" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "konnichiwa" });
 
             stdOut.Should().Be("Konnichiwa!" + Environment.NewLine);
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Multiple_Index()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_Index(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { });
 
             stdOut.Should().Contain("Usage:");
             stdOut.Should().Contain("Commands:");
@@ -189,10 +282,13 @@ namespace Cocona.Test.Integration
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Multiple_Help()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_Help(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "--help" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "--help" });
 
             stdOut.Should().Contain("Usage:");
             stdOut.Should().Contain("Commands:");
@@ -201,48 +297,63 @@ namespace Cocona.Test.Integration
             exitCode.Should().Be(129);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Multiple_Help_Command()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_Help_Command(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "konnichiwa", "--help" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "konnichiwa", "--help" });
 
             stdOut.Should().Contain("Usage:");
             stdOut.Should().Contain(" konnichiwa [--help]");
             exitCode.Should().Be(129);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Multiple_Help_Command_ShortOptionOverwrite()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_Help_Command_ShortOptionOverwrite(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "help-short-option-overwrite", "--help" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "help-short-option-overwrite", "--help" });
 
             stdOut.Should().Contain("Usage:");
             stdOut.Should().Contain(" help-short-option-overwrite [--host] [--help]");
             exitCode.Should().Be(129);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Multiple_Version()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_Version(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "--version" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "--version" });
 
             stdOut.Should().MatchRegex(@"[^ ]+ \d+\.\d+\.\d+");
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Multiple_ExitCode()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_ExitCode(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "exit-code" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "exit-code" });
 
             stdOut.Should().Contain("ExitCode=128");
             exitCode.Should().Be(128);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Multiple_CommandMissing()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_CommandMissing(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] {"axit-mode"});
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] {"axit-mode"});
 
             stdOut.Should().BeEmpty();
             stdErr.Should().Contain("Similar");
@@ -250,10 +361,13 @@ namespace Cocona.Test.Integration
             exitCode.Should().Be(1);
         }
 
-        [Fact]
-        public async Task CoconaApp_Run_Multiple_Task()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public async Task CoconaApp_Run_Multiple_Task(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = (await RunAsync<TestCommand_Multiple>(new string[] { "long-running" }, new CancellationTokenSource(1000).Token));
+            var (stdOut, stdErr, exitCode) = (await RunAsync<TestCommand_Multiple>(mode, new string[] { "long-running" }, new CancellationTokenSource(1000).Token));
 
             stdOut.Should().Contain("Begin");
             stdOut.Should().Contain("Canceled");
@@ -261,10 +375,13 @@ namespace Cocona.Test.Integration
             exitCode.Should().Be(127);
         }
 
-        [Fact]
-        public void CoconaApp_Run_MultipleClass()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_MultipleClass(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run(new string[] { }, new [] { typeof(TestCommand_Multiple), typeof(TestCommand2) });
+            var (stdOut, stdErr, exitCode) = Run(mode, new string[] { }, new [] { typeof(TestCommand_Multiple), typeof(TestCommand2) });
 
             stdOut.Should().Contain("exit-code");
             stdOut.Should().Contain("foo-bar");
@@ -272,80 +389,104 @@ namespace Cocona.Test.Integration
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_ArgTest_1()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_ArgTest_1(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "arg-test", "Alice" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "arg-test", "Alice" });
 
             stdOut.Should().Contain("Hello Alice (17)!");
             stdErr.Should().BeEmpty();
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_ArgTest_2()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_ArgTest_2(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "arg-test", "Karen", "18" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "arg-test", "Karen", "18" });
 
             stdOut.Should().Contain("Hello Karen (18)!");
             stdErr.Should().BeEmpty();
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_OptionTest_1()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_OptionTest_1(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "option-test", "--name", "Alice" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "option-test", "--name", "Alice" });
 
             stdOut.Should().Contain("Hello Alice (17)!");
             stdErr.Should().BeEmpty();
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_OptionTest_2()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_OptionTest_2(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "option-test", "--name", "Karen", "-a", "18" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "option-test", "--name", "Karen", "-a", "18" });
 
             stdOut.Should().Contain("Hello Karen (18)!");
             stdErr.Should().BeEmpty();
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Multiple_Completion()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_Completion(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(new string[] { "--completion", "zsh" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "--completion", "zsh" });
 
             stdOut.Should().Contain("#compdef");
             stdErr.Should().BeEmpty();
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Multiple_CompletionCandidates()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_CompletionCandidates(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(new string[] { "--completion-candidates", "bash:name", "--", "hello", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(mode, new string[] { "--completion-candidates", "bash:name", "--", "hello", "A" });
 
             stdOut.Should().Contain("Karen");
             stdErr.Should().BeEmpty();
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Multiple_CompletionCandidates_UnknownCommand()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_CompletionCandidates_UnknownCommand(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(new string[] { "--completion-candidates", "bash:name", "--", "unknown-command", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(mode, new string[] { "--completion-candidates", "bash:name", "--", "unknown-command", "A" });
 
             stdOut.Should().BeEmpty();
             stdErr.Should().NotBeEmpty();
             exitCode.Should().Be(1);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Multiple_CompletionCandidates_UnknownOption()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_CompletionCandidates_UnknownOption(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(new string[] { "--completion-candidates", "bash:unknown-option", "--", "hello", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(mode, new string[] { "--completion-candidates", "bash:unknown-option", "--", "hello", "A" });
 
             stdOut.Should().BeEmpty();
             stdErr.Should().BeEmpty();
@@ -430,30 +571,39 @@ namespace Cocona.Test.Integration
             Karen
         }
 
-        [Fact]
-        public void CoconaApp_Run_Nested()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Nested(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested>(new string[] { "nested", "hello", "Karen" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested>(mode, new string[] { "nested", "hello", "Karen" });
 
             stdOut.Should().Contain("Hello Karen");
             stdErr.Should().BeEmpty();
             exitCode.Should().Be(0);
         }
 
-        [Fact]
-        public void CoconaApp_Run_Nested_CommandHelp()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Nested_CommandHelp(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested>(new string[] { "nested", "hello", "--help" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested>(mode, new string[] { "nested", "hello", "--help" });
 
             stdOut.Should().Contain("Usage:");
             stdOut.Should().Contain(" nested hello [--help] arg0");
             stdOut.Should().Contain("Arguments:");
         }
 
-        [Fact]
-        public void CoconaApp_Run_Nested_Index_0()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Nested_Index_0(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested>(new string[] { });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested>(mode, new string[] { });
 
             stdOut.Should().Contain("Usage:");
             stdOut.Should().Contain("Commands:");
@@ -461,10 +611,13 @@ namespace Cocona.Test.Integration
             stdOut.Should().Contain("  nested");
         }
 
-        [Fact]
-        public void CoconaApp_Run_Nested_Index_1()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Nested_Index_1(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested>(new string[] { "nested" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested>(mode, new string[] { "nested" });
 
             stdOut.Should().Contain("Usage:");
             stdOut.Should().Contain("Commands:");
@@ -493,19 +646,25 @@ namespace Cocona.Test.Integration
             }
         }
 
-        [Fact]
-        public void CoconaApp_Run_CommandMethodForwarding_Multiple()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_CommandMethodForwarding_Multiple(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_CommandMethodForwarding_Multiple>(new string[] { "forward", "--option0", "OptionValue0", "ArgumentValue0" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_CommandMethodForwarding_Multiple>(mode, new string[] { "forward", "--option0", "OptionValue0", "ArgumentValue0" });
 
             stdErr.Should().BeNullOrEmpty();
             stdOut.Should().Contain("Forwarded:OptionValue0:ArgumentValue0");
         }
 
-        [Fact]
-        public void CoconaApp_Run_CommandMethodForwarding_Multiple_BuiltInShowHelp()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_CommandMethodForwarding_Multiple_BuiltInShowHelp(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_CommandMethodForwarding_Multiple>(new string[] { "my-help" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_CommandMethodForwarding_Multiple>(mode, new string[] { "my-help" });
 
             stdErr.Should().BeNullOrEmpty();
             stdOut.Should().Contain("Usage:");
@@ -524,10 +683,13 @@ namespace Cocona.Test.Integration
             public void MyHelp() { }
         }
 
-        [Fact]
-        public void CoconaApp_Run_Throw()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Throw(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Throw>(new string[] { "my-help" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Throw>(mode, new string[] { "my-help" });
 
             stdErr.Should().Contain("Unhandled Exception:");
             stdErr.Should().Contain("ThrowCore()");
@@ -546,14 +708,17 @@ namespace Cocona.Test.Integration
             }
         }
 
-        [Fact]
-        public void CoconaApp_Run_ParameterSet()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_ParameterSet(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet>(new string[] { "--option1", "--option-required=alice", "argValue0", "argValue1" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet>(mode, new string[] { "--option1", "--option-required=alice", "argValue0", "argValue1" });
             exitCode.Should().Be(0);
             stdOut.Should().Contain("False;argValue0;True;argValue1");
 
-            (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet>(new string[] { "--help" });
+            (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet>(mode, new string[] { "--help" });
             stdOut.Should().Contain("0: arg0");
             stdOut.Should().Contain("1: arg1");
             stdOut.Should().Contain("--option0");
@@ -582,14 +747,17 @@ namespace Cocona.Test.Integration
             }
         }
 
-        [Fact]
-        public void CoconaApp_Run_ParameterSet_Record()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_ParameterSet_Record(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record>(new string[] { "--option1", "--option-required=alice", "argValue0", "argValue1" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record>(mode, new string[] { "--option1", "--option-required=alice", "argValue0", "argValue1" });
             exitCode.Should().Be(0);
             stdOut.Should().Contain("False;argValue0;True;argValue1");
 
-            (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record>(new string[] { "--help" });
+            (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record>(mode, new string[] { "--help" });
             stdOut.Should().Contain("0: arg0");
             stdOut.Should().Contain("1: arg1");
             stdOut.Should().Contain("--option0");
@@ -608,18 +776,21 @@ namespace Cocona.Test.Integration
             }
         }
 
-        [Fact]
-        public void CoconaApp_Run_ParameterSet_Record_MultipleCommand()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_ParameterSet_Record_MultipleCommand(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record_MultipleCommand>(new string[] { "command-a", "--option1", "--option-required=alice", "argValue0", "argValue1" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record_MultipleCommand>(mode, new string[] { "command-a", "--option1", "--option-required=alice", "argValue0", "argValue1" });
             exitCode.Should().Be(0);
             stdOut.Should().Contain("A:False;argValue0;True;argValue1");
 
-            (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record_MultipleCommand>(new string[] { "--help" });
+            (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record_MultipleCommand>(mode, new string[] { "--help" });
             stdOut.Should().Contain("command-a");
             stdOut.Should().Contain("command-b");
 
-            (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record_MultipleCommand>(new string[] { "command-a", "--help" });
+            (stdOut, stdErr, exitCode) = Run<TestCommand_ParameterSet_Record_MultipleCommand>(mode, new string[] { "command-a", "--help" });
             stdOut.Should().Contain("0: arg0");
             stdOut.Should().Contain("1: arg1");
             stdOut.Should().Contain("--option0");
@@ -689,10 +860,12 @@ namespace Cocona.Test.Integration
         }
 
 
-        [Fact]
-        public void CoconaApp_Run_Static_Single()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        public void CoconaApp_Run_Static_Single(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Static_Single>(new[] { "--value", "123" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Static_Single>(mode, new[] { "--value", "123" });
             stdOut.Should().Contain($"A:123");
         }
 
@@ -702,11 +875,13 @@ namespace Cocona.Test.Integration
             public static void A(int value) => Console.WriteLine($"A:{value}");
         }
 
-        [Fact]
-        public void CoconaApp_Run_Static_Multiple()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        public void CoconaApp_Run_Static_Multiple(RunBuilderMode mode)
         {
             var command = new TestCommand_Delegate();
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Static_Multiple>(new[] { "b", "--value", "123" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Static_Multiple>(mode, new[] { "b", "--value", "123" });
             stdOut.Should().Contain($"B:123");
         }
 
@@ -718,10 +893,12 @@ namespace Cocona.Test.Integration
             public static void B(int value) => Console.WriteLine($"B:{value}");
         }
 
-        [Fact]
-        public void CoconaApp_Run_StopParsingOption()
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        public void CoconaApp_Run_StopParsingOption(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_StopParsingOption>(new[] { "--a", "123", "--b", "valueB", "A", "B", "C", "D" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_StopParsingOption>(mode, new[] { "--a", "123", "--b", "valueB", "A", "B", "C", "D" });
             stdOut.Should().Contain($"A:123:valueB:A:B,C,D");
         }
 

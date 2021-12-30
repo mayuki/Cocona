@@ -5,16 +5,25 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Cocona.Application;
+using Cocona.Builder;
 using Cocona.Command.Dispatcher;
 using Cocona.Command.Dispatcher.Middlewares;
+using Cocona.Lite.Builder.Internal;
 
 namespace Cocona.Lite.Hosting
 {
     public class CoconaLiteAppHostBuilder
     {
         private Action<ICoconaLiteServiceCollection>? _configureServicesDelegate;
-        private readonly List<Delegate> _targetDelegates = new List<Delegate>();
-        private readonly List<Type> _targetTypes = new List<Type>();
+        private string[]? _args;
+        private Action<CoconaLiteAppOptions>? _configureOptions;
+        private List<Action<ICoconaCommandsBuilder>> _configureApp;
+
+        public CoconaLiteAppHostBuilder(string[]? args)
+        {
+            _args = args;
+            _configureApp = new List<Action<ICoconaCommandsBuilder>>();
+        }
 
         /// <summary>
         /// Adds services to the container.
@@ -24,70 +33,61 @@ namespace Cocona.Lite.Hosting
         public CoconaLiteAppHostBuilder ConfigureServices(Action<ICoconaLiteServiceCollection> configureDelegate)
         {
             _configureServicesDelegate ??= _ => { };
-
             _configureServicesDelegate += configureDelegate;
 
             return this;
         }
 
-        /// <summary>
-        /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
-        /// </summary>
-        /// <param name="args"></param>
-        /// <param name="commandTypes"></param>
-        /// <param name="configureOptions"></param>
-        public void Run(string[] args, Type[] commandTypes, Action<CoconaLiteAppOptions>? configureOptions = null)
-            => new CoconaLiteAppHost(Build(args, commandTypes, configureOptions)).RunAsyncCore(default).GetAwaiter().GetResult();
-
-        /// <summary>
-        /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
-        /// </summary>
-        /// <param name="args"></param>
-        /// <param name="commandTypes"></param>
-        /// <param name="configureOptions"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public Task RunAsync(string[] args, Type[] commandTypes, Action<CoconaLiteAppOptions>? configureOptions = null, CancellationToken cancellationToken = default)
-            => new CoconaLiteAppHost(Build(args, commandTypes, configureOptions)).RunAsyncCore(cancellationToken);
-
-        /// <summary>
-        /// Add command definition delegate to Cocona.
-        /// </summary>
-        /// <param name="commandDelegate"></param>
-        /// <returns></returns>
-        public CoconaLiteAppHostBuilder AddCommand(Delegate commandDelegate)
+        public CoconaLiteAppHostBuilder ConfigureArguments(string[]? args)
         {
-            _targetDelegates.Add(commandDelegate ?? throw new ArgumentNullException(nameof(commandDelegate)));
+            _args = args;
             return this;
         }
 
-        /// <summary>
-        /// Add the commands type to Cocona.
-        /// </summary>
-        /// <param name="commandType"></param>
-        /// <returns></returns>
-        public CoconaLiteAppHostBuilder AddCommand(Type commandType)
+        public CoconaLiteAppHostBuilder ConfigureCommandTypes(Type[] commandTypes)
         {
-            _targetTypes.Add(commandType ?? throw new ArgumentNullException(nameof(commandType)));
+            _configureApp.Add(x =>
+            {
+                x.AddCommands(commandTypes);
+            });
+
             return this;
         }
 
-        private IServiceProvider Build(string[] args, Type[] commandTypes, Action<CoconaLiteAppOptions>? configureOptions)
+        public CoconaLiteAppHostBuilder ConfigureApplication(Action<ICoconaCommandsBuilder> configure)
+        {
+            _configureApp.Add(configure ?? throw new ArgumentNullException(nameof(configure)));
+
+            return this;
+        }
+
+        public CoconaLiteAppHostBuilder ConfigureOptions(Action<CoconaLiteAppOptions>? configureOptions)
+        {
+            _configureOptions = configureOptions;
+            return this;
+        }
+
+        public CoconaLiteAppHost Build()
         {
             var services = new CoconaLiteServiceCollection();
 
-            var options = new CoconaLiteAppOptions()
-            {
-                CommandTypes = _targetTypes.Concat(commandTypes).ToList(),
-                CommandMethods = _targetDelegates.ToList(),
-            };
-
-            configureOptions?.Invoke(options);
-
+            var options = new CoconaLiteAppOptions();
+            _configureOptions?.Invoke(options);
             services.AddSingleton(options);
 
-            services.AddCoconaCore(args);
+            services.AddCoconaCore(_args ?? GetCommandLineArguments());
             services.AddCoconaShellCompletion();
+
+            services.AddSingleton<CoconaLiteAppHostOptions>(new CoconaLiteAppHostOptions()
+            {
+                ConfigureApplication = app =>
+                {
+                    foreach (var configure in _configureApp)
+                    {
+                        configure(app);
+                    }
+                }
+            });
 
             _configureServicesDelegate?.Invoke(services);
 
@@ -99,7 +99,16 @@ namespace Cocona.Lite.Hosting
                 .UseMiddleware<CommandFilterMiddleware>()
                 .UseMiddleware((next, sp) => new InitializeCoconaLiteConsoleAppMiddleware(next, sp.GetRequiredService<ICoconaAppContextAccessor>()))
                 .UseMiddleware<CoconaCommandInvokeMiddleware>();
-            return serviceProvider;
+
+            return new CoconaLiteAppHost(serviceProvider);
+        }
+
+        private static string[] GetCommandLineArguments()
+        {
+            var args = Environment.GetCommandLineArgs();
+            return args.Any()
+                ? args.Skip(1).ToArray() // args[0] is the path to executable binary.
+                : Array.Empty<string>();
         }
     }
 }

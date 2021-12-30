@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <Compile Include="..\Cocona.Test\Integration\EndToEndTest.cs" Link="Integration\EndToEndTest.cs" />
+    <Compile Include="..\Cocona.Test\Integration\CoconaAppStaticTest.cs" Link="Integration\CoconaAppStaticTest.cs" />
   </ItemGroup>
 
   <ItemGroup>

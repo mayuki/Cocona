@@ -4,17 +4,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Cocona.Application;
-using Cocona.Command;
-using Cocona.Command.BuiltIn;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
+using Cocona.Builder.Internal;
+using Cocona;
+using Cocona.Builder;
 
 namespace Microsoft.Extensions.Hosting
 {
     public static class CoconaHostBuilderExtensions
     {
-        public static IHostBuilder UseCocona(this IHostBuilder hostBuilder, string[] args, IEnumerable<Type> types, IEnumerable<Delegate>? methods = default)
+        public static IHostBuilder UseCocona(this IHostBuilder hostBuilder, string[]? args, IEnumerable<Type> types, IEnumerable<Delegate>? methods = null)
+            => hostBuilder.UseCocona(args, app =>
+                {
+                    app.AddCommands(types);
+
+                    foreach (var method in (methods ?? Array.Empty<Delegate>()))
+                    {
+                        app.AddCommand(method);
+                    }
+                });
+
+        public static IHostBuilder UseCocona(this IHostBuilder hostBuilder, string[]? args, Action<ICoconaCommandsBuilder>? configureApplication = null)
         {
             return hostBuilder
                 .ConfigureLogging(logging =>
@@ -25,17 +34,27 @@ namespace Microsoft.Extensions.Hosting
                 })
                 .ConfigureServices(services =>
                 {
-                    services.AddCoconaCore(args);
+                    services.AddCoconaCore(args ?? GetCommandLineArguments());
                     services.AddCoconaShellCompletion();
 
                     services.AddHostedService<CoconaHostedService>();
 
-                    services.Configure<CoconaAppOptions>(options =>
+                    services.Configure<CoconaAppHostOptions>(options =>
                     {
-                        options.CommandTypes = types.ToList();
-                        options.CommandMethods = (methods ?? Array.Empty<Delegate>()).ToList();
+                        options.ConfigureApplication = app =>
+                        {
+                            configureApplication?.Invoke(app);
+                        };
                     });
                 });
+        }
+
+        private static string[] GetCommandLineArguments()
+        {
+            var args = System.Environment.GetCommandLineArgs();
+            return args.Any()
+                ? args.Skip(1).ToArray() // args[0] is the path to executable binary.
+                : Array.Empty<string>();
         }
     }
 }

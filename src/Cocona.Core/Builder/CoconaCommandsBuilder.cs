@@ -36,7 +36,21 @@ namespace Cocona
     public static class CommandsBuilderExtensions
     {
         /// <summary>
-        /// Adds a command definition delegate  to the builder.
+        /// Adds a pre-built command data to the builder.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="commandData"></param>
+        /// <returns></returns>
+        public static ICoconaCommandsBuilder AddCommand(this ICoconaCommandsBuilder builder, ICommandData commandData)
+        {
+            ThrowHelper.ThrowIfNull(commandData);
+
+            builder.CommandDataSources.Add(new CommandDataDataSource(commandData));
+            return builder;
+        }
+
+        /// <summary>
+        /// Adds a command definition delegate to the builder.
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="commandBody"></param>
@@ -98,7 +112,6 @@ namespace Cocona
         /// <param name="builder"></param>
         /// <returns></returns>
         public static CommandTypeConventionBuilder AddCommands<T>(this ICoconaCommandsBuilder builder)
-            where T : class
             => builder.AddCommands(typeof(T));
 
         /// <summary>
@@ -115,6 +128,21 @@ namespace Cocona
             builder.CommandDataSources.Add(new TypeCommandDataSource(commandType, conventions));
 
             return new CommandTypeConventionBuilder(conventions);
+        }
+
+        /// <summary>
+        /// Adds commands types to the builder.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="commandTypes"></param>
+        /// <returns></returns>
+        public static ICoconaCommandsBuilder AddCommands(this ICoconaCommandsBuilder builder, IEnumerable<Type> commandTypes)
+        {
+            foreach (var t in commandTypes)
+            {
+                builder.AddCommands(t);
+            }
+            return builder;
         }
     }
 }

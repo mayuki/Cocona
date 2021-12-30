@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Cocona;
 using Cocona.Application;
+using Cocona.Builder;
 using Cocona.Command;
 using Cocona.Command.Binder;
 using Cocona.Command.Binder.Validation;
@@ -12,8 +13,10 @@ using Cocona.CommandLine;
 using Cocona.Help;
 #if COCONA_LITE
 using Cocona.Lite;
+using Cocona.Lite.Builder.Internal;
 using Cocona.Lite.Hosting;
 #else
+using Cocona.Builder.Internal;
 using Cocona.Hosting;
 #endif
 using Cocona.ShellCompletion;
@@ -46,14 +49,17 @@ namespace Microsoft.Extensions.Hosting
             {
 #if COCONA_LITE
                 var options = sp.GetRequiredService<CoconaLiteAppOptions>();
+                var hostOptions = sp.GetRequiredService<CoconaLiteAppHostOptions>();
 #else
                 var options = sp.GetRequiredService<IOptions<CoconaAppOptions>>().Value;
+                var hostOptions = sp.GetRequiredService<IOptions<CoconaAppHostOptions>>().Value;
 #endif
+                var builder = new CoconaCommandsBuilder();
+                (hostOptions.ConfigureApplication ?? throw new InvalidOperationException("CoconaAppHost is not initialized yet.")).Invoke(builder);
 
                 return new CoconaBuiltInCommandProvider(
                     new CoconaCommandProvider(
-                        options.CommandTypes.ToArray(),
-                        options.CommandMethods.ToArray(),
+                        builder.Build(),
                         options.TreatPublicMethodsAsCommands,
                         options.EnableConvertOptionNameToLowerCase,
                         options.EnableConvertCommandNameToLowerCase,

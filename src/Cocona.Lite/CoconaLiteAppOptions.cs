@@ -32,15 +32,5 @@ namespace Cocona
         /// Specify enable shell completion support. The default value is true.
         /// </summary>
         public bool EnableShellCompletionSupport { get; set; } = true;
-
-        /// <summary>
-        /// Gets a list of command types.
-        /// </summary>
-        public IList<Type> CommandTypes { get; set; } = new List<Type>();
-
-        /// <summary>
-        /// Gets a list of command methods.
-        /// </summary>
-        public IList<Delegate> CommandMethods { get; set; } = new List<Delegate>();
     }
 }

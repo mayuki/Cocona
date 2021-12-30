@@ -20,7 +20,7 @@ namespace Cocona.Lite.Hosting
             _serviceProvider = serviceProvider;
         }
 
-        public async Task RunAsyncCore(CancellationToken cancellationToken)
+        public async Task RunAsync(CancellationToken cancellationToken)
         {
             var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
             var commandDispatcher = _serviceProvider.GetRequiredService<ICoconaCommandDispatcher>();
