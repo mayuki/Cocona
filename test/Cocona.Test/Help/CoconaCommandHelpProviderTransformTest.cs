@@ -49,6 +49,7 @@ namespace Cocona.Test.Help
                 methodName,
                 Array.Empty<string>(),
                 "command description",
+                Array.Empty<object>(),
                 parameterDescriptors,
                 parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
                 parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),

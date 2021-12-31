@@ -21,6 +21,7 @@ namespace Cocona.Command.BuiltIn
                 nameof(ShowHelp),
                 Array.Empty<string>(),
                 "Show help message",
+                Array.Empty<object>(),
                 new[]
                 {
                     new CommandServiceParameterDescriptor(typeof(ICoconaHelpMessageBuilder), "helpBuilder"),
@@ -41,6 +42,7 @@ namespace Cocona.Command.BuiltIn
                 nameof(ShowHelp),
                 Array.Empty<string>(),
                 "Show help message",
+                Array.Empty<object>(),
                 new[]
                 {
                     new CommandServiceParameterDescriptor(typeof(ICoconaHelpMessageBuilder), "helpBuilder"),
@@ -61,6 +63,7 @@ namespace Cocona.Command.BuiltIn
                 nameof(ShowVersion),
                 Array.Empty<string>(),
                 "Show version",
+                Array.Empty<object>(),
                 new []
                 {
                     new CommandServiceParameterDescriptor(typeof(ICoconaCommandHelpProvider), "commandHelpProvider"), 
@@ -82,6 +85,7 @@ namespace Cocona.Command.BuiltIn
                 nameof(GenerateCompletionSource),
                 Array.Empty<string>(),
                 "Generate a shell completion code",
+                Array.Empty<object>(),
                 new ICommandParameterDescriptor[]
                 {
                     new CommandServiceParameterDescriptor(typeof(ICoconaConsoleProvider), "console"),
@@ -107,6 +111,7 @@ namespace Cocona.Command.BuiltIn
                 nameof(GetCompletionCandidates),
                 Array.Empty<string>(),
                 "Generate a shell completion candidates",
+                Array.Empty<object>(),
                 new ICommandParameterDescriptor[]
                 {
                     new CommandServiceParameterDescriptor(typeof(ICoconaConsoleProvider), "console"),

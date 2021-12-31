@@ -44,6 +44,7 @@ namespace Cocona.Command.BuiltIn
                     command.Name,
                     command.Aliases,
                     command.Description,
+                    command.Metadata,
                     command.Parameters,
                     command.Options,
                     command.Arguments,

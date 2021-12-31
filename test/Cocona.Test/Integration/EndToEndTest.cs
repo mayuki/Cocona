@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Cocona.Application;
 using Cocona.Command.BuiltIn;
 using Cocona.CommandLine;
+using Cocona.Filters;
 using Cocona.ShellCompletion.Candidate;
 using FluentAssertions;
 using Xunit;
@@ -1005,6 +1006,76 @@ namespace Cocona.Test.Integration
         class MyService : IMyService
         {
             public string GetName() => "Alice";
+        }
+
+        [Fact]
+        public void CommandFilter_CommandType_Attributes()
+        {
+            var (stdOut, stdErr, exitCode) = Run(Array.Empty<string>(), args =>
+            {
+                var app = CoconaApp.Create(args);
+                app.AddCommands<TestCommand_HasFilter>();
+                app.Run();
+            });
+
+            stdOut.Should().Be(String.Join(Environment.NewLine, new[] { "Class#Begin", "Method#Begin", "Hello", "Method#End", "Class#End" }) + Environment.NewLine);
+            exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public void CommandFilter_CommandDelegate()
+        {
+            var (stdOut, stdErr, exitCode) = Run(Array.Empty<string>(), args =>
+            {
+                var app = CoconaApp.Create(args);
+                app.AddCommand([TestCommand_HasFilter.MyCommandFilter("Method")]() => Console.WriteLine("Hello"))
+                    .WithFilter(new TestCommand_HasFilter.MyCommandFilter("Builder"));
+                app.Run();
+            });
+
+            stdOut.Should().Be(String.Join(Environment.NewLine, new[] { "Builder#Begin", "Method#Begin", "Hello", "Method#End", "Builder#End" }) + Environment.NewLine);
+            exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public void CommandFilter_CommandDelegate_Multiple()
+        {
+            var (stdOut, stdErr, exitCode) = Run(Array.Empty<string>(), args =>
+            {
+                // Filters are applied from the outer side
+                // Class -> Builder2 -> Builder2 -> Method
+                var app = CoconaApp.Create(args);
+                app.AddCommand([TestCommand_HasFilter.MyCommandFilter("Method")]() => Console.WriteLine("Hello"))
+                    .WithFilter(new TestCommand_HasFilter.MyCommandFilter("Builder1"))
+                    .WithFilter(new TestCommand_HasFilter.MyCommandFilter("Builder2"));
+                app.Run();
+            });
+
+            stdOut.Should().Be(String.Join(Environment.NewLine, new[] { "Builder2#Begin", "Builder1#Begin", "Method#Begin", "Hello", "Method#End", "Builder1#End", "Builder2#End" }) + Environment.NewLine);
+            exitCode.Should().Be(0);
+        }
+
+        [TestCommand_HasFilter.MyCommandFilter("Class")]
+        class TestCommand_HasFilter
+        {
+            [TestCommand_HasFilter.MyCommandFilter("Method")]
+            public void Hello() => Console.WriteLine("Hello");
+
+            public class MyCommandFilter : CommandFilterAttribute
+            {
+                private string _label;
+                public MyCommandFilter(string label)
+                {
+                    _label = label;
+                }
+                public override async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+                {
+                    Console.WriteLine($"{_label}#Begin");
+                    var result = await next(ctx);
+                    Console.WriteLine($"{_label}#End");
+                    return result;
+                }
+            }
         }
     }
 }

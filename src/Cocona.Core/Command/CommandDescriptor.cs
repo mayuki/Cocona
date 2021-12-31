@@ -17,6 +17,7 @@ namespace Cocona.Command
         public IReadOnlyList<string> Aliases { get; }
         public string Description { get; }
         public Type ReturnType => Method.ReturnType;
+        public IReadOnlyList<object> Metadata { get; }
         
         public CommandFlags Flags { get; }
         public bool IsPrimaryCommand => (Flags & CommandFlags.Primary) == CommandFlags.Primary;
@@ -36,6 +37,7 @@ namespace Cocona.Command
             string name,
             IReadOnlyList<string> aliases,
             string description,
+            IReadOnlyList<object> metadata,
             IReadOnlyList<ICommandParameterDescriptor> parameters,
             IReadOnlyList<CommandOptionDescriptor> options,
             IReadOnlyList<CommandArgumentDescriptor> arguments,
@@ -50,6 +52,7 @@ namespace Cocona.Command
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Aliases = aliases ?? throw new ArgumentNullException(nameof(aliases));
             Description = description ?? throw new ArgumentNullException(nameof(description));
+            Metadata = metadata ?? throw new ArgumentNullException(nameof(metadata));
             Parameters = parameters?.ToArray() ?? throw new ArgumentNullException(nameof(parameters));
             Options = options ?? throw new ArgumentNullException(nameof(options));
             Arguments = arguments ?? throw new ArgumentNullException(nameof(arguments));

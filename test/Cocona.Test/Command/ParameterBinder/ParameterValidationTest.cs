@@ -23,6 +23,7 @@ namespace Cocona.Test.Command.ParameterBinder
                 "Test",
                 Array.Empty<string>(),
                 "",
+                Array.Empty<object>(),
                 parameterDescriptors,
                 parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
                 parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),

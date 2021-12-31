@@ -29,6 +29,7 @@ namespace Cocona.Command.BuiltIn
                 _methodShowDefaultMessage.Name,
                 Array.Empty<string>(),
                 description,
+                Array.Empty<object>(),
                 Array.Empty<ICommandParameterDescriptor>(),
                 Array.Empty<CommandOptionDescriptor>(),
                 Array.Empty<CommandArgumentDescriptor>(),
