@@ -26,12 +26,11 @@ namespace Cocona
             _builder = new CoconaCommandsBuilder();
         }
 
-        List<ICommandDataSource> ICoconaCommandsBuilder.CommandDataSources
-            => _builder.CommandDataSources;
-        ICoconaCommandsBuilder ICoconaCommandsBuilder.New()
-            => _builder.New();
-        IReadOnlyList<ICommandData> ICoconaCommandsBuilder.Build()
-            => _builder.Build();
+        IDictionary<string, object?> ICoconaCommandsBuilder.Properties => _builder.Properties;
+        ICoconaCommandsBuilder ICoconaCommandsBuilder.New() => _builder.New();
+        IReadOnlyList<ICommandData> ICoconaCommandsBuilder.Build() => _builder.Build();
+        ICoconaCommandsBuilder ICoconaCommandsBuilder.Add(ICommandDataSource commandDataSource) => _builder.Add(commandDataSource);
+
 
         public Task RunAsync(CancellationToken cancellationToken = default)
             => _host.RunAsync(cancellationToken);

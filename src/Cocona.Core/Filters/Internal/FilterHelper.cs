@@ -26,17 +26,10 @@ namespace Cocona.Filters.Internal
 
         public static IEnumerable<IFilterFactory> GetFilterFactoriesFromCommandDescriptor(CommandDescriptor commandDescriptor)
         {
-            foreach (var filter in GetFilterFactoriesFromCustomAttributes(commandDescriptor.Metadata))
+            // NOTE: The metadata is added in the order of builder, class, and method, so it needs to be in reverse order.
+            foreach (var filter in GetFilterFactoriesFromCustomAttributes(commandDescriptor.Metadata).Reverse())
             {
                 yield return filter;
-            }
-
-            if (commandDescriptor.CommandType is not null)
-            {
-                foreach (var filter in GetFilterFactoriesFromCustomAttributes(commandDescriptor.CommandType.GetCustomAttributes(inherit: true)))
-                {
-                    yield return filter;
-                }
             }
         }
 

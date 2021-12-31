@@ -13,7 +13,7 @@ namespace Cocona.Test.Builder
         public void Build()
         {
             var conventions = new List<Action<ICommandBuilder>>();
-            var dataSource = new DelegateCommandDataSource(TestMethod, conventions);
+            var dataSource = new DelegateCommandDataSource(TestMethod, conventions, Array.Empty<object>());
             var data = dataSource.Build();
 
             var delegateCommandData = data.Should().BeOfType<DelegateCommandData>().Subject;
@@ -25,7 +25,7 @@ namespace Cocona.Test.Builder
         public void AttributesToMetadata()
         {
             var conventions = new List<Action<ICommandBuilder>>();
-            var dataSource = new DelegateCommandDataSource(TestMethod, conventions);
+            var dataSource = new DelegateCommandDataSource(TestMethod, conventions, Array.Empty<object>());
             conventions.Add(x => x.Metadata.Add(new CommandNameMetadata("TestMethod")));
             var data = dataSource.Build();
             data.Metadata.Should().HaveCount(3);

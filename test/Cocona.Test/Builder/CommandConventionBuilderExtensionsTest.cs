@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cocona.Builder;
 using Cocona.Builder.Metadata;
@@ -14,7 +14,7 @@ namespace Cocona.Test.Builder
         {
             var conventions = new List<Action<ICommandBuilder>>();
             var conventionBuilder = new CommandConventionBuilder(conventions);
-            var dataSource = new DelegateCommandDataSource(TestMethod, conventions);
+            var dataSource = new DelegateCommandDataSource(TestMethod, conventions, Array.Empty<object>());
 
             conventionBuilder.WithName("Hello");
 
@@ -27,7 +27,7 @@ namespace Cocona.Test.Builder
         {
             var conventions = new List<Action<ICommandBuilder>>();
             var conventionBuilder = new CommandConventionBuilder(conventions);
-            var dataSource = new DelegateCommandDataSource(TestMethod, conventions);
+            var dataSource = new DelegateCommandDataSource(TestMethod, conventions, Array.Empty<object>());
 
             conventionBuilder.WithDescription("HelloDescription");
 
@@ -40,7 +40,7 @@ namespace Cocona.Test.Builder
         {
             var conventions = new List<Action<ICommandBuilder>>();
             var conventionBuilder = new CommandConventionBuilder(conventions);
-            var dataSource = new DelegateCommandDataSource(TestMethod, conventions);
+            var dataSource = new DelegateCommandDataSource(TestMethod, conventions, Array.Empty<object>());
 
             conventionBuilder.WithAliases("foo", "bar");
 

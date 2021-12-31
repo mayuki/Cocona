@@ -29,9 +29,10 @@ namespace Cocona
         public ILogger Logger => _host.Services.GetRequiredService<ILogger<CoconaApp>>();
 
         #region Implements ICoconaCommandsBuilder
-        List<ICommandDataSource> ICoconaCommandsBuilder.CommandDataSources => _commandsBuilder.CommandDataSources;
+        IDictionary<string, object?> ICoconaCommandsBuilder.Properties => _commandsBuilder.Properties;
         ICoconaCommandsBuilder ICoconaCommandsBuilder.New() => _commandsBuilder.New();
         IReadOnlyList<ICommandData> ICoconaCommandsBuilder.Build() => _commandsBuilder.Build();
+        ICoconaCommandsBuilder ICoconaCommandsBuilder.Add(ICommandDataSource commandDataSource) => _commandsBuilder.Add(commandDataSource);
         #endregion
 
         public CoconaApp(IHost host)

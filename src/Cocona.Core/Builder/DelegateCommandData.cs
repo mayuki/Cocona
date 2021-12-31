@@ -23,16 +23,23 @@ namespace Cocona.Builder
     {
         private readonly Delegate _delegate;
         private readonly IReadOnlyList<Action<ICommandBuilder>> _conventions;
+        private readonly IReadOnlyList<object> _baseMetadata;
 
-        public DelegateCommandDataSource(Delegate @delegate, IReadOnlyList<Action<ICommandBuilder>> conventions)
+        public DelegateCommandDataSource(Delegate @delegate, IReadOnlyList<Action<ICommandBuilder>> conventions, IReadOnlyList<object> baseMetadata)
         {
             _delegate = @delegate;
             _conventions = conventions;
+            _baseMetadata = baseMetadata;
         }
 
         public ICommandData Build()
         {
             var builder = new CommandBuilder(this);
+
+            foreach (var item in _baseMetadata)
+            {
+                builder.Metadata.Add(item);
+            }
 
             foreach (var item in _delegate.Method.GetCustomAttributes(inherit: true))
             {
@@ -49,8 +56,8 @@ namespace Cocona.Builder
 
         class CommandBuilder : ICommandBuilder
         {
-            public MethodInfo Method { get; set; }
-            public object? Target { get; set; }
+            public MethodInfo Method { get; }
+            public object? Target { get; }
             public IList<object> Metadata { get; } = new List<object>();
 
             public CommandBuilder(DelegateCommandDataSource source)

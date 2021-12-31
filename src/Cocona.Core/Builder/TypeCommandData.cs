@@ -22,16 +22,23 @@ namespace Cocona.Builder
     {
         private readonly Type _type;
         private readonly IReadOnlyList<Action<ICommandBuilder>> _conventions;
+        private readonly IReadOnlyList<object> _baseMetadata;
 
-        public TypeCommandDataSource(Type type, IReadOnlyList<Action<ICommandBuilder>> conventions)
+        public TypeCommandDataSource(Type type, IReadOnlyList<Action<ICommandBuilder>> conventions, IReadOnlyList<object> baseMetadata)
         {
             _type = type;
             _conventions = conventions;
+            _baseMetadata = baseMetadata;
         }
 
         public ICommandData Build()
         {
             var builder = new CommandBuilder(this);
+            
+            foreach (var item in _baseMetadata)
+            {
+                builder.Metadata.Add(item);
+            }
 
             foreach (var item in _type.GetCustomAttributes(inherit: true))
             {

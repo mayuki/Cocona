@@ -37,13 +37,13 @@ namespace Cocona.Command
         public CoconaCommandProvider(Type[] targetTypes, Delegate[]? targetDelegates = default, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands, ICoconaServiceProviderIsService? serviceProviderIsService = null)
         {
             _options = options;
-            _commandDataSet = CreateCommandDataSetFromTypesAndDelegates(targetTypes, targetDelegates ?? Array.Empty<Delegate>());
+            _commandDataSet = CreateCommandDataSetFromTypesAndDelegates(targetTypes, targetDelegates ?? Array.Empty<Delegate>(), Array.Empty<object>());
             _serviceProviderIsService = serviceProviderIsService ?? NullCoconaServiceProviderIsService.Instance;
         }
 
-        public CoconaCommandProvider(IReadOnlyList<ICommandData> commmands, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands, ICoconaServiceProviderIsService? serviceProviderIsService = null)
+        public CoconaCommandProvider(IReadOnlyList<ICommandData> commands, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands, ICoconaServiceProviderIsService? serviceProviderIsService = null)
         {
-            _commandDataSet = commmands;
+            _commandDataSet = commands;
             _options = options;
             _serviceProviderIsService = serviceProviderIsService ?? NullCoconaServiceProviderIsService.Instance;
         }
@@ -51,7 +51,7 @@ namespace Cocona.Command
         public CommandCollection GetCommandCollection()
             => CreateCommandCollectionFromCommandDataSet(_commandDataSet);
 
-        private IReadOnlyList<ICommandData> CreateCommandDataSetFromTypesAndDelegates(IReadOnlyList<Type> types, IReadOnlyList<Delegate> delegates)
+        private IReadOnlyList<ICommandData> CreateCommandDataSetFromTypesAndDelegates(IReadOnlyList<Type> types, IReadOnlyList<Delegate> delegates, IReadOnlyList<object> typeCommandMetadata)
         {
             var commands = new List<ICommandData>(types.Count + delegates.Count);
             foreach (var type in types)
@@ -76,7 +76,7 @@ namespace Cocona.Command
                     if (method.IsStatic && method.GetCustomAttribute<CommandAttribute>() is null) continue;
 
                     var implicitCommand = (_options.HasFlag(CommandProviderOptions.TreatPublicMethodAsCommands) && method.IsPublic);
-                    commands.Add(new TypeMethodCommandData(method, null, implicitCommand, method.GetCustomAttributes(inherit: true)));
+                    commands.Add(new TypeMethodCommandData(method, null, implicitCommand, typeCommandMetadata.Concat(method.GetCustomAttributes(inherit: true)).ToArray()));
                 }
 
                 // Nested sub-commands
@@ -85,7 +85,7 @@ namespace Cocona.Command
                 {
                     if (subCommandsAttr.Type == type) throw new InvalidOperationException("Sub-commands type must not be same as command type.");
 
-                    var subCommandDataSet = CreateCommandDataSetFromTypesAndDelegates(new[] { subCommandsAttr.Type }, Array.Empty<Delegate>());
+                    var subCommandDataSet = CreateCommandDataSetFromTypesAndDelegates(new[] { subCommandsAttr.Type }, Array.Empty<Delegate>(), typeCommandMetadata);
                     var commandName = subCommandsAttr.Type.Name;
                     if (!string.IsNullOrWhiteSpace(subCommandsAttr.CommandName))
                     {
@@ -99,7 +99,7 @@ namespace Cocona.Command
 
             foreach (var @delegate in delegates)
             {
-                commands.Add(new DelegateCommandData(@delegate.Method, @delegate.Target, @delegate.Method.GetCustomAttributes(inherit: true)));
+                commands.Add(new DelegateCommandData(@delegate.Method, @delegate.Target, typeCommandMetadata.Concat(@delegate.Method.GetCustomAttributes(inherit: true)).ToArray()));
             }
 
             return commands;
@@ -184,7 +184,7 @@ namespace Cocona.Command
                 {
                     // Commands Type
                     case TypeCommandData typeCommandData:
-                        foreach (var commandDataInner in CreateCommandDataSetFromTypesAndDelegates(new[] { typeCommandData.Type }, Array.Empty<Delegate>()))
+                        foreach (var commandDataInner in CreateCommandDataSetFromTypesAndDelegates(new[] { typeCommandData.Type }, Array.Empty<Delegate>(), typeCommandData.Metadata))
                         {
                             ProcessCommandData(commandDataInner);
                         }

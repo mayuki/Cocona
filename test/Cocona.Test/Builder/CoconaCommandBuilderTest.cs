@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Cocona.Builder;
 using Cocona.Builder.Metadata;
+using Cocona.Filters;
 using FluentAssertions;
 using Xunit;
 
@@ -154,5 +155,30 @@ namespace Cocona.Test.Builder
         {
             public void Hello() => Console.WriteLine("Hello");
         }
+
+        [Fact]
+        public void Filter_Builder_UseFilter()
+        {
+            var builder = new CoconaCommandsBuilder();
+            builder.AddCommand("Command1", () => { });
+            builder.UseFilter(new UseFilter_Filter1());
+            builder.AddCommand("Command2", () => { });
+            builder.UseFilter(new UseFilter_Filter2());
+            builder.AddCommands<MyCommands>();
+            builder.UseFilter(new UseFilter_Filter3());
+
+            var built = builder.Build();
+            built[0].Metadata.Where(x => x is IFilterMetadata || x is IFilterFactory).Should().HaveCount(0);
+            built[1].Metadata.Where(x => x is IFilterMetadata || x is IFilterFactory).Should().HaveCount(1);
+            built[2].Metadata.Where(x => x is IFilterMetadata || x is IFilterFactory).Should().HaveCount(2);
+        }
+        class UseFilter_Filter1 : IFilterMetadata
+        {}
+        class UseFilter_Filter2 : IFilterFactory
+        {
+            public IFilterMetadata CreateInstance(IServiceProvider serviceProvider) => throw new NotImplementedException();
+        }
+        class UseFilter_Filter3 : IFilterMetadata
+        { }
     }
 }

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Cocona.Command;
+using Cocona.Filters;
 
 namespace Cocona.Builder
 {
@@ -12,19 +14,53 @@ namespace Cocona.Builder
     /// </summary>
     public interface ICoconaCommandsBuilder
     {
-        List<ICommandDataSource> CommandDataSources { get; }
+        ICoconaCommandsBuilder Add(ICommandDataSource commandDataSource);
+        IDictionary<string, object?> Properties { get; }
         ICoconaCommandsBuilder New();
         IReadOnlyList<ICommandData> Build();
     }
 
     public class CoconaCommandsBuilder : ICoconaCommandsBuilder
     {
-        List<ICommandDataSource> ICoconaCommandsBuilder.CommandDataSources { get; } = new();
+        private readonly List<ICommandDataSource> _commandDataSources = new();
+        private readonly Dictionary<string, object?> _properties = new();
+
+        internal const string PropertyKeyFilters = "Cocona.Builder.CoconaCommandsBuilder+Filters";
+
+        public IDictionary<string, object?> Properties => _properties;
+
+        public CoconaCommandsBuilder()
+        {
+        }
+
+        private CoconaCommandsBuilder(ICoconaCommandsBuilder parent)
+        {
+            // Copy properties to a new builder.
+            foreach (var keyValue in parent.Properties)
+            {
+                // Copy filters to new properties bag.
+                if (keyValue.Key == CoconaCommandsBuilder.PropertyKeyFilters && keyValue.Value is IList<object> filters)
+                {
+                    _properties[keyValue.Key] = new List<object>(filters);
+                }
+                else
+                {
+                    _properties[keyValue.Key] = keyValue.Value;
+                }
+            }
+        }
+
         ICoconaCommandsBuilder ICoconaCommandsBuilder.New()
-            => new CoconaCommandsBuilder();
+            => new CoconaCommandsBuilder(this);
+
+        ICoconaCommandsBuilder ICoconaCommandsBuilder.Add(ICommandDataSource commandDataSource)
+        {
+            _commandDataSources.Add(commandDataSource);
+            return this;
+        }
 
         public IReadOnlyList<ICommandData> Build()
-            => ((ICoconaCommandsBuilder)this).CommandDataSources.Select(x => x.Build()).ToArray();
+            => _commandDataSources.Select(x => x.Build()).ToArray();
     }
 }
 
@@ -35,6 +71,36 @@ namespace Cocona
 
     public static class CommandsBuilderExtensions
     {
+        internal static IList<object> GetFilters(this ICoconaCommandsBuilder builder)
+        {
+            if (!builder.Properties.TryGetValue(CoconaCommandsBuilder.PropertyKeyFilters, out var filters) || filters is not IList<object> filtersTyped)
+            {
+                builder.Properties[CoconaCommandsBuilder.PropertyKeyFilters] = filtersTyped = new List<object>();
+            }
+            return filtersTyped;
+        }
+
+        public static ICoconaCommandsBuilder UseFilter(this ICoconaCommandsBuilder builder, IFilterMetadata filter)
+        {
+            ThrowHelper.ThrowIfNull(filter);
+            builder.GetFilters().Add(filter);
+            return builder;
+        }
+
+        public static ICoconaCommandsBuilder UseFilter(this ICoconaCommandsBuilder builder, IFilterFactory filterFactory)
+        {
+            ThrowHelper.ThrowIfNull(filterFactory);
+            builder.GetFilters().Add(filterFactory);
+            return builder;
+        }
+
+        public static ICoconaCommandsBuilder UseFilter(this ICoconaCommandsBuilder builder, Func<CoconaCommandExecutingContext, CommandExecutionDelegate, ValueTask<int>> filterFunc)
+        {
+            ThrowHelper.ThrowIfNull(filterFunc);
+            builder.GetFilters().Add(new DelegateCommandFilter(filterFunc));
+            return builder;
+        }
+
         /// <summary>
         /// Adds a pre-built command data to the builder.
         /// </summary>
@@ -45,7 +111,7 @@ namespace Cocona
         {
             ThrowHelper.ThrowIfNull(commandData);
 
-            builder.CommandDataSources.Add(new CommandDataDataSource(commandData));
+            builder.Add(new CommandDataDataSource(commandData));
             return builder;
         }
 
@@ -60,8 +126,8 @@ namespace Cocona
             ThrowHelper.ThrowIfNull(commandBody);
 
             var conventions = new List<Action<ICommandBuilder>>();
-            var commandSource = new DelegateCommandDataSource(commandBody, conventions);
-            builder.CommandDataSources.Add(commandSource);
+            var commandSource = new DelegateCommandDataSource(commandBody, conventions, builder.GetFilters().ToArray());
+            builder.Add(commandSource);
             return new CommandConventionBuilder(conventions).FromBuilder();
         }
 
@@ -78,8 +144,8 @@ namespace Cocona
             ThrowHelper.ThrowIfNull(commandBody);
 
             var conventions = new List<Action<ICommandBuilder>>();
-            var commandSource = new DelegateCommandDataSource(commandBody, conventions);
-            builder.CommandDataSources.Add(commandSource);
+            var commandSource = new DelegateCommandDataSource(commandBody, conventions, builder.GetFilters().ToArray());
+            builder.Add(commandSource);
 
             return new CommandConventionBuilder(conventions).FromBuilder().WithName(name);
         }
@@ -96,12 +162,12 @@ namespace Cocona
             ThrowHelper.ThrowIfNull(name);
             ThrowHelper.ThrowIfNull(configure);
 
-            var newBuilder = new CoconaCommandsBuilder();
+            var newBuilder = builder.New();
             configure(newBuilder);
 
             var conventions = new List<Action<ICommandBuilder>>();
-            var commandSource = new SubCommandsDataSource(newBuilder.Build(), conventions);
-            builder.CommandDataSources.Add(commandSource);
+            var commandSource = new SubCommandsDataSource(newBuilder.Build(), conventions, builder.GetFilters().ToArray());
+            builder.Add(commandSource);
 
             return new CommandConventionBuilder(conventions).FromBuilder().WithName(name);
         }
@@ -125,7 +191,7 @@ namespace Cocona
             ThrowHelper.ThrowIfNull(commandType);
 
             var conventions = new List<Action<ICommandBuilder>>();
-            builder.CommandDataSources.Add(new TypeCommandDataSource(commandType, conventions));
+            builder.Add(new TypeCommandDataSource(commandType, conventions, builder.GetFilters().ToArray()));
 
             return new CommandTypeConventionBuilder(conventions);
         }

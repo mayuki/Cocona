@@ -77,6 +77,22 @@ namespace Cocona
         }
 
         /// <summary>
+        /// Sets the command filter to the provided filter for the builder.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public static CommandConventionBuilder WithFilter(this CommandConventionBuilder builder, IFilterFactory filter)
+        {
+            ThrowHelper.ThrowIfNull(filter);
+            builder.Add(commandBuilder =>
+            {
+                commandBuilder.Metadata.Add(filter);
+            });
+            return builder;
+        }
+
+        /// <summary>
         /// Sets the command filter using the provided filter delegate for the builder.
         /// </summary>
         /// <param name="builder"></param>
