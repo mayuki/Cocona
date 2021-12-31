@@ -92,6 +92,25 @@ namespace Cocona
             return builder;
         }
 
+        /// <summary>
+        /// Sets the metadata using the provided filter delegate for the builder.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        public static CommandConventionBuilder WithMetadata(this CommandConventionBuilder builder, params object[] items)
+        {
+            ThrowHelper.ThrowIfNull(items);
+            builder.Add(commandBuilder =>
+            {
+                foreach (var item in items)
+                {
+                    commandBuilder.Metadata.Add(item);
+                }
+            });
+            return builder;
+        }
+
         internal static CommandConventionBuilder FromBuilder(this CommandConventionBuilder builder)
         {
             builder.Add(commandBuilder =>
