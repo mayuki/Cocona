@@ -80,6 +80,12 @@ namespace Cocona
             return filtersTyped;
         }
 
+        /// <summary>
+        /// Adds a command filter and apply it to commands after this call.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
         public static ICoconaCommandsBuilder UseFilter(this ICoconaCommandsBuilder builder, IFilterMetadata filter)
         {
             ThrowHelper.ThrowIfNull(filter);
@@ -87,6 +93,12 @@ namespace Cocona
             return builder;
         }
 
+        /// <summary>
+        /// Adds a command filter and apply it to commands after this call.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="filterFactory"></param>
+        /// <returns></returns>
         public static ICoconaCommandsBuilder UseFilter(this ICoconaCommandsBuilder builder, IFilterFactory filterFactory)
         {
             ThrowHelper.ThrowIfNull(filterFactory);
@@ -94,6 +106,12 @@ namespace Cocona
             return builder;
         }
 
+        /// <summary>
+        /// Adds a command filter delegate defined in-line and apply it to commands after this call.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="filterFunc"></param>
+        /// <returns></returns>
         public static ICoconaCommandsBuilder UseFilter(this ICoconaCommandsBuilder builder, Func<CoconaCommandExecutingContext, CommandExecutionDelegate, ValueTask<int>> filterFunc)
         {
             ThrowHelper.ThrowIfNull(filterFunc);
