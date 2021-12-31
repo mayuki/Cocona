@@ -18,6 +18,8 @@ namespace Cocona
         private readonly ICoconaCommandsBuilder _builder;
         private readonly CoconaLiteAppHost _host;
 
+        public IServiceProvider Services => _host.Services;
+
         public CoconaLiteApp(CoconaLiteAppHost host)
         {
             _host = host;

@@ -9,6 +9,11 @@ using Cocona.Command.BuiltIn;
 using Cocona.CommandLine;
 using Cocona.ShellCompletion.Candidate;
 using FluentAssertions;
+#if COCONA_LITE
+using Cocona.Lite;
+#else
+using Microsoft.Extensions.DependencyInjection;
+#endif
 using Xunit;
 
 #if COCONA_LITE
@@ -116,6 +121,29 @@ namespace Cocona.Test.Integration
 
             stdOut.Should().Be("Hello Alice!" + Environment.NewLine);
             exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public async Task CoconaApp_CreateBuilder_UsePrebuiltServiceOnBuildingApp()
+        {
+            var (stdOut, stdErr, exitCode) = await RunAsync(Array.Empty<string>(), async args =>
+            {
+                var builder = CoconaApp.CreateBuilder(args);
+                builder.Services.AddTransient<IMyService, MyService>();
+                var app = builder.Build();
+                var text = $"Hello {app.Services.GetRequiredService<IMyService>().GetName()}!";
+                app.AddCommand(() => Console.WriteLine(text));
+                await app.RunAsync();
+            });
+
+            stdOut.Should().Be("Hello Alice!" + Environment.NewLine);
+            exitCode.Should().Be(0);
+        }
+
+        interface IMyService { string GetName(); }
+        class MyService : IMyService
+        {
+            public string GetName() => "Alice";
         }
 
         class TestCommand_Single

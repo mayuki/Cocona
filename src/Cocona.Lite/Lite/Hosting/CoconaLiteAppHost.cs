@@ -15,6 +15,8 @@ namespace Cocona.Lite.Hosting
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEventSlim _waitForShutdown = new ManualResetEventSlim(false);
 
+        public IServiceProvider Services => _serviceProvider;
+
         public CoconaLiteAppHost(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
