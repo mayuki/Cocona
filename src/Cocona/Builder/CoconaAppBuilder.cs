@@ -21,6 +21,7 @@ namespace Cocona.Builder
         private readonly IServiceCollection _services = new ServiceCollection();
         private readonly HostBuilder _hostBuilder = new HostBuilder();
         private readonly ConfigureHostBuilder _configureHostBuilder;
+        private readonly Action<CoconaAppOptions>? _configureOptions;
         private CoconaApp? _application;
 
         public IServiceCollection Services => _services;
@@ -29,10 +30,11 @@ namespace Cocona.Builder
         public IHostEnvironment Environment { get; }
         public ConfigurationManager Configuration { get; }
 
-        internal CoconaAppBuilder(string[]? args)
+        internal CoconaAppBuilder(string[]? args, Action<CoconaAppOptions>? configureOptions = null)
         {
             Configuration = new ConfigurationManager();
             _services = new ServiceCollection();
+            _configureOptions = configureOptions;
 
             var bootstrapHostBuilder = new BootstrapHostBuilder(_services);
             bootstrapHostBuilder.ConfigureDefaultCocona(args, app =>
@@ -72,6 +74,11 @@ namespace Cocona.Builder
 
             _hostBuilder.ConfigureServices((hostBuilder, services) =>
             {
+                if (_configureOptions != null)
+                {
+                    services.Configure<CoconaAppOptions>(_configureOptions);
+                }
+
                 foreach (var service in _services.Where(x => !typeof(IHostedService).IsAssignableFrom(x.ServiceType)))
                 {
                     services.Add(service);

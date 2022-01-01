@@ -99,7 +99,13 @@ namespace Cocona.Command
 
             foreach (var @delegate in delegates)
             {
-                commands.Add(new DelegateCommandData(@delegate.Method, @delegate.Target, typeCommandMetadata.Concat(@delegate.Method.GetCustomAttributes(inherit: true)).ToArray()));
+                var attrs = @delegate.Method.GetCustomAttributes(inherit: true);
+                var commandName = attrs.OfType<CommandAttribute>().Select(x => x.Name).FirstOrDefault(x => string.IsNullOrEmpty(x));
+                var delegateMetadata = (commandName != null)
+                    ? new object[] { new CommandNameMetadata(commandName) } // == AddCommand(string, Delegate)
+                    : new object[] { new PrimaryCommandAttribute() }; // == AddCommand(Delegate)
+                delegateMetadata = new[] { new CommandNameMetadata(@delegate.Method.Name) };
+                commands.Add(new DelegateCommandData(@delegate.Method, @delegate.Target, typeCommandMetadata.Concat(attrs).Concat(delegateMetadata).ToArray()));
             }
 
             return commands;
@@ -170,10 +176,16 @@ namespace Cocona.Command
                     }
                 }
 
+                // Allow only one unnamed primary command.
+                if (command.Flags.HasFlag(CommandFlags.Unnamed) && command.IsPrimaryCommand && commands.Any(x => x.Flags.HasFlag(CommandFlags.Unnamed) && x.IsPrimaryCommand))
+                {
+                    throw new CoconaException($"One unnamed primary command can be registered. An unnamed primary command has been already registered.");
+                }
+
                 commands.Add(command);
             }
 
-            // NOTE: For compatibility, add subcommands to the command set last.
+            // NOTE: For compatibility, add sub-commands to the command set last.
             commands.AddRange(subCommandEntryPoints);
 
             return new CommandCollection(commands);
@@ -253,6 +265,7 @@ namespace Cocona.Command
             // Collect Method attributes
             var commandMethodDesc = GetCommandMethodDescriptor(methodInfo, metadata);
             var (commandName, description, aliases) = GetCommandInfoFromMetadata(metadata);
+            var isUnnamedCommand = commandName is null;
             if (commandName is null)
             {
                 commandName = methodInfo.Name;
@@ -262,15 +275,6 @@ namespace Cocona.Command
             var isPrimaryCommand = commandMethodDesc.IsPrimaryCommand;
             var isHidden = commandMethodDesc.IsHidden;
             var isIgnoreUnknownOptions = commandMethodDesc.IsIgnoreUnknownOptions;
-
-            // If the command is not only one, the command name must be specified. 
-            if (!isSingleCommand)
-            {
-                if (string.IsNullOrEmpty(commandName) || Regex.IsMatch(commandName, "[<>|]"))
-                {
-                    throw new CoconaException($"The command name contains invalid character. (Name: {commandName}, Method: {methodInfo.Name})");
-                }
-            }
 
             // If the command method should forward to another command.
             if (commandMethodDesc.CommandMethodForwardedTo is { } cmdForwardedTo)
@@ -336,8 +340,9 @@ namespace Cocona.Command
             }
 
             var flags = (isHidden ? CommandFlags.Hidden : CommandFlags.None) |
-                        ((isSingleCommand || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None) |
-                        (isIgnoreUnknownOptions ? CommandFlags.IgnoreUnknownOptions : CommandFlags.None);
+                        (((isSingleCommand && isUnnamedCommand) || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None) |
+                        (isIgnoreUnknownOptions ? CommandFlags.IgnoreUnknownOptions : CommandFlags.None) |
+                        (isUnnamedCommand ? CommandFlags.Unnamed : CommandFlags.None);
 
             var (parameters, options, arguments) = builder.Build();
             return new CommandDescriptor(

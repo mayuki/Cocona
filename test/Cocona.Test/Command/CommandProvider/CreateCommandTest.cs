@@ -449,19 +449,6 @@ namespace Cocona.Test.Command.CommandProvider
             cmd.Parameters.Should().HaveCount(1);
             cmd.ReturnType.Should().Be<int>();
         }
-        
-        [Fact]
-        public void InvalidCommandName()
-        {
-            // If the command is for single-command, the name will be ignored. 
-            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.InvalidCommandName)), isSingleCommand:true, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
-
-            // If the command is for multiple-command, the name must not contain invalid chars.
-            Assert.Throws<CoconaException>(() =>
-            {
-                var cmd2 = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.InvalidCommandName)), isSingleCommand:false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
-            });
-        }
 
         [Fact]
         public void UseMetadata_CommandName()

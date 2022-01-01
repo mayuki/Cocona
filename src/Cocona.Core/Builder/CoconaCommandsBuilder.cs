@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Cocona.Builder.Metadata;
 using Cocona.Command;
 using Cocona.Filters;
 
@@ -60,7 +61,17 @@ namespace Cocona.Builder
         }
 
         public IReadOnlyList<ICommandData> Build()
-            => _commandDataSources.Select(x => x.Build()).ToArray();
+        {
+            var commandDataItems = new List<ICommandData>(_commandDataSources.Count);
+
+            foreach (var commandDataSource in _commandDataSources)
+            {
+                var commandData = commandDataSource.Build();
+                commandDataItems.Add(commandData);
+            }
+
+            return commandDataItems;
+        }
     }
 }
 
@@ -146,7 +157,7 @@ namespace Cocona
             var conventions = new List<Action<ICommandBuilder>>();
             var commandSource = new DelegateCommandDataSource(commandBody, conventions, builder.GetFilters().ToArray());
             builder.Add(commandSource);
-            return new CommandConventionBuilder(conventions).FromBuilder();
+            return new CommandConventionBuilder(conventions).FromBuilder().WithMetadata(new PrimaryCommandAttribute());
         }
 
         /// <summary>

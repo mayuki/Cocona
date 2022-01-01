@@ -90,7 +90,6 @@ namespace Cocona.Test.Integration
             }
         }
 
-
         class TestCommand_Single_Candidates
         {
             public void Hello([CompletionCandidates(typeof(OnTheFlyCandidatesProvider))]string name)
@@ -104,6 +103,90 @@ namespace Cocona.Test.Integration
                 {
                     return new[] {new CompletionCandidateValue("Alice", ""),};
                 }
+            }
+        }
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Single_NotPrimary(RunBuilderMode mode)
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_NotPrimary>(mode, new string[] { "hello" });
+
+            stdOut.Should().Be("Hello Konnichiwa!" + Environment.NewLine);
+            exitCode.Should().Be(0);
+        }
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Single_NotPrimary_Index(RunBuilderMode mode)
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_NotPrimary>(mode, new string[] { });
+
+            stdOut.Should().Contain("Usage:");
+            stdOut.Should().Contain("Commands:");
+            stdOut.Should().Contain("  hello");
+            exitCode.Should().Be(0);
+        }
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Single_NotPrimary_Help(RunBuilderMode mode)
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_NotPrimary>(mode, new string[] { "--help" });
+
+            stdOut.Should().Contain("Usage:");
+            stdOut.Should().Contain("Commands:");
+            stdOut.Should().Contain("  hello");
+            exitCode.Should().Be(129);
+        }
+
+        class TestCommand_Single_NotPrimary
+        {
+            [Command(nameof(Hello))]
+            public void Hello()
+            {
+                Console.WriteLine("Hello Konnichiwa!");
+            }
+        }
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Single_Primary(RunBuilderMode mode)
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_Primary>(mode, new string[] { });
+
+            stdOut.Should().Be("Hello Konnichiwa!" + Environment.NewLine);
+            exitCode.Should().Be(0);
+        }
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Single_Primary_Help(RunBuilderMode mode)
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_Primary>(mode, new string[] { "--help" });
+
+            stdOut.Should().Contain("Usage:");
+            stdOut.Should().NotContain("Commands:");
+            exitCode.Should().Be(129);
+        }
+
+        class TestCommand_Single_Primary
+        {
+            [Command]
+            [PrimaryCommand]
+            public void Hello()
+            {
+                Console.WriteLine("Hello Konnichiwa!");
             }
         }
 
@@ -502,6 +585,96 @@ namespace Cocona.Test.Integration
         [InlineData(RunBuilderMode.CreateHostBuilder)]
         [InlineData(RunBuilderMode.CreateBuilder)]
         [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Nested_Single_NamedNotPrimary(RunBuilderMode mode)
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested_Single_NamedNotPrimary>(mode, new string[] { "nested", "hello", "Karen" });
+
+            stdOut.Should().Contain("Hello Karen");
+            stdErr.Should().BeEmpty();
+            exitCode.Should().Be(0);
+        }
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Nested_Single_NamedNotPrimary_Index_1(RunBuilderMode mode)
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested_Single_NamedNotPrimary>(mode, new string[] { "nested" });
+
+            stdOut.Should().Contain("Usage:");
+            stdOut.Should().Contain("Commands:");
+            stdOut.Should().Contain("  hello");
+        }
+
+        [HasSubCommands(typeof(Nested))]
+        class TestCommand_Nested_Single_NamedNotPrimary
+        {
+            public void Konnichiwa()
+            {
+                Console.WriteLine("Konnichiwa");
+            }
+
+            class Nested
+            {
+                // Treats the method with a command name as non-primary command.
+                [Command(nameof(Hello))]
+                public void Hello([Argument] string arg0)
+                {
+                    Console.WriteLine($"Hello {arg0}");
+                }
+            }
+        }
+
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Nested_Single(RunBuilderMode mode)
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested_Single>(mode, new string[] { "nested", "Karen" });
+
+            stdOut.Should().Contain("Hello Karen");
+            stdErr.Should().BeEmpty();
+            exitCode.Should().Be(0);
+        }
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Nested_Single_Index_1(RunBuilderMode mode)
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Nested_Single>(mode, new string[] { "nested", "Karen" });
+
+            stdOut.Should().Contain("Hello Karen");
+            stdErr.Should().BeEmpty();
+            exitCode.Should().Be(0);
+        }
+
+        [HasSubCommands(typeof(Nested))]
+        class TestCommand_Nested_Single
+        {
+            public void Konnichiwa()
+            {
+                Console.WriteLine("Konnichiwa");
+            }
+
+            class Nested
+            {
+                // Treats the method as a primary command.
+                public void Hello([Argument] string arg0)
+                {
+                    Console.WriteLine($"Hello {arg0}");
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
         public void CoconaApp_Run_CommandMethodForwarding_Multiple(RunBuilderMode mode)
         {
             var (stdOut, stdErr, exitCode) = Run<TestCommand_CommandMethodForwarding_Multiple>(mode, new string[] { "forward", "--option0", "OptionValue0", "ArgumentValue0" });
@@ -545,6 +718,21 @@ namespace Cocona.Test.Integration
 
             stdErr.Should().Contain("Unhandled Exception:");
             stdErr.Should().Contain("ThrowCore()");
+        }
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Throw_DisableHandling(RunBuilderMode mode)
+        {
+            Assert.Throws<AggregateException>(() =>
+            {
+                var (stdOut, stdErr, exitCode) = Run<TestCommand_Throw>(mode, new string[] { "my-help" }, options =>
+                {
+                    options.HandleExceptionAtRuntime = false;
+                });
+            }).Message.Should().Contain("Exception!");
         }
 
         class TestCommand_Throw
@@ -669,14 +857,25 @@ namespace Cocona.Test.Integration
         [Fact]
         public void CoconaApp_Run_AddCommand_Delegate_Static_Single()
         {
-            var (stdOut, stdErr, exitCode) = Run(Array.Empty<string>(), new[] { new Action(TestCommand_Delegate.StaticCommandA) });
+            var (stdOut, stdErr, exitCode) = Run(Array.Empty<string>(), args =>
+            {
+                var app = CoconaApp.Create(args);
+                app.AddCommand(new Action(TestCommand_Delegate.StaticCommandA));
+                app.Run();
+            });
             stdOut.Should().Contain("StaticCommandA");
         }
 
         [Fact]
         public void CoconaApp_Run_AddCommand_Delegate_Static_Multiple()
         {
-            var (stdOut, stdErr, exitCode) = Run(new [] { "static-command-b" }, new[] { new Action(TestCommand_Delegate.StaticCommandA), new Action(TestCommand_Delegate.StaticCommandB) });
+            var (stdOut, stdErr, exitCode) = Run(new[] { "static-command-b" }, args =>
+            {
+                var app = CoconaApp.Create(args);
+                app.AddCommand(nameof(TestCommand_Delegate.StaticCommandA), new Action(TestCommand_Delegate.StaticCommandA));
+                app.AddCommand(nameof(TestCommand_Delegate.StaticCommandB), new Action(TestCommand_Delegate.StaticCommandB));
+                app.Run();
+            });
             stdOut.Should().Contain("StaticCommandB");
         }
 
@@ -684,7 +883,12 @@ namespace Cocona.Test.Integration
         public void CoconaApp_Run_AddCommand_Delegate_Instance_Single()
         {
             var command = new TestCommand_Delegate();
-            var (stdOut, stdErr, exitCode) = Run(Array.Empty<string>(), new[] { new Action(command.InstanceCommandA) });
+            var (stdOut, stdErr, exitCode) = Run(Array.Empty<string>(), args =>
+            {
+                var app = CoconaApp.Create(args);
+                app.AddCommand(new Action(command.InstanceCommandA));
+                app.Run();
+            });
             stdOut.Should().Contain($"InstanceCommandA:{command.Id}");
         }
 
@@ -692,7 +896,13 @@ namespace Cocona.Test.Integration
         public void CoconaApp_Run_AddCommand_Delegate_Instance_Multiple()
         {
             var command = new TestCommand_Delegate();
-            var (stdOut, stdErr, exitCode) = Run(new[] { "instance-command-b" }, new[] { new Action(command.InstanceCommandA), new Action(command.InstanceCommandB) });
+            var (stdOut, stdErr, exitCode) = Run(new[] { "instance-command-b" }, args =>
+            {
+                var app = CoconaApp.Create(args);
+                app.AddCommand(nameof(TestCommand_Delegate.InstanceCommandA), new Action(command.InstanceCommandA));
+                app.AddCommand(nameof(TestCommand_Delegate.InstanceCommandB), new Action(command.InstanceCommandB));
+                app.Run();
+            });
             stdOut.Should().Contain($"InstanceCommandB:{command.Id}");
         }
 

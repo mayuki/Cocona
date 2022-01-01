@@ -27,6 +27,7 @@ namespace Cocona.Lite.Hosting
             var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
             var commandDispatcher = _serviceProvider.GetRequiredService<ICoconaCommandDispatcher>();
             var console = _serviceProvider.GetRequiredService<ICoconaConsoleProvider>();
+            var shouldHandleException = _serviceProvider.GetRequiredService<CoconaLiteAppOptions>().HandleExceptionAtRuntime;
 
 #pragma warning disable RS0030 // Do not used banned APIs
             Console.CancelKeyPress += OnCancelKeyPress;
@@ -80,6 +81,11 @@ namespace Cocona.Lite.Hosting
                 console.Error.WriteLine(ex.StackTrace);
 
                 Environment.ExitCode = 1;
+
+                if (!shouldHandleException)
+                {
+                    throw new AggregateException(ex); // NOTE: Align behavior with non-Lite versions.
+                }
             }
 
             _waitForShutdown.Set();

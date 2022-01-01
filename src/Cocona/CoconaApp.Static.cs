@@ -17,15 +17,15 @@ namespace Cocona
         /// Creates an instance of <see cref="CoconaAppHostBuilder"/>.
         /// </summary>
         /// <returns></returns>
-        public static CoconaApp Create(string[]? args = default)
+        public static CoconaApp Create(string[]? args = default, Action<CoconaAppOptions>? configureOptions = null)
             => new CoconaAppBuilder(args).Build();
 
         /// <summary>
         /// Creates an instance of <see cref="CoconaAppBuilder"/>.
         /// </summary>
         /// <returns></returns>
-        public static CoconaAppBuilder CreateBuilder(string[]? args = default)
-            => new CoconaAppBuilder(args);
+        public static CoconaAppBuilder CreateBuilder(string[]? args = default, Action<CoconaAppOptions>? configureOptions = null)
+            => new CoconaAppBuilder(args, configureOptions);
 
         /// <summary>
         /// Creates an instance of <see cref="CoconaAppHostBuilder"/>.

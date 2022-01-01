@@ -9,6 +9,7 @@ using Xunit;
 
 #if COCONA_LITE
 using CoconaApp = Cocona.CoconaLiteApp;
+using CoconaAppOptions = Cocona.CoconaLiteAppOptions;
 #endif
 
 namespace Cocona.Test.Integration
@@ -49,7 +50,7 @@ namespace Cocona.Test.Integration
             return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
         }
 
-        protected (string StandardOut, string StandardError, int ExitCode) Run<T>(RunBuilderMode mode, string[] args)
+        protected (string StandardOut, string StandardError, int ExitCode) Run<T>(RunBuilderMode mode, string[] args, Action<CoconaAppOptions>? configureOptions = null)
         {
             var stdOutWriter = new StringWriter();
             var stdErrWriter = new StringWriter();
@@ -60,7 +61,7 @@ namespace Cocona.Test.Integration
             switch (mode)
             {
                 case RunBuilderMode.CreateBuilder:
-                    var builder = CoconaApp.CreateBuilder(args);
+                    var builder = CoconaApp.CreateBuilder(args, configureOptions);
                     var app = builder.Build();
                     app.AddCommands<T>();
 
@@ -68,10 +69,10 @@ namespace Cocona.Test.Integration
                     break;
                 case RunBuilderMode.CreateHostBuilder:
                     CoconaApp.CreateHostBuilder()
-                        .Run<T>(args);
+                        .Run<T>(args, configureOptions);
                     break;
                 case RunBuilderMode.Shortcut:
-                    CoconaApp.Run<T>(args);
+                    CoconaApp.Run<T>(args, configureOptions);
                     break;
             }
 
@@ -167,24 +168,6 @@ namespace Cocona.Test.Integration
                     await CoconaApp.RunAsync(args, types, cancellationToken: cancellationToken);
                     break;
             }
-
-            return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
-        }
-
-        protected (string StandardOut, string StandardError, int ExitCode) Run(string[] args, Delegate[] delegates)
-        {
-            var stdOutWriter = new StringWriter();
-            var stdErrWriter = new StringWriter();
-
-            Console.SetOut(stdOutWriter);
-            Console.SetError(stdErrWriter);
-
-            var app = CoconaApp.Create(args);
-            foreach (var @delegate in delegates)
-            {
-                app.AddCommand(@delegate);
-            }
-            app.Run();
 
             return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
         }

@@ -71,5 +71,10 @@ namespace Cocona.Command
         Hidden = 1 << 1,
         SubCommandsEntryPoint = 1 << 2,
         IgnoreUnknownOptions = 1 << 3,
+
+        /// <summary>
+        /// The command has no user-defined command name.
+        /// </summary>
+        Unnamed = 1 << 4,
     }
 }

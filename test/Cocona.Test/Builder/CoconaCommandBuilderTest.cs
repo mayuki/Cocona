@@ -21,8 +21,9 @@ namespace Cocona.Test.Builder
             var built = builder.Build();
             built.Should().HaveCount(1);
             built[0].Should().BeOfType<DelegateCommandData>();
-            built[0].Metadata.Should().HaveCount(1);
+            built[0].Metadata.Should().HaveCount(2);
             built[0].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            built[0].Metadata[1].Should().BeOfType<PrimaryCommandAttribute>();
         }
 
         [Fact]

@@ -8,9 +8,11 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace Cocona.Hosting
 {
@@ -20,21 +22,24 @@ namespace Cocona.Hosting
         private readonly ICoconaCommandDispatcher _commandDispatcher;
         private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
         private readonly IHostApplicationLifetime _lifetime;
+        private readonly bool _shouldHandleException;
 
         private readonly CancellationTokenSource _cancellationTokenSource;
         private Task? _runningCommandTask;
+        private ExceptionDispatchInfo? _capturedException;
 
         public CoconaHostedService(
             ICoconaConsoleProvider console,
             ICoconaCommandDispatcher commandDispatcher,
             ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
-            IHostApplicationLifetime lifetime
-        )
+            IHostApplicationLifetime lifetime,
+            IOptions<CoconaAppOptions> options)
         {
             _console = console;
             _commandDispatcher = commandDispatcher;
             _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
             _lifetime = lifetime;
+            _shouldHandleException = options.Value.HandleExceptionAtRuntime;
 
             _cancellationTokenSource = new CancellationTokenSource();
         }
@@ -49,69 +54,73 @@ namespace Cocona.Hosting
                 .UseMiddleware<InitializeConsoleAppMiddleware>()
                 .UseMiddleware<CoconaCommandInvokeMiddleware>();
 
-            _lifetime.ApplicationStarted.Register(async () =>
-            {
-                async Task RunAsync()
-                {
-                    try
-                    {
-                        Environment.ExitCode = await Task.Run(async () => await _commandDispatcher.DispatchAsync(_cancellationTokenSource.Token));
-                    }
-                    catch (CommandNotFoundException cmdNotFoundEx)
-                    {
-                        if (string.IsNullOrWhiteSpace(cmdNotFoundEx.Command))
-                        {
-                            _console.Error.WriteLine($"Error: {cmdNotFoundEx.Message}");
-                        }
-                        else
-                        {
-                            _console.Error.WriteLine($"Error: '{cmdNotFoundEx.Command}' is not a command. See '--help' for usage.");
-                        }
+            var waitForApplicationStartedTsc = new TaskCompletionSource<bool>();
 
-                        var similarCommands = cmdNotFoundEx.ImplementedCommands.All.Where(x => Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
-                        if (similarCommands.Any())
-                        {
-                            _console.Error.WriteLine();
-                            _console.Error.WriteLine("Similar commands:");
-                            foreach (var c in similarCommands)
-                            {
-                                _console.Error.WriteLine($"  {c.Name}");
-                            }
-                        }
+            _lifetime.ApplicationStarted.Register(() => waitForApplicationStartedTsc.TrySetResult(true));
 
-                        Environment.ExitCode = 1;
-                    }
-                    catch (OperationCanceledException ex) when (ex.CancellationToken == _cancellationTokenSource.Token)
-                    {
-                        // NOTE: Ignore OperationCanceledException that was thrown by non-user code.
-                        Environment.ExitCode = 0;
-                    }
-                    catch (Exception ex)
-                    {
-                        _console.Error.WriteLine($"Unhandled Exception: {ex.GetType().FullName}: {ex.Message}");
-                        _console.Error.WriteLine(ex.StackTrace);
-
-                        Environment.ExitCode = 1;
-                    }
-                }
-
-                try
-                {
-                    _runningCommandTask = RunAsync();
-                    await _runningCommandTask;
-                }
-                finally
-                {
-                    _lifetime.StopApplication();
-                }
-            });
+            _runningCommandTask = ExecuteCoconaApplicationAsync(waitForApplicationStartedTsc.Task);
 
             return Task.CompletedTask;
+        }
+
+        private async Task ExecuteCoconaApplicationAsync(Task waitForApplicationStarted)
+        {
+            await waitForApplicationStarted.ConfigureAwait(false); // Wait for IHostApplicationLifetime.ApplicationStarted
+
+            try
+            {
+                Environment.ExitCode = await Task.Run(async () => await _commandDispatcher.DispatchAsync(_cancellationTokenSource.Token));
+            }
+            catch (CommandNotFoundException cmdNotFoundEx)
+            {
+                if (string.IsNullOrWhiteSpace(cmdNotFoundEx.Command))
+                {
+                    _console.Error.WriteLine($"Error: {cmdNotFoundEx.Message}");
+                }
+                else
+                {
+                    _console.Error.WriteLine($"Error: '{cmdNotFoundEx.Command}' is not a command. See '--help' for usage.");
+                }
+
+                var similarCommands = cmdNotFoundEx.ImplementedCommands.All.Where(x => Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
+                if (similarCommands.Any())
+                {
+                    _console.Error.WriteLine();
+                    _console.Error.WriteLine("Similar commands:");
+                    foreach (var c in similarCommands)
+                    {
+                        _console.Error.WriteLine($"  {c.Name}");
+                    }
+                }
+
+                Environment.ExitCode = 1;
+            }
+            catch (OperationCanceledException ex) when (ex.CancellationToken == _cancellationTokenSource.Token)
+            {
+                // NOTE: Ignore OperationCanceledException that was thrown by non-user code.
+                Environment.ExitCode = 0;
+            }
+            catch (Exception ex)
+            {
+                _console.Error.WriteLine($"Unhandled Exception: {ex.GetType().FullName}: {ex.Message}");
+                _console.Error.WriteLine(ex.StackTrace);
+
+                Environment.ExitCode = 1;
+
+                _capturedException = ExceptionDispatchInfo.Capture(ex);
+            }
+
+            _lifetime.StopApplication();
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             _cancellationTokenSource?.Cancel();
+
+            if (!_shouldHandleException)
+            {
+                _capturedException?.Throw();
+            }
 
             if (_runningCommandTask != null && !_runningCommandTask.IsCompleted)
             {

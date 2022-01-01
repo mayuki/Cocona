@@ -38,6 +38,7 @@ namespace Cocona.Test.Command.CommandProvider
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(1);
             commands.Primary.Should().NotBeNull();
+            commands.Primary.Flags.Should().Be(CommandFlags.Unnamed | CommandFlags.Primary);
         }
 
         [Fact]
@@ -49,6 +50,17 @@ namespace Cocona.Test.Command.CommandProvider
             commands.All.Should().HaveCount(1);
             commands.Primary.Should().NotBeNull();
             commands.Primary.Description.Should().Be("Description of A");
+        }
+
+        [Fact]
+        public void SingleCommand_NotPrimary()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestSingleCommand_NotPrimary) });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+            commands.Primary.Should().BeNull();
+            commands.All[0].Flags.Should().Be(CommandFlags.None);
         }
 
         [Fact]
@@ -302,6 +314,12 @@ namespace Cocona.Test.Command.CommandProvider
         public class CommandTestSingleCommand_Description
         {
             [Command(Description = "Description of A")]
+            public void A(string name) { }
+        }
+
+        public class CommandTestSingleCommand_NotPrimary
+        {
+            [Command(nameof(A))]
             public void A(string name) { }
         }
 

@@ -22,6 +22,16 @@ namespace Cocona.Test.Command.BuiltIn
         }
 
         [Fact]
+        public void BuiltInPrimaryCommand_SingleNamedCommand_NoPrimary()
+        {
+            var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInPrimaryCommand_SingleNamed_NoPrimary) }), true);
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(2); // A, BuiltInPrimary
+            commands.Primary.Should().NotBeNull();
+        }
+
+        [Fact]
         public void RewriteCommandNamesAsLowerCase()
         {
             var provider = new CoconaBuiltInCommandProvider(new CoconaCommandProvider(new[] { typeof(CommandTestBuiltInPrimaryCommand) }), true);
@@ -126,6 +136,12 @@ namespace Cocona.Test.Command.BuiltIn
             [PrimaryCommand]
             public void A_PrimaryHasVersionOption(bool version) { }
             public void B_HasShortHelpOption([Option('h')] bool _) { }
+        }
+
+        public class CommandTestBuiltInPrimaryCommand_SingleNamed_NoPrimary
+        {
+            [Command(nameof(A))]
+            public void A() { }
         }
     }
 }
