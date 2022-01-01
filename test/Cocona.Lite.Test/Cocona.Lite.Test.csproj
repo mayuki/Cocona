@@ -19,8 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Cocona.Test\Integration\EndToEndTest.cs" Link="Integration\EndToEndTest.cs" />
-    <Compile Include="..\Cocona.Test\Integration\CoconaAppStaticTest.cs" Link="Integration\CoconaAppStaticTest.cs" />
+    <Compile Include="..\Cocona.Test\Integration\**\*.cs" LinkBase="Integration" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,10 +32,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Cocona.Lite\Cocona.Lite.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Integration\" />
   </ItemGroup>
 
 </Project>

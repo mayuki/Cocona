@@ -22,35 +22,8 @@ using CoconaApp = Cocona.CoconaLiteApp;
 
 namespace Cocona.Test.Integration
 {
-    [Collection("End to End")] // NOTE: Test cases use `Console` and does not run in parallel.
-    public class CoconaAppStaticTest
+    public class CoconaAppStaticTest : EndToEndTestBase
     {
-        private (string StandardOut, string StandardError, int ExitCode) Run(string[] args, Action<string[]> action)
-        {
-            var stdOutWriter = new StringWriter();
-            var stdErrWriter = new StringWriter();
-
-            Console.SetOut(stdOutWriter);
-            Console.SetError(stdErrWriter);
-
-            action(args);
-
-            return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
-        }
-
-        private async Task<(string StandardOut, string StandardError, int ExitCode)> RunAsync(string[] args, Func<string[], Task> action)
-        {
-            var stdOutWriter = new StringWriter();
-            var stdErrWriter = new StringWriter();
-
-            Console.SetOut(stdOutWriter);
-            Console.SetError(stdErrWriter);
-
-            await action(args);
-
-            return (stdOutWriter.ToString(), stdErrWriter.ToString(), Environment.ExitCode);
-        }
-
         [Fact]
         public void CoconaApp_RunOfT()
         {
