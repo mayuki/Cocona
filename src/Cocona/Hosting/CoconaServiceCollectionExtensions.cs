@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.Hosting
             services.AddSingleton<ICoconaServiceProviderIsService, CoconaServiceProviderIsService>();
 #endif
 
-            services.AddSingleton<ICoconaCommandProvider>(sp =>
+            services.TryAddSingleton<ICoconaCommandProvider>(sp =>
             {
 #if COCONA_LITE
                 var options = sp.GetRequiredService<CoconaLiteAppOptions>();
@@ -87,6 +87,8 @@ namespace Microsoft.Extensions.Hosting
             services.TryAddTransient<ICoconaHelpRenderer, CoconaHelpRenderer>();
             services.TryAddTransient<ICoconaCommandHelpProvider, CoconaCommandHelpProvider>();
             services.TryAddTransient<ICoconaHelpMessageBuilder, CoconaHelpMessageBuilder>();
+
+            services.TryAddTransient<CoconaAppContext>(sp => sp.GetRequiredService<ICoconaAppContextAccessor>().Current!);
 
             return services;
         }

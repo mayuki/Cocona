@@ -18,10 +18,10 @@ app.AddCommand("hello", (string name) => Console.WriteLine($"Hello {name}"))
     .WithAliases("hey", "konnichiwa");
 
 // Add a command and use the context to cancel with Ctrl+C.
-app.AddCommand("long-running", async (ICoconaAppContextAccessor ctx) =>
+app.AddCommand("long-running", async (CoconaAppContext ctx) =>
 {
     Console.WriteLine($"Running...");
-    await Task.Delay(TimeSpan.FromSeconds(30), ctx.Current.CancellationToken);
+    await Task.Delay(TimeSpan.FromSeconds(30), ctx.CancellationToken);
     Console.WriteLine($"Done.");
 });
 
