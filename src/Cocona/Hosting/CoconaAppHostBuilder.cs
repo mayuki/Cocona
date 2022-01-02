@@ -83,7 +83,7 @@ namespace Cocona.Hosting
         internal void ConfigureDefaults(string[]? args, Action<ICoconaCommandsBuilder> configureApplication)
         {
             _builder
-                .AddCocona(args, configureApplication)
+                .ConfigureCocona(args, configureApplication: configureApplication)
                 .UseConsoleLifetime(options => options.SuppressStatusMessages = true);
         }
 

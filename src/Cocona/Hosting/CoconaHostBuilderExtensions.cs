@@ -12,8 +12,16 @@ namespace Microsoft.Extensions.Hosting
 {
     public static class CoconaHostBuilderExtensions
     {
-        public static IHostBuilder AddCocona(this IHostBuilder hostBuilder, string[]? args, IEnumerable<Type> types, IEnumerable<Delegate>? methods = null)
-            => hostBuilder.AddCocona(args, app =>
+        /// <summary>
+        /// Adds and configures a Cocona application.
+        /// </summary>
+        /// <param name="hostBuilder"></param>
+        /// <param name="args"></param>
+        /// <param name="types"></param>
+        /// <param name="methods"></param>
+        /// <returns></returns>
+        public static IHostBuilder ConfigureCocona(this IHostBuilder hostBuilder, string[]? args, IEnumerable<Type> types, IEnumerable<Delegate>? methods = null)
+            => hostBuilder.ConfigureCocona(args, configureApplication: (app) =>
                 {
                     app.AddCommands(types);
 
@@ -23,15 +31,21 @@ namespace Microsoft.Extensions.Hosting
                     }
                 });
 
-        public static IHostBuilder AddCocona(this IHostBuilder hostBuilder, string[]? args, Action<ICoconaCommandsBuilder>? configureApplication = null)
+        /// <summary>
+        /// Adds and configures a Cocona application.
+        /// </summary>
+        /// <param name="hostBuilder"></param>
+        /// <param name="args"></param>
+        /// <param name="configureHost"></param>
+        /// <param name="configureApplication"></param>
+        /// <returns></returns>
+        public static IHostBuilder ConfigureCocona(this IHostBuilder hostBuilder, string[]? args, Action<IHostBuilder>? configureHost = null, Action<ICoconaCommandsBuilder>? configureApplication = null)
         {
+            configureHost?.Invoke(hostBuilder);
+
             return hostBuilder
-                .ConfigureLogging(logging =>
-                {
-                })
-                .ConfigureAppConfiguration(config =>
-                {
-                })
+                .ConfigureLogging(logging => { })
+                .ConfigureAppConfiguration(config => { })
                 .ConfigureServices(services =>
                 {
                     services.AddCoconaCore(args ?? GetCommandLineArguments());

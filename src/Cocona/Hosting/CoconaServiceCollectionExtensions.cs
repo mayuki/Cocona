@@ -37,7 +37,7 @@ namespace Microsoft.Extensions.Hosting
 {
     public static class CoconaServiceCollectionExtensions
     {
-        public static IServiceCollection AddCoconaCore(this IServiceCollection services, string[] args)
+        internal static IServiceCollection AddCoconaCore(this IServiceCollection services, string[] args)
         {
 #if COCONA_LITE
             services.AddSingleton<ICoconaInstanceActivator>(_ => new CoconaLiteInstanceActivator());
@@ -93,7 +93,7 @@ namespace Microsoft.Extensions.Hosting
             return services;
         }
 
-        public static IServiceCollection AddCoconaShellCompletion(this IServiceCollection services)
+        internal static IServiceCollection AddCoconaShellCompletion(this IServiceCollection services)
         {
             services.AddSingleton<ICoconaShellCompletionCodeGenerator, BashCoconaShellCompletionCodeGenerator>();
             services.AddSingleton<ICoconaShellCompletionCodeGenerator, ZshCoconaShellCompletionCodeGenerator>();
