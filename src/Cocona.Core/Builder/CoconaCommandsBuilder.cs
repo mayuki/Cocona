@@ -145,7 +145,7 @@ namespace Cocona
         }
 
         /// <summary>
-        /// Adds a command definition delegate to the builder.
+        /// Adds a primary command definition delegate to the builder.
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="commandBody"></param>
