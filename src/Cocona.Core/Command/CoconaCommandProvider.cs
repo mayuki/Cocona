@@ -34,10 +34,10 @@ namespace Cocona.Command
         private readonly CommandProviderOptions _options;
         private readonly ICoconaServiceProviderIsService _serviceProviderIsService;
 
-        public CoconaCommandProvider(Type[] targetTypes, Delegate[]? targetDelegates = default, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands, ICoconaServiceProviderIsService? serviceProviderIsService = null)
+        public CoconaCommandProvider(Type[] targetTypes, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands, ICoconaServiceProviderIsService? serviceProviderIsService = null)
         {
             _options = options;
-            _commandDataSet = CreateCommandDataSetFromTypesAndDelegates(targetTypes, targetDelegates ?? Array.Empty<Delegate>(), Array.Empty<object>());
+            _commandDataSet = CreateCommandDataSetFromTypes(targetTypes, Array.Empty<object>());
             _serviceProviderIsService = serviceProviderIsService ?? NullCoconaServiceProviderIsService.Instance;
         }
 
@@ -51,9 +51,9 @@ namespace Cocona.Command
         public CommandCollection GetCommandCollection()
             => CreateCommandCollectionFromCommandDataSet(_commandDataSet);
 
-        private IReadOnlyList<ICommandData> CreateCommandDataSetFromTypesAndDelegates(IReadOnlyList<Type> types, IReadOnlyList<Delegate> delegates, IReadOnlyList<object> typeCommandMetadata)
+        private IReadOnlyList<ICommandData> CreateCommandDataSetFromTypes(IReadOnlyList<Type> types, IReadOnlyList<object> typeCommandMetadata)
         {
-            var commands = new List<ICommandData>(types.Count + delegates.Count);
+            var commands = new List<ICommandData>(types.Count);
             foreach (var type in types)
             {
                 // Command types
@@ -85,7 +85,7 @@ namespace Cocona.Command
                 {
                     if (subCommandsAttr.Type == type) throw new InvalidOperationException("Sub-commands type must not be same as command type.");
 
-                    var subCommandDataSet = CreateCommandDataSetFromTypesAndDelegates(new[] { subCommandsAttr.Type }, Array.Empty<Delegate>(), typeCommandMetadata);
+                    var subCommandDataSet = CreateCommandDataSetFromTypes(new[] { subCommandsAttr.Type }, typeCommandMetadata);
                     var commandName = subCommandsAttr.Type.Name;
                     if (!string.IsNullOrWhiteSpace(subCommandsAttr.CommandName))
                     {
@@ -95,17 +95,6 @@ namespace Cocona.Command
                     if (_options.HasFlag(CommandProviderOptions.CommandNameToLowerCase)) commandName = ToCommandCase(commandName);
                     commands.Add(new SubCommandData(subCommandDataSet, new [] { new CommandNameMetadata(commandName) }));
                 }
-            }
-
-            foreach (var @delegate in delegates)
-            {
-                var attrs = @delegate.Method.GetCustomAttributes(inherit: true);
-                var commandName = attrs.OfType<CommandAttribute>().Select(x => x.Name).FirstOrDefault(x => string.IsNullOrEmpty(x));
-                var delegateMetadata = (commandName != null)
-                    ? new object[] { new CommandNameMetadata(commandName) } // == AddCommand(string, Delegate)
-                    : new object[] { new PrimaryCommandAttribute() }; // == AddCommand(Delegate)
-                delegateMetadata = new[] { new CommandNameMetadata(@delegate.Method.Name) };
-                commands.Add(new DelegateCommandData(@delegate.Method, @delegate.Target, typeCommandMetadata.Concat(attrs).Concat(delegateMetadata).ToArray()));
             }
 
             return commands;
@@ -176,12 +165,6 @@ namespace Cocona.Command
                     }
                 }
 
-                // Allow only one unnamed primary command.
-                if (command.Flags.HasFlag(CommandFlags.Unnamed) && command.IsPrimaryCommand && commands.Any(x => x.Flags.HasFlag(CommandFlags.Unnamed) && x.IsPrimaryCommand))
-                {
-                    throw new CoconaException($"One unnamed primary command can be registered. An unnamed primary command has been already registered.");
-                }
-
                 commands.Add(command);
             }
 
@@ -196,7 +179,7 @@ namespace Cocona.Command
                 {
                     // Commands Type
                     case TypeCommandData typeCommandData:
-                        foreach (var commandDataInner in CreateCommandDataSetFromTypesAndDelegates(new[] { typeCommandData.Type }, Array.Empty<Delegate>(), typeCommandData.Metadata))
+                        foreach (var commandDataInner in CreateCommandDataSetFromTypes(new[] { typeCommandData.Type }, typeCommandData.Metadata))
                         {
                             ProcessCommandData(commandDataInner);
                         }

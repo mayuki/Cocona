@@ -62,12 +62,35 @@ namespace Cocona.Test.Command.CommandProvider
         }
 
         [Fact]
+        public void DelegateCommandData_Static()
+        {
+            var provider = new CoconaCommandProvider(new[] { new DelegateCommandData(new Action<string>(CommandTest_Static.A).Method, null, new[] { new CommandNameMetadata("A") }) });
+            var collection = provider.GetCommandCollection();
+            collection.All.Should().HaveCount(1);
+            collection.All[0].Name.Should().Be("A");
+            collection.All[0].Target.Should().BeNull();
+            collection.All[0].Method.IsStatic.Should().BeTrue();
+        }
+
+        [Fact]
         public void TypeCommandData_SingleCommand()
         {
             var provider = new CoconaCommandProvider(new[] { new TypeCommandData(typeof(CommandTestSingleCommand), Array.Empty<object>()) });
             var collection = provider.GetCommandCollection();
             collection.All.Should().HaveCount(1);
             collection.All[0].Name.Should().Be("A");
+        }
+
+        [Fact]
+        public void TypeCommandData_PrimaryCommand_Duplicate()
+        {
+            var provider = new CoconaCommandProvider(new[]
+            {
+                new TypeCommandData(typeof(CommandTestSingleCommand), new object[] { new CommandNameMetadata("A"), new PrimaryCommandAttribute() }),
+                new TypeCommandData(typeof(CommandTestSingleCommand), new object[] { new CommandNameMetadata("B"), new PrimaryCommandAttribute() }),
+            });
+
+            Assert.Throws<CoconaException>(() => provider.GetCommandCollection()).Message.Should().Contain("The commands contains more then one primary command.");
         }
 
         [Fact]
@@ -96,7 +119,10 @@ namespace Cocona.Test.Command.CommandProvider
             var provider = new CoconaCommandProvider(new[] { new TypeCommandData(typeof(CommandTestSingleCommand), Array.Empty<object>()), new TypeCommandData(typeof(CommandTestMultipleCommand), Array.Empty<object>()) });
             Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
         }
-
+        public static class CommandTest_Static
+        {
+            public static void A(string name) { }
+        }
         public class CommandTestSingleCommand
         {
             public void A(string name) { }

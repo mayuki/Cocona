@@ -41,7 +41,7 @@ namespace Cocona.Test.Integration
                 app.Run();
             });
 
-            stdErr.Should().Contain("One unnamed primary command can be registered");
+            stdErr.Should().Contain("The commands contains more then one primary command");
             exitCode.Should().Be(1);
         }
 

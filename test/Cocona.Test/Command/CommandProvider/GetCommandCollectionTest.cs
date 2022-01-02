@@ -236,61 +236,6 @@ namespace Cocona.Test.Command.CommandProvider
             commands.All[1].Method.IsStatic.Should().BeTrue();
         }
 
-        [Fact]
-        public void Delegate_Static_SingleCommand()
-        {
-            Func<bool, bool, int> methodA = CommandTest_Static_MultipleCommands.A;
-            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA });
-            var commands = provider.GetCommandCollection();
-            commands.Should().NotBeNull();
-            commands.All.Should().HaveCount(1);
-            commands.All[0].Name.Should().Be("A");
-        }
-
-        [Fact]
-        public void Delegate_Static_MultipleCommands()
-        {
-            Func<bool, bool, int> methodA = CommandTest_Static_MultipleCommands.A;
-            Action methodB = CommandTest_Static_MultipleCommands.B;
-            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { (Delegate)methodA, methodB });
-            var commands = provider.GetCommandCollection();
-            commands.Should().NotBeNull();
-            commands.All.Should().HaveCount(2);
-            commands.All[0].Name.Should().Be("A");
-            commands.All[1].Name.Should().Be("B");
-        }
-
-        [Fact]
-        public void Delegate()
-        {
-            Action<string> methodA = new CommandTestSingleCommand().A;
-            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA });
-            var commands = provider.GetCommandCollection();
-            commands.Should().NotBeNull();
-            commands.All.Should().HaveCount(1);
-            commands.All[0].Name.Should().Be("A");
-            commands.All[0].CommandType.Should().Be<CommandTestSingleCommand>();
-        }
-
-        [Fact]
-        public void Delegate_Unnamed_Single()
-        {
-            Action<string> methodA = (string name) => {};
-            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA });
-            var commands = provider.GetCommandCollection();
-            commands.Should().NotBeNull();
-            commands.All.Should().HaveCount(1);
-        }
-        
-        [Fact]
-        public void Delegate_Unnamed_Multiple()
-        {
-            Action<string> methodA = (string name) => {};
-            Action<string> methodB = (string name) => {};
-            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA, methodB });
-            Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
-        }
-        
         public class CommandTestDefaultPrimaryCommand_Argument
         {
             public void A([Argument]string[] args) { }
