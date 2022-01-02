@@ -236,6 +236,19 @@ namespace Cocona.Test.Command.CommandProvider
             commands.All[1].Method.IsStatic.Should().BeTrue();
         }
 
+        [Fact]
+        public void OptionLikeCommand()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTest_OptionLikeCommand) });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+            commands.All[0].OptionLikeCommands.Should().HaveCount(1);
+            commands.All[0].OptionLikeCommands[0].Name.Should().Be("info");
+            commands.All[0].OptionLikeCommands[0].ShortName.Should().BeEquivalentTo(new [] { 'i' });
+            commands.All[0].OptionLikeCommands[0].Description.Should().BeEmpty(); // TODO:
+        }
+
         public class CommandTestDefaultPrimaryCommand_Argument
         {
             public void A([Argument]string[] args) { }
@@ -394,6 +407,16 @@ namespace Cocona.Test.Command.CommandProvider
             public static void B() { }
 
             public static int NoCommandAttribute() => 0;
+        }
+
+        public class CommandTest_OptionLikeCommand
+        {
+            [Command]
+            [OptionLikeCommand("info", new [] { 'i' }, typeof(CommandTest_OptionLikeCommand), nameof(CommandTest_OptionLikeCommand.Info))]
+            public int A(bool option0, bool option1) => 0;
+
+            //[Command(Description = "Description")]
+            private void Info(string a, int b) { }
         }
     }
 }

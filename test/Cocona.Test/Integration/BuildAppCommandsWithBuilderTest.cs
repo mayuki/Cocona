@@ -186,5 +186,52 @@ namespace Cocona.Test.Integration
             stdOut.Should().Be("Hello Alice!" + Environment.NewLine);
             exitCode.Should().Be(0);
         }
+
+        [Fact]
+        public void Unnamed_OptionLikeCommand()
+        {
+            var (stdOut, stdErr, exitCode) = Run(new string[] { }, args =>
+            {
+                var builder = CoconaApp.CreateBuilder(args);
+                var app = builder.Build();
+                app.AddCommand(() => Console.WriteLine("Hello Konnichiwa!"))
+                    .OptionLikeCommand(x =>
+                    {
+                        x.Add("info", () => Console.WriteLine("Info"));
+                        x.Add("foo", () => Console.WriteLine("Foo"))
+                            .WithDescription("Foo-Description");
+                    });
+                app.Run();
+            });
+
+            stdOut.Should().Be("Hello Konnichiwa!" + Environment.NewLine);
+            exitCode.Should().Be(0);
+        }
+
+        [Fact]
+        public void Unnamed_OptionLikeCommand_Index()
+        {
+            var (stdOut, stdErr, exitCode) = Run(new string[] { "--help" }, args =>
+            {
+                var builder = CoconaApp.CreateBuilder(args);
+                var app = builder.Build();
+
+                app.AddCommand(() => Console.WriteLine("Hello Konnichiwa!"))
+                    .OptionLikeCommand(x =>
+                    {
+                        x.Add("info", () => Console.WriteLine("Info"));
+                        x.Add("foo", () => Console.WriteLine("Foo"))
+                            .WithDescription("Foo-Description");
+                    });
+
+                app.Run();
+            });
+
+            stdOut.Should().Contain("Usage:");
+            stdOut.Should().Contain("--info");
+            stdOut.Should().Contain("--foo");
+            stdOut.Should().Contain("Foo-Description");
+            exitCode.Should().Be(129);
+        }
     }
 }

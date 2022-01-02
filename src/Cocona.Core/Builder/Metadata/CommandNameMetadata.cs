@@ -1,4 +1,4 @@
-﻿namespace Cocona.Builder.Metadata
+namespace Cocona.Builder.Metadata
 {
     public class CommandNameMetadata
     {

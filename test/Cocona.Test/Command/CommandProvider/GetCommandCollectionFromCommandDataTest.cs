@@ -119,6 +119,25 @@ namespace Cocona.Test.Command.CommandProvider
             var provider = new CoconaCommandProvider(new[] { new TypeCommandData(typeof(CommandTestSingleCommand), Array.Empty<object>()), new TypeCommandData(typeof(CommandTestMultipleCommand), Array.Empty<object>()) });
             Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
         }
+
+        [Fact]
+        public void OptionLikeCommand()
+        {
+            void TestMethod() { }
+            var provider = new CoconaCommandProvider(new[]
+            {
+                new DelegateCommandData(new Action(TestMethod).Method, this, new object[]
+                {
+                    new CommandNameMetadata("TestMethod"),
+                    new OptionLikeCommandMetadata(
+                        new OptionLikeDelegateCommandData(new [] { 'i' }, new Action(TestMethod).Method, null, new object[] { new CommandNameMetadata("info"), })),
+                })
+            });
+            var collection = provider.GetCommandCollection();
+            collection.All[0].OptionLikeCommands.Should().HaveCount(1);
+            collection.All[0].OptionLikeCommands[0].Name.Should().Be("info");
+        }
+
         public static class CommandTest_Static
         {
             public static void A(string name) { }

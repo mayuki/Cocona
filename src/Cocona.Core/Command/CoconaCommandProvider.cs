@@ -299,13 +299,15 @@ namespace Cocona.Command
                 optionLikeCommands = commandMethodDesc.OptionLikeCommands
                     .Select(x =>
                     {
-                        var methodInfoOptionLikeCommandTarget = x.CommandType.GetMethod(x.CommandMethodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                        if (methodInfoOptionLikeCommandTarget is null)
+                        var optionLikeCommandData = x.GetCommandData();
+                        var (methodInfoOptionLikeCommand, targetOptionLikeCommand) = optionLikeCommandData switch
                         {
-                            throw new InvalidOperationException($"A method of option-like command '{x.CommandMethodName}' was not found in '{x.CommandType}'");
-                        }
+                            OptionLikeDelegateCommandData commandData => (commandData.Method, commandData.Target),
+                            DelegateCommandData commandData => (commandData.Method, commandData.Target),
+                            _ => throw new InvalidOperationException($"Option-like command data must be DelegateCommandData or OptionLikeDelegateCommandData"),
+                        };
 
-                        var optionLikeCommandDesc = CreateCommand(methodInfoOptionLikeCommandTarget, false, _emptyOverloads, null);
+                        var optionLikeCommandDesc = CreateCommand(methodInfoOptionLikeCommand, false, _emptyOverloads, targetOptionLikeCommand, optionLikeCommandData.Metadata);
                         return new CommandOptionLikeCommandDescriptor(
                             x.OptionName,
                             x.ShortNames,
@@ -500,12 +502,12 @@ namespace Cocona.Command
             var isHidden = false;
             var isPrimaryCommand = false;
             var isIgnoreUnknownOptions = false;
-            var optionLikeCommands = new List<OptionLikeCommandAttribute>();
+            var optionLikeCommands = new List<IOptionLikeCommandMetadata>();
             var commandMethodForwardedToAttr = default(CommandMethodForwardedToAttribute);
 
-            foreach (var attr in metadata)
+            foreach (var item in metadata)
             {
-                switch (attr)
+                switch (item)
                 {
                     case CommandAttribute command:
                         commandAttr = command;
@@ -519,7 +521,7 @@ namespace Cocona.Command
                     case IgnoreUnknownOptionsAttribute _:
                         isIgnoreUnknownOptions = true;
                         break;
-                    case OptionLikeCommandAttribute optionLikeCommand:
+                    case IOptionLikeCommandMetadata optionLikeCommand:
                         optionLikeCommands.Add(optionLikeCommand);
                         break;
                     case CommandMethodForwardedToAttribute commandMethodForwardedTo:
@@ -765,10 +767,10 @@ namespace Cocona.Command
             public bool IsHidden { get; }
             public bool IsPrimaryCommand { get; }
             public bool IsIgnoreUnknownOptions { get; }
-            public IReadOnlyList<OptionLikeCommandAttribute> OptionLikeCommands { get; }
+            public IReadOnlyList<IOptionLikeCommandMetadata> OptionLikeCommands { get; }
             public CommandMethodForwardedToAttribute? CommandMethodForwardedTo { get; }
 
-            public CommandMethodDescriptor(CommandAttribute? commandAttr, bool isHidden, bool isPrimaryCommand, bool isIgnoreUnknownOptions, IReadOnlyList<OptionLikeCommandAttribute> optionLikeCommands, CommandMethodForwardedToAttribute? commandMethodForwardedTo)
+            public CommandMethodDescriptor(CommandAttribute? commandAttr, bool isHidden, bool isPrimaryCommand, bool isIgnoreUnknownOptions, IReadOnlyList<IOptionLikeCommandMetadata> optionLikeCommands, CommandMethodForwardedToAttribute? commandMethodForwardedTo)
             {
                 CommandAttribute = commandAttr;
                 IsHidden = isHidden;

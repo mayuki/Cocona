@@ -20,6 +20,7 @@ namespace Cocona
         /// <returns></returns>
         public static CommandConventionBuilder WithAliases(this CommandConventionBuilder builder, params string[] aliases)
         {
+            ThrowHelper.ThrowIfNull(builder);
             ThrowHelper.ThrowIfNull(aliases);
             builder.Add(commandBuilder =>
             {
@@ -36,6 +37,7 @@ namespace Cocona
         /// <returns></returns>
         public static CommandConventionBuilder WithDescription(this CommandConventionBuilder builder, string description)
         {
+            ThrowHelper.ThrowIfNull(builder);
             ThrowHelper.ThrowIfNull(description);
             builder.Add(commandBuilder =>
             {
@@ -52,6 +54,7 @@ namespace Cocona
         /// <returns></returns>
         public static CommandConventionBuilder WithName(this CommandConventionBuilder builder, string name)
         {
+            ThrowHelper.ThrowIfNull(builder);
             ThrowHelper.ThrowIfNull(name);
             builder.Add(commandBuilder =>
             {
@@ -68,6 +71,7 @@ namespace Cocona
         /// <returns></returns>
         public static CommandConventionBuilder WithFilter(this CommandConventionBuilder builder, IFilterMetadata filter)
         {
+            ThrowHelper.ThrowIfNull(builder);
             ThrowHelper.ThrowIfNull(filter);
             builder.Add(commandBuilder =>
             {
@@ -84,6 +88,7 @@ namespace Cocona
         /// <returns></returns>
         public static CommandConventionBuilder WithFilter(this CommandConventionBuilder builder, IFilterFactory filter)
         {
+            ThrowHelper.ThrowIfNull(builder);
             ThrowHelper.ThrowIfNull(filter);
             builder.Add(commandBuilder =>
             {
@@ -100,6 +105,7 @@ namespace Cocona
         /// <returns></returns>
         public static CommandConventionBuilder WithFilter(this CommandConventionBuilder builder, Func<CoconaCommandExecutingContext, CommandExecutionDelegate, ValueTask<int>> filterFunc)
         {
+            ThrowHelper.ThrowIfNull(builder);
             ThrowHelper.ThrowIfNull(filterFunc);
             builder.Add(commandBuilder =>
             {
@@ -116,6 +122,7 @@ namespace Cocona
         /// <returns></returns>
         public static CommandConventionBuilder WithMetadata(this CommandConventionBuilder builder, params object[] items)
         {
+            ThrowHelper.ThrowIfNull(builder);
             ThrowHelper.ThrowIfNull(items);
             builder.Add(commandBuilder =>
             {
@@ -127,8 +134,36 @@ namespace Cocona
             return builder;
         }
 
+
+        /// <summary>
+        /// Adds a option-like command definition delegate to the builder.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="configureOptionLikeCommands"></param>
+        /// <returns></returns>
+        public static CommandConventionBuilder OptionLikeCommand(this CommandConventionBuilder builder, Action<IOptionLikeCommandsBuilder> configureOptionLikeCommands)
+        {
+            ThrowHelper.ThrowIfNull(builder);
+            ThrowHelper.ThrowIfNull(configureOptionLikeCommands);
+
+            builder.Add(commandBuilder =>
+            {
+                var builderOptionLikeCommands = new OptionLikeCommandsBuilder();
+                configureOptionLikeCommands(builderOptionLikeCommands);
+                var optionLikeCommands = builderOptionLikeCommands.Build();
+
+                foreach (var optionLikeCommand in optionLikeCommands)
+                {
+                    commandBuilder.Metadata.Add(new OptionLikeCommandMetadata(optionLikeCommand));
+                }
+            });
+
+            return builder;
+        }
+
         internal static CommandConventionBuilder FromBuilder(this CommandConventionBuilder builder)
         {
+            ThrowHelper.ThrowIfNull(builder);
             builder.Add(commandBuilder =>
             {
                 commandBuilder.Metadata.Add(new CommandFromBuilderMetadata());
