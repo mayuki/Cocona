@@ -222,6 +222,8 @@ namespace Cocona.Test.Integration
                         x.Add("info", () => Console.WriteLine("Info"));
                         x.Add("foo", () => Console.WriteLine("Foo"))
                             .WithDescription("Foo-Description");
+                        x.Add("hidden", () => Console.WriteLine("Hidden"))
+                            .WithMetadata(new HiddenAttribute());
                     });
 
                 app.Run();
@@ -231,6 +233,7 @@ namespace Cocona.Test.Integration
             stdOut.Should().Contain("--info");
             stdOut.Should().Contain("--foo");
             stdOut.Should().Contain("Foo-Description");
+            stdOut.Should().NotContain("--hidden");
             exitCode.Should().Be(129);
         }
     }

@@ -131,11 +131,19 @@ namespace Cocona.Test.Command.CommandProvider
                     new CommandNameMetadata("TestMethod"),
                     new OptionLikeCommandMetadata(
                         new OptionLikeDelegateCommandData(new [] { 'i' }, new Action(TestMethod).Method, null, new object[] { new CommandNameMetadata("info"), })),
+                    new OptionLikeCommandMetadata(
+                        new OptionLikeDelegateCommandData(new [] { 'f' }, new Action(TestMethod).Method, null, new object[] { new CommandNameMetadata("foo"), new CommandDescriptionMetadata("Foo-Description") })),
+                    new OptionLikeCommandMetadata(
+                        new OptionLikeDelegateCommandData(new [] { 'f' }, new Action(TestMethod).Method, null, new object[] { new CommandNameMetadata("hidden"), new HiddenAttribute() })),
                 })
             });
             var collection = provider.GetCommandCollection();
-            collection.All[0].OptionLikeCommands.Should().HaveCount(1);
+            collection.All[0].OptionLikeCommands.Should().HaveCount(3);
             collection.All[0].OptionLikeCommands[0].Name.Should().Be("info");
+            collection.All[0].OptionLikeCommands[1].Name.Should().Be("foo");
+            collection.All[0].OptionLikeCommands[1].Description.Should().Be("Foo-Description");
+            collection.All[0].OptionLikeCommands[2].Name.Should().Be("hidden");
+            collection.All[0].OptionLikeCommands[2].Flags.Should().HaveFlag(CommandOptionFlags.Hidden);
         }
 
         public static class CommandTest_Static

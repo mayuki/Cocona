@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Cocona.Builder;
@@ -18,15 +19,12 @@ namespace Cocona
         public Type CommandType { get; }
         public string CommandMethodName { get; }
 
-        public MethodInfo? CommandMethod { get; }
-
         public OptionLikeCommandAttribute(string optionName, char[] shortNames, Type commandType, string commandMethodName)
         {
             OptionName = optionName ?? throw new ArgumentNullException(nameof(optionName));
             ShortNames = shortNames ?? throw new ArgumentNullException(nameof(shortNames));
             CommandType = commandType ?? throw new ArgumentNullException(nameof(commandType));
             CommandMethodName = commandMethodName ?? throw new ArgumentNullException(nameof(commandMethodName));
-            CommandMethod = null;
         }
 
         public ICommandData GetCommandData()
@@ -37,7 +35,7 @@ namespace Cocona
                 throw new InvalidOperationException($"A method of option-like command '{CommandMethodName}' was not found in '{CommandType}'");
             }
 
-            return new DelegateCommandData(methodInfo, null, new [] { new CommandNameMetadata(OptionName) });
+            return new DelegateCommandData(methodInfo, null, new [] { new CommandNameMetadata(OptionName) }.Concat(methodInfo.GetCustomAttributes(inherit: true)).ToArray());
         }
     }
 }
