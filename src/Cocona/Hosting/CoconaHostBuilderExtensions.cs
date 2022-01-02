@@ -12,8 +12,8 @@ namespace Microsoft.Extensions.Hosting
 {
     public static class CoconaHostBuilderExtensions
     {
-        public static IHostBuilder UseCocona(this IHostBuilder hostBuilder, string[]? args, IEnumerable<Type> types, IEnumerable<Delegate>? methods = null)
-            => hostBuilder.UseCocona(args, app =>
+        public static IHostBuilder AddCocona(this IHostBuilder hostBuilder, string[]? args, IEnumerable<Type> types, IEnumerable<Delegate>? methods = null)
+            => hostBuilder.AddCocona(args, app =>
                 {
                     app.AddCommands(types);
 
@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.Hosting
                     }
                 });
 
-        public static IHostBuilder UseCocona(this IHostBuilder hostBuilder, string[]? args, Action<ICoconaCommandsBuilder>? configureApplication = null)
+        public static IHostBuilder AddCocona(this IHostBuilder hostBuilder, string[]? args, Action<ICoconaCommandsBuilder>? configureApplication = null)
         {
             return hostBuilder
                 .ConfigureLogging(logging =>
