@@ -2,13 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Cocona.Builder.Internal;
 using Cocona.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Cocona.Builder
@@ -36,7 +39,10 @@ namespace Cocona.Builder
             _services = new ServiceCollection();
             _configureOptions = configureOptions;
 
+            // Sets the default configuration values for the application host.
+            //  such as EnvironmentName, ApplicationName, ContentRoot...
             var bootstrapHostBuilder = new BootstrapHostBuilder(_services);
+            bootstrapHostBuilder.ConfigureDefaults(null);
             bootstrapHostBuilder.ConfigureDefaultCocona(args, app =>
             {
                 // Copy commands from CoconaApp to CoconaAppHostOptions on starting application.
@@ -45,15 +51,21 @@ namespace Cocona.Builder
                     app.AddCommand(commandData);
                 }
             });
-
             var (hostBuilderContext, hostConfiguration) = bootstrapHostBuilder.Apply(Configuration, _hostBuilder);
 
             _configureHostBuilder = new ConfigureHostBuilder(hostBuilderContext, Configuration, Services);
-            Environment = hostBuilderContext.HostingEnvironment;
+            Environment = new HostingEnvironment()
+            {
+                ApplicationName = hostBuilderContext.HostingEnvironment.ApplicationName ?? Assembly.GetEntryAssembly()!.GetName().Name,
+                EnvironmentName = hostBuilderContext.HostingEnvironment.EnvironmentName,
+                ContentRootFileProvider = hostBuilderContext.HostingEnvironment.ContentRootFileProvider,
+                ContentRootPath = hostBuilderContext.HostingEnvironment.ContentRootPath,
+            };
             Logging = new LoggingBuilder(_services);
 
             _services.AddSingleton<IConfiguration>(sp => Configuration);
         }
+
 
         public CoconaApp Build()
         {
@@ -74,6 +86,8 @@ namespace Cocona.Builder
 
             _hostBuilder.ConfigureServices((hostBuilder, services) =>
             {
+                services.AddSingleton(Environment);
+
                 if (_configureOptions != null)
                 {
                     services.Configure<CoconaAppOptions>(_configureOptions);

@@ -50,6 +50,8 @@ namespace Cocona.Builder.Internal
                 {
                     ApplicationName = hostConfiguration[HostDefaults.ApplicationKey],
                     EnvironmentName = hostConfiguration[HostDefaults.EnvironmentKey] ?? Environments.Production,
+                    ContentRootPath = hostConfiguration[HostDefaults.ContentRootKey],
+                    ContentRootFileProvider = new PhysicalFileProvider(hostConfiguration[HostDefaults.ContentRootKey]),
                 },
             };
             configuration.AddConfiguration(hostConfiguration, true);
@@ -71,7 +73,6 @@ namespace Cocona.Builder.Internal
 
             return (hostBuilderContext, hostConfiguration);
         }
-
 
         class HostEnvironment : IHostEnvironment
         {
