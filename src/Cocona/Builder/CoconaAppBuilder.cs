@@ -40,9 +40,8 @@ namespace Cocona.Builder
             _configureOptions = configureOptions;
 
             // Sets the default configuration values for the application host.
-            //  such as EnvironmentName, ApplicationName, ContentRoot...
+            // such as EnvironmentName, ApplicationName, ContentRoot...
             var bootstrapHostBuilder = new BootstrapHostBuilder(_services);
-            bootstrapHostBuilder.ConfigureDefaults(null);
             bootstrapHostBuilder.ConfigureDefaultCocona(args, app =>
             {
                 // Copy commands from CoconaApp to CoconaAppHostOptions on starting application.

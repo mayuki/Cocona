@@ -17,7 +17,7 @@ namespace Cocona
     /// <summary>
     /// Initializes and starts a Cocona enabled application.
     /// </summary>
-    public partial class CoconaApp : ICoconaCommandsBuilder, ICoconaAppBuilder
+    public partial class CoconaApp : ICoconaCommandsBuilder, ICoconaAppBuilder, IDisposable
     {
         private readonly IHost _host;
         private readonly ICoconaCommandsBuilder _commandsBuilder = new CoconaCommandsBuilder();
@@ -45,5 +45,8 @@ namespace Cocona
 
         public Task RunAsync(CancellationToken cancellationToken = default)
             => _host.RunAsync(cancellationToken);
+
+        public void Dispose()
+            => _host.Dispose();
     }
 }

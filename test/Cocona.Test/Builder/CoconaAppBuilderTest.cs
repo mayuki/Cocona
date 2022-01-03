@@ -20,6 +20,8 @@ namespace Cocona.Test.Builder
             builder.Configuration.GetSection($"__{nameof(CoconaAppBuilderTest)}__").Value.Should().BeNull();
             builder.Configuration.AddInMemoryCollection(new[] { KeyValuePair.Create($"__{nameof(CoconaAppBuilderTest)}__", "true") });
             builder.Configuration.GetSection($"__{nameof(CoconaAppBuilderTest)}__").Value.Should().Be("true");
+
+            builder.Build().Dispose();
         }
 
         [Fact]
@@ -29,6 +31,7 @@ namespace Cocona.Test.Builder
             builder.Services.AddTransient<IMyService, MyService>();
             var app = builder.Build();
             app.Services.GetRequiredService<IMyService>().GetName().Should().Be("Alice");
+            app.Dispose();
         }
 
         [Fact]
@@ -44,6 +47,7 @@ namespace Cocona.Test.Builder
 
             loggerProvider.Logs.Should().HaveCount(1);
             loggerProvider.Logs[0].Should().Contain("|Logging");
+            app.Dispose();
         }
 
         class MyLoggerProvider : ILoggerProvider

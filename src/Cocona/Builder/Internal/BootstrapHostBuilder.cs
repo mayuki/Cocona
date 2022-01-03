@@ -54,6 +54,8 @@ namespace Cocona.Builder.Internal
                     ContentRootFileProvider = new PhysicalFileProvider(hostConfiguration[HostDefaults.ContentRootKey]),
                 },
             };
+
+            configuration.SetBasePath(hostBuilderContext.HostingEnvironment.ContentRootPath);
             configuration.AddConfiguration(hostConfiguration, true);
             foreach (var action in _configureAppConfigs)
             {
