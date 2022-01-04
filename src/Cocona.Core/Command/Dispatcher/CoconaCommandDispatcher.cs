@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Cocona.Command.Features;
+using Cocona.Resources;
 
 namespace Cocona.Command.Dispatcher
 {
@@ -90,7 +91,7 @@ namespace Cocona.Command.Dispatcher
                 throw new CommandNotFoundException(
                     string.Empty,
                     result.CommandCollection,
-                    $"Command not yet implemented."
+                    Strings.Command_NotYetImplemented
                 );
             }
         }

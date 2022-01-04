@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cocona.Internal;
+using Cocona.Resources;
 
 namespace Cocona.Help
 {
@@ -99,7 +100,7 @@ namespace Cocona.Help
             var help = new HelpMessage();
 
             // Usage
-            help.Children.Add(new HelpSection(HelpSectionId.Usage, new HelpUsage($"Usage: {CreateUsageCommandOptionsAndArgs(command, subCommandStack)}")));
+            help.Children.Add(new HelpSection(HelpSectionId.Usage, new HelpUsage(string.Format(Strings.Help_Index_Usage, CreateUsageCommandOptionsAndArgs(command, subCommandStack)))));
 
             // Description
             if (!string.IsNullOrWhiteSpace(command.Description))
@@ -132,11 +133,11 @@ namespace Cocona.Help
             var subCommandParams = (subCommandStack.Count > 0) ? string.Join(" ", subCommandStack.Select(x => x.Name)) + " " : "";
             if (commandCollection.All.Count != 1)
             {
-                usageSection.Children.Add(new HelpUsage($"Usage: {_applicationMetadataProvider.GetExecutableName()} {subCommandParams}[command]"));
+                usageSection.Children.Add(new HelpUsage(string.Format(Strings.Help_Index_Usage_Multple, _applicationMetadataProvider.GetExecutableName(), subCommandParams)));
             }
             if (commandCollection.Primary != null && (commandCollection.All.Count == 1 || commandCollection.Primary.Options.Any() || commandCollection.Primary.Arguments.Any()))
             {
-                usageSection.Children.Add(new HelpUsage($"Usage: {CreateUsageCommandOptionsAndArgs(commandCollection.Primary, subCommandStack)}"));
+                usageSection.Children.Add(new HelpUsage(string.Format(Strings.Help_Index_Usage, CreateUsageCommandOptionsAndArgs(commandCollection.Primary, subCommandStack))));
             }
             help.Children.Add(usageSection);
 
@@ -159,7 +160,7 @@ namespace Cocona.Help
             if (commandsExceptPrimary.Any())
             {
                 help.Children.Add(new HelpSection(HelpSectionId.Commands,
-                    new HelpHeading("Commands:"),
+                    new HelpHeading(Strings.Help_Heading_Commands),
                     new HelpSection(
                         new HelpLabelDescriptionList(
                             commandsExceptPrimary
@@ -219,7 +220,7 @@ namespace Cocona.Help
             if (arguments.Any())
             {
                 help.Children.Add(new HelpSection(HelpSectionId.Arguments,
-                    new HelpHeading("Arguments:"),
+                    new HelpHeading(Strings.Help_Heading_Arguments),
                     new HelpSection(
                         new HelpLabelDescriptionList(
                             arguments
@@ -241,7 +242,7 @@ namespace Cocona.Help
             if (options.Any(x => !x.Flags.HasFlag(CommandOptionFlags.Hidden)))
             {
                 help.Children.Add(new HelpSection(HelpSectionId.Options,
-                    new HelpHeading("Options:"),
+                    new HelpHeading(Strings.Help_Heading_Options),
                     new HelpSection(
                         new HelpLabelDescriptionList(
                             options
@@ -293,14 +294,14 @@ namespace Cocona.Help
             return 
                 description +
                     (isRequired
-                        ? " (Required)"
+                        ? string.Format(" ({0})", Strings.Help_Description_Required)
                         : (valueType == typeof(bool) && defaultValue.Value != null && defaultValue.Value.Equals(false))
                             ? ""
                             : (defaultValue.Value is null || (defaultValue.Value is string defaultValueStr && string.IsNullOrEmpty(defaultValueStr)))
                                 ? ""
-                                : (" (Default: " + defaultValue.Value + ")")) +
+                                : (" " + string.Format("({0}: {1})", Strings.Help_Description_Default, defaultValue.Value))) +
                     (valueType.IsEnum
-                        ? " (Allowed values: " + string.Join(", ", Enum.GetNames(valueType)) + ")"
+                        ? " " + string.Format("({0}: {1})", Strings.Help_Description_AllowedValues, string.Join(", ", Enum.GetNames(valueType)))
                         : "");
         }
     }

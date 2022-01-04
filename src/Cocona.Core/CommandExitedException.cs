@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -24,7 +24,7 @@ namespace Cocona
         { }
 
         public CommandExitedException(string? exitMessage, int exitCode)
-            : base($"The command has exited with code '{exitCode}'." + (string.IsNullOrEmpty(exitMessage) ? string.Empty : " " + exitMessage))
+            : base(string.Format(Resources.Strings.Exception_TheCommandHasExitedWithCode, exitCode, (string.IsNullOrEmpty(exitMessage) ? string.Empty : " " + exitMessage)))
         {
             ExitMessage = exitMessage;
             ExitCode = exitCode;

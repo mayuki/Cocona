@@ -7,6 +7,7 @@ using Cocona.Application;
 using Cocona.Command.Features;
 using Cocona.CommandLine;
 using Cocona.Help;
+using Cocona.Resources;
 using Cocona.ShellCompletion;
 using Cocona.ShellCompletion.Candidate;
 
@@ -20,7 +21,7 @@ namespace Cocona.Command.BuiltIn
                 default,
                 nameof(ShowHelp),
                 Array.Empty<string>(),
-                "Show help message",
+                Strings.BuiltIn_Command_Help_Description,
                 Array.Empty<object>(),
                 new[]
                 {
@@ -41,7 +42,7 @@ namespace Cocona.Command.BuiltIn
                 default,
                 nameof(ShowHelp),
                 Array.Empty<string>(),
-                "Show help message",
+                Strings.BuiltIn_Command_Help_Description,
                 Array.Empty<object>(),
                 new[]
                 {
@@ -62,7 +63,7 @@ namespace Cocona.Command.BuiltIn
                 default,
                 nameof(ShowVersion),
                 Array.Empty<string>(),
-                "Show version",
+                Strings.BuiltIn_Command_Version_Description,
                 Array.Empty<object>(),
                 new []
                 {
@@ -84,7 +85,7 @@ namespace Cocona.Command.BuiltIn
                 default,
                 nameof(GenerateCompletionSource),
                 Array.Empty<string>(),
-                "Generate a shell completion code",
+                Strings.BuiltIn_Command_Completion_Description,
                 Array.Empty<object>(),
                 new ICommandParameterDescriptor[]
                 {
@@ -110,7 +111,7 @@ namespace Cocona.Command.BuiltIn
                 default,
                 nameof(GetCompletionCandidates),
                 Array.Empty<string>(),
-                "Generate a shell completion candidates",
+                Strings.BuiltIn_Command_CompletionCanditates_Description,
                 Array.Empty<object>(),
                 new ICommandParameterDescriptor[]
                 {
@@ -160,7 +161,7 @@ namespace Cocona.Command.BuiltIn
         {
             if (!shellCompletionCodeProvider.CanHandle(shellName))
             {
-                console.Error.Write($"Error: Shell completion for '{shellName}' is not supported. (Supported shells: {string.Join(", ", shellCompletionCodeProvider.SupportedTargets)})");
+                console.Error.Write(string.Format(Strings.BuiltIn_Command_Completion_Error_NotSupported, shellName, string.Join(", ", shellCompletionCodeProvider.SupportedTargets)));
                 return new ValueTask<int>(1);
             }
 

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Cocona.Resources;
 
 namespace Cocona.Command.Dispatcher.Middlewares
 {
@@ -21,7 +22,7 @@ namespace Cocona.Command.Dispatcher.Middlewares
             {
                 if (!ctx.Command.Flags.HasFlag(CommandFlags.IgnoreUnknownOptions))
                 {
-                    _console.Error.WriteLine($"Error: Unknown option '{ctx.ParsedCommandLine.UnknownOptions[0]}'");
+                    _console.Error.WriteLine(string.Format(Strings.Command_Error_UnknownOption, ctx.ParsedCommandLine.UnknownOptions[0]));
                     return new ValueTask<int>(129);
                 }
             }

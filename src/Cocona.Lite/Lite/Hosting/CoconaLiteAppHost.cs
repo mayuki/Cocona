@@ -6,6 +6,7 @@ using Cocona.Application;
 using Cocona.Command;
 using Cocona.Command.Dispatcher;
 using Cocona.Internal;
+using Cocona.Lite.Resources;
 
 namespace Cocona.Lite.Hosting
 {
@@ -50,18 +51,18 @@ namespace Cocona.Lite.Hosting
             {
                 if (string.IsNullOrWhiteSpace(cmdNotFoundEx.Command))
                 {
-                    console.Error.WriteLine($"Error: {cmdNotFoundEx.Message}");
+                    console.Error.WriteLine(string.Format(Strings.Host_Error_CommandNotFound, cmdNotFoundEx.Message));
                 }
                 else
                 {
-                    console.Error.WriteLine($"Error: '{cmdNotFoundEx.Command}' is not a command. See '--help' for usage.");
+                    console.Error.WriteLine(string.Format(Strings.Host_Error_NotACommand, cmdNotFoundEx.Command));
                 }
 
                 var similarCommands = cmdNotFoundEx.ImplementedCommands.All.Where(x => Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
                 if (similarCommands.Any())
                 {
                     console.Error.WriteLine();
-                    console.Error.WriteLine("Similar commands:");
+                    console.Error.WriteLine(Strings.Host_Error_SimilarCommands);
                     foreach (var c in similarCommands)
                     {
                         console.Error.WriteLine($"  {c.Name}");
