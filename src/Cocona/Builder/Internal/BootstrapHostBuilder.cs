@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,6 +44,7 @@ namespace Cocona.Builder.Internal
                 action(hostConfiguration);
             }
 
+            var contentRootPath = ResolveContentRootPath(hostConfiguration[HostDefaults.ContentRootKey], AppContext.BaseDirectory);
             var hostBuilderContext = new HostBuilderContext(new Dictionary<object, object>())
             {
                 Configuration = hostConfiguration,
@@ -50,8 +52,8 @@ namespace Cocona.Builder.Internal
                 {
                     ApplicationName = hostConfiguration[HostDefaults.ApplicationKey],
                     EnvironmentName = hostConfiguration[HostDefaults.EnvironmentKey] ?? Environments.Production,
-                    ContentRootPath = hostConfiguration[HostDefaults.ContentRootKey],
-                    ContentRootFileProvider = new PhysicalFileProvider(hostConfiguration[HostDefaults.ContentRootKey]),
+                    ContentRootPath = contentRootPath,
+                    ContentRootFileProvider = new PhysicalFileProvider(contentRootPath),
                 },
             };
 
@@ -74,6 +76,20 @@ namespace Cocona.Builder.Internal
             }
 
             return (hostBuilderContext, hostConfiguration);
+        }
+
+        // https://github.com/dotnet/runtime/blob/312c66f1fc2f749f56612999cb1adab9ca7fde59/src/libraries/Microsoft.Extensions.Hosting/src/HostBuilder.cs#L198
+        private string ResolveContentRootPath(string contentRootPath, string basePath)
+        {
+            if (string.IsNullOrEmpty(contentRootPath))
+            {
+                return basePath;
+            }
+            if (Path.IsPathRooted(contentRootPath))
+            {
+                return contentRootPath;
+            }
+            return Path.Combine(Path.GetFullPath(basePath), contentRootPath);
         }
 
         class HostEnvironment : IHostEnvironment

@@ -11,7 +11,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Cocona.Builder
@@ -53,23 +52,19 @@ namespace Cocona.Builder
             var (hostBuilderContext, hostConfiguration) = bootstrapHostBuilder.Apply(Configuration, _hostBuilder);
 
             _configureHostBuilder = new ConfigureHostBuilder(hostBuilderContext, Configuration, Services);
-            Environment = new HostingEnvironment()
-            {
-                ApplicationName = hostBuilderContext.HostingEnvironment.ApplicationName ?? Assembly.GetEntryAssembly()!.GetName().Name,
-                EnvironmentName = hostBuilderContext.HostingEnvironment.EnvironmentName,
-                ContentRootFileProvider = hostBuilderContext.HostingEnvironment.ContentRootFileProvider,
-                ContentRootPath = hostBuilderContext.HostingEnvironment.ContentRootPath,
-            };
+            Environment = hostBuilderContext.HostingEnvironment;
             Logging = new LoggingBuilder(_services);
 
             _services.AddSingleton<IConfiguration>(sp => Configuration);
         }
 
-
         public CoconaApp Build()
         {
             _hostBuilder.ConfigureAppConfiguration((hostBuilder, configuration) =>
             {
+                // Use the HostEnvironment created by CoconaAppBuilder instead of the default.
+                hostBuilder.HostingEnvironment = Environment;
+
                 var chainedSource = new ChainedConfigurationSource()
                 {
                     Configuration = Configuration,

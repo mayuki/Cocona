@@ -25,6 +25,16 @@ namespace Cocona.Test.Builder
         }
 
         [Fact]
+        public void UpdateEnvironment()
+        {
+            var builder = CoconaApp.CreateBuilder();
+            builder.Environment.ApplicationName = "foobar";
+            var app = builder.Build();
+            app.Environment.ApplicationName.Should().Be("foobar");
+            app.Dispose();
+        }
+
+        [Fact]
         public void UseServiceAfterBuilderBuild()
         {
             var builder = CoconaApp.CreateBuilder();
