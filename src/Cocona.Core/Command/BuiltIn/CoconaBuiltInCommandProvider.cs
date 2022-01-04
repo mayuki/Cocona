@@ -28,7 +28,7 @@ namespace Cocona.Command.BuiltIn
             var commands = commandCollection.All;
 
             // If the collection has multiple-commands without primary command, use built-in primary command.
-            if (commandCollection.All.Count > 1 && commandCollection.Primary == null)
+            if (commandCollection.All.Count > 0 && commandCollection.Primary == null)
             {
                 commands = commands.Append(BuiltInPrimaryCommand.GetCommand(string.Empty)).ToArray();
             }
@@ -44,6 +44,7 @@ namespace Cocona.Command.BuiltIn
                     command.Name,
                     command.Aliases,
                     command.Description,
+                    command.Metadata,
                     command.Parameters,
                     command.Options,
                     command.Arguments,

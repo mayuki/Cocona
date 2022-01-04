@@ -1,3 +1,4 @@
+using Cocona.Builder.Metadata;
 using Cocona.Command;
 using FluentAssertions;
 using System;
@@ -448,18 +449,66 @@ namespace Cocona.Test.Command.CommandProvider
             cmd.Parameters.Should().HaveCount(1);
             cmd.ReturnType.Should().Be<int>();
         }
-        
-        [Fact]
-        public void InvalidCommandName()
-        {
-            // If the command is for single-command, the name will be ignored. 
-            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.InvalidCommandName)), isSingleCommand:true, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
 
-            // If the command is for multiple-command, the name must not contain invalid chars.
-            Assert.Throws<CoconaException>(() =>
+        [Fact]
+        public void UseMetadata_CommandName()
+        {
+            var metadata = new object[]
             {
-                var cmd2 = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.InvalidCommandName)), isSingleCommand:false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
-            });
+                new CommandNameMetadata("__CommandName"),
+            };
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_NoReturn)), isSingleCommand: true, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default, metadata);
+            cmd.Name.Should().Be("__CommandName");
+        }
+
+        [Fact]
+        public void UseMetadata_CommandDescription()
+        {
+            var metadata = new object[]
+            {
+                new CommandDescriptionMetadata("__CommandDescription"),
+            };
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_NoReturn)), isSingleCommand: true, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default, metadata);
+            cmd.Description.Should().Be("__CommandDescription");
+        }
+
+        [Fact]
+        public void UseMetadata_CommandAliases()
+        {
+            var metadata = new object[]
+            {
+                new CommandAliasesMetadata(new [] { "_alias1", "_alias2" }),
+            };
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_NoReturn)), isSingleCommand: true, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default, metadata);
+            cmd.Aliases.Should().BeEquivalentTo(new[] { "_alias1", "_alias2" });
+        }
+
+        [Fact]
+        public void UseMetadata_HiddenAttribute()
+        {
+            var metadata = new object[]
+            {
+                new HiddenAttribute(),
+            };
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_NoReturn)), isSingleCommand: true, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default, metadata);
+            cmd.IsHidden.Should().BeTrue();
+        }
+
+        [Fact]
+        public void UseMetadata_CommandAttribute()
+        {
+            var metadata = new object[]
+            {
+                new CommandAttribute("__CommandName")
+                {
+                    Description = "__CommandDescription",
+                    Aliases = new [] { "_alias1", "_alias2" },
+                }
+            };
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_NoOptions_NoArguments_NoReturn)), isSingleCommand: true, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default, metadata);
+            cmd.Name.Should().Be("__CommandName");
+            cmd.Description.Should().Be("__CommandDescription");
+            cmd.Aliases.Should().BeEquivalentTo(new[] { "_alias1", "_alias2" });
         }
 
         private static MethodInfo GetMethod<T>(string methodName)

@@ -38,6 +38,7 @@ namespace Cocona.Test.Command.CommandProvider
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(1);
             commands.Primary.Should().NotBeNull();
+            commands.Primary.Flags.Should().Be(CommandFlags.Unnamed | CommandFlags.Primary);
         }
 
         [Fact]
@@ -49,6 +50,17 @@ namespace Cocona.Test.Command.CommandProvider
             commands.All.Should().HaveCount(1);
             commands.Primary.Should().NotBeNull();
             commands.Primary.Description.Should().Be("Description of A");
+        }
+
+        [Fact]
+        public void SingleCommand_NotPrimary()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestSingleCommand_NotPrimary) });
+            var commands = provider.GetCommandCollection();
+            commands.Should().NotBeNull();
+            commands.All.Should().HaveCount(1);
+            commands.Primary.Should().BeNull();
+            commands.All[0].Flags.Should().Be(CommandFlags.None);
         }
 
         [Fact]
@@ -154,7 +166,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void DontTreatPublicMethodsAsCommand()
         {
-            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands) }, treatPublicMethodsAsCommands: false);
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands) }, options: CommandProviderOptions.None);
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.Primary.Should().NotBeNull();
@@ -165,7 +177,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void DontTreatPublicMethodsAsCommand_Primary()
         {
-            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands_Primary) }, treatPublicMethodsAsCommands: false);
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands_Primary) }, options: CommandProviderOptions.None);
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.Primary.Should().NotBeNull();
@@ -225,60 +237,18 @@ namespace Cocona.Test.Command.CommandProvider
         }
 
         [Fact]
-        public void Delegate_Static_SingleCommand()
+        public void OptionLikeCommand()
         {
-            Func<bool, bool, int> methodA = CommandTest_Static_MultipleCommands.A;
-            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA });
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTest_OptionLikeCommand) });
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(1);
-            commands.All[0].Name.Should().Be("A");
+            commands.All[0].OptionLikeCommands.Should().HaveCount(1);
+            commands.All[0].OptionLikeCommands[0].Name.Should().Be("info");
+            commands.All[0].OptionLikeCommands[0].ShortName.Should().BeEquivalentTo(new [] { 'i' });
+            commands.All[0].OptionLikeCommands[0].Description.Should().BeEmpty(); // TODO:
         }
 
-        [Fact]
-        public void Delegate_Static_MultipleCommands()
-        {
-            Func<bool, bool, int> methodA = CommandTest_Static_MultipleCommands.A;
-            Action methodB = CommandTest_Static_MultipleCommands.B;
-            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { (Delegate)methodA, methodB });
-            var commands = provider.GetCommandCollection();
-            commands.Should().NotBeNull();
-            commands.All.Should().HaveCount(2);
-            commands.All[0].Name.Should().Be("A");
-            commands.All[1].Name.Should().Be("B");
-        }
-
-        [Fact]
-        public void Delegate()
-        {
-            Action<string> methodA = new CommandTestSingleCommand().A;
-            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA });
-            var commands = provider.GetCommandCollection();
-            commands.Should().NotBeNull();
-            commands.All.Should().HaveCount(1);
-            commands.All[0].Name.Should().Be("A");
-            commands.All[0].CommandType.Should().Be<CommandTestSingleCommand>();
-        }
-
-        [Fact]
-        public void Delegate_Unnamed_Single()
-        {
-            Action<string> methodA = (string name) => {};
-            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA });
-            var commands = provider.GetCommandCollection();
-            commands.Should().NotBeNull();
-            commands.All.Should().HaveCount(1);
-        }
-        
-        [Fact]
-        public void Delegate_Unnamed_Multiple()
-        {
-            Action<string> methodA = (string name) => {};
-            Action<string> methodB = (string name) => {};
-            var provider = new CoconaCommandProvider(Array.Empty<Type>(), new[] { methodA, methodB });
-            Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
-        }
-        
         public class CommandTestDefaultPrimaryCommand_Argument
         {
             public void A([Argument]string[] args) { }
@@ -302,6 +272,12 @@ namespace Cocona.Test.Command.CommandProvider
         public class CommandTestSingleCommand_Description
         {
             [Command(Description = "Description of A")]
+            public void A(string name) { }
+        }
+
+        public class CommandTestSingleCommand_NotPrimary
+        {
+            [Command(nameof(A))]
             public void A(string name) { }
         }
 
@@ -431,6 +407,16 @@ namespace Cocona.Test.Command.CommandProvider
             public static void B() { }
 
             public static int NoCommandAttribute() => 0;
+        }
+
+        public class CommandTest_OptionLikeCommand
+        {
+            [Command]
+            [OptionLikeCommand("info", new [] { 'i' }, typeof(CommandTest_OptionLikeCommand), nameof(CommandTest_OptionLikeCommand.Info))]
+            public int A(bool option0, bool option1) => 0;
+
+            //[Command(Description = "Description")]
+            private void Info(string a, int b) { }
         }
     }
 }

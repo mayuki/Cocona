@@ -2,13 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Cocona.Hosting
+namespace Cocona
 {
     /// <summary>
     /// Options for Cocona enabled application.
     /// </summary>
     public class CoconaAppOptions
     {
+        /// <summary>
+        /// Sets or gets whether Cocona or a command throws an exception, handle it and exit normally. The default value is true.
+        /// </summary>
+        public bool HandleExceptionAtRuntime { get; set; } = true;
+
         /// <summary>
         /// If the type has public methods, Cocona treats as a command. The default value is true.
         /// </summary>
@@ -33,15 +38,5 @@ namespace Cocona.Hosting
         /// Specify enable shell completion support. The default value is true.
         /// </summary>
         public bool EnableShellCompletionSupport { get; set; } = true;
-
-        /// <summary>
-        /// Gets a list of command types.
-        /// </summary>
-        public IList<Type> CommandTypes { get; set; } = new List<Type>();
-
-        /// <summary>
-        /// Gets a list of command methods.
-        /// </summary>
-        public IList<Delegate> CommandMethods { get; set; } = new List<Delegate>();
     }
 }

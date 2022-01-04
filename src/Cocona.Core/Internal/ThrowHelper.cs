@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,9 +6,14 @@ namespace Cocona.Internal
 {
     internal static class ThrowHelper
     {
-        public static void ArgumentNull(object value, string name)
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void ThrowIfNull(object? argument, [System.Runtime.CompilerServices.CallerArgumentExpression("argument")] string? paramName = null)
         {
-            if (value == null) throw new ArgumentNullException(nameof(name));
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(argument, paramName);
+#else
+            throw new ArgumentNullException(paramName);
+#endif
         }
     }
 }

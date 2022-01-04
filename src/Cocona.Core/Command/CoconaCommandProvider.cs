@@ -1,3 +1,6 @@
+using Cocona.Application;
+using Cocona.Builder;
+using Cocona.Builder.Metadata;
 using Cocona.Internal;
 using System;
 using System.Collections.Generic;
@@ -13,55 +16,67 @@ using System.Threading;
 
 namespace Cocona.Command
 {
+    [Flags]
+    public enum CommandProviderOptions
+    {
+        None = 0,
+        OptionNameToLowerCase = 1 << 0,
+        CommandNameToLowerCase = 1 << 2,
+        ArgumentNameToLowerCase = 1 << 3,
+        TreatPublicMethodAsCommands = 1 << 4,
+    }
+
     public class CoconaCommandProvider : ICoconaCommandProvider
     {
-        private readonly Type[] _targetTypes;
-        private readonly Delegate[] _targetDelegates;
-        
         private static readonly Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> _emptyOverloads = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>();
-        private readonly bool _treatPublicMethodsAsCommands;
-        private readonly bool _enableConvertOptionNameToLowerCase;
-        private readonly bool _enableConvertCommandNameToLowerCase;
-        private readonly bool _enableConvertArgumentNameToLowerCase;
 
-        public CoconaCommandProvider(Type[] targetTypes, Delegate[]? targetDelegates = default, bool treatPublicMethodsAsCommands = true, bool enableConvertOptionNameToLowerCase = false, bool enableConvertCommandNameToLowerCase = false, bool enableConvertArgumentNameToLowerCase = false)
+        private readonly IReadOnlyList<ICommandData> _commandDataSet;
+        private readonly CommandProviderOptions _options;
+        private readonly ICoconaServiceProviderIsService _serviceProviderIsService;
+
+        public CoconaCommandProvider(Type[] targetTypes, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands, ICoconaServiceProviderIsService? serviceProviderIsService = null)
         {
-            _targetTypes = targetTypes ?? throw new ArgumentNullException(nameof(targetTypes));
-            _targetDelegates = targetDelegates ?? Array.Empty<Delegate>();
-            _treatPublicMethodsAsCommands = treatPublicMethodsAsCommands;
-            _enableConvertOptionNameToLowerCase = enableConvertOptionNameToLowerCase;
-            _enableConvertCommandNameToLowerCase = enableConvertCommandNameToLowerCase;
-            _enableConvertArgumentNameToLowerCase = enableConvertArgumentNameToLowerCase;
+            _options = options;
+            _commandDataSet = CreateCommandDataSetFromTypes(targetTypes, Array.Empty<object>());
+            _serviceProviderIsService = serviceProviderIsService ?? NullCoconaServiceProviderIsService.Instance;
+        }
+
+        public CoconaCommandProvider(IReadOnlyList<ICommandData> commands, CommandProviderOptions options = CommandProviderOptions.TreatPublicMethodAsCommands, ICoconaServiceProviderIsService? serviceProviderIsService = null)
+        {
+            _commandDataSet = commands;
+            _options = options;
+            _serviceProviderIsService = serviceProviderIsService ?? NullCoconaServiceProviderIsService.Instance;
         }
 
         public CommandCollection GetCommandCollection()
-            => GetCommandCollectionCore(_targetTypes, _targetDelegates);
+            => CreateCommandCollectionFromCommandDataSet(_commandDataSet);
 
-        [MethodImpl(MethodImplOptions.NoOptimization)]
-        private CommandCollection GetCommandCollectionCore(IReadOnlyList<Type> targetTypes, IReadOnlyList<Delegate> targetDelegates)
+        private IReadOnlyList<ICommandData> CreateCommandDataSetFromTypes(IReadOnlyList<Type> types, IReadOnlyList<object> typeCommandMetadata)
         {
-            var commandMethods = new List<(MethodInfo Method, object? Target)>(10);
-            var overloadCommandMethods = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(10);
-            var subCommandEntryPoints = new List<CommandDescriptor>();
-
-            // Command types
-            foreach (var type in targetTypes)
+            var commands = new List<ICommandData>(types.Count);
+            foreach (var type in types)
             {
-                if (type.IsAbstract || (type.IsGenericType && type.IsConstructedGenericType)) continue;
-
-                if (type.GetCustomAttribute<IgnoreAttribute>() != null) continue;
+                // Command types
+                if (type.IsAbstract || (type.IsGenericType && type.IsConstructedGenericType))
+                {
+                    continue;
+                }
+                if (type.GetCustomAttribute<IgnoreAttribute>() != null)
+                {
+                    continue;
+                }
 
                 // Command methods
                 foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
                 {
                     if (method.IsSpecialName || method.DeclaringType == typeof(object)) continue;
-                    if (!_treatPublicMethodsAsCommands && !method.IsPublic) continue;
+                    if (!_options.HasFlag(CommandProviderOptions.TreatPublicMethodAsCommands) && !method.IsPublic) continue;
 
                     // If the method is static, Command attribute is required.
                     if (method.IsStatic && method.GetCustomAttribute<CommandAttribute>() is null) continue;
 
-                    var implicitCommand = (_treatPublicMethodsAsCommands && method.IsPublic);
-                    AddCommandMethod(method, null, implicitCommand);
+                    var implicitCommand = (_options.HasFlag(CommandProviderOptions.TreatPublicMethodAsCommands) && method.IsPublic);
+                    commands.Add(new TypeMethodCommandData(method, null, implicitCommand, typeCommandMetadata.Concat(method.GetCustomAttributes(inherit: true)).ToArray()));
                 }
 
                 // Nested sub-commands
@@ -70,46 +85,68 @@ namespace Cocona.Command
                 {
                     if (subCommandsAttr.Type == type) throw new InvalidOperationException("Sub-commands type must not be same as command type.");
 
-                    var subCommands = GetCommandCollectionCore(new[] { subCommandsAttr.Type }, Array.Empty<Delegate>());
+                    var subCommandDataSet = CreateCommandDataSetFromTypes(new[] { subCommandsAttr.Type }, typeCommandMetadata);
                     var commandName = subCommandsAttr.Type.Name;
                     if (!string.IsNullOrWhiteSpace(subCommandsAttr.CommandName))
                     {
                         commandName = subCommandsAttr.CommandName!;
                     }
 
-                    if (_enableConvertCommandNameToLowerCase) commandName = ToCommandCase(commandName);
-
-                    var dummyMethod = ((Action)(() => { })).Method;
-                    var command = new CommandDescriptor(
-                        dummyMethod,
-                        default,
-                        commandName,
-                        Array.Empty<string>(),
-                        subCommandsAttr.Description ?? subCommands.Description,
-                        Array.Empty<ICommandParameterDescriptor>(),
-                        Array.Empty<CommandOptionDescriptor>(),
-                        Array.Empty<CommandArgumentDescriptor>(),
-                        Array.Empty<CommandOverloadDescriptor>(),
-                        Array.Empty<CommandOptionLikeCommandDescriptor>(),
-                        CommandFlags.SubCommandsEntryPoint,
-                        subCommands
-                    );
-                    subCommandEntryPoints.Add(command);
+                    if (_options.HasFlag(CommandProviderOptions.CommandNameToLowerCase)) commandName = ToCommandCase(commandName);
+                    commands.Add(new SubCommandData(subCommandDataSet, new [] { new CommandNameMetadata(commandName) }));
                 }
             }
-            
-            // Command methods
-            foreach (var method in targetDelegates)
+
+            return commands;
+        }
+
+        private (string? Name, string Description, IReadOnlyList<string> Aliases) GetCommandInfoFromMetadata(IReadOnlyList<object> metadata)
+        {
+            var name = default(string);
+            var description = string.Empty;
+            var aliases = (IReadOnlyList<string>)Array.Empty<string>();
+
+            foreach (var metadataEntry in metadata)
             {
-                AddCommandMethod(method.Method, method.Target, implicitCommand: true);
+                switch (metadataEntry)
+                {
+                    case CommandAttribute commandAttribute:
+                        name = commandAttribute.Name ?? name;
+                        description = commandAttribute.Description ?? description;
+                        aliases = commandAttribute.Aliases ?? aliases;
+                        break;
+                    case CommandNameMetadata commandNameMetadata:
+                        name = commandNameMetadata.Name ?? name;
+                        break;
+                    case CommandDescriptionMetadata commandDescriptionMetadata:
+                        description = commandDescriptionMetadata.Description ?? description;
+                        break;
+                    case CommandAliasesMetadata commandAliasesMetadata:
+                        aliases = commandAliasesMetadata.Aliases ?? aliases;
+                        break;
+                }
+            }
+
+            return (name, description, aliases);
+        }
+
+        private CommandCollection CreateCommandCollectionFromCommandDataSet(IReadOnlyList<ICommandData> commandDataSet)
+        {
+            var commandMethods = new List<(MethodInfo Method, object? Target, IReadOnlyList<object> Metadata)>(10);
+            var overloadCommandMethods = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(10);
+            var subCommandEntryPoints = new List<CommandDescriptor>();
+            var commands = new List<CommandDescriptor>(commandMethods.Count);
+
+            foreach (var command in commandDataSet)
+            {
+                ProcessCommandData(command);
             }
 
             var hasMultipleCommand = commandMethods.Count > 1 || subCommandEntryPoints.Count != 0;
             var commandNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var commands = new List<CommandDescriptor>(commandMethods.Count);
-            foreach (var (commandMethod, target) in commandMethods)
+            foreach (var (commandMethod, target, metadata) in commandMethods)
             {
-                var command = CreateCommand(commandMethod, !hasMultipleCommand, overloadCommandMethods, target);
+                var command = CreateCommand(commandMethod, !hasMultipleCommand, overloadCommandMethods, target, metadata);
                 if (commandNames.Contains(command.Name))
                 {
                     throw new CoconaException($"Command '{command.Name}' has already exists. (Method: {command.Method.Name})");
@@ -131,16 +168,53 @@ namespace Cocona.Command
                 commands.Add(command);
             }
 
+            // NOTE: For compatibility, add sub-commands to the command set last.
             commands.AddRange(subCommandEntryPoints);
 
             return new CommandCollection(commands);
 
-            void AddCommandMethod(MethodInfo method, object? target, bool implicitCommand)
+            void ProcessCommandData(ICommandData commandData)
+            {
+                switch (commandData)
+                {
+                    // Commands Type
+                    case TypeCommandData typeCommandData:
+                        foreach (var commandDataInner in CreateCommandDataSetFromTypes(new[] { typeCommandData.Type }, typeCommandData.Metadata))
+                        {
+                            ProcessCommandData(commandDataInner);
+                        }
+                        break;
+                    // Command methods
+                    case DelegateCommandData delegateCommandData:
+                        AddCommandMethod(delegateCommandData.Method, delegateCommandData.Target, true, delegateCommandData.Metadata);
+                        break;
+                    case TypeMethodCommandData typeMethodCommandData:
+                        AddCommandMethod(typeMethodCommandData.Method, null, typeMethodCommandData.IsImplicitCommand, typeMethodCommandData.Metadata);
+                        break;
+                    case SubCommandData subCommandData:
+                        var (name, description, _) = GetCommandInfoFromMetadata(subCommandData.Metadata);
+                        subCommandEntryPoints.Add(new CommandDescriptor(
+                            ((Action)(() => { })).Method,
+                            default,
+                            name ?? throw new InvalidOperationException("Sub-command name must not be null."),
+                            Array.Empty<string>(),
+                            description ?? string.Empty,
+                            Array.Empty<object>(),
+                            Array.Empty<ICommandParameterDescriptor>(),
+                            Array.Empty<CommandOptionDescriptor>(),
+                            Array.Empty<CommandArgumentDescriptor>(),
+                            Array.Empty<CommandOverloadDescriptor>(),
+                            Array.Empty<CommandOptionLikeCommandDescriptor>(),
+                            CommandFlags.SubCommandsEntryPoint,
+                            CreateCommandCollectionFromCommandDataSet(subCommandData.Children)));
+                        break;
+                }
+            }
+
+            void AddCommandMethod(MethodInfo method, object? target, bool implicitCommand, IReadOnlyList<object> metadata)
             {
                 var (commandAttr, primaryCommandAttr, ignoreAttribute, commandOverloadAttr)
-                    = AttributeHelper
-                        .GetAttributes<CommandAttribute, PrimaryCommandAttribute, IgnoreAttribute, CommandOverloadAttribute>(
-                            method.GetCustomAttributes(typeof(Attribute), true));
+                    = AttributeHelper.GetAttributes<CommandAttribute, PrimaryCommandAttribute, IgnoreAttribute, CommandOverloadAttribute>(metadata);
 
                 if (implicitCommand || commandAttr != null || primaryCommandAttr != null)
                 {
@@ -158,37 +232,32 @@ namespace Cocona.Command
                     }
                     else
                     {
-                        commandMethods.Add((method, target));
+                        commandMethods.Add((method, target, metadata));
                     }
                 }
             }
         }
-        
-        // NOTE: Avoid JIT optimization to improve responsiveness at first time.
-        [MethodImpl(MethodImplOptions.NoOptimization)]
+
         public CommandDescriptor CreateCommand(MethodInfo methodInfo, bool isSingleCommand, Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> overloadCommandMethods, object? target)
+            => CreateCommand(methodInfo, isSingleCommand, overloadCommandMethods, target, methodInfo.GetCustomAttributes(inherit: true));
+
+        public CommandDescriptor CreateCommand(MethodInfo methodInfo, bool isSingleCommand, Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> overloadCommandMethods, object? target, IReadOnlyList<object> metadata)
         {
-            ThrowHelper.ArgumentNull(methodInfo, nameof(methodInfo));
+            ThrowHelper.ThrowIfNull(methodInfo, nameof(methodInfo));
             
             // Collect Method attributes
-            var commandMethodDesc = GetCommandMethodDescriptor(methodInfo);
+            var commandMethodDesc = GetCommandMethodDescriptor(methodInfo, metadata);
+            var (commandName, description, aliases) = GetCommandInfoFromMetadata(metadata);
+            var isUnnamedCommand = commandName is null;
+            if (commandName is null)
+            {
+                commandName = methodInfo.Name;
+            }
             var commandAttr = commandMethodDesc.CommandAttribute;
-            var commandName = commandAttr?.Name ?? methodInfo.Name;
-            var description = commandAttr?.Description ?? string.Empty;
-            var aliases = commandAttr?.Aliases ?? Array.Empty<string>();
 
             var isPrimaryCommand = commandMethodDesc.IsPrimaryCommand;
             var isHidden = commandMethodDesc.IsHidden;
             var isIgnoreUnknownOptions = commandMethodDesc.IsIgnoreUnknownOptions;
-
-            // If the command is not only one, the command name must be specified. 
-            if (!isSingleCommand)
-            {
-                if (string.IsNullOrEmpty(commandName) || Regex.IsMatch(commandName, "[<>|]"))
-                {
-                    throw new CoconaException($"The command name contains invalid character. (Name: {commandName}, Method: {methodInfo.Name})");
-                }
-            }
 
             // If the command method should forward to another command.
             if (commandMethodDesc.CommandMethodForwardedTo is { } cmdForwardedTo)
@@ -200,9 +269,9 @@ namespace Cocona.Command
             }
 
             var methodParameters = methodInfo.GetParameters();
-            var builder = new CommandDescriptorBuilder(_enableConvertOptionNameToLowerCase, _enableConvertArgumentNameToLowerCase);
+            var builder = new CommandDescriptorBuilder(_options);
 
-            CollectParameters(methodInfo, methodParameters, builder, isPrimaryCommand, isSingleCommand);
+            CollectParameters(methodInfo, methodParameters, builder, isPrimaryCommand, isSingleCommand, metadata);
 
             // Overloaded commands
             var overloadDescriptors = Array.Empty<CommandOverloadDescriptor>();
@@ -230,13 +299,15 @@ namespace Cocona.Command
                 optionLikeCommands = commandMethodDesc.OptionLikeCommands
                     .Select(x =>
                     {
-                        var methodInfoOptionLikeCommandTarget = x.CommandType.GetMethod(x.CommandMethodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                        if (methodInfoOptionLikeCommandTarget is null)
+                        var optionLikeCommandData = x.GetCommandData();
+                        var (methodInfoOptionLikeCommand, targetOptionLikeCommand) = optionLikeCommandData switch
                         {
-                            throw new InvalidOperationException($"A method of option-like command '{x.CommandMethodName}' was not found in '{x.CommandType}'");
-                        }
+                            OptionLikeDelegateCommandData commandData => (commandData.Method, commandData.Target),
+                            DelegateCommandData commandData => (commandData.Method, commandData.Target),
+                            _ => throw new InvalidOperationException($"Option-like command data must be DelegateCommandData or OptionLikeDelegateCommandData"),
+                        };
 
-                        var optionLikeCommandDesc = CreateCommand(methodInfoOptionLikeCommandTarget, false, _emptyOverloads, null);
+                        var optionLikeCommandDesc = CreateCommand(methodInfoOptionLikeCommand, false, _emptyOverloads, targetOptionLikeCommand, optionLikeCommandData.Metadata);
                         return new CommandOptionLikeCommandDescriptor(
                             x.OptionName,
                             x.ShortNames,
@@ -248,14 +319,15 @@ namespace Cocona.Command
             }
 
             // Convert the command name to lower-case
-            if (_enableConvertCommandNameToLowerCase)
+            if (_options.HasFlag(CommandProviderOptions.CommandNameToLowerCase))
             {
                 commandName = ToCommandCase(commandName);
             }
 
             var flags = (isHidden ? CommandFlags.Hidden : CommandFlags.None) |
-                        ((isSingleCommand || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None) |
-                        (isIgnoreUnknownOptions ? CommandFlags.IgnoreUnknownOptions : CommandFlags.None);
+                        (((isSingleCommand && isUnnamedCommand) || isPrimaryCommand) ? CommandFlags.Primary : CommandFlags.None) |
+                        (isIgnoreUnknownOptions ? CommandFlags.IgnoreUnknownOptions : CommandFlags.None) |
+                        (isUnnamedCommand ? CommandFlags.Unnamed : CommandFlags.None);
 
             var (parameters, options, arguments) = builder.Build();
             return new CommandDescriptor(
@@ -264,6 +336,7 @@ namespace Cocona.Command
                 commandName,
                 aliases,
                 description,
+                metadata,
                 parameters,
                 options,
                 arguments,
@@ -274,8 +347,11 @@ namespace Cocona.Command
             );
         }
 
-        private static void CollectParameters(MemberInfo memberInfo, ParameterInfo[] methodParameters, CommandDescriptorBuilder builder, bool isPrimaryCommand, bool isSingleCommand)
+        private void CollectParameters(MemberInfo memberInfo, ParameterInfo[] methodParameters, CommandDescriptorBuilder builder, bool isPrimaryCommand, bool isSingleCommand, IReadOnlyList<object> commandMetadata)
         {
+            // Whether the command is built with CoconaCommandsBuilder or not.
+            var isCommandFromBuilder = commandMetadata.Any(x => x is CommandFromBuilderMetadata);
+
             for (var i = 0; i < methodParameters.Length; i++)
             {
                 var methodParam = methodParameters[i];
@@ -384,7 +460,7 @@ namespace Cocona.Command
                     {
                         // Parameterized constructor.
                         var builder2 = builder.CreateBuilderForParameterizedParameterSet(attrs, methodParam.ParameterType, methodParam.Name);
-                        CollectParameters(ctors[0], ctors[0].GetParameters(), builder2, isPrimaryCommand, isSingleCommand);
+                        CollectParameters(ctors[0], ctors[0].GetParameters(), builder2, isPrimaryCommand, isSingleCommand, commandMetadata);
                         builder.AddParameterizedParameterSet(attrs, methodParam.ParameterType, methodParam.Name, builder2);
                     }
 
@@ -405,6 +481,13 @@ namespace Cocona.Command
                     continue;
                 }
 
+                // If the command is built with CoconaCommandsBuilder, a parameter may be provided via IServiceProvider.
+                if (isCommandFromBuilder && _serviceProviderIsService.IsService(methodParam.ParameterType))
+                {
+                    builder.AddFromService(methodParam.ParameterType, methodParam.Name);
+                    continue;
+                }
+
                 // If a parameter has no OptionAttribute, it treated as option.
                 {
                     builder.AddOption(attrs, methodParam.ParameterType, methodParam.Name, defaultValue);
@@ -413,18 +496,18 @@ namespace Cocona.Command
             }
         }
 
-        private CommandMethodDescriptor GetCommandMethodDescriptor(MethodInfo methodInfo)
+        private CommandMethodDescriptor GetCommandMethodDescriptor(MethodInfo methodInfo, IReadOnlyList<object> metadata)
         {
             var commandAttr = default(CommandAttribute);
             var isHidden = false;
             var isPrimaryCommand = false;
             var isIgnoreUnknownOptions = false;
-            var optionLikeCommands = new List<OptionLikeCommandAttribute>();
+            var optionLikeCommands = new List<IOptionLikeCommandMetadata>();
             var commandMethodForwardedToAttr = default(CommandMethodForwardedToAttribute);
 
-            foreach (var attr in methodInfo.GetCustomAttributes(true))
+            foreach (var item in metadata)
             {
-                switch (attr)
+                switch (item)
                 {
                     case CommandAttribute command:
                         commandAttr = command;
@@ -438,7 +521,7 @@ namespace Cocona.Command
                     case IgnoreUnknownOptionsAttribute _:
                         isIgnoreUnknownOptions = true;
                         break;
-                    case OptionLikeCommandAttribute optionLikeCommand:
+                    case IOptionLikeCommandMetadata optionLikeCommand:
                         optionLikeCommands.Add(optionLikeCommand);
                         break;
                     case CommandMethodForwardedToAttribute commandMethodForwardedTo:
@@ -479,23 +562,20 @@ namespace Cocona.Command
             private readonly HashSet<char> _allOptionShortNames;
             private readonly List<ICommandParameterDescriptor> _parameters = new List<ICommandParameterDescriptor>();
             private readonly List<CommandArgumentDescriptor> _arguments;
-            private readonly bool _enableConvertOptionNameToLowerCase;
-            private readonly bool _enableConvertArgumentNameToLowerCase;
+            private readonly CommandProviderOptions _options;
 
             private int _defaultArgOrder = 0;
 
             public IReadOnlyDictionary<string, CommandOptionDescriptor> AllOptions => _allOptions;
 
             public CommandDescriptorBuilder(
-                bool enableConvertOptionNameToLowerCase,
-                bool enableConvertArgumentNameToLowerCase,
+                CommandProviderOptions options,
                 Dictionary<string, CommandOptionDescriptor>? allOptions = default,
                 HashSet<char>? allOptionShortNames = default,
                 List<CommandArgumentDescriptor>? arguments = default
             )
             {
-                _enableConvertOptionNameToLowerCase = enableConvertOptionNameToLowerCase;
-                _enableConvertArgumentNameToLowerCase = enableConvertArgumentNameToLowerCase;
+                _options = options;
                 _allOptions = allOptions ?? new Dictionary<string, CommandOptionDescriptor>(StringComparer.OrdinalIgnoreCase);
                 _allOptionShortNames = allOptionShortNames ?? new HashSet<char>();
                 _arguments = arguments ?? new List<CommandArgumentDescriptor>();
@@ -526,7 +606,7 @@ namespace Cocona.Command
                 var argDesc = attrSet.Argument.Description ?? string.Empty;
                 var argOrder = attrSet.Argument.Order != 0 ? attrSet.Argument.Order : _defaultArgOrder;
 
-                if (_enableConvertArgumentNameToLowerCase) argName = ToCommandCase(argName);
+                if (_options.HasFlag(CommandProviderOptions.ArgumentNameToLowerCase)) argName = ToCommandCase(argName);
 
                 return new CommandArgumentDescriptor(
                     type,
@@ -555,7 +635,7 @@ namespace Cocona.Command
                 var optionIsHidden = attrSet.Hidden != null;
                 var optionIsStopParsingOptions = attrSet.Option?.StopParsingOptions ?? false;
 
-                if (_enableConvertOptionNameToLowerCase) optionName = ToCommandCase(optionName);
+                if (_options.HasFlag(CommandProviderOptions.OptionNameToLowerCase)) optionName = ToCommandCase(optionName);
 
                 // If the option type is bool, the option has always default value (false).
                 if (!defaultValue.HasValue && type == typeof(bool))
@@ -597,7 +677,7 @@ namespace Cocona.Command
                 }
 
                 // Options and Arguments are shared between current builder and nested-builder.
-                return new CommandDescriptorBuilder(_enableConvertOptionNameToLowerCase, _enableConvertArgumentNameToLowerCase, _allOptions, _allOptionShortNames, _arguments);
+                return new CommandDescriptorBuilder(_options, _allOptions, _allOptionShortNames, _arguments);
             }
 
             public void AddParameterizedParameterSet(CommandParameterAttributeSet attrSet, Type type, string name, CommandDescriptorBuilder nestedBuilder)
@@ -687,10 +767,10 @@ namespace Cocona.Command
             public bool IsHidden { get; }
             public bool IsPrimaryCommand { get; }
             public bool IsIgnoreUnknownOptions { get; }
-            public IReadOnlyList<OptionLikeCommandAttribute> OptionLikeCommands { get; }
+            public IReadOnlyList<IOptionLikeCommandMetadata> OptionLikeCommands { get; }
             public CommandMethodForwardedToAttribute? CommandMethodForwardedTo { get; }
 
-            public CommandMethodDescriptor(CommandAttribute? commandAttr, bool isHidden, bool isPrimaryCommand, bool isIgnoreUnknownOptions, IReadOnlyList<OptionLikeCommandAttribute> optionLikeCommands, CommandMethodForwardedToAttribute? commandMethodForwardedTo)
+            public CommandMethodDescriptor(CommandAttribute? commandAttr, bool isHidden, bool isPrimaryCommand, bool isIgnoreUnknownOptions, IReadOnlyList<IOptionLikeCommandMetadata> optionLikeCommands, CommandMethodForwardedToAttribute? commandMethodForwardedTo)
             {
                 CommandAttribute = commandAttr;
                 IsHidden = isHidden;

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Cocona;
 using Cocona.Application;
+using Cocona.Builder;
 using Cocona.Command;
 using Cocona.Command.Binder;
 using Cocona.Command.Binder.Validation;
@@ -12,8 +13,10 @@ using Cocona.CommandLine;
 using Cocona.Help;
 #if COCONA_LITE
 using Cocona.Lite;
+using Cocona.Lite.Builder.Internal;
 using Cocona.Lite.Hosting;
 #else
+using Cocona.Builder.Internal;
 using Cocona.Hosting;
 #endif
 using Cocona.ShellCompletion;
@@ -34,32 +37,37 @@ namespace Microsoft.Extensions.Hosting
 {
     public static class CoconaServiceCollectionExtensions
     {
-        public static IServiceCollection AddCoconaCore(this IServiceCollection services, string[] args)
+        internal static IServiceCollection AddCoconaCore(this IServiceCollection services, string[] args)
         {
 #if COCONA_LITE
             services.AddSingleton<ICoconaInstanceActivator>(_ => new CoconaLiteInstanceActivator());
+            services.AddSingleton<ICoconaServiceProviderIsService>(sp => sp.GetRequiredService<ICoconaServiceProviderIsService>());
 #else
             services.AddSingleton<ICoconaInstanceActivator>(_ => new CoconaInstanceActivator());
+            services.AddSingleton<ICoconaServiceProviderIsService, CoconaServiceProviderIsService>();
 #endif
 
-            services.AddSingleton<ICoconaCommandProvider>(sp =>
+            services.TryAddSingleton<ICoconaCommandProvider>(sp =>
             {
 #if COCONA_LITE
                 var options = sp.GetRequiredService<CoconaLiteAppOptions>();
+                var hostOptions = sp.GetRequiredService<CoconaLiteAppHostOptions>();
 #else
                 var options = sp.GetRequiredService<IOptions<CoconaAppOptions>>().Value;
+                var hostOptions = sp.GetRequiredService<IOptions<CoconaAppHostOptions>>().Value;
 #endif
+                var builder = new CoconaCommandsBuilder();
+                (hostOptions.ConfigureApplication ?? throw new InvalidOperationException("CoconaAppHost is not initialized yet.")).Invoke(builder);
+
+                var commandProcessOptions = CommandProviderOptions.None;
+                commandProcessOptions |= options.TreatPublicMethodsAsCommands ? CommandProviderOptions.TreatPublicMethodAsCommands : CommandProviderOptions.None;
+                commandProcessOptions |= options.EnableConvertOptionNameToLowerCase ? CommandProviderOptions.OptionNameToLowerCase : CommandProviderOptions.None;
+                commandProcessOptions |= options.EnableConvertCommandNameToLowerCase ? CommandProviderOptions.CommandNameToLowerCase : CommandProviderOptions.None;
+                commandProcessOptions |= options.EnableConvertArgumentNameToLowerCase ? CommandProviderOptions.ArgumentNameToLowerCase : CommandProviderOptions.None;
 
                 return new CoconaBuiltInCommandProvider(
-                    new CoconaCommandProvider(
-                        options.CommandTypes.ToArray(),
-                        options.CommandMethods.ToArray(),
-                        options.TreatPublicMethodsAsCommands,
-                        options.EnableConvertOptionNameToLowerCase,
-                        options.EnableConvertCommandNameToLowerCase,
-                        options.EnableConvertArgumentNameToLowerCase
-                    ),
-                        options.EnableShellCompletionSupport
+                    new CoconaCommandProvider(builder.Build(), commandProcessOptions, sp.GetRequiredService<ICoconaServiceProviderIsService>()),
+                    options.EnableShellCompletionSupport
                 );
             });
             services.TryAddSingleton<ICoconaCommandLineArgumentProvider>(serviceProvider =>
@@ -80,10 +88,12 @@ namespace Microsoft.Extensions.Hosting
             services.TryAddTransient<ICoconaCommandHelpProvider, CoconaCommandHelpProvider>();
             services.TryAddTransient<ICoconaHelpMessageBuilder, CoconaHelpMessageBuilder>();
 
+            services.TryAddTransient<CoconaAppContext>(sp => sp.GetRequiredService<ICoconaAppContextAccessor>().Current!);
+
             return services;
         }
 
-        public static IServiceCollection AddCoconaShellCompletion(this IServiceCollection services)
+        internal static IServiceCollection AddCoconaShellCompletion(this IServiceCollection services)
         {
             services.AddSingleton<ICoconaShellCompletionCodeGenerator, BashCoconaShellCompletionCodeGenerator>();
             services.AddSingleton<ICoconaShellCompletionCodeGenerator, ZshCoconaShellCompletionCodeGenerator>();

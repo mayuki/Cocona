@@ -25,6 +25,7 @@ namespace Cocona.Test.Command.CommandDispatcher
                 name,
                 Array.Empty<string>(),
                 string.Empty,
+                Array.Empty<object>(),
                 parameterDescriptors,
                 parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
                 parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),

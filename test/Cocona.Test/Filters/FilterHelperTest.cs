@@ -1,4 +1,5 @@
-﻿using Cocona.Filters;
+using Cocona.Builder.Metadata;
+using Cocona.Filters;
 using Cocona.Filters.Internal;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,6 +68,26 @@ namespace Cocona.Test.Filters
             
             filters[4].Should().BeAssignableTo<OrderedFilterAttribute>();
             filters[4].As<OrderedFilterAttribute>().Name.Should().Be("Last");
+        }
+
+        [Fact]
+        public void GetFilters_Metadata()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddTransient<MyService>()
+                .BuildServiceProvider();
+
+            var metadata = new object[]
+            {
+                new CommandNameMetadata("Command"),
+                new TestFilterAttribute(),
+                new TestFilterImplementsFactoryAttribute(),
+            };
+            var filters = FilterHelper.GetFilters<ICommandFilter>(metadata, serviceProvider);
+            filters.Should().HaveCount(2);
+
+            filters[0].Should().BeOfType<TestFilterAttribute>();
+            filters[1].Should().BeOfType<TestFilterImplementsFactoryAttribute.FilterImpl>();
         }
 
         class TestCommand

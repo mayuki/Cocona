@@ -78,8 +78,7 @@ namespace Cocona.Lite
             }, singleton: true);
         }
 
-        public static void TryAddTransient<TService, TImplementation>(this ICoconaLiteServiceCollection services, Func<IServiceProvider, TService> factory)
-            where TImplementation : TService
+        public static void TryAddTransient<TService>(this ICoconaLiteServiceCollection services, Func<IServiceProvider, TService> factory)
         {
             if (services.All(x => x.ServiceType != typeof(TService)))
             {

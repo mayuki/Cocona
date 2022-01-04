@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Cocona.Builder;
+using Cocona.Builder.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,8 +19,6 @@ namespace Cocona.Hosting
     public class CoconaAppHostBuilder
     {
         private readonly IHostBuilder _builder;
-        private readonly List<Delegate> _targetDelegates = new List<Delegate>();
-        private readonly List<Type> _targetTypes = new List<Type>();
 
         public CoconaAppHostBuilder(IHostBuilder hostBuilder)
         {
@@ -80,10 +80,21 @@ namespace Cocona.Hosting
             return this;
         }
 
-        private IHost GetBuiltHost(string[] args, Type[] types, Action<CoconaAppOptions>? configureOptions)
+        internal void ConfigureDefaults(string[]? args, Action<ICoconaCommandsBuilder> configureApplication)
         {
+            _builder
+                .ConfigureCocona(args, configureApplication: configureApplication)
+                .UseConsoleLifetime(options => options.SuppressStatusMessages = true);
+        }
+
+        private IHost Build(string[]? args, Type[] types, Action<CoconaAppOptions>? configureOptions)
+        {
+            ConfigureDefaults(args, app =>
+            {
+                app.AddCommands(types);
+            });
+
             return _builder
-                .UseCocona(args, _targetTypes.Concat(types), _targetDelegates)
                 .ConfigureServices(services =>
                 {
                     if (configureOptions != null)
@@ -91,7 +102,6 @@ namespace Cocona.Hosting
                         services.Configure(configureOptions);
                     }
                 })
-                .UseConsoleLifetime(options => options.SuppressStatusMessages = true)
                 .Build();
         }
 
@@ -101,8 +111,8 @@ namespace Cocona.Hosting
         /// <param name="args"></param>
         /// <param name="commandTypes"></param>
         /// <param name="configureOptions"></param>
-        public void Run(string[] args, Type[] commandTypes, Action<CoconaAppOptions>? configureOptions = null)
-            => GetBuiltHost(args, commandTypes, configureOptions).Run();
+        public void Run(string[]? args, Type[] commandTypes, Action<CoconaAppOptions>? configureOptions = null)
+            => Build(args, commandTypes, configureOptions).Run();
 
         /// <summary>
         /// Builds host and starts the Cocona enabled application, and waits for Ctrl+C or SIGTERM to shutdown.
@@ -112,29 +122,7 @@ namespace Cocona.Hosting
         /// <param name="configureOptions"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task RunAsync(string[] args, Type[] commandTypes, Action<CoconaAppOptions>? configureOptions = null, CancellationToken cancellationToken = default)
-            => GetBuiltHost(args, commandTypes, configureOptions).RunAsync(cancellationToken);
-
-        /// <summary>
-        /// Add command definition delegate to Cocona.
-        /// </summary>
-        /// <param name="commandDelegate"></param>
-        /// <returns></returns>
-        public CoconaAppHostBuilder AddCommand(Delegate commandDelegate)
-        {
-            _targetDelegates.Add(commandDelegate ?? throw new ArgumentNullException(nameof(commandDelegate)));
-            return this;
-        }
-
-        /// <summary>
-        /// Add the commands type to Cocona.
-        /// </summary>
-        /// <param name="commandType"></param>
-        /// <returns></returns>
-        public CoconaAppHostBuilder AddCommand(Type commandType)
-        {
-            _targetTypes.Add(commandType ?? throw new ArgumentNullException(nameof(commandType)));
-            return this;
-        }
+        public Task RunAsync(string[]? args, Type[] commandTypes, Action<CoconaAppOptions>? configureOptions = null, CancellationToken cancellationToken = default)
+            => Build(args, commandTypes, configureOptions).RunAsync(cancellationToken);
     }
 }

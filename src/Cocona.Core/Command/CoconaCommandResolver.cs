@@ -30,9 +30,9 @@ namespace Cocona.Command
 
             Retry:
             var matchedCommand = default(CommandDescriptor);
-            if (commandCollection.All.Count == 1 && !commandCollection.All[0].Flags.HasFlag(CommandFlags.SubCommandsEntryPoint))
+            if (commandCollection.All.Count == 1 && (commandCollection.All[0].Flags.HasFlag(CommandFlags.Primary) && !commandCollection.All[0].Flags.HasFlag(CommandFlags.SubCommandsEntryPoint)))
             {
-                // single-command style
+                // single-command style (unnamed command)
                 matchedCommand = commandCollection.All[0];
             }
             else if (commandCollection.All.Count > 0)

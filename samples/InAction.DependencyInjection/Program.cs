@@ -15,7 +15,7 @@ namespace CoconaSample.InAction.DependencyInjection
 
         static void Main(string[] args)
         {
-            CoconaApp.Create()
+            CoconaApp.CreateHostBuilder()
                 .ConfigureLogging(logging =>
                 {
                     logging.AddDebug();

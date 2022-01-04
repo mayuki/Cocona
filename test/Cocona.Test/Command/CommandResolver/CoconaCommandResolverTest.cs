@@ -47,6 +47,22 @@ namespace Cocona.Test.Command.CommandResolver
         }
 
         [Fact]
+        public void Single_NoPrimary()
+        {
+            var commandCollection = new CommandCollection(new CommandDescriptor[]
+            {
+                CreateCommand("Single", new ICommandParameterDescriptor[]{}, false),
+            });
+            var resolver = new CoconaCommandResolver(
+                new TestCommandProvider(commandCollection),
+                new CoconaCommandLineParser(),
+                new CoconaCommandMatcher()
+            );
+
+            Assert.Throws<CommandNotFoundException>(() => resolver.ParseAndResolve(new string[] { }));
+        }
+
+        [Fact]
         public void Multiple()
         {
             var commandCollection = new CommandCollection(new CommandDescriptor[]
@@ -285,6 +301,7 @@ namespace Cocona.Test.Command.CommandResolver
                 name,
                 Array.Empty<string>(),
                 "",
+                Array.Empty<object>(),
                 Array.Empty<CommandServiceParameterDescriptor>(),
                 Array.Empty<CommandOptionDescriptor>(),
                 Array.Empty<CommandArgumentDescriptor>(),
@@ -314,6 +331,7 @@ namespace Cocona.Test.Command.CommandResolver
                 name,
                 Array.Empty<string>(),
                 "",
+                Array.Empty<object>(),
                 parameterDescriptors,
                 parameterDescriptors.OfType<CommandOptionDescriptor>().ToArray(),
                 parameterDescriptors.OfType<CommandArgumentDescriptor>().ToArray(),

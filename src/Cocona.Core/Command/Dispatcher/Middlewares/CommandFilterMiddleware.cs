@@ -19,7 +19,7 @@ namespace Cocona.Command.Dispatcher.Middlewares
 
         public override ValueTask<int> DispatchAsync(CommandDispatchContext ctx)
         {
-            var filters = FilterHelper.GetFilters<ICommandFilter>(ctx.Command.Method, _serviceProvider);
+            var filters = FilterHelper.GetFilters<ICommandFilter>(ctx.Command, _serviceProvider);
 
             CommandExecutionDelegate next = (ctx2) => Next(ctx);
 

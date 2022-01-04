@@ -41,7 +41,7 @@ namespace Cocona.Test.Command.CommandProvider
         [Fact]
         public void Match_CommandName_LowerCase()
         {
-            var provider = new CoconaCommandProvider(new[] { typeof(TestCommand_Overload_Single) }, enableConvertCommandNameToLowerCase: true);
+            var provider = new CoconaCommandProvider(new[] { typeof(TestCommand_Overload_Single) }, options: CommandProviderOptions.TreatPublicMethodAsCommands | CommandProviderOptions.CommandNameToLowerCase);
             var commands = provider.GetCommandCollection();
             commands.Should().NotBeNull();
             commands.All.Should().HaveCount(1);
