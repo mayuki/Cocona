@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Cocona.Internal;
+using Cocona.Localization.Internal;
 using Cocona.Resources;
 
 namespace Cocona.Help
@@ -16,11 +17,13 @@ namespace Cocona.Help
     {
         private readonly ICoconaApplicationMetadataProvider _applicationMetadataProvider;
         private readonly IServiceProvider _serviceProvider;
+        private readonly CoconaLocalizerWrapper _localizer;
 
         public CoconaCommandHelpProvider(ICoconaApplicationMetadataProvider applicationMetadataProvider, IServiceProvider serviceProvider)
         {
             _applicationMetadataProvider = applicationMetadataProvider;
             _serviceProvider = serviceProvider;
+            _localizer = new CoconaLocalizerWrapper(_serviceProvider);
         }
 
         private string CreateUsageCommandOptionsAndArgs(CommandDescriptor command, IReadOnlyList<CommandDescriptor> subCommandStack)
@@ -105,14 +108,14 @@ namespace Cocona.Help
             // Description
             if (!string.IsNullOrWhiteSpace(command.Description))
             {
-                help.Children.Add(new HelpSection(HelpSectionId.Description, new HelpDescription(command.Description)));
+                help.Children.Add(new HelpSection(HelpSectionId.Description, new HelpDescription(_localizer.GetCommandDescription(command))));
             }
 
             // Arguments
-            AddHelpForCommandArguments(help, command.Arguments);
+            AddHelpForCommandArguments(help, command, command.Arguments);
 
             // Options
-            AddHelpForCommandOptions(help, command.Options.OfType<ICommandOptionDescriptor>().Concat(command.OptionLikeCommands));
+            AddHelpForCommandOptions(help, command, command.Options.OfType<ICommandOptionDescriptor>().Concat(command.OptionLikeCommands));
 
             // Transform help document
             var transformers = FilterHelper.GetFilters<ICoconaHelpTransformer>(command.Method, _serviceProvider);
@@ -145,7 +148,7 @@ namespace Cocona.Help
             var description = !string.IsNullOrWhiteSpace(commandCollection.Description)
                 ? commandCollection.Description
                 : !string.IsNullOrWhiteSpace(commandCollection.Primary?.Description)
-                    ? commandCollection.Primary?.Description
+                    ? _localizer.GetCommandDescription(commandCollection.Primary!)
                     : !string.IsNullOrWhiteSpace(_applicationMetadataProvider.GetDescription())
                         ? _applicationMetadataProvider.GetDescription()
                         : string.Empty;
@@ -165,7 +168,7 @@ namespace Cocona.Help
                         new HelpLabelDescriptionList(
                             commandsExceptPrimary
                                 .Select((x, i) =>
-                                    new HelpLabelDescriptionListItem(x.Name, x.Description)
+                                    new HelpLabelDescriptionListItem(x.Name, _localizer.GetCommandDescription(x))
                                 )
                                 .ToArray()
                         )
@@ -177,10 +180,10 @@ namespace Cocona.Help
             if (commandCollection.Primary != null)
             {
                 // Arguments
-                AddHelpForCommandArguments(help, commandCollection.Primary.Arguments);
+                AddHelpForCommandArguments(help, commandCollection.Primary, commandCollection.Primary.Arguments);
 
                 // Options
-                AddHelpForCommandOptions(help, commandCollection.Primary.Options.OfType<ICommandOptionDescriptor>().Concat(commandCollection.Primary.OptionLikeCommands));
+                AddHelpForCommandOptions(help, commandCollection.Primary, commandCollection.Primary.Options.OfType<ICommandOptionDescriptor>().Concat(commandCollection.Primary.OptionLikeCommands));
             }
 
             // Transform help document
@@ -215,7 +218,7 @@ namespace Cocona.Help
             return new HelpMessage(new HelpSection(new HelpHeading($"{prodName} {version}")));
         }
 
-        private void AddHelpForCommandArguments(HelpMessage help, IEnumerable<CommandArgumentDescriptor> arguments)
+        private void AddHelpForCommandArguments(HelpMessage help, CommandDescriptor command, IReadOnlyList<CommandArgumentDescriptor> arguments)
         {
             if (arguments.Any())
             {
@@ -227,7 +230,7 @@ namespace Cocona.Help
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
                                         $"{i}: {x.Name}",
-                                        BuildParameterDescription(x.Description, x.IsRequired, x.ArgumentType, x.DefaultValue)
+                                        BuildParameterDescription(_localizer.GetArgumentDescription(command, x), x.IsRequired, x.ArgumentType, x.DefaultValue)
                                     )
                                 )
                                 .ToArray()
@@ -237,7 +240,7 @@ namespace Cocona.Help
             }
         }
 
-        private void AddHelpForCommandOptions(HelpMessage help, IEnumerable<ICommandOptionDescriptor> options)
+        private void AddHelpForCommandOptions(HelpMessage help, CommandDescriptor command, IEnumerable<ICommandOptionDescriptor> options)
         {
             if (options.Any(x => !x.Flags.HasFlag(CommandOptionFlags.Hidden)))
             {
@@ -251,12 +254,12 @@ namespace Cocona.Help
                                     x is CommandOptionDescriptor option
                                         ? new HelpLabelDescriptionListItem(
                                             BuildParameterLabel(option),
-                                            BuildParameterDescription(x.Description, option.IsRequired, option.OptionType, option.DefaultValue)
+                                            BuildParameterDescription(_localizer.GetOptionDescription(command, x), option.IsRequired, option.OptionType, option.DefaultValue)
                                         )
                                         : x is CommandOptionLikeCommandDescriptor optionLikeCommand
                                             ? new HelpLabelDescriptionListItem(
                                                 BuildParameterLabel(optionLikeCommand),
-                                                optionLikeCommand.Description
+                                                _localizer.GetCommandDescription(optionLikeCommand.Command)
                                             )
                                             : throw new NotSupportedException()
                                 )

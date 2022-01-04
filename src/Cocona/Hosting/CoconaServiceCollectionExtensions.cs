@@ -11,6 +11,7 @@ using Cocona.Command.BuiltIn;
 using Cocona.Command.Dispatcher;
 using Cocona.CommandLine;
 using Cocona.Help;
+using Cocona.Localization.Internal;
 #if COCONA_LITE
 using Cocona.Lite;
 using Cocona.Lite.Builder.Internal;
@@ -87,6 +88,8 @@ namespace Microsoft.Extensions.Hosting
             services.TryAddTransient<ICoconaHelpRenderer, CoconaHelpRenderer>();
             services.TryAddTransient<ICoconaCommandHelpProvider, CoconaCommandHelpProvider>();
             services.TryAddTransient<ICoconaHelpMessageBuilder, CoconaHelpMessageBuilder>();
+
+            services.TryAddTransient<CoconaLocalizerWrapper, CoconaLocalizerWrapper>();
 
             services.TryAddTransient<CoconaAppContext>(sp => sp.GetRequiredService<ICoconaAppContextAccessor>().Current!);
 
