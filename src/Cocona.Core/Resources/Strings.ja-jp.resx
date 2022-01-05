@@ -1,0 +1,77 @@
+﻿<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="BuiltIn_Command_CompletionCanditates_Description" xml:space="preserve">
+        <value>シェル補完の候補を生成します。</value>
+    </data>
+    <data name="BuiltIn_Command_Completion_Description" xml:space="preserve">
+        <value>シェル補完のコードを生成します。</value>
+    </data>
+    <data name="BuiltIn_Command_Completion_Error_NotSupported" xml:space="preserve">
+        <value>エラー: '{0}' のシェル補完はサポートされていません。(サポートされているシェル: {1})</value>
+    </data>
+    <data name="BuiltIn_Command_Help_Description" xml:space="preserve">
+        <value>ヘルプメッセージを表示します。</value>
+    </data>
+    <data name="BuiltIn_Command_Version_Description" xml:space="preserve">
+        <value>バージョン情報を表示します。</value>
+    </data>
+    <data name="Command_Error_Insufficient_Argument" xml:space="preserve">
+        <value>エラー: 引数 '{0}' は必須です。'--help' で使用方法を確認できます。</value>
+    </data>
+    <data name="Command_Error_Insufficient_Option" xml:space="preserve">
+        <value>エラー: オプション '{0}' は必須です。'--help' で使用方法を確認できます。</value>
+    </data>
+    <data name="Command_Error_Insufficient_OptionValue" xml:space="preserve">
+        <value>エラー: オプション '{0}' の値は必須です。'--help' で使用方法を確認できます。</value>
+    </data>
+    <data name="Command_Error_ParameterBind" xml:space="preserve">
+        <value>エラー: {0}</value>
+    </data>
+    <data name="Command_Error_UnknownOption" xml:space="preserve">
+        <value>エラー: 不明なオプション '{0}' が指定されています。</value>
+    </data>
+    <data name="Command_NotYetImplemented" xml:space="preserve">
+        <value>コマンドが未実装です。</value>
+    </data>
+    <data name="Exception_TheCommandHasExitedWithCode" xml:space="preserve">
+        <value>コマンドは終了コード '{0}' で終了しました。{1}</value>
+    </data>
+    <data name="Help_Description_AllowedValues" xml:space="preserve">
+        <value>許可された値</value>
+    </data>
+    <data name="Help_Description_Default" xml:space="preserve">
+        <value>デフォルト</value>
+    </data>
+    <data name="Help_Description_Required" xml:space="preserve">
+        <value>必須</value>
+    </data>
+    <data name="Help_Heading_Arguments" xml:space="preserve">
+        <value>引数:</value>
+    </data>
+    <data name="Help_Heading_Commands" xml:space="preserve">
+        <value>コマンド:</value>
+    </data>
+    <data name="Help_Heading_Options" xml:space="preserve">
+        <value>オプション:</value>
+    </data>
+    <data name="Help_Index_Usage" xml:space="preserve">
+        <value>使用方法: {0}</value>
+    </data>
+    <data name="Help_Index_Usage_Multple" xml:space="preserve">
+        <value>使用方法: {0} {1}[コマンド]</value>
+    </data>
+    <data name="OptionLikeCommand_MethodNotFound" xml:space="preserve">
+        <value>オプション風コマンド '{0}' のメソッドが '{1}' に見つかりませんでした。</value>
+    </data>
+</root>

@@ -12,6 +12,7 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Cocona.Resources;
 using Microsoft.Extensions.Options;
 
 namespace Cocona.Hosting
@@ -75,18 +76,18 @@ namespace Cocona.Hosting
             {
                 if (string.IsNullOrWhiteSpace(cmdNotFoundEx.Command))
                 {
-                    _console.Error.WriteLine($"Error: {cmdNotFoundEx.Message}");
+                    _console.Error.WriteLine(string.Format(Strings.Host_Error_CommandNotFound, cmdNotFoundEx.Message));
                 }
                 else
                 {
-                    _console.Error.WriteLine($"Error: '{cmdNotFoundEx.Command}' is not a command. See '--help' for usage.");
+                    _console.Error.WriteLine(string.Format(Strings.Host_Error_NotACommand, cmdNotFoundEx.Command));
                 }
 
                 var similarCommands = cmdNotFoundEx.ImplementedCommands.All.Where(x => Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
                 if (similarCommands.Any())
                 {
                     _console.Error.WriteLine();
-                    _console.Error.WriteLine("Similar commands:");
+                    _console.Error.WriteLine(Strings.Host_Error_SimilarCommands);
                     foreach (var c in similarCommands)
                     {
                         _console.Error.WriteLine($"  {c.Name}");

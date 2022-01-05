@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using Cocona.Builder;
 using Cocona.Builder.Metadata;
+using Cocona.Resources;
 
 namespace Cocona
 {
@@ -32,7 +33,7 @@ namespace Cocona
             var methodInfo = CommandType.GetMethod(CommandMethodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             if (methodInfo is null)
             {
-                throw new InvalidOperationException($"A method of option-like command '{CommandMethodName}' was not found in '{CommandType}'");
+                throw new InvalidOperationException(string.Format(Strings.OptionLikeCommand_MethodNotFound, CommandMethodName, CommandType));
             }
 
             return new DelegateCommandData(methodInfo, null, new [] { new CommandNameMetadata(OptionName) }.Concat(methodInfo.GetCustomAttributes(inherit: true)).ToArray());
