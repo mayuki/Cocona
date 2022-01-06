@@ -17,6 +17,13 @@ app.AddCommand("hello", (string name) => Console.WriteLine($"Hello {name}"))
     .WithDescription("Say hello")
     .WithAliases("hey", "konnichiwa");
 
+// Add a command with non-mandatory option and argument.
+// If a method parameter is nullable, it will be treated as non-mandatory.
+app.AddCommand("optional-param", (int? age, [Argument]string? name) =>
+{
+    Console.WriteLine($"Hello {(name ?? "Guest")} ({(age?.ToString() ?? "-")})!");
+});
+
 // Add a command and use the context to cancel with Ctrl+C.
 app.AddCommand("long-running", async (CoconaAppContext ctx) =>
 {
