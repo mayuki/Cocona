@@ -352,10 +352,21 @@ namespace Cocona.Command
             // Whether the command is built with CoconaCommandsBuilder or not.
             var isCommandFromBuilder = commandMetadata.Any(x => x is CommandFromBuilderMetadata);
 
+            var nullabilityInfoContext = new NullabilityInfoContextHelper();
             for (var i = 0; i < methodParameters.Length; i++)
             {
                 var methodParam = methodParameters[i];
                 var defaultValue = methodParam.HasDefaultValue ? new CoconaDefaultValue(methodParam.DefaultValue) : CoconaDefaultValue.None;
+                var nullabilityState = nullabilityInfoContext.GetNullabilityState(methodParam);
+                var unwrappedParamType = methodParam.ParameterType.IsConstructedGenericType && methodParam.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>)
+                    ? methodParam.ParameterType.GetGenericArguments()[0]
+                    : methodParam.ParameterType;
+
+                // If the parameter has default value or has Nullable annotation, we will treat as optional.
+                if (nullabilityState == NullabilityInfoContextHelper.NullabilityState.Nullable && !defaultValue.HasValue)
+                {
+                    defaultValue = new CoconaDefaultValue(null);
+                }
 
                 // Collect Parameter attributes
                 var attrs = new CommandParameterAttributeSet(methodParam.GetCustomAttributes(typeof(Attribute), true));
@@ -380,8 +391,14 @@ namespace Cocona.Command
                 }
 
                 // If a parameter has no OptionAttribute and a type of the parameter implements ICommandParameterSet
-                if (typeof(ICommandParameterSet).IsAssignableFrom(methodParam.ParameterType))
+                if (typeof(ICommandParameterSet).IsAssignableFrom(unwrappedParamType))
                 {
+                    // NOTE: Currently, we cannot handle a nullable parameter set. ICommandParameterSet must be not null. 
+                    if (nullabilityState == NullabilityInfoContextHelper.NullabilityState.Nullable)
+                    {
+                        throw new NotSupportedException("We cannot handle a nullable parameter set. ICommandParameterSet must be not null.");
+                    }
+
                     var paramSetType = methodParam.ParameterType;
                     if (paramSetType.IsAbstract || paramSetType.IsInterface)
                     {
@@ -482,7 +499,7 @@ namespace Cocona.Command
                 }
 
                 // If the command is built with CoconaCommandsBuilder, a parameter may be provided via IServiceProvider.
-                if (isCommandFromBuilder && _serviceProviderIsService.IsService(methodParam.ParameterType))
+                if (isCommandFromBuilder && _serviceProviderIsService.IsService(unwrappedParamType))
                 {
                     builder.AddFromService(methodParam.ParameterType, methodParam.Name);
                     continue;

@@ -511,6 +511,196 @@ namespace Cocona.Test.Command.CommandProvider
             cmd.Aliases.Should().BeEquivalentTo(new[] { "_alias1", "_alias2" });
         }
 
+        [Fact]
+        public void NullableAsOptional_Nullable_Enabled()
+        {
+#nullable enable
+            void TestMethod(
+                string option0NonNullable,
+                int option1NonNullable,
+                string? option2Nullable,
+                int? option3Nullable,
+                bool option4NonNullable,
+                bool? option5Nullable,
+
+                [Argument]
+                string arg0NonNullable,
+                [Argument]
+                int arg1NonNullable,
+                [Argument]
+                string? arg2Nullable,
+                [Argument]
+                int? arg3Nullable
+            )
+            { }
+#nullable restore
+            var metadata = new object[]
+            {
+                new CommandNameMetadata("TestMethod"),
+            };
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(
+                new Action<string, int, string?, int?, bool, bool?, string, int, string?, int?>(TestMethod).Method,
+                isSingleCommand: true,
+                new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(),
+                default,
+                metadata
+            );
+            cmd.Name.Should().Be("TestMethod");
+            cmd.Options.Should().HaveCount(6);
+            // [NotNull] string
+            cmd.Options[0].Name.Should().Be("option0NonNullable");
+            cmd.Options[0].IsRequired.Should().BeTrue();
+            cmd.Options[0].OptionType.Should().Be<string>();
+            cmd.Options[0].DefaultValue.HasValue.Should().BeFalse();
+            // [NotNull] int
+            cmd.Options[1].Name.Should().Be("option1NonNullable");
+            cmd.Options[1].IsRequired.Should().BeTrue();
+            cmd.Options[1].OptionType.Should().Be<int>();
+            cmd.Options[1].DefaultValue.HasValue.Should().BeFalse();
+            // [Nullable] string
+            cmd.Options[2].Name.Should().Be("option2Nullable");
+            cmd.Options[2].IsRequired.Should().BeFalse();
+            cmd.Options[2].OptionType.Should().Be<string>();
+            cmd.Options[2].DefaultValue.HasValue.Should().BeTrue();
+            cmd.Options[2].DefaultValue.Value.Should().Be(null);
+            // [Nullable] int?
+            cmd.Options[3].Name.Should().Be("option3Nullable");
+            cmd.Options[3].IsRequired.Should().BeFalse();
+            cmd.Options[3].OptionType.Should().Be<int?>();
+            cmd.Options[3].DefaultValue.HasValue.Should().BeTrue();
+            cmd.Options[3].DefaultValue.Value.Should().Be(null);
+            // [NotNull] bool
+            cmd.Options[4].Name.Should().Be("option4NonNullable");
+            cmd.Options[4].IsRequired.Should().BeFalse(); // non-nullable bool is optional by default.
+            cmd.Options[4].OptionType.Should().Be<bool>();
+            cmd.Options[4].DefaultValue.HasValue.Should().BeTrue();
+            cmd.Options[4].DefaultValue.Value.Should().Be(false);
+            // [Nullable] bool?
+            cmd.Options[5].Name.Should().Be("option5Nullable");
+            cmd.Options[5].IsRequired.Should().BeFalse();
+            cmd.Options[5].OptionType.Should().Be<bool?>();
+            cmd.Options[5].DefaultValue.HasValue.Should().BeTrue();
+            cmd.Options[5].DefaultValue.Value.Should().Be(null);
+
+            cmd.Arguments.Should().HaveCount(4);
+            // [NotNull] string
+            cmd.Arguments[0].Name.Should().Be("arg0NonNullable");
+            cmd.Arguments[0].IsRequired.Should().BeTrue();
+            cmd.Arguments[0].ArgumentType.Should().Be<string>();
+            cmd.Arguments[0].DefaultValue.HasValue.Should().BeFalse();
+            // [NotNull] int
+            cmd.Arguments[1].Name.Should().Be("arg1NonNullable");
+            cmd.Arguments[1].IsRequired.Should().BeTrue();
+            cmd.Arguments[1].ArgumentType.Should().Be<int>();
+            cmd.Arguments[1].DefaultValue.HasValue.Should().BeFalse();
+            // [Nullable] string?
+            cmd.Arguments[2].Name.Should().Be("arg2Nullable");
+            cmd.Arguments[2].IsRequired.Should().BeFalse();
+            cmd.Arguments[2].ArgumentType.Should().Be<string>();
+            cmd.Arguments[3].DefaultValue.HasValue.Should().BeTrue();
+            cmd.Arguments[3].DefaultValue.Value.Should().Be(null);
+            // [Nullable] int?
+            cmd.Arguments[3].Name.Should().Be("arg3Nullable");
+            cmd.Arguments[3].IsRequired.Should().BeFalse();
+            cmd.Arguments[3].ArgumentType.Should().Be<int?>();
+            cmd.Arguments[3].DefaultValue.HasValue.Should().BeTrue();
+            cmd.Arguments[3].DefaultValue.Value.Should().Be(null);
+        }
+
+        [Fact]
+        public void NullableAsOptional_Nullable_Disabled()
+        {
+#nullable disable
+#pragma warning disable CS8632
+            void TestMethod(
+                string option0NonNullable, // Unknown
+                int option1NonNullable, // NotNull
+                string? option2Nullable, // Nullable
+                int? option3Nullable, // Nullable
+                bool option4NonNullable, // NotNull
+                bool? option5Nullable, // Nullable
+
+                [Argument]
+                string arg0NonNullable, // Unknown
+                [Argument]
+                int arg1NonNullable, // NotNull
+                [Argument]
+                string? arg2Nullable, // Nullable
+                [Argument]
+                int? arg3Nullable // Nullable
+            )
+            { }
+#pragma warning restore CS8632
+#nullable restore
+            var metadata = new object[]
+            {
+                new CommandNameMetadata("TestMethod"),
+            };
+            var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(
+                new Action<string, int, string?, int?, bool, bool?, string, int, string?, int?>(TestMethod).Method,
+                isSingleCommand: true,
+                new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(),
+                default,
+                metadata
+            );
+            cmd.Name.Should().Be("TestMethod");
+            cmd.Options.Should().HaveCount(6);
+            cmd.Options[0].Name.Should().Be("option0NonNullable");
+            cmd.Options[0].IsRequired.Should().BeTrue(); // Unknown
+            cmd.Options[0].OptionType.Should().Be<string>();
+            cmd.Options[1].Name.Should().Be("option1NonNullable");
+            cmd.Options[1].IsRequired.Should().BeTrue(); // NotNull
+            cmd.Options[1].OptionType.Should().Be<int>();
+            cmd.Options[2].Name.Should().Be("option2Nullable");
+            cmd.Options[2].IsRequired.Should().BeFalse(); // Nullable
+            cmd.Options[2].OptionType.Should().Be<string>();
+            cmd.Options[3].Name.Should().Be("option3Nullable");
+            cmd.Options[3].IsRequired.Should().BeFalse(); // Nullable
+            cmd.Options[3].OptionType.Should().Be<int?>();
+            cmd.Options[4].Name.Should().Be("option4NonNullable");
+            cmd.Options[4].IsRequired.Should().BeFalse(); // non-nullable bool is optional by default.
+            cmd.Options[4].OptionType.Should().Be<bool>();
+            cmd.Options[5].Name.Should().Be("option5Nullable");
+            cmd.Options[5].IsRequired.Should().BeFalse(); // Nullable
+            cmd.Options[5].OptionType.Should().Be<bool?>();
+            cmd.Arguments.Should().HaveCount(4);
+            cmd.Arguments[0].Name.Should().Be("arg0NonNullable");
+            cmd.Arguments[0].IsRequired.Should().BeTrue(); // Unknown
+            cmd.Arguments[0].ArgumentType.Should().Be<string>();
+            cmd.Arguments[1].Name.Should().Be("arg1NonNullable");
+            cmd.Arguments[1].IsRequired.Should().BeTrue(); // NotNull
+            cmd.Arguments[1].ArgumentType.Should().Be<int>();
+            cmd.Arguments[2].Name.Should().Be("arg2Nullable");
+            cmd.Arguments[2].IsRequired.Should().BeFalse(); // Nullable
+            cmd.Arguments[2].ArgumentType.Should().Be<string>();
+            cmd.Arguments[3].Name.Should().Be("arg3Nullable");
+            cmd.Arguments[3].IsRequired.Should().BeFalse(); // Nullable
+            cmd.Arguments[3].ArgumentType.Should().Be<int?>();
+        }
+
+        [Fact]
+        public void NullableAsOptional_ParameterSet_CanNotBe_Nullable()
+        {
+#nullable enable
+            void TestMethod(ParameterSetTest_Parameterized? parameterSetTestParameterized)
+            { }
+#nullable restore
+            var metadata = new object[]
+            {
+                new CommandNameMetadata("TestMethod"),
+            };
+            Assert.Throws<NotSupportedException>(() =>
+            {
+                var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(
+                    new Action<ParameterSetTest_Parameterized?>(TestMethod).Method,
+                    isSingleCommand: true,
+                    new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(),
+                    default,
+                    metadata
+                );
+            });
+        }
+
         private static MethodInfo GetMethod<T>(string methodName)
         {
             return typeof(T).GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public);
@@ -573,5 +763,7 @@ namespace Cocona.Test.Command.CommandProvider
         {
             public int CommandMethodForwardedToTarget([Argument]string arg0) => 0;
         }
+
+        public record ParameterSetTest_Parameterized(int ValueA, string ValueB) : ICommandParameterSet;
     }
 }
