@@ -27,6 +27,18 @@ namespace Cocona.Internal
 #else
         public NullabilityState GetNullabilityState(ParameterInfo parameterInfo)
         {
+            if (parameterInfo.ParameterType.IsValueType)
+            {
+                if (parameterInfo.ParameterType.IsConstructedGenericType && parameterInfo.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    return NullabilityState.Nullable;
+                }
+                else
+                {
+                    return NullabilityState.NotNull;
+                }
+            }
+
             foreach (var attr in parameterInfo.GetCustomAttributesData())
             {
                 if (attr.AttributeType is { Namespace: "System.Runtime.CompilerServices", Name: "NullableAttribute" })

@@ -648,7 +648,7 @@ namespace Cocona.Command
                 var optionName = attrSet.Option?.Name ?? name;
                 var optionDesc = attrSet.Option?.Description ?? string.Empty;
                 var optionShortNames = attrSet.Option?.ShortNames ?? Array.Empty<char>();
-                var optionValueName = attrSet.Option?.ValueName ?? (DynamicListHelper.IsArrayOrEnumerableLike(type) ? DynamicListHelper.GetElementType(type) : type).Name;
+                var optionValueName = attrSet.Option?.ValueName;
                 var optionIsHidden = attrSet.Hidden != null;
                 var optionIsStopParsingOptions = attrSet.Option?.StopParsingOptions ?? false;
 
