@@ -298,6 +298,16 @@ namespace Cocona.Test.Command.CommandProvider
         }
 
         [Fact]
+        public void Default_Arguments_Required_After_Optional()
+        {
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Arguments_Required_After_Optional)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
+
+            }).Message.Should().Be("The required arguments must be placed before the optional arguments. (Argument: arg2)");
+        }
+
+        [Fact]
         public void Default_Arguments_HasDescription_NoReturn()
         {
             var cmd = new CoconaCommandProvider(Array.Empty<Type>()).CreateCommand(GetMethod<CommandTest>(nameof(CommandTest.Default_Arguments_HasDescription_NoReturn)), false, new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>(), default);
@@ -727,6 +737,7 @@ namespace Cocona.Test.Command.CommandProvider
             public void Default_Arguments_HasDescription_NoReturn([Argument(Description = "arg no.0")]int arg0) { }
             public void Default_Arguments_HasName_NoReturn([Argument("yet_another_arg0")]int arg0) { }
             public void Default_Arguments_Ordered_NoReturn([Argument(Order = 5)]int[] arg0, [Argument(Order = int.MinValue)]string[] arg1) { }
+            public void Default_Arguments_Required_After_Optional([Argument(Order = -10)]int? arg0, [Argument(Order = -20)]int arg1, [Argument(Order = 0)]int arg2) { } // arg1(Required), arg0(Optional), arg2(Required)
             public void Default_HasIgnoreParameter_NoReturn(string name, [Ignore]string ignored, [Argument]string arg0) { }
             public void Default_HasIgnoreValueTypeParameter_NoReturn(string name, [Ignore]int ignored, [Argument]string arg0) { }
             public void Default_TreatBooleanOptionAsDefaultFalse_NoReturn(bool flag0) { }

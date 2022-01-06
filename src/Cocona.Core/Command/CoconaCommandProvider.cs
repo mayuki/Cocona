@@ -582,6 +582,7 @@ namespace Cocona.Command
             private readonly CommandProviderOptions _options;
 
             private int _defaultArgOrder = 0;
+            private int? _firstOptionalArgIndex = null;
 
             public IReadOnlyDictionary<string, CommandOptionDescriptor> AllOptions => _allOptions;
 
@@ -637,6 +638,21 @@ namespace Cocona.Command
             public void AddArgument(CommandParameterAttributeSet attrSet, Type type, string name, CoconaDefaultValue defaultValue)
             {
                 var commandArgDescriptor = CreateArgument(attrSet, type, name, defaultValue);
+
+                // The required arguments must be placed before the optional arguments
+                if (commandArgDescriptor.IsRequired)
+                {
+                    if (_firstOptionalArgIndex.HasValue && commandArgDescriptor.Order > _firstOptionalArgIndex)
+                    {
+                        throw new InvalidOperationException($"The required arguments must be placed before the optional arguments. (Argument: {commandArgDescriptor.Name})");
+                    }
+                }
+                else
+                {
+                    _firstOptionalArgIndex = _firstOptionalArgIndex.HasValue
+                        ? Math.Min(_firstOptionalArgIndex.Value, commandArgDescriptor.Order)
+                        : commandArgDescriptor.Order;
+                }
 
                 _defaultArgOrder++;
                 _parameters.Add(commandArgDescriptor);
@@ -738,6 +754,22 @@ namespace Cocona.Command
                 public void AddArgument(CommandParameterAttributeSet attrSet, Type type, string name, CoconaDefaultValue defaultValue, Action<object, object?> setter)
                 {
                     var argumentDescriptor = _parent.CreateArgument(attrSet, type, name, defaultValue);
+
+                    // The required arguments must be placed before the optional arguments
+                    if (argumentDescriptor.IsRequired)
+                    {
+                        if (_parent._firstOptionalArgIndex.HasValue && argumentDescriptor.Order > _parent._firstOptionalArgIndex)
+                        {
+                            throw new InvalidOperationException($"The required arguments must be placed before the optional arguments. (Argument: {_name}.{argumentDescriptor.Name})");
+                        }
+                    }
+                    else
+                    {
+                        _parent._firstOptionalArgIndex = _parent._firstOptionalArgIndex.HasValue
+                            ? Math.Min(_parent._firstOptionalArgIndex.Value, argumentDescriptor.Order)
+                            : argumentDescriptor.Order;
+                    }
+
                     _parent._defaultArgOrder++;
 
                     _parent._arguments.Add(argumentDescriptor);
