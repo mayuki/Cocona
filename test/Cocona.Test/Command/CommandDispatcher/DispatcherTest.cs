@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace Cocona.Test.Command.CommandDispatcher
             services.AddTransient<ICoconaCommandDispatcher, CoconaCommandDispatcher>();
             services.AddTransient<ICoconaCommandResolver, CoconaCommandResolver>();
             services.AddTransient<ICoconaCommandMatcher, CoconaCommandMatcher>();
-            services.AddTransient<ICoconaConsoleProvider, CoconaConsoleProvider>();
+            services.AddTransient<ICoconaConsoleProvider>(sp => new NullConsoleProvider());
             services.AddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
             services.AddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
@@ -57,6 +58,12 @@ namespace Cocona.Test.Command.CommandDispatcher
             services.AddSingleton<TestDeepNestedCommand.TestDeepNestedCommand_Nested_2>();
 
             return services;
+        }
+
+        class NullConsoleProvider : ICoconaConsoleProvider
+        {
+            public TextWriter Output => TextWriter.Null;
+            public TextWriter Error => TextWriter.Null;
         }
 
         [Fact]
