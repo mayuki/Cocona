@@ -21,7 +21,11 @@ jobs:
         packageType: 'sdk'
         version: 6.0.x
         useGlobalJson: true
-
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: 3.1.x
+        useGlobalJson: true
     - script: dotnet restore
       displayName: dotnet restore
 
