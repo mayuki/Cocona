@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFrameworks>net6.0;netcoreapp3.1</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\src\Cocona\StrongNameKey.snk</AssemblyOriginatorKeyFile>
     <NoWarn>$(NoWarn);1701;1702;CS1998</NoWarn>
     <nullable>annotations</nullable>
-    <TargetFramework>net6.0</TargetFramework>
     <OutputType>Library</OutputType>
+    <LangVersion>10</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
