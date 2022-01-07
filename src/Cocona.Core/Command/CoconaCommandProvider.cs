@@ -352,10 +352,21 @@ namespace Cocona.Command
             // Whether the command is built with CoconaCommandsBuilder or not.
             var isCommandFromBuilder = commandMetadata.Any(x => x is CommandFromBuilderMetadata);
 
+            var nullabilityInfoContext = new NullabilityInfoContextHelper();
             for (var i = 0; i < methodParameters.Length; i++)
             {
                 var methodParam = methodParameters[i];
                 var defaultValue = methodParam.HasDefaultValue ? new CoconaDefaultValue(methodParam.DefaultValue) : CoconaDefaultValue.None;
+                var nullabilityState = nullabilityInfoContext.GetNullabilityState(methodParam);
+                var unwrappedParamType = methodParam.ParameterType.IsConstructedGenericType && methodParam.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>)
+                    ? methodParam.ParameterType.GetGenericArguments()[0]
+                    : methodParam.ParameterType;
+
+                // If the parameter has default value or has Nullable annotation, we will treat as optional.
+                if (nullabilityState == NullabilityInfoContextHelper.NullabilityState.Nullable && !defaultValue.HasValue)
+                {
+                    defaultValue = new CoconaDefaultValue(null);
+                }
 
                 // Collect Parameter attributes
                 var attrs = new CommandParameterAttributeSet(methodParam.GetCustomAttributes(typeof(Attribute), true));
@@ -380,8 +391,14 @@ namespace Cocona.Command
                 }
 
                 // If a parameter has no OptionAttribute and a type of the parameter implements ICommandParameterSet
-                if (typeof(ICommandParameterSet).IsAssignableFrom(methodParam.ParameterType))
+                if (typeof(ICommandParameterSet).IsAssignableFrom(unwrappedParamType))
                 {
+                    // NOTE: Currently, we cannot handle a nullable parameter set. ICommandParameterSet must be not null. 
+                    if (nullabilityState == NullabilityInfoContextHelper.NullabilityState.Nullable)
+                    {
+                        throw new NotSupportedException("We cannot handle a nullable parameter set. ICommandParameterSet must be not null.");
+                    }
+
                     var paramSetType = methodParam.ParameterType;
                     if (paramSetType.IsAbstract || paramSetType.IsInterface)
                     {
@@ -482,7 +499,7 @@ namespace Cocona.Command
                 }
 
                 // If the command is built with CoconaCommandsBuilder, a parameter may be provided via IServiceProvider.
-                if (isCommandFromBuilder && _serviceProviderIsService.IsService(methodParam.ParameterType))
+                if (isCommandFromBuilder && _serviceProviderIsService.IsService(unwrappedParamType))
                 {
                     builder.AddFromService(methodParam.ParameterType, methodParam.Name);
                     continue;
@@ -565,6 +582,7 @@ namespace Cocona.Command
             private readonly CommandProviderOptions _options;
 
             private int _defaultArgOrder = 0;
+            private int? _firstOptionalArgIndex = null;
 
             public IReadOnlyDictionary<string, CommandOptionDescriptor> AllOptions => _allOptions;
 
@@ -621,6 +639,21 @@ namespace Cocona.Command
             {
                 var commandArgDescriptor = CreateArgument(attrSet, type, name, defaultValue);
 
+                // The required arguments must be placed before the optional arguments
+                if (commandArgDescriptor.IsRequired)
+                {
+                    if (_firstOptionalArgIndex.HasValue && commandArgDescriptor.Order > _firstOptionalArgIndex)
+                    {
+                        throw new InvalidOperationException($"The required arguments must be placed before the optional arguments. (Argument: {commandArgDescriptor.Name})");
+                    }
+                }
+                else
+                {
+                    _firstOptionalArgIndex = _firstOptionalArgIndex.HasValue
+                        ? Math.Min(_firstOptionalArgIndex.Value, commandArgDescriptor.Order)
+                        : commandArgDescriptor.Order;
+                }
+
                 _defaultArgOrder++;
                 _parameters.Add(commandArgDescriptor);
                 _arguments.Add(commandArgDescriptor);
@@ -631,7 +664,7 @@ namespace Cocona.Command
                 var optionName = attrSet.Option?.Name ?? name;
                 var optionDesc = attrSet.Option?.Description ?? string.Empty;
                 var optionShortNames = attrSet.Option?.ShortNames ?? Array.Empty<char>();
-                var optionValueName = attrSet.Option?.ValueName ?? (DynamicListHelper.IsArrayOrEnumerableLike(type) ? DynamicListHelper.GetElementType(type) : type).Name;
+                var optionValueName = attrSet.Option?.ValueName;
                 var optionIsHidden = attrSet.Hidden != null;
                 var optionIsStopParsingOptions = attrSet.Option?.StopParsingOptions ?? false;
 
@@ -721,6 +754,22 @@ namespace Cocona.Command
                 public void AddArgument(CommandParameterAttributeSet attrSet, Type type, string name, CoconaDefaultValue defaultValue, Action<object, object?> setter)
                 {
                     var argumentDescriptor = _parent.CreateArgument(attrSet, type, name, defaultValue);
+
+                    // The required arguments must be placed before the optional arguments
+                    if (argumentDescriptor.IsRequired)
+                    {
+                        if (_parent._firstOptionalArgIndex.HasValue && argumentDescriptor.Order > _parent._firstOptionalArgIndex)
+                        {
+                            throw new InvalidOperationException($"The required arguments must be placed before the optional arguments. (Argument: {_name}.{argumentDescriptor.Name})");
+                        }
+                    }
+                    else
+                    {
+                        _parent._firstOptionalArgIndex = _parent._firstOptionalArgIndex.HasValue
+                            ? Math.Min(_parent._firstOptionalArgIndex.Value, argumentDescriptor.Order)
+                            : argumentDescriptor.Order;
+                    }
+
                     _parent._defaultArgOrder++;
 
                     _parent._arguments.Add(argumentDescriptor);

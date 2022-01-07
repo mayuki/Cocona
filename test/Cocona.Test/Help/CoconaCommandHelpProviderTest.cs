@@ -51,9 +51,7 @@ namespace Cocona.Test.Help
 
         private CommandOptionDescriptor CreateCommandOption(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue, CommandOptionFlags flags = CommandOptionFlags.None)
         {
-            var optionValueName = (DynamicListHelper.IsArrayOrEnumerableLike(optionType) ? DynamicListHelper.GetElementType(optionType) : optionType).Name;
-
-            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, optionValueName, flags, Array.Empty<Attribute>());
+            return new CommandOptionDescriptor(optionType, name, shortName, description, defaultValue, null, flags, Array.Empty<Attribute>());
         }
 
         [Fact]
@@ -268,6 +266,37 @@ Arguments:
 Options:
   -f, --foo <String>         Foo option (Required)
   -l, --looooooong-option    Long name option
+".TrimStart());
+        }
+
+        [Fact]
+        public void CommandHelp_Arguments_Nullable_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new ICommandParameterDescriptor[]
+                {
+                    new CommandArgumentDescriptor(typeof(int), "arg0-int-not-null", 0, "Int NotNull", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(int?), "arg1-int-nullable", 0, "Int Nullable", new CoconaDefaultValue(null), Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg2-string-not-null", 0, "String NotNull", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                    new CommandArgumentDescriptor(typeof(string), "arg3-string-nullable", 0, "String Nullable", new CoconaDefaultValue(null), Array.Empty<Attribute>()),
+                }
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName Test arg0-int-not-null arg1-int-nullable arg2-string-not-null arg3-string-nullable
+
+command description
+
+Arguments:
+  0: arg0-int-not-null       Int NotNull (Required)
+  1: arg1-int-nullable       Int Nullable
+  2: arg2-string-not-null    String NotNull (Required)
+  3: arg3-string-nullable    String Nullable
 ".TrimStart());
         }
 
@@ -572,6 +601,60 @@ Options:
 ".TrimStart());
         }
 
+        [Fact]
+        public void CommandHelp_Options_NullableBoolean_DefaultFalse_Rendered()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new ICommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(bool?), "flag", new [] { 'f' }, "Boolean option", new CoconaDefaultValue(null)),
+                }
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandHelp(commandDescriptor, Array.Empty<CommandDescriptor>());
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName Test [--flag]
+
+command description
+
+Options:
+  -f, --flag    Boolean option
+".TrimStart());
+        }
+
+        [Fact]
+        public void CommandHelp_Options_Nullable()
+        {
+            var commandDescriptor = CreateCommand(
+                "Test",
+                "command description",
+                new ICommandParameterDescriptor[]
+                {
+                    CreateCommandOption(typeof(string), "nrt", new [] { 'f' }, "Nullable Reference Type", new CoconaDefaultValue(null)),
+                    CreateCommandOption(typeof(bool?), "looooooong-option", new [] { 'l' }, "Long name option", new CoconaDefaultValue(null)),
+                    CreateCommandOption(typeof(int?), "nullable-int", new [] { 'x' }, "Nullable Int", new CoconaDefaultValue(null)),
+                },
+                CommandFlags.Primary
+            );
+
+            var provider = new CoconaCommandHelpProvider(new FakeApplicationMetadataProvider(), new ServiceCollection().BuildServiceProvider());
+            var help = provider.CreateCommandsIndexHelp(new CommandCollection(new[] { commandDescriptor }), Array.Empty<CommandDescriptor>());
+            var text = new CoconaHelpRenderer().Render(help);
+            text.Should().Be(@"
+Usage: ExeName [--nrt <String>] [--looooooong-option] [--nullable-int <Int32>]
+
+command description
+
+Options:
+  -f, --nrt <String>            Nullable Reference Type
+  -l, --looooooong-option       Long name option
+  -x, --nullable-int <Int32>    Nullable Int
+".TrimStart());
+        }
 
         [Fact]
         public void CommandHelp_Options_Hidden_Rendered()

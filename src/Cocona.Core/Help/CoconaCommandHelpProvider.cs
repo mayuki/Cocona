@@ -48,7 +48,7 @@ namespace Cocona.Help
                 foreach (var opt in command.Options.Where(x => !x.IsHidden))
                 {
                     sb.Append(" ");
-                    if (opt.OptionType == typeof(bool))
+                    if (opt.UnwrappedOptionType == typeof(bool))
                     {
                         if (opt.DefaultValue.HasValue && opt.DefaultValue.Value != null && opt.DefaultValue.Value.Equals(true))
                         {
@@ -230,7 +230,7 @@ namespace Cocona.Help
                                 .Select((x, i) =>
                                     new HelpLabelDescriptionListItem(
                                         $"{i}: {x.Name}",
-                                        BuildParameterDescription(_localizer.GetArgumentDescription(command, x), x.IsRequired, x.ArgumentType, x.DefaultValue)
+                                        BuildParameterDescription(_localizer.GetArgumentDescription(command, x), x.IsRequired, x.UnwrappedArgumentType, x.DefaultValue)
                                     )
                                 )
                                 .ToArray()
@@ -254,7 +254,7 @@ namespace Cocona.Help
                                     x is CommandOptionDescriptor option
                                         ? new HelpLabelDescriptionListItem(
                                             BuildParameterLabel(option),
-                                            BuildParameterDescription(_localizer.GetOptionDescription(command, x), option.IsRequired, option.OptionType, option.DefaultValue)
+                                            BuildParameterDescription(_localizer.GetOptionDescription(command, x), option.IsRequired, option.UnwrappedOptionType, option.DefaultValue)
                                         )
                                         : x is CommandOptionLikeCommandDescriptor optionLikeCommand
                                             ? new HelpLabelDescriptionListItem(
@@ -275,7 +275,7 @@ namespace Cocona.Help
             return (option.ShortName.Any() ? string.Join(", ", option.ShortName.Select(x => $"-{x}")) + ", " : "") +
                 $"--{option.Name}" +
                 (
-                    option.OptionType == typeof(bool)
+                    option.UnwrappedOptionType == typeof(bool)
                         ? option.DefaultValue.HasValue && option.DefaultValue.Value != null && option.DefaultValue.Value.Equals(true)
                             ? "=<true|false>"
                             : ""

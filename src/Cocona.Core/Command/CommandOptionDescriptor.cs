@@ -17,6 +17,8 @@ namespace Cocona.Command
     public class CommandOptionDescriptor : ICommandOptionDescriptor, ICommandParameterDescriptor
     {
         public Type OptionType { get; }
+        public Type UnwrappedOptionType { get; } // OptionType = Nullable<bool> --> UnwrappedType = bool
+
         public string Name { get; }
         public IReadOnlyList<char> ShortName { get; }
         public string ValueName { get; }
@@ -27,16 +29,19 @@ namespace Cocona.Command
         public CommandOptionFlags Flags { get; }
         public bool IsHidden => Flags.HasFlag(CommandOptionFlags.Hidden);
         public bool IsRequired => !DefaultValue.HasValue;
-        public bool IsEnumerableLike => DynamicListHelper.IsArrayOrEnumerableLike(OptionType);
-
+        public bool IsEnumerableLike => DynamicListHelper.IsArrayOrEnumerableLike(UnwrappedOptionType);
         public CommandOptionDescriptor(Type optionType, string name, IReadOnlyList<char> shortName, string description, CoconaDefaultValue defaultValue, string? valueName, CommandOptionFlags flags, IReadOnlyList<Attribute> parameterAttributes)
         {
             OptionType = optionType ?? throw new ArgumentNullException(nameof(optionType));
+            UnwrappedOptionType = optionType.IsValueType && optionType.IsConstructedGenericType && optionType.GetGenericTypeDefinition() == typeof(Nullable<>)
+                ? optionType.GetGenericArguments()[0]
+                : optionType;
+
             Name = name ?? throw new ArgumentNullException(nameof(name));
             ShortName = shortName ?? throw new ArgumentNullException(nameof(shortName));
             Description = description ?? throw new ArgumentNullException(nameof(description));
             DefaultValue = defaultValue;
-            ValueName = valueName ?? OptionType.Name;
+            ValueName = valueName ?? (DynamicListHelper.IsArrayOrEnumerableLike(UnwrappedOptionType) ? DynamicListHelper.GetElementType(UnwrappedOptionType) : UnwrappedOptionType).Name;
             Flags = flags;
             ParameterAttributes = parameterAttributes;
 

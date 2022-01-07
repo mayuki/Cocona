@@ -12,7 +12,10 @@ namespace Cocona.Internal
 #if NET6_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(argument, paramName);
 #else
-            throw new ArgumentNullException(paramName);
+            if (argument is null)
+            {
+                throw new ArgumentNullException(paramName);
+            }
 #endif
         }
     }

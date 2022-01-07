@@ -25,6 +25,13 @@ namespace Cocona.Test.Integration
     [Collection("End to End")] // NOTE: Test cases use `Console` and does not run in parallel.
     public abstract class EndToEndTestBase
     {
+#if !NET5_0_OR_GREATER
+        static EndToEndTestBase()
+        {
+            ModuleInitializers.EnforceCurrentCulture();
+        }
+#endif
+
         protected (string StandardOut, string StandardError, int ExitCode) Run(string[] args, Action<string[]> action)
         {
             var stdOutWriter = new StringWriter();

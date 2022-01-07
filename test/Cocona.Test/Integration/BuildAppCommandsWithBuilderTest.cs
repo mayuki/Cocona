@@ -236,5 +236,133 @@ namespace Cocona.Test.Integration
             stdOut.Should().NotContain("--hidden");
             exitCode.Should().Be(129);
         }
+
+        [Fact]
+        public void Parameter_NotNull_Or_Unknown_Required_RefType()
+        {
+            {
+                var (stdOut, stdErr, exitCode) = Run(new string[] { }, args =>
+                {
+                    var app = CoconaApp.Create(args);
+                    app.AddCommand((string name) => Console.WriteLine($"Hello {name}!")); // [NotNull]
+                    app.Run();
+                });
+
+                stdErr.Should().Contain("'--name' is required");
+                exitCode.Should().Be(1);
+            }
+#nullable disable
+            {
+                var (stdOut, stdErr, exitCode) = Run(new string[] { }, args =>
+                {
+                    var app = CoconaApp.Create(args);
+                    app.AddCommand((string name) => Console.WriteLine($"Hello {name}!")); // [Unknown]
+                    app.Run();
+                });
+
+                stdErr.Should().Contain("'--name' is required");
+                exitCode.Should().Be(1);
+            }
+#nullable restore
+        }
+
+        [Fact]
+        public void Parameter_Nullable_Optional_RefType()
+        {
+            {
+                var (stdOut, stdErr, exitCode) = Run(new string[] { }, args =>
+                {
+                    var app = CoconaApp.Create(args);
+                    app.AddCommand((string? name) => Console.WriteLine($"Hello {(name ?? "Guest")}!"));
+                    app.Run();
+                });
+
+                stdErr.Should().BeEmpty();
+                stdOut.Should().Be("Hello Guest!" + Environment.NewLine);
+                exitCode.Should().Be(0);
+            }
+            {
+                var (stdOut, stdErr, exitCode) = Run(new string[] { "--name", "Alice" }, args =>
+                {
+                    var app = CoconaApp.Create(args);
+                    app.AddCommand((string? name) => Console.WriteLine($"Hello {(name ?? "Guest")}!"));
+                    app.Run();
+                });
+
+                stdErr.Should().BeEmpty();
+                stdOut.Should().Be("Hello Alice!" + Environment.NewLine);
+                exitCode.Should().Be(0);
+            }
+        }
+
+        [Fact]
+        public void Parameter_Nullable_Optional_ValueType()
+        {
+            {
+                var (stdOut, stdErr, exitCode) = Run(new string[] { }, args =>
+                {
+                    var app = CoconaApp.Create(args);
+                    app.AddCommand((int? year) => Console.WriteLine($"Hello {(year ?? 2022)}!"));
+                    app.Run();
+                });
+
+                stdErr.Should().BeEmpty();
+                stdOut.Should().Be("Hello 2022!" + Environment.NewLine);
+                exitCode.Should().Be(0);
+            }
+            {
+                var (stdOut, stdErr, exitCode) = Run(new string[] { "--year", "2000" }, args =>
+                {
+                    var app = CoconaApp.Create(args);
+                    app.AddCommand((int? year) => Console.WriteLine($"Hello {(year ?? 2022)}!"));
+                    app.Run();
+                });
+
+                stdErr.Should().BeEmpty();
+                stdOut.Should().Be("Hello 2000!" + Environment.NewLine);
+                exitCode.Should().Be(0);
+            }
+        }
+
+        [Fact]
+        public void Parameter_Nullable_Optional_Boolean()
+        {
+            {
+                var (stdOut, stdErr, exitCode) = Run(new string[] { }, args =>
+                {
+                    var app = CoconaApp.Create(args);
+                    app.AddCommand((bool? flag) => Console.WriteLine($"Flag: {(flag.HasValue ? flag.Value : "(null)")}"));
+                    app.Run();
+                });
+
+                stdErr.Should().BeEmpty();
+                stdOut.Should().Be("Flag: (null)" + Environment.NewLine);
+                exitCode.Should().Be(0);
+            }
+            {
+                var (stdOut, stdErr, exitCode) = Run(new string[] { "--flag" }, args =>
+                {
+                    var app = CoconaApp.Create(args);
+                    app.AddCommand((bool? flag) => Console.WriteLine($"Flag: {(flag.HasValue ? flag.Value : "(null)")}"));
+                    app.Run();
+                });
+
+                stdErr.Should().BeEmpty();
+                stdOut.Should().Be("Flag: True" + Environment.NewLine);
+                exitCode.Should().Be(0);
+            }
+            {
+                var (stdOut, stdErr, exitCode) = Run(new string[] { "--flag=false" }, args =>
+                {
+                    var app = CoconaApp.Create(args);
+                    app.AddCommand((bool? flag) => Console.WriteLine($"Flag: {(flag.HasValue ? flag.Value : "(null)")}"));
+                    app.Run();
+                });
+
+                stdErr.Should().BeEmpty();
+                stdOut.Should().Be("Flag: False" + Environment.NewLine);
+                exitCode.Should().Be(0);
+            }
+        }
     }
 }

@@ -88,7 +88,7 @@ namespace Cocona.CommandLine
                                     optionsCompleted = true;
                                 }
 
-                                if (optionDesc.OptionType == typeof(bool))
+                                if (optionDesc.UnwrappedOptionType == typeof(bool))
                                 {
                                     // Boolean (flag)
                                     var flag = string.Equals(partRight, "true", StringComparison.OrdinalIgnoreCase) || string.Equals(partRight, "1", StringComparison.OrdinalIgnoreCase)
@@ -130,7 +130,7 @@ namespace Cocona.CommandLine
                                     optionsCompleted = true;
                                 }
 
-                                if (optionDesc.OptionType == typeof(bool))
+                                if (optionDesc.UnwrappedOptionType == typeof(bool))
                                 {
                                     // Boolean (flag)
                                     options.Add(new CommandOption(optionDesc, "true", i));
@@ -179,7 +179,7 @@ namespace Cocona.CommandLine
                                     optionsCompleted = true;
                                 }
 
-                                if (optionDesc.OptionType == typeof(bool))
+                                if (optionDesc.UnwrappedOptionType == typeof(bool))
                                 {
                                     // Boolean (flag)
                                     options.Add(new CommandOption(optionDesc, "true", i));
