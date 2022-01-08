@@ -109,7 +109,7 @@ namespace Cocona.Command.Binder
                         argDesc2.Bind(ConvertTo(argDesc2.Argument, argDesc2.Argument.ArgumentType, commandArgumentValues[indexRev--].Value));
                     }
 
-                    // pick rest values to array argment.
+                    // pick rest values to array argument.
                     // e.g: [ string,  string[],  string, string ]
                     //          |       |    |      |       |
                     //      [ arg0,  [arg1, arg2], arg3,   arg4 ]
