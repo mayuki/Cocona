@@ -1,7 +1,7 @@
-﻿namespace Cocona.CommandLine
+namespace Cocona.CommandLine
 {
     /// <summary>
-    /// A provider thats provides command-line arguments.
+    /// A provider that provides command-line arguments.
     /// </summary>
     public interface ICoconaCommandLineArgumentProvider
     {

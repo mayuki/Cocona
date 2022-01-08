@@ -169,7 +169,7 @@ namespace Cocona.Command.BuiltIn
             return new ValueTask<int>(0);
         }
 
-        // --completion-candidates <shell>:<paramName> -- <incompleted command line...>
+        // --completion-candidates <shell>:<paramName> -- <incomplete command line...>
         // WARN: The option must be processed before '--help' or '--version' options.
         //       If '--completion-candidates' option is provided, '--help' and '--version' options are also always provided.
         //       And these options prevent to perform unintended **destructive** action if the command doesn't support on-the-fly candidates feature.
