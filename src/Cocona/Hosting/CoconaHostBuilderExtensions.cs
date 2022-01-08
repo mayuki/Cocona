@@ -8,6 +8,7 @@ using Cocona.Builder.Internal;
 using Cocona;
 using Cocona.Builder;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.Hosting
 {
     public static class CoconaHostBuilderExtensions

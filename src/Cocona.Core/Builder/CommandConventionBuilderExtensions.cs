@@ -8,6 +8,7 @@ using Cocona.Builder.Metadata;
 using Cocona.Filters;
 using Cocona.Internal;
 
+// ReSharper disable once CheckNamespace
 namespace Cocona
 {
     public static class CommandConventionBuilderExtensions

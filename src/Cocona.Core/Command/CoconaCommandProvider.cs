@@ -28,7 +28,7 @@ namespace Cocona.Command
 
     public class CoconaCommandProvider : ICoconaCommandProvider
     {
-        private static readonly Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> _emptyOverloads = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>();
+        private static readonly Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>> EmptyOverloads = new Dictionary<string, List<(MethodInfo Method, CommandOverloadAttribute Attribute)>>();
 
         private readonly IReadOnlyList<ICommandData> _commandDataSet;
         private readonly CommandProviderOptions _options;
@@ -284,7 +284,7 @@ namespace Cocona.Command
                     var overloadDescriptor = new CommandOverloadDescriptor(
                         (builder.AllOptions.TryGetValue(overload.Attribute.OptionName, out var name) ? name : throw new CoconaException($"Command option overload '{overload.Attribute.OptionName}' was not found in overload target '{methodInfo.Name}'.")),
                         overload.Attribute.OptionValue,
-                        CreateCommand(overload.Method, isSingleCommand, _emptyOverloads, null),
+                        CreateCommand(overload.Method, isSingleCommand, EmptyOverloads, null),
                         overload.Attribute.Comparer != null ? (IEqualityComparer<string>?)Activator.CreateInstance(overload.Attribute.Comparer) : null
                     );
 
@@ -307,7 +307,7 @@ namespace Cocona.Command
                             _ => throw new InvalidOperationException($"Option-like command data must be DelegateCommandData or OptionLikeDelegateCommandData"),
                         };
 
-                        var optionLikeCommandDesc = CreateCommand(methodInfoOptionLikeCommand, false, _emptyOverloads, targetOptionLikeCommand, optionLikeCommandData.Metadata);
+                        var optionLikeCommandDesc = CreateCommand(methodInfoOptionLikeCommand, false, EmptyOverloads, targetOptionLikeCommand, optionLikeCommandData.Metadata);
                         return new CommandOptionLikeCommandDescriptor(
                             x.OptionName,
                             x.ShortNames,

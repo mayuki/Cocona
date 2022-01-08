@@ -1,6 +1,7 @@
 using Cocona.Builder;
 using Cocona.Internal;
 
+// ReSharper disable once CheckNamespace
 namespace Cocona;
 
 public static class CommandTypeConventionBuilderExtensions

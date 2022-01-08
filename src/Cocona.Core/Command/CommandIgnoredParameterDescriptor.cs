@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Cocona.Command
 {
-    [DebuggerDisplay("Ignored: {ArgumentType.FullName,nq}; DefaultValue={DefaultValue,nq})")]
+    [DebuggerDisplay("Ignored: {ParameterType.FullName,nq}; DefaultValue={DefaultValue,nq})")]
     public class CommandIgnoredParameterDescriptor : ICommandParameterDescriptor
     {
         public string Name { get; }
