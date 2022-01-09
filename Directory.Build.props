@@ -16,6 +16,17 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>CommandLine CLI Framework Console</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(SolutionDir)\src\Cocona\StrongNameKey.snk</AssemblyOriginatorKeyFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+      <None Include="$(SolutionDir)\docs\assets\icon.png" Pack="true" PackagePath="/" />
+      <None Include="$(SolutionDir)\README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
 </Project>

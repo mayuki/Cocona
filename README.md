@@ -8,7 +8,7 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
 CoconaApp.Run((string? name, bool hey) =>
     Console.WriteLine("{(hey ? "Hey" :"Hello")} {(name ?? "Guest")}!"));
 ```
-![](docs/assets/intro-in-seconds.gif)
+![](https://raw.githubusercontent.com/mayuki/Cocona/master/docs/assets/intro-in-seconds.gif)
 
 ## Feature
 - 🚀 **Make it easy to build console applications on .NET.**
