@@ -8,7 +8,10 @@ namespace CoconaSample.GettingStarted.SubCommandApp
     {
         static void Main(string[] args)
         {
-            CoconaApp.Run<Program>(args);
+            CoconaApp.Run<Program>(args, options =>
+            {
+                options.EnableShellCompletionSupport = true;
+            });
         }
 
         [Command(Description = "Say hello")]
