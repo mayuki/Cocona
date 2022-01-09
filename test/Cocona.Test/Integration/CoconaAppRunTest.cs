@@ -745,21 +745,6 @@ namespace Cocona.Test.Integration
             stdErr.Should().Contain("ThrowCore()");
         }
 
-        [Theory]
-        [InlineData(RunBuilderMode.CreateHostBuilder)]
-        [InlineData(RunBuilderMode.CreateBuilder)]
-        [InlineData(RunBuilderMode.Shortcut)]
-        public void CoconaApp_Run_Throw_DisableHandling(RunBuilderMode mode)
-        {
-            Assert.Throws<AggregateException>(() =>
-            {
-                var (stdOut, stdErr, exitCode) = Run<TestCommand_Throw>(mode, new string[] { "my-help" }, options =>
-                {
-                    options.HandleExceptionAtRuntime = false;
-                });
-            }).Message.Should().Contain("Exception!");
-        }
-
         class TestCommand_Throw
         {
             public void Throw()
@@ -771,6 +756,26 @@ namespace Cocona.Test.Integration
             {
                 throw new Exception("Exception!");
             }
+        }
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_ThrowOnBuild(RunBuilderMode mode)
+        {
+            Assert.Throws<CoconaException>(() =>
+            {
+                var (stdOut, stdErr, exitCode) = Run<TestCommand_ThrowOnBuild>(mode, new string[] { });
+            });
+        }
+
+        class TestCommand_ThrowOnBuild
+        {
+            [Command("duplicated")]
+            public void Throw() { }
+            [Command("duplicated")]
+            public void Throw2() { }
         }
 
         [Theory]

@@ -32,17 +32,17 @@ namespace Cocona.Test.Integration
         [Fact]
         public void Unnamed_SingleCommand_Duplicated()
         {
-            var (stdOut, stdErr, exitCode) = Run(new string[] { }, args =>
+            Assert.Throws<CoconaException>(() =>
             {
-                var builder = CoconaApp.CreateBuilder(args);
-                var app = builder.Build();
-                app.AddCommand(() => Console.WriteLine("Hello Konnichiwa!"));
-                app.AddCommand(() => Console.WriteLine("Hello Konnichiwa!"));
-                app.Run();
-            });
-
-            stdErr.Should().Contain("The commands contains more then one primary command");
-            exitCode.Should().Be(1);
+                var (stdOut, stdErr, exitCode) = Run(new string[] { }, args =>
+                {
+                    var builder = CoconaApp.CreateBuilder(args);
+                    var app = builder.Build();
+                    app.AddCommand(() => Console.WriteLine("Hello Konnichiwa!"));
+                    app.AddCommand(() => Console.WriteLine("Hello Konnichiwa!"));
+                    app.Run();
+                });
+            }).Message.Should().Contain("The commands contains more then one primary command");
         }
 
         [Fact]

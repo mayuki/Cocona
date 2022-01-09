@@ -9,11 +9,6 @@ namespace Cocona
     public class CoconaLiteAppOptions
     {
         /// <summary>
-        /// Sets or gets whether Cocona or a command throws an exception, handle it and exit normally. The default value is true.
-        /// </summary>
-        public bool HandleExceptionAtRuntime { get; set; } = true;
-
-        /// <summary>
         /// If the type has public methods, Cocona treats as a command. The default value is true.
         /// </summary>
         public bool TreatPublicMethodsAsCommands { get; set; } = true;

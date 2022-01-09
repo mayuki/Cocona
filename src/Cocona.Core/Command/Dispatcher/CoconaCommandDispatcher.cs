@@ -14,38 +14,31 @@ namespace Cocona.Command.Dispatcher
     public class CoconaCommandDispatcher : ICoconaCommandDispatcher
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ICoconaCommandLineArgumentProvider _commandLineArgumentProvider;
-        private readonly ICoconaCommandResolver _commandResolver;
         private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
         private readonly ICoconaInstanceActivator _activator;
         private readonly ICoconaAppContextAccessor _appContext;
 
         public CoconaCommandDispatcher(
             IServiceProvider serviceProvider,
-            ICoconaCommandLineArgumentProvider commandLineArgumentProvider,
-            ICoconaCommandResolver commandResolver,
             ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
             ICoconaInstanceActivator activator,
             ICoconaAppContextAccessor appContext
         )
         {
             _serviceProvider = serviceProvider;
-            _commandLineArgumentProvider = commandLineArgumentProvider;
-            _commandResolver = commandResolver;
             _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
             _activator = activator;
             _appContext = appContext;
         }
 
-        public async ValueTask<int> DispatchAsync(CancellationToken cancellationToken)
+        public async ValueTask<int> DispatchAsync(CommandResolverResult commandResolverResult, CancellationToken cancellationToken)
         {
-            var result = _commandResolver.ParseAndResolve(_commandLineArgumentProvider.GetArguments());
-            if (result.Success)
+            if (commandResolverResult.Success)
             {
                 // Found a command and dispatch.
-                var parsedCommandLine = result.ParsedCommandLine!;
-                var matchedCommand = result.MatchedCommand!;
-                var subCommandStack = result.SubCommandStack!;
+                var parsedCommandLine = commandResolverResult.ParsedCommandLine!;
+                var matchedCommand = commandResolverResult.MatchedCommand!;
+                var subCommandStack = commandResolverResult.SubCommandStack!;
 
                 var dispatchAsync = _dispatcherPipelineBuilder.Build();
 
@@ -63,7 +56,7 @@ namespace Cocona.Command.Dispatcher
 
                 // Set CoconaAppContext
                 _appContext.Current = new CoconaAppContext(matchedCommand, cancellationToken);
-                _appContext.Current.Features.Set<ICoconaCommandFeature>(new CoconaCommandFeature(result.CommandCollection, matchedCommand, subCommandStack, commandInstance));
+                _appContext.Current.Features.Set<ICoconaCommandFeature>(new CoconaCommandFeature(commandResolverResult.CommandCollection, matchedCommand, subCommandStack, commandInstance));
 
                 // Dispatch the command
                 try
@@ -90,7 +83,7 @@ namespace Cocona.Command.Dispatcher
             {
                 throw new CommandNotFoundException(
                     string.Empty,
-                    result.CommandCollection,
+                    commandResolverResult.CommandCollection,
                     Strings.Command_NotYetImplemented
                 );
             }

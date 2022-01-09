@@ -52,7 +52,11 @@ namespace Cocona.Test.Command
             var serviceProvider = services.BuildServiceProvider();
 
             var commandInstance = serviceProvider.GetService<ConsoleAppTest>();
-            var result = await serviceProvider.GetService<ICoconaCommandDispatcher>().DispatchAsync();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await serviceProvider.GetService<ICoconaCommandDispatcher>().DispatchAsync(resolvedCommand);
             result.Should().Be(0);
             commandInstance.HasContext.Should().BeTrue();
         }

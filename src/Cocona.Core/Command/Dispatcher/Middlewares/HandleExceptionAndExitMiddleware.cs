@@ -1,11 +1,13 @@
-﻿using Cocona.Application;
+using Cocona.Application;
 using Cocona.Command.Binder;
 using Cocona.Help;
+using Cocona.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cocona.Resources;
 
 namespace Cocona.Command.Dispatcher.Middlewares
 {
@@ -39,6 +41,13 @@ namespace Cocona.Command.Dispatcher.Middlewares
                     }
                 }
                 return exitEx.ExitCode;
+            }
+            catch (Exception ex)
+            {
+                _console.Error.WriteLine($"Unhandled Exception: {ex.GetType().FullName}: {ex.Message}");
+                _console.Error.WriteLine(ex.StackTrace);
+
+                return 1;
             }
         }
     }

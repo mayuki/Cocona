@@ -74,4 +74,13 @@
     <data name="OptionLikeCommand_MethodNotFound" xml:space="preserve">
         <value>オプション風コマンド '{0}' のメソッドが '{1}' に見つかりませんでした。</value>
     </data>
+    <data name="Dispatcher_Error_CommandNotFound" xml:space="preserve">
+        <value>エラー: {0}</value>
+    </data>
+    <data name="Dispatcher_Error_NotACommand" xml:space="preserve">
+        <value>エラー: '{0}' はコマンドではありません。 '--help' で使用方法を確認できます。</value>
+    </data>
+    <data name="Dispatcher_Error_SimilarCommands" xml:space="preserve">
+        <value>類似するコマンド:</value>
+    </data>
 </root>

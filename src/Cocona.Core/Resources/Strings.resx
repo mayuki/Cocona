@@ -180,4 +180,13 @@
   <data name="Help_Description_AllowedValues" xml:space="preserve">
       <value>Allowed values</value>
   </data>
+  <data name="Dispatcher_Error_CommandNotFound" xml:space="preserve">
+      <value>Error: {0}</value>
+  </data>
+  <data name="Dispatcher_Error_NotACommand" xml:space="preserve">
+      <value>Error: '{0}' is not a command. See '--help' for usage.</value>
+  </data>
+  <data name="Dispatcher_Error_SimilarCommands" xml:space="preserve">
+      <value>Similar commands:</value>
+  </data>
 </root>

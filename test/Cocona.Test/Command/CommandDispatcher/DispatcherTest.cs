@@ -72,8 +72,12 @@ namespace Cocona.Test.Command.CommandDispatcher
             var services = CreateDefaultServices<TestCommand>(new string[] { "--option0=hogehoge" });
             var serviceProvider = services.BuildServiceProvider();
 
-            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var result = await dispatcher.DispatchAsync();
+            var dispatcher = serviceProvider.GetRequiredService<ICoconaCommandDispatcher>();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
             serviceProvider.GetService<TestCommand>().Log[0].Should().Be($"{nameof(TestCommand.Test)}:option0 -> hogehoge");
         }
 
@@ -84,7 +88,11 @@ namespace Cocona.Test.Command.CommandDispatcher
             var serviceProvider = services.BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var result = await dispatcher.DispatchAsync();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
             result.Should().Be(129);
         }
 
@@ -95,7 +103,11 @@ namespace Cocona.Test.Command.CommandDispatcher
             var serviceProvider = services.BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var result = await dispatcher.DispatchAsync();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
             result.Should().Be(0);
             serviceProvider.GetService<TestCommand_IgnoreUnknownOption>().Log[0].Should().Be($"{nameof(TestCommand.Test)}:option0 -> hogehoge");
         }
@@ -107,30 +119,47 @@ namespace Cocona.Test.Command.CommandDispatcher
             var serviceProvider = services.BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var result = await dispatcher.DispatchAsync();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
             serviceProvider.GetService<TestMultipleCommand>().Log[0].Should().Be($"{nameof(TestMultipleCommand.A)}:option0 -> Hello");
         }
 
         [Fact]
-        public async Task CommandNotFound_Single()
+        public async Task CommandNotFound_Single_NotImplementedYet()
         {
             var services = CreateDefaultServices<NoCommand>(new string[] { "C" });
             var serviceProvider = services.BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () => await dispatcher.DispatchAsync());
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () => await dispatcher.DispatchAsync(resolvedCommand));
+            ex.Message.Should().Contain("Command not yet implemented");
             ex.Command.Should().BeEmpty();
             ex.ImplementedCommands.All.Should().BeEmpty();
         }
 
         [Fact]
-        public async Task CommandNotFound_Multiple()
+        public async Task CommandNotFound_Multiple_Resolver()
         {
             var services = CreateDefaultServices<TestMultipleCommand>(new string[] { "C" });
             var serviceProvider = services.BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () => await dispatcher.DispatchAsync());
+            var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () =>
+            {
+                var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                    serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                    serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+                );
+
+                await dispatcher.DispatchAsync(resolvedCommand);
+            });
             ex.Command.Should().Be("C");
             ex.ImplementedCommands.All.Should().HaveCount(2); // A, B
         }
@@ -142,17 +171,29 @@ namespace Cocona.Test.Command.CommandDispatcher
             var serviceProvider = services.BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var result = await dispatcher.DispatchAsync();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
         }
 
         [Fact]
-        public async Task CommandNotFound_Multiple_Primary()
+        public async Task CommandNotFound_Multiple_Primary_Resolver()
         {
             var services = CreateDefaultServices<TestMultipleCommand>(new string[] { });
             var serviceProvider = services.BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () => await dispatcher.DispatchAsync());
+            var ex = await Assert.ThrowsAsync<CommandNotFoundException>(async () =>
+            {
+                var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                    serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                    serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+                );
+
+                await dispatcher.DispatchAsync(resolvedCommand);
+            });
             ex.Command.Should().BeEmpty();
             ex.ImplementedCommands.All.Should().HaveCount(2);
             ex.ImplementedCommands.Primary.Should().BeNull();
@@ -167,7 +208,11 @@ namespace Cocona.Test.Command.CommandDispatcher
             var nestedCommand = serviceProvider.GetService<TestNestedCommand>();
             var nestedCommandNested = serviceProvider.GetService<TestNestedCommand.TestNestedCommand_Nested>();
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var result = await dispatcher.DispatchAsync();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
 
             nestedCommand.Log.Should().Contain("A");
             nestedCommandNested.Log.Should().BeEmpty();
@@ -182,7 +227,11 @@ namespace Cocona.Test.Command.CommandDispatcher
             var nestedCommand = serviceProvider.GetService<TestNestedCommand>();
             var nestedCommandNested = serviceProvider.GetService<TestNestedCommand.TestNestedCommand_Nested>();
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var result = await dispatcher.DispatchAsync();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
 
             nestedCommand.Log.Should().BeEmpty();
             nestedCommandNested.Log.Should().Contain("B");
@@ -197,7 +246,11 @@ namespace Cocona.Test.Command.CommandDispatcher
             var nestedCommand = serviceProvider.GetService<TestNestedCommand_Primary>();
             var nestedCommandNested = serviceProvider.GetService<TestNestedCommand_Primary.TestNestedCommand_Primary_Nested>();
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var result = await dispatcher.DispatchAsync();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
 
             nestedCommand.Log.Should().BeEmpty();
             nestedCommandNested.Log.Should().Contain("B");
@@ -213,7 +266,11 @@ namespace Cocona.Test.Command.CommandDispatcher
             var nestedCommandNested = serviceProvider.GetService<TestDeepNestedCommand.TestDeepNestedCommand_Nested>();
             var nestedCommandNested2 = serviceProvider.GetService<TestDeepNestedCommand.TestDeepNestedCommand_Nested_2>();
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var result = await dispatcher.DispatchAsync();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
 
             nestedCommand.Log.Should().BeEmpty();
             nestedCommandNested.Log.Should().BeEmpty();
@@ -258,7 +315,11 @@ namespace Cocona.Test.Command.CommandDispatcher
             var serviceProvider = services.BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var result = await dispatcher.DispatchAsync();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
             command.Log[0].Should().Be($"{nameof(TestCommandDelegate.Test)}:{command.Id}:option0 -> alice");
         }
 
@@ -313,7 +374,11 @@ namespace Cocona.Test.Command.CommandDispatcher
             var serviceProvider = services.BuildServiceProvider();
 
             var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
-            var result = await dispatcher.DispatchAsync();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
             TestCommandStatic.Log[0].Should().Be($"{nameof(TestCommandStatic.Test)}:option0 -> alice");
         }
 

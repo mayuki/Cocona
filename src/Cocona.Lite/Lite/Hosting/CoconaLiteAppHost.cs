@@ -26,18 +26,18 @@ namespace Cocona.Lite.Hosting
         public async Task RunAsync(CancellationToken cancellationToken)
         {
             var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
-            var commandDispatcher = _serviceProvider.GetRequiredService<ICoconaCommandDispatcher>();
-            var console = _serviceProvider.GetRequiredService<ICoconaConsoleProvider>();
-            var shouldHandleException = _serviceProvider.GetRequiredService<CoconaLiteAppOptions>().HandleExceptionAtRuntime;
+            var bootstrapper = _serviceProvider.GetRequiredService<ICoconaBootstrapper>();
 
 #pragma warning disable RS0030 // Do not used banned APIs
             Console.CancelKeyPress += OnCancelKeyPress;
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 #pragma warning restore RS0030 // Do not used banned APIs
 
+            bootstrapper.Initialize();
+
             try
             {
-                var task = commandDispatcher.DispatchAsync(linkedCancellationToken.Token);
+                var task = bootstrapper.RunAsync(linkedCancellationToken.Token);
                 if (task.IsCompleted)
                 {
                     Environment.ExitCode = task.Result;
@@ -47,46 +47,10 @@ namespace Cocona.Lite.Hosting
                     Environment.ExitCode = await task;
                 }
             }
-            catch (CommandNotFoundException cmdNotFoundEx)
-            {
-                if (string.IsNullOrWhiteSpace(cmdNotFoundEx.Command))
-                {
-                    console.Error.WriteLine(string.Format(Strings.Host_Error_CommandNotFound, cmdNotFoundEx.Message));
-                }
-                else
-                {
-                    console.Error.WriteLine(string.Format(Strings.Host_Error_NotACommand, cmdNotFoundEx.Command));
-                }
-
-                var similarCommands = cmdNotFoundEx.ImplementedCommands.All.Where(x => Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
-                if (similarCommands.Any())
-                {
-                    console.Error.WriteLine();
-                    console.Error.WriteLine(Strings.Host_Error_SimilarCommands);
-                    foreach (var c in similarCommands)
-                    {
-                        console.Error.WriteLine($"  {c.Name}");
-                    }
-                }
-
-                Environment.ExitCode = 1;
-            }
             catch (OperationCanceledException ex) when (ex.CancellationToken == _cancellationTokenSource.Token)
             {
                 // NOTE: Ignore OperationCanceledException that was thrown by non-user code.
                 Environment.ExitCode = 0;
-            }
-            catch (Exception ex)
-            {
-                console.Error.WriteLine($"Unhandled Exception: {ex.GetType().FullName}: {ex.Message}");
-                console.Error.WriteLine(ex.StackTrace);
-
-                Environment.ExitCode = 1;
-
-                if (!shouldHandleException)
-                {
-                    throw new AggregateException(ex); // NOTE: Align behavior with non-Lite versions.
-                }
             }
 
             _waitForShutdown.Set();

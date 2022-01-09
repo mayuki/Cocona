@@ -20,10 +20,9 @@ namespace Cocona.Hosting
     public class CoconaHostedService : IHostedService
     {
         private readonly ICoconaConsoleProvider _console;
-        private readonly ICoconaCommandDispatcher _commandDispatcher;
+        private readonly ICoconaBootstrapper _bootstrapper;
         private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
         private readonly IHostApplicationLifetime _lifetime;
-        private readonly bool _shouldHandleException;
 
         private readonly CancellationTokenSource _cancellationTokenSource;
         private Task? _runningCommandTask;
@@ -31,16 +30,15 @@ namespace Cocona.Hosting
 
         public CoconaHostedService(
             ICoconaConsoleProvider console,
-            ICoconaCommandDispatcher commandDispatcher,
+            ICoconaBootstrapper bootstrapper,
             ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
             IHostApplicationLifetime lifetime,
             IOptions<CoconaAppOptions> options)
         {
             _console = console;
-            _commandDispatcher = commandDispatcher;
+            _bootstrapper = bootstrapper;
             _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
             _lifetime = lifetime;
-            _shouldHandleException = options.Value.HandleExceptionAtRuntime;
 
             _cancellationTokenSource = new CancellationTokenSource();
         }
@@ -59,6 +57,9 @@ namespace Cocona.Hosting
 
             _lifetime.ApplicationStarted.Register(() => waitForApplicationStartedTsc.TrySetResult(true));
 
+            // Build command collection and parse the command line.
+            _bootstrapper.Initialize();
+
             _runningCommandTask = ExecuteCoconaApplicationAsync(waitForApplicationStartedTsc.Task);
 
             return Task.CompletedTask;
@@ -70,31 +71,7 @@ namespace Cocona.Hosting
 
             try
             {
-                Environment.ExitCode = await Task.Run(async () => await _commandDispatcher.DispatchAsync(_cancellationTokenSource.Token));
-            }
-            catch (CommandNotFoundException cmdNotFoundEx)
-            {
-                if (string.IsNullOrWhiteSpace(cmdNotFoundEx.Command))
-                {
-                    _console.Error.WriteLine(string.Format(Strings.Host_Error_CommandNotFound, cmdNotFoundEx.Message));
-                }
-                else
-                {
-                    _console.Error.WriteLine(string.Format(Strings.Host_Error_NotACommand, cmdNotFoundEx.Command));
-                }
-
-                var similarCommands = cmdNotFoundEx.ImplementedCommands.All.Where(x => Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
-                if (similarCommands.Any())
-                {
-                    _console.Error.WriteLine();
-                    _console.Error.WriteLine(Strings.Host_Error_SimilarCommands);
-                    foreach (var c in similarCommands)
-                    {
-                        _console.Error.WriteLine($"  {c.Name}");
-                    }
-                }
-
-                Environment.ExitCode = 1;
+                Environment.ExitCode = await Task.Run(async () => await _bootstrapper.RunAsync(_cancellationTokenSource.Token));
             }
             catch (OperationCanceledException ex) when (ex.CancellationToken == _cancellationTokenSource.Token)
             {
@@ -103,11 +80,7 @@ namespace Cocona.Hosting
             }
             catch (Exception ex)
             {
-                _console.Error.WriteLine($"Unhandled Exception: {ex.GetType().FullName}: {ex.Message}");
-                _console.Error.WriteLine(ex.StackTrace);
-
                 Environment.ExitCode = 1;
-
                 _capturedException = ExceptionDispatchInfo.Capture(ex);
             }
 
@@ -118,10 +91,7 @@ namespace Cocona.Hosting
         {
             _cancellationTokenSource?.Cancel();
 
-            if (!_shouldHandleException)
-            {
-                _capturedException?.Throw();
-            }
+            _capturedException?.Throw();
 
             if (_runningCommandTask != null && !_runningCommandTask.IsCompleted)
             {
