@@ -936,7 +936,7 @@ or
 
 Currently, The supported shells are `bash` and `zsh`.
 
-This feature is enabled by default, or you can set the `EnableShellCompletionSupport` option to `false` if you don't need it.
+This feature is **disabled** by default, or you can set the `EnableShellCompletionSupport` option to `true` if you need it.
 
 It is also possible to dynamically generate command-line completion candidates and to prepare candidates at script generation time. Please see the sample below for more details.
 
