@@ -58,7 +58,7 @@ namespace Cocona.Builder
         {
             public MethodInfo Method { get; }
             public object? Target { get; }
-            public IList<object> Metadata { get; } = new List<object>();
+            public IList<object> Metadata { get; }
 
             public CommandBuilder(DelegateCommandDataSource source)
             {

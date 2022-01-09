@@ -11,19 +11,16 @@ namespace Cocona.ShellCompletion.Candidate
         private readonly ICoconaCompletionCandidatesMetadataFactory _completionCandidatesMetadataFactory;
         private readonly ICoconaCompletionCandidatesProviderFactory _completionCandidatesProviderFactory;
         private readonly ICoconaCommandResolver _commandResolver;
-        private readonly ICoconaCommandLineArgumentProvider _commandLineArgumentProvider;
 
         public CoconaCompletionCandidates(
             ICoconaCompletionCandidatesMetadataFactory completionCandidatesMetadataFactory,
             ICoconaCompletionCandidatesProviderFactory completionCandidatesProviderFactory,
-            ICoconaCommandResolver commandResolver,
-            ICoconaCommandLineArgumentProvider commandLineArgumentProvider
+            ICoconaCommandResolver commandResolver
         )
         {
             _completionCandidatesMetadataFactory = completionCandidatesMetadataFactory;
             _completionCandidatesProviderFactory = completionCandidatesProviderFactory;
             _commandResolver = commandResolver;
-            _commandLineArgumentProvider = commandLineArgumentProvider;
         }
 
         public IReadOnlyList<CompletionCandidateValue> GetOnTheFlyCandidates(string paramName, IReadOnlyList<string> args, int curPos, string? candidateHint)

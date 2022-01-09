@@ -13,7 +13,7 @@ namespace Cocona.Command.BuiltIn
     {
         private readonly ICoconaConsoleProvider _console;
         private readonly ICoconaHelpMessageBuilder _helpBuilder;
-        private static readonly MethodInfo _methodShowDefaultMessage = typeof(BuiltInPrimaryCommand).GetMethod(nameof(ShowDefaultMessage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        private static readonly MethodInfo MethodShowDefaultMessage = typeof(BuiltInPrimaryCommand).GetMethod(nameof(ShowDefaultMessage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
 
         public BuiltInPrimaryCommand(ICoconaConsoleProvider console, ICoconaHelpMessageBuilder helpBuilder)
         {
@@ -24,9 +24,9 @@ namespace Cocona.Command.BuiltIn
         public static CommandDescriptor GetCommand(string description)
         {
             return new CommandDescriptor(
-                _methodShowDefaultMessage,
+                MethodShowDefaultMessage,
                 default,
-                _methodShowDefaultMessage.Name,
+                MethodShowDefaultMessage.Name,
                 Array.Empty<string>(),
                 description,
                 Array.Empty<object>(),
@@ -47,7 +47,7 @@ namespace Cocona.Command.BuiltIn
 
         public static bool IsBuiltInCommand(CommandDescriptor command)
         {
-            return command.Method == _methodShowDefaultMessage;
+            return command.Method == MethodShowDefaultMessage;
         }
     }
 }

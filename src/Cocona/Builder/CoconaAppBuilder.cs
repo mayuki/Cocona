@@ -35,7 +35,6 @@ namespace Cocona.Builder
         internal CoconaAppBuilder(string[]? args, Action<CoconaAppOptions>? configureOptions = null)
         {
             Configuration = new ConfigurationManager();
-            _services = new ServiceCollection();
             _configureOptions = configureOptions;
 
             // Sets the default configuration values for the application host.
