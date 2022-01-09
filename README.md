@@ -4,11 +4,16 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
 [![Build Status](https://dev.azure.com/misuzilla/Cocona/_apis/build/status/Cocona?branchName=master)](https://dev.azure.com/misuzilla/Cocona/_build/latest?definitionId=18&branchName=master) [![NuGet Package: Cocona](https://img.shields.io/nuget/vpre/Cocona?label=NuGet%3A%20Cocona)](https://www.nuget.org/packages/Cocona) [![NuGet Package: Cocona.Lite](https://img.shields.io/nuget/vpre/Cocona.Lite?label=NuGet%3A%20Cocona.Lite)](https://www.nuget.org/packages/Cocona.Lite)
 
 ### ⏱ Create a console application with Cocona in seconds.
+```csharp
+CoconaApp.Run((string? name, bool hey) =>
+    Console.WriteLine("{(hey ? "Hey" :"Hello")} {(name ?? "Guest")}!"));
+```
 ![](docs/assets/intro-in-seconds.gif)
 
 ## Feature
 - 🚀 **Make it easy to build console applications on .NET.**
-    - `public` method as a command ™
+    - ASP.NET Core-like Minimal API
+    - `public` method as a command
     - Provides ASP.NET Core MVC-like development experience to console application development.
 - ✨ **Command-line option semantics like UNIX tools standard. (`getopt`/`getopt_long` like options)**
     - Your app can handle both `-rf /` and `-r -f /` :-)
@@ -47,6 +52,8 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
     - [Shell command-line completion](#shell-command-line-completion)
 - [Performance & Cocona.Lite](#performance--coconalite)
 - [Advanced](#advanced)
+    - [Localization](#localization)
+    - [Hide command from help](#hide-command-from-help)
     - [Help customization](#help-customization)
     - [CommandMethodForwardedTo attribute](#commandmethodforwardedto-attribute)
     - [IgnoreUnknownOptions attribute](#ignoreunknownoptions-attribute)
@@ -59,16 +66,27 @@ Install NuGet package from NuGet.org
 
 ```sh
 $ dotnet add package Cocona
-```
-```powershell
-PS> Install-Package Cocona
+
+# A lightweight version is also available if you prefer less dependency.
+$ dotnet add package Cocona.Lite
 ```
 
 ## Requirements
-- .NET Standard 2.0, 2.1
+- .NET 6 (Required to use Minimal API)
 - .NET 5
+- .NET Standard 2.0, 2.1
 
 ## Getting Started
+
+```csharp
+using Cocona;
+CoconaApp.Run((string name) =>
+{
+    Console.WriteLine($"Hello {name}");
+})
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
 
 ```csharp
 using Cocona;
@@ -87,6 +105,7 @@ class Program
     }
 }
 ```
+</details>
 
 ### Try to run!
 ```sh
@@ -114,7 +133,44 @@ $ ./app --name Cocona
 
 ## Command-line handling basics
 ### Command
-#### Public method as a command ™
+#### Minimal API style
+
+If your application has a single command, you can easily define and run it with `CoconaApp.Run`.
+
+```csharp
+CoconaApp.Run((string name, int age) => { ... });
+```
+
+This is equivalent to the following code using the Minimal API Builder.
+
+```csharp
+var builder = CoconaApp.CreateBuilder();
+var app = builder.Build();
+
+app.AddCommand((string name, int age) => { ... });
+
+app.Run();
+```
+
+If you want your application to have more than one command, you can add named commands. See [Sub commands](#sub-commands) for details.
+
+```csharp
+var app = CoconaApp.Create(); // is a shorthand for `CoconaApp.CreateBuilder().Build()`
+
+app.AddCommand("list", () => { ... });
+app.AddCommand("add", () => { ... });
+app.AddCommand("delete", () => { ... });
+
+app.Run();
+```
+
+You can add (classic) Class-based style commands with the `AddCommand<T>` method.
+
+```csharp
+app.AddCommand<MyCommand>();
+```
+
+#### Public method as a command (Class-based style)
 By default, Cocona treats `public` methods as commands.
 
 If an application has one public method, Cocona calls it on startup. If there are more than one, they are treated as sub-commands. (see also [Sub commands](#sub-commands))
@@ -141,13 +197,33 @@ CoconaApp.Run<Program>(args, options =>
     options.TreatPublicMethodsAsCommands = false;
 });
 ```
+
 ### Options
 Cocona exposes method parameters as command-line options (also known as flags).
 
 ```csharp
 // This command accepts `--name <string>` and `--hey` options.
+app.AddCommand((string name, bool hey) => { ... });
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
+
+```csharp
+// This command accepts `--name <string>` and `--hey` options.
 public void Hello(string name, bool hey) { ... }
 ```
+</details>
+
+If the parameter of a method is defined as nullable, Cocona will treat them as non-mandatory option for a command. (That is, the parameters are treated as **required option** by default excepts boolean).
+If a parameter is boolean, it's assumed that `false` default value is specified.
+
+```csharp
+// `--name` is non-mandatory option.
+// If the user runs the application without this option, the parameter will be `null`.
+app.AddCommand((string? name) => { ... });
+```
+
+<details><summary>Optional with default value (Class-based style)</summary>
 
 If method parameters are [optional argument](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/named-and-optional-arguments#optional-arguments), Cocona treats those as optional command options. (That is, the parameters are treated as **required option** by default excepts boolean).
 If a parameter is boolean, it's assumed that `false` default value is specified.
@@ -156,6 +232,7 @@ If a parameter is boolean, it's assumed that `false` default value is specified.
 // `--name "default user"` is specified implicity.
 public void Hello(string name = "default user") { ... }
 ```
+</details>
 
 Do you want to use short-name option `-f` instead of `--force`?
 You can specify short-name to an option using `OptionAttribute`.
@@ -166,20 +243,54 @@ You can specify short-name to an option using `OptionAttribute`.
 // $ remove --force --recursive
 // $ remove -r -f
 // $ remove -rf
-public void Remove([Option('f')]bool force, [Option('r')]bool recursive) { ... }
+app.AddCommand(([Option('f')]bool force, [Option('r')]bool recursive) => { ... });
 ```
 
+<details><summary>Class-based style (for .NET Standard / .NET 5))</summary>
+
+```csharp
+// The command accepts `-f` or `--force` option.
+// Cocona's command-line parser accepts getopt-like styles. See below.
+// $ remove --force --recursive
+// $ remove -r -f
+// $ remove -rf
+public void Remove([Option('f')]bool force, [Option('r')]bool recursive) { ... }
+```
+</details>
+
 If a parameter is `T[]` or `IEnumerable<T>`, a command accepts one or more options by the same name.
+
+```csharp
+// $ compile -I../path/to/foo.h -I/usr/include/bar.h -I/usr/include/baz.h nantoka.c
+// include = new [] { "../path/to/foo.h", "/usr/include/bar.h", "/usr/include/baz.h" };
+app.AddCommand(([Option('I')]string[] include, [Argument]string file) => { ... });
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5))</summary>
+
 ```csharp
 // $ compile -I../path/to/foo.h -I/usr/include/bar.h -I/usr/include/baz.h nantoka.c
 // include = new [] { "../path/to/foo.h", "/usr/include/bar.h", "/usr/include/baz.h" };
 public void Compile([Option('I')]string[] include, [Argument]string file) { ... }
 ```
+</details>
 
 You can also specify a description for options that appear in the help.
+
+```csharp
+app.AddCommand((
+    [Option(Description = "Description of the option")] int value,
+    [Argument(Description = "Description of the argument")]string arg
+) => { ... });
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5))</summary>
+
 ```csharp
 public void HasDescription([Option(Description = "Description of the option")] int value, [Argument(Description = "Description of the argument")]string arg) { ... }
 ```
+</details>
+
 ```
 Usage: CoconaSample.InAction.CommandOptions has-description [--value <Int32>] [--help] arg
 
@@ -198,19 +309,48 @@ Command-line arguments are defined as method parameters as same as options.
 
 ```csharp
 // ./app alice karen
+app.AddCommand(([Argument]string from, [Argument]string to) => { ... });
+```
+<details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
+
+```csharp
+// ./app alice karen
 public void Hello([Argument]string from, [Argument]string to) { ... }
 ```
+</details>
 
 You can define a parameter as `T[]`. It allows defining `cp`-like command which accepts many file paths and one destination path (`cp file1 file2 file3 dest`).
 
 ```csharp
 // ./copy file1 file2 file3 dest
+app.AddCommand(([Argument]string[] src, [Argument]string dest) => { ... });
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
+
+```csharp
+// ./copy file1 file2 file3 dest
 public void Copy([Argument]string[] src, [Argument]string dest) { ... }
 ```
+</details>
 
 - See also: [CoconaSample.InAction.ManyArguments](samples/InAction.ManyArguments)
 
 ### Sub-commands
+
+You can add multiple commands with names and expose them as sub-commands. You can implement an application that has sub-commands similar to `dotnet`, `git`, `kubectl` etc...
+
+```csharp
+var app = CoconaApp.Create();
+app.AddCommand("hello", ([Argument]string name) => Console.WriteLine($"Hello {name}!"))
+    .WithDescription("Say hello");
+app.AddCommand("bye", ([Argument]string name) => Console.WriteLine($"Goodbye {name}!"))
+    .WithDescription("Say goodbye");
+app.Run();
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
+
 If a command type has more than one public method or `[Command]`, those commands are exposed as sub-commands. You can implement an application that has sub-commands similar to `dotnet`, `git`, `kubectl` etc...
 
 ```csharp
@@ -231,6 +371,7 @@ public void Bye([Argument]string name)
     Console.WriteLine($"Goodbye {name}!");
 }
 ```
+</details>
 
 ```bash
 $ ./SubCommandApp
@@ -262,6 +403,34 @@ Similar commands:
 
 ##### Nested sub-commands
 
+Cocona also supports nested sub-commands. Specify the class that has nested sub-commands using `AddSubCommand` method.
+
+```csharp
+var app = CoconaApp.Create();
+// ./myapp info
+app.AddCommand("info", () => Console.WriteLine("Show information"));
+
+// ./myapp server [command]
+app.AddSubCommand("server", x =>
+{
+    x.AddCommand("start", () => Console.WriteLine("Start"));
+    x.AddCommand("stop", () => Console.WriteLine("Stop"));
+})
+.WithDescription("Server commands");
+
+// ./myapp client [command]
+app.AddSubCommand("client", x =>
+{
+    x.AddCommand("connect", () => Console.WriteLine("Connect"));
+    x.AddCommand("disconnect", () => Console.WriteLine("Disconnect"));
+})
+.WithDescription("Client commands");
+
+app.Run();
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
+
 Cocona also supports nested sub-commands. Specify the class that has nested sub-commands using `HasSubCommands` attribute.
 
 ```csharp
@@ -289,6 +458,8 @@ class Client
     public void Disconnect() => Console.WriteLine("Disconnect");
 }
 ```
+</details>
+
 ```bash
 $ ./SubCommandApp
 Usage: SubCommandApp [command]
@@ -321,6 +492,17 @@ Options:
 
 #### PrimaryCommand
 ```csharp
+var app = CoconaApp.Create();
+app.AddCommand((bool foo, string bar) => { ... }); // Primary command
+
+app.AddCommand("hello", () => { ... });
+app.AddCommand("goodbye", () => { ... });
+app.Run();
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
+
+```csharp
 [PrimaryCommand]
 public void Primary(bool foo, string bar) { ... }
 
@@ -330,12 +512,26 @@ public void Hello() { ... }
 [Command]
 public void Goodbye() { ... }
 ```
+</details>
 
 ### Option-like commands
 The option-like command is a way to achieve an independent command that at first glance, looks like an option in a command.
 
 For example, easy to understand examples like `--version` and `--help`.
 These are the options of a command, but they behave as a command when specified.
+
+```csharp
+var app = CoconaApp.Create();
+app.AddCommand(() => Console.WriteLine("Execute"))
+    .OptionLikeCommand(x =>
+    {
+        x.AddCommand("hello", ([Argument]string name) => Console.WriteLine($"Hello {name}!"))
+            .WithAliases('f');
+    });
+app.Run();
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
 
 ```csharp
 [OptionLikeCommand("hello", new[] {'f'}, typeof(Program), nameof(Hello))]
@@ -345,6 +541,8 @@ public void Execute()
 private void Hello([Argument]string name)
     => Console.WriteLine($"Hello {name}!");
 ```
+</details>
+
 ```bash
 $ ./myapp
 Execute
@@ -485,6 +683,19 @@ class PathExistsAttribute : ValidationAttribute
 - See also: [CoconaSample.InAction.Validation](samples/InAction.Validation)
 
 ### Shutdown event handling
+
+```csharp
+app.AddCommand(async (CoconaAppContext ctx) =>
+{
+    while (!ctx.CancellationToken.IsCancellationRequested)
+    {
+        await Task.Delay(100);
+    }
+});
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
+
 ```csharp
 class Program : CoconaConsoleAppBase
 {
@@ -511,6 +722,7 @@ public async Task RunAsync([FromService]ICoconaAppContextAccessor contextAccesso
     }
 }
 ```
+</details>
 
 - See also: [CoconaSample.InAction.HandleShutdownSignal](samples/InAction.HandleShutdownSignal)
 
@@ -521,6 +733,43 @@ Cocona has filter mechanism like ASP.NET Core's action filter. Filters allow cus
 - `CommandFilterAttribute` attribute
 - `IFilterProvider` interface
 - `IFilterMetadata` interface
+
+```csharp
+var app = CoconaApp.Create();
+
+// Add a command with command filters.
+app.AddCommand(() =>
+    {
+        Console.WriteLine($"Hello Konnichiwa");
+    })
+    .WithFilter(new SampleCommandFilter())
+    .WithFilter(async (ctx, next) =>
+    {
+        // You can declare and apply a filter using a delegate.
+        return await next(ctx);
+    });
+
+// Add a command filter and apply it to commands after this call.
+app.UseFilter(new MyFilter());
+
+class SampleCommandFilterAttribute : CommandFilterAttribute
+{
+    public override async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+    {
+        Console.WriteLine($"Before Command: {ctx.Command.Name}");
+        try
+        {
+            return await next(ctx);
+        }
+        finally
+        {
+            Console.WriteLine($"End Command: {ctx.Command.Name}");
+        }
+    }
+}
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
 
 ```csharp
 class Program
@@ -553,10 +802,42 @@ class SampleCommandFilterAttribute : CommandFilterAttribute
     }
 }
 ```
+</details>
 
 - See also: [CoconaSample.InAction.CommandFilter](samples/InAction.CommandFilter)
 
 ### Dependency Injection
+If a constructor has parameters, Cocona injects an instance obtained from IServiceProvider into the parameter. 
+
+```csharp
+var builder = CoconaApp.CreateBuilder();
+builder.Services.AddTransient<MyService>();
+
+var app = builder.Build();
+app.AddCommand((MyService myService) =>
+{
+    myService.Hello("Hello Konnichiwa!");
+});
+app.Run();
+
+class MyService
+{
+    private readonly ILogger _logger;
+
+    public MyService(ILogger<MyService> logger)
+    {
+        _logger = logger;
+    }
+
+    public void Hello(string message)
+    {
+        _logger.LogInformation(message);
+    }
+}
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
+
 If a constructor has parameters, Cocona injects an instance obtained from IServiceProvider into the parameter. Cocona will also inject an instance into the parameter if a command method parameter is marked as `[FromService]`.
 
 ```csharp
@@ -598,6 +879,7 @@ class MyService
     }
 }
 ```
+</details>
 
 - See also: [CoconaSample.InAction.DependencyInjection](samples/InAction.DependencyInjection)
 
@@ -605,6 +887,19 @@ class MyService
 - See also: [CoconaSample.InAction.AppConfiguration](samples/InAction.AppConfiguration)
 
 ### Logging
+
+```csharp
+var builder = CoconaApp.CreateBuilder();
+builder.Logging.AddDebug();
+
+app.AddCommand((ILogger<Program> logger) => logger.LogInformation("Hello Konnichiwa!")));
+
+var app = builder.Build();
+app.Run();
+```
+
+<details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
+
 ```csharp
 class Program : CoconaConsoleAppBase
 {
@@ -624,6 +919,7 @@ class Program : CoconaConsoleAppBase
     }
 }
 ```
+</details>
 
 ### Shell command-line completion
 Cocona provides support for shell command-line completion (also known as tab completion).
@@ -666,35 +962,68 @@ $ dotnet add package Cocona.Lite
 Then in your source code, use `CoconaLiteApp` class instead of `CoconaApp` class.
 
 ```csharp
+CoconaLiteApp.Run(() => { ... });
+```
+
+```csharp
+var app = CoconaLiteApp.Create();
+app.AddCommand(() => { ... });
+app.Run();
+```
+
+```csharp
 static void Main(string[] args)
 {
     CoconaLiteApp.Run<Program>(args);
 }
 ```
 
-### Benchmark
-```
-BenchmarkDotNet=v0.12.0, OS=Windows 10.0.18363
-Intel Core i7-8650U CPU 1.90GHz (Kaby Lake R), 1 CPU, 8 logical and 4 physical cores
-.NET Core SDK=3.1.101
-  [Host]     : .NET Core 3.1.1 (CoreCLR 4.700.19.60701, CoreFX 4.700.19.60801), X64 RyuJIT
-  DefaultJob : .NET Core 3.1.1 (CoreCLR 4.700.19.60701, CoreFX 4.700.19.60801), X64 RyuJIT
-```
-
-|                               Method |        Mean |        Error |        StdDev | Ratio | RatioSD | Rank |
-|------------------------------------- |------------:|-------------:|--------------:|------:|--------:|-----:|
-|                          Cocona.Lite |    50.15 us |     0.952 us |      1.058 us |  1.00 |    0.00 |    1 |
-|                    CommandLineParser |    51.22 us |     1.004 us |      1.157 us |  1.02 |    0.03 |    1 |
-|                                CliFx |    57.73 us |     1.128 us |      1.427 us |  1.15 |    0.03 |    2 |
-| McMaster.Extensions.CommandLineUtils |   188.98 us |     3.707 us |      5.316 us |  3.76 |    0.13 |    3 |
-|                                Clipr |   203.84 us |     4.706 us |     13.350 us |  3.90 |    0.19 |    4 |
-|                   System.CommandLine |   239.53 us |     4.762 us |      8.827 us |  4.73 |    0.25 |    5 |
-|                            PowerArgs |   352.29 us |     7.681 us |     13.043 us |  6.96 |    0.28 |    6 |
-|                               Cocona | 1,836.93 us |    35.555 us |     50.992 us | 36.90 |    1.44 |    7 |
-
-- See also [Tyrrz/Clifx#benchmark](https://github.com/Tyrrrz/CliFx#benchmarks)
-
 ## Advanced
+
+### Localization
+Microsoft.Extensions.Localization can be used to localize your application. Please refer to the sample code for details.
+
+```csharp
+// Register Microsoft.Extensions.Localization and ICoconaLocalizer services
+// Cocona uses `ICoconaLocalizer` to localize command descriptions.
+var builder = CoconaApp.CreateBuilder();
+builder.Services.AddLocalization(options =>
+{
+    options.ResourcesPath = "Resources";
+});
+
+// `MicrosoftExtensionLocalizationCoconaLocalizer` is not included in Cocona core library.
+builder.Services.TryAddTransient<ICoconaLocalizer, MicrosoftExtensionLocalizationCoconaLocalizer>();
+
+var app = builder.Build();
+app.AddCommand("hello", ([Argument(Description = "Name")]string name, IStringLocalizer<Program> localizer) =>
+    {
+        // Get a localized text from Microsoft.Extensions.Localization.IStringLocalizer (same as ASP.NET Core)
+        Console.WriteLine(localizer.GetString("Hello {0}!", name));
+    })
+    .WithDescription("Say Hello");
+app.Run();
+```
+
+- See also: [CoconaSample.Advanced.Localization](samples/Advanced.Localization)
+
+
+### Hide command from help
+
+```csharp
+var app = CoconaApp.Create();
+app.AddCommand("hello", (string name) =>
+    {
+        Console.WriteLine("Hello {0}!", name);
+    });
+app.AddCommand("secret-command", (string name) =>
+    {
+        Console.WriteLine("🙊");
+    })
+    .WithMetadata(new HiddenAttribute());
+app.Run();
+```
+
 ### Help customization
 - See also: [CoconaSample.Advanced.HelpTransformer](samples/Advanced.HelpTransformer)
 
