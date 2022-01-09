@@ -8,24 +8,20 @@ namespace Cocona.Command
 {
     public class CoconaCommandResolver : ICoconaCommandResolver
     {
-        private readonly ICoconaCommandProvider _commandProvider;
         private readonly ICoconaCommandLineParser _commandLineParser;
         private readonly ICoconaCommandMatcher _commandMatcher;
 
         public CoconaCommandResolver(
-            ICoconaCommandProvider commandProvider,
             ICoconaCommandLineParser commandLineParser,
             ICoconaCommandMatcher commandMatcher
         )
         {
-            _commandProvider = commandProvider;
             _commandLineParser = commandLineParser;
             _commandMatcher = commandMatcher;
         }
 
-        public CommandResolverResult ParseAndResolve(IReadOnlyList<string> args)
+        public CommandResolverResult ParseAndResolve(CommandCollection commandCollection, IReadOnlyList<string> args)
         {
-            var commandCollection = _commandProvider.GetCommandCollection();
             var subCommandStack = new List<CommandDescriptor>();
 
             Retry:

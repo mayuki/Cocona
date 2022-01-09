@@ -59,32 +59,5 @@ namespace Cocona.Resources {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Error: {0}.
-        /// </summary>
-        internal static string Host_Error_CommandNotFound {
-            get {
-                return ResourceManager.GetString("Host_Error_CommandNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Error: &apos;{0}&apos; is not a command. See &apos;--help&apos; for usage..
-        /// </summary>
-        internal static string Host_Error_NotACommand {
-            get {
-                return ResourceManager.GetString("Host_Error_NotACommand", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Similar commands:.
-        /// </summary>
-        internal static string Host_Error_SimilarCommands {
-            get {
-                return ResourceManager.GetString("Host_Error_SimilarCommands", resourceCulture);
-            }
-        }
     }
 }

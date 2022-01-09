@@ -98,13 +98,4 @@
 	<resheader name="writer">
 		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
 	</resheader>
-    <data name="Host_Error_CommandNotFound" xml:space="preserve">
-        <value>Error: {0}</value>
-    </data>
-    <data name="Host_Error_NotACommand" xml:space="preserve">
-        <value>Error: '{0}' is not a command. See '--help' for usage.</value>
-    </data>
-    <data name="Host_Error_SimilarCommands" xml:space="preserve">
-        <value>Similar commands:</value>
-    </data>
 </root>

@@ -160,6 +160,33 @@ namespace Cocona.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string Dispatcher_Error_CommandNotFound {
+            get {
+                return ResourceManager.GetString("Dispatcher_Error_CommandNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string Dispatcher_Error_NotACommand {
+            get {
+                return ResourceManager.GetString("Dispatcher_Error_NotACommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string Dispatcher_Error_SimilarCommands {
+            get {
+                return ResourceManager.GetString("Dispatcher_Error_SimilarCommands", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The command has exited with code &apos;{0}&apos;.{1}.
         /// </summary>
         internal static string Exception_TheCommandHasExitedWithCode {

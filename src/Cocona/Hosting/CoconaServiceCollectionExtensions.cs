@@ -78,6 +78,7 @@ namespace Microsoft.Extensions.Hosting
             services.TryAddSingleton<ICoconaApplicationMetadataProvider, CoconaApplicationMetadataProvider>();
             services.TryAddSingleton<ICoconaConsoleProvider, CoconaConsoleProvider>();
             services.TryAddSingleton<ICoconaParameterValidatorProvider, DataAnnotationsParameterValidatorProvider>();
+            services.TryAddSingleton<ICoconaBootstrapper, CoconaBootstrapper>();
 
             services.TryAddTransient<ICoconaParameterBinder, CoconaParameterBinder>();
             services.TryAddTransient<ICoconaValueConverter, CoconaValueConverter>();

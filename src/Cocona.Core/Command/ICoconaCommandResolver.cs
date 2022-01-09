@@ -4,6 +4,6 @@ namespace Cocona.Command
 {
     public interface ICoconaCommandResolver
     {
-        CommandResolverResult ParseAndResolve(IReadOnlyList<string> args);
+        CommandResolverResult ParseAndResolve(CommandCollection commandCollection, IReadOnlyList<string> args);
     }
 }

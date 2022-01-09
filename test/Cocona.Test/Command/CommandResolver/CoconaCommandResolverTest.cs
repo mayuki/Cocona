@@ -19,12 +19,11 @@ namespace Cocona.Test.Command.CommandResolver
         {
             var commandCollection = new CommandCollection(new CommandDescriptor[] { });
             var resolver = new CoconaCommandResolver(
-                 new TestCommandProvider(commandCollection),
                  new CoconaCommandLineParser(),
                  new CoconaCommandMatcher()
             );
 
-            var resolve = resolver.ParseAndResolve(new string[] { });
+            var resolve = resolver.ParseAndResolve(commandCollection, new string[] { });
             resolve.Success.Should().BeFalse();
         }
 
@@ -36,12 +35,11 @@ namespace Cocona.Test.Command.CommandResolver
                 CreateCommand("Primary", new ICommandParameterDescriptor[]{}, true),
             });
             var resolver = new CoconaCommandResolver(
-                new TestCommandProvider(commandCollection),
                 new CoconaCommandLineParser(),
                 new CoconaCommandMatcher()
             );
 
-            var resolve = resolver.ParseAndResolve(new string[] { });
+            var resolve = resolver.ParseAndResolve(commandCollection, new string[] { });
             resolve.Success.Should().BeTrue();
             resolve.MatchedCommand.Name.Should().Be("Primary");
         }
@@ -54,12 +52,11 @@ namespace Cocona.Test.Command.CommandResolver
                 CreateCommand("Single", new ICommandParameterDescriptor[]{}, false),
             });
             var resolver = new CoconaCommandResolver(
-                new TestCommandProvider(commandCollection),
                 new CoconaCommandLineParser(),
                 new CoconaCommandMatcher()
             );
 
-            Assert.Throws<CommandNotFoundException>(() => resolver.ParseAndResolve(new string[] { }));
+            Assert.Throws<CommandNotFoundException>(() => resolver.ParseAndResolve(commandCollection, new string[] { }));
         }
 
         [Fact]
@@ -72,12 +69,11 @@ namespace Cocona.Test.Command.CommandResolver
                 CreateCommand("Bar", new ICommandParameterDescriptor[]{}, false),
             });
             var resolver = new CoconaCommandResolver(
-                new TestCommandProvider(commandCollection),
                 new CoconaCommandLineParser(),
                 new CoconaCommandMatcher()
             );
 
-            var resolve = resolver.ParseAndResolve(new string[] { "Foo" });
+            var resolve = resolver.ParseAndResolve(commandCollection, new string[] { "Foo" });
             resolve.Success.Should().BeTrue();
             resolve.MatchedCommand.Name.Should().Be("Foo");
         }
@@ -104,12 +100,11 @@ namespace Cocona.Test.Command.CommandResolver
                 CreateCommand("Bar", new ICommandParameterDescriptor[]{}, false),
             });
             var resolver = new CoconaCommandResolver(
-                new TestCommandProvider(commandCollection),
                 new CoconaCommandLineParser(),
                 new CoconaCommandMatcher()
             );
 
-            var resolve = resolver.ParseAndResolve(new string[] { "Foo", "--opt1", "123" });
+            var resolve = resolver.ParseAndResolve(commandCollection, new string[] { "Foo", "--opt1", "123" });
             resolve.Success.Should().BeTrue();
             resolve.MatchedCommand.Name.Should().Be("Foo");
             resolve.ParsedCommandLine.Options.Should().HaveCount(1);
@@ -131,12 +126,11 @@ namespace Cocona.Test.Command.CommandResolver
                     true),
             });
             var resolver = new CoconaCommandResolver(
-                new TestCommandProvider(commandCollection),
                 new CoconaCommandLineParser(),
                 new CoconaCommandMatcher()
             );
 
-            var resolve = resolver.ParseAndResolve(new string[] { "--optlikecmd1", "Foo", "--opt1", "123", "--help", "--version" });
+            var resolve = resolver.ParseAndResolve(commandCollection, new string[] { "--optlikecmd1", "Foo", "--opt1", "123", "--help", "--version" });
             resolve.Success.Should().BeTrue();
             resolve.CommandCollection.Should().Be(commandCollection);
             resolve.MatchedCommand.Name.Should().Be("OptLikeCmd1");
@@ -178,12 +172,11 @@ namespace Cocona.Test.Command.CommandResolver
                 CreateCommand("Bar", new ICommandParameterDescriptor[]{}, false),
             });
             var resolver = new CoconaCommandResolver(
-                new TestCommandProvider(commandCollection),
                 new CoconaCommandLineParser(),
                 new CoconaCommandMatcher()
             );
 
-            var resolve = resolver.ParseAndResolve(new string[] { "--optlikecmd1", "Foo", "--opt1", "123", "--help", "--version" });
+            var resolve = resolver.ParseAndResolve(commandCollection, new string[] { "--optlikecmd1", "Foo", "--opt1", "123", "--help", "--version" });
             resolve.Success.Should().BeTrue();
             resolve.CommandCollection.Should().Be(commandCollection);
             resolve.MatchedCommand.Name.Should().Be("OptLikeCmd1");
@@ -221,12 +214,11 @@ namespace Cocona.Test.Command.CommandResolver
                 CreateCommand("Bar", new ICommandParameterDescriptor[]{}, false),
             });
             var resolver = new CoconaCommandResolver(
-                new TestCommandProvider(commandCollection),
                 new CoconaCommandLineParser(),
                 new CoconaCommandMatcher()
             );
 
-            var resolve = resolver.ParseAndResolve(new string[] { "Foo", "--opt1", "123", "--optlikecmd1", "--version" });
+            var resolve = resolver.ParseAndResolve(commandCollection, new string[] { "Foo", "--opt1", "123", "--optlikecmd1", "--version" });
             resolve.Success.Should().BeTrue();
             resolve.CommandCollection.Should().Be(commandCollection);
             resolve.MatchedCommand.Name.Should().Be("OptLikeCmd1");
@@ -261,12 +253,11 @@ namespace Cocona.Test.Command.CommandResolver
                     CommandFlags.None),
             });
             var resolver = new CoconaCommandResolver(
-                new TestCommandProvider(commandCollection),
                 new CoconaCommandLineParser(),
                 new CoconaCommandMatcher()
             );
 
-            var resolve = resolver.ParseAndResolve(new string[] { "Level1", "Level2", "--opt1", "123", "--optlikecmd1", "--version" });
+            var resolve = resolver.ParseAndResolve(commandCollection, new string[] { "Level1", "Level2", "--opt1", "123", "--optlikecmd1", "--version" });
             resolve.Success.Should().BeTrue();
             resolve.CommandCollection.Should().Be(commandCollectionNested);
             resolve.MatchedCommand.Name.Should().Be("OptLikeCmd1");
