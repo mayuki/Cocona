@@ -13,7 +13,10 @@ namespace CoconaSample.Advanced.ShellCompletionCandidates
     {
         static void Main(string[] args)
         {
-            CoconaApp.Run<Program>(args);
+            CoconaApp.Run<Program>(args, options =>
+            {
+                options.EnableShellCompletionSupport = true;
+            });
         }
 
         public void Inline([CompletionCandidates(new [] { "Foo", "Bar", "Baz" })] string name)
