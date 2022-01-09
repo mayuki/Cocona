@@ -34,8 +34,8 @@ namespace Cocona
         public bool EnableConvertArgumentNameToLowerCase { get; set; } = true;
 
         /// <summary>
-        /// Specify enable shell completion support. The default value is true.
+        /// Specify enable shell completion support. The default value is false.
         /// </summary>
-        public bool EnableShellCompletionSupport { get; set; } = true;
+        public bool EnableShellCompletionSupport { get; set; } = false;
     }
 }

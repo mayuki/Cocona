@@ -61,9 +61,21 @@ namespace Cocona.Test.Integration
         [InlineData(RunBuilderMode.CreateHostBuilder)]
         [InlineData(RunBuilderMode.CreateBuilder)]
         [InlineData(RunBuilderMode.Shortcut)]
-        public void CoconaApp_Run_Single_Completion(RunBuilderMode mode)
+        public void CoconaApp_Run_Single_Completion_Disabled_By_Default(RunBuilderMode mode)
         {
             var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(mode, new string[] { "--completion", "zsh" });
+
+            stdErr.Should().Contain("Unknown option 'completion'");
+            exitCode.Should().Be(129);
+        }
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Single_Completion(RunBuilderMode mode)
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single>(mode, new string[] { "--completion", "zsh" }, options => { options.EnableShellCompletionSupport = true; });
 
             stdOut.Should().Contain("#compdef");
             stdErr.Should().BeEmpty();
@@ -76,7 +88,7 @@ namespace Cocona.Test.Integration
         [InlineData(RunBuilderMode.Shortcut)]
         public void CoconaApp_Run_Single_CompletionCandidates(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_Candidates>(mode, new string[] { "--completion-candidates", "bash:name", "--", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Single_Candidates>(mode, new string[] { "--completion-candidates", "bash:name", "--", "A" }, options => { options.EnableShellCompletionSupport = true; });
 
             stdOut.Should().Contain("Alice");
             stdErr.Should().BeEmpty();
@@ -381,9 +393,21 @@ namespace Cocona.Test.Integration
         [InlineData(RunBuilderMode.CreateHostBuilder)]
         [InlineData(RunBuilderMode.CreateBuilder)]
         [InlineData(RunBuilderMode.Shortcut)]
-        public void CoconaApp_Run_Multiple_Completion(RunBuilderMode mode)
+        public void CoconaApp_Run_Multiple_Completion_Disabled_By_Default(RunBuilderMode mode)
         {
             var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "--completion", "zsh" });
+
+            stdErr.Should().Contain("Unknown option 'completion'");
+            exitCode.Should().Be(129);
+        }
+
+        [Theory]
+        [InlineData(RunBuilderMode.CreateHostBuilder)]
+        [InlineData(RunBuilderMode.CreateBuilder)]
+        [InlineData(RunBuilderMode.Shortcut)]
+        public void CoconaApp_Run_Multiple_Completion(RunBuilderMode mode)
+        {
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple>(mode, new string[] { "--completion", "zsh" }, options => { options.EnableShellCompletionSupport = true; });
 
             stdOut.Should().Contain("#compdef");
             stdErr.Should().BeEmpty();
@@ -396,7 +420,7 @@ namespace Cocona.Test.Integration
         [InlineData(RunBuilderMode.Shortcut)]
         public void CoconaApp_Run_Multiple_CompletionCandidates(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(mode, new string[] { "--completion-candidates", "bash:name", "--", "hello", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(mode, new string[] { "--completion-candidates", "bash:name", "--", "hello", "A" }, options => { options.EnableShellCompletionSupport = true; });
 
             stdOut.Should().Contain("Karen");
             stdErr.Should().BeEmpty();
@@ -409,7 +433,7 @@ namespace Cocona.Test.Integration
         [InlineData(RunBuilderMode.Shortcut)]
         public void CoconaApp_Run_Multiple_CompletionCandidates_UnknownCommand(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(mode, new string[] { "--completion-candidates", "bash:name", "--", "unknown-command", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(mode, new string[] { "--completion-candidates", "bash:name", "--", "unknown-command", "A" }, options => { options.EnableShellCompletionSupport = true; });
 
             stdOut.Should().BeEmpty();
             stdErr.Should().NotBeEmpty();
@@ -422,7 +446,7 @@ namespace Cocona.Test.Integration
         [InlineData(RunBuilderMode.Shortcut)]
         public void CoconaApp_Run_Multiple_CompletionCandidates_UnknownOption(RunBuilderMode mode)
         {
-            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(mode, new string[] { "--completion-candidates", "bash:unknown-option", "--", "hello", "A" });
+            var (stdOut, stdErr, exitCode) = Run<TestCommand_Multiple_Candidates>(mode, new string[] { "--completion-candidates", "bash:unknown-option", "--", "hello", "A" }, options => { options.EnableShellCompletionSupport = true; });
 
             stdOut.Should().BeEmpty();
             stdErr.Should().BeEmpty();
