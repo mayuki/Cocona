@@ -147,6 +147,19 @@ namespace Cocona.Command
             foreach (var (commandMethod, target, metadata) in commandMethods)
             {
                 var command = CreateCommand(commandMethod, !hasMultipleCommand, overloadCommandMethods, target, metadata);
+                AddCommand(command);
+            }
+
+            // NOTE: For compatibility, add sub-commands to the command set last.
+            foreach (var subCommand in subCommandEntryPoints)
+            {
+                AddCommand(subCommand);
+            }
+
+            return new CommandCollection(commands);
+
+            void AddCommand(CommandDescriptor command)
+            {
                 if (commandNames.Contains(command.Name))
                 {
                     throw new CoconaException($"Command '{command.Name}' has already exists. (Method: {command.Method.Name})");
@@ -167,11 +180,6 @@ namespace Cocona.Command
 
                 commands.Add(command);
             }
-
-            // NOTE: For compatibility, add sub-commands to the command set last.
-            commands.AddRange(subCommandEntryPoints);
-
-            return new CommandCollection(commands);
 
             void ProcessCommandData(ICommandData commandData)
             {

@@ -164,6 +164,13 @@ namespace Cocona.Test.Command.CommandProvider
         }
 
         [Fact]
+        public void DuplicateSameNameSubCommand()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDuplicateSameNameSubCommand) });
+            var ex = Assert.Throws<CoconaException>(() => provider.GetCommandCollection());
+        }
+
+        [Fact]
         public void DontTreatPublicMethodsAsCommand()
         {
             var provider = new CoconaCommandProvider(new[] { typeof(CommandTestDontTreatPublicMethodsAsCommands) }, options: CommandProviderOptions.None);
@@ -349,6 +356,19 @@ namespace Cocona.Test.Command.CommandProvider
             public void A() { }
             [Command("B", Aliases = new [] { "A" })]
             public void B() { }
+        }
+
+        [HasSubCommands(typeof(SubCommand), "a")]
+        public class CommandTestDuplicateSameNameSubCommand
+        {
+            [Command("a")]
+            public void A() { }
+
+            public class SubCommand
+            {
+                [Command("b")]
+                public void B() { }
+            }
         }
 
         public class CommandTestDontTreatPublicMethodsAsCommands
