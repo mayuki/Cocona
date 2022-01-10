@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cocona.Command.Binder.Validation;
+using Cocona.Hosting;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
 
@@ -37,6 +38,7 @@ namespace Cocona.Test.Command.CommandDispatcher
             services.AddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
             services.AddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
+            services.AddSingleton<ICoconaServiceProviderScopeSupport, CoconaServiceProviderScopeSupport>();
             services.AddSingleton<ICoconaCommandDispatcherPipelineBuilder>(
                 serviceProvider =>
                 {
@@ -380,6 +382,132 @@ namespace Cocona.Test.Command.CommandDispatcher
             );
             var result = await dispatcher.DispatchAsync(resolvedCommand);
             TestCommandStatic.Log[0].Should().Be($"{nameof(TestCommandStatic.Test)}:option0 -> alice");
+        }
+
+        [Fact]
+        public async Task CommandInstance_Dispose_After_Dispatch()
+        {
+            var services = CreateDefaultServices<TestCommand_Dispose_After_Dispatch>(new string[] { });
+            services.AddSingleton<DisposeCounter>();
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
+            serviceProvider.GetRequiredService<DisposeCounter>().Count.Should().Be(1);
+        }
+
+        public class DisposeCounter
+        {
+            public int Count { get; set; }
+        }
+
+        public class TestCommand_Dispose_After_Dispatch : IDisposable
+        {
+            private readonly DisposeCounter _counter;
+
+            public TestCommand_Dispose_After_Dispatch(DisposeCounter counter)
+            {
+                _counter = counter;
+            }
+
+            public void Hello() {}
+
+            void IDisposable.Dispose()
+            {
+                if (_counter.Count > 0)
+                {
+                    throw new InvalidOperationException("Dispose should be called only once.");
+                }
+
+                _counter.Count++;
+            }
+        }
+
+#if NET5_0_OR_GREATER || NETSTANDARD2_1
+        [Fact]
+        public async Task CommandInstance_DisposeAsync_After_Dispatch()
+        {
+            var services = CreateDefaultServices<TestCommand_DisposeAsync_After_Dispatch>(new string[] { });
+            services.AddSingleton<DisposeCounter>();
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
+
+            serviceProvider.GetRequiredService<DisposeCounter>().Count.Should().Be(1);
+        }
+
+        public class TestCommand_DisposeAsync_After_Dispatch : IAsyncDisposable
+        {
+            private readonly DisposeCounter _counter;
+
+            public TestCommand_DisposeAsync_After_Dispatch(DisposeCounter counter)
+            {
+                _counter = counter;
+            }
+
+            public void Hello() { }
+
+            ValueTask IAsyncDisposable.DisposeAsync()
+            {
+                if (_counter.Count > 0)
+                {
+                    throw new InvalidOperationException("DisposeAsync should be called only once.");
+                }
+
+                _counter.Count++;
+
+                return default;
+            }
+        }
+#endif
+
+        [Fact]
+        public async Task ServiceProvider_Scoped()
+        {
+            var services = CreateDefaultServices<TestCommand_ServiceProvider_Scoped>(new string[] { });
+            services.AddSingleton<DisposeCounter>();
+            services.AddScoped<TestService_ServiceProvider_Scoped>();
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
+            serviceProvider.GetRequiredService<DisposeCounter>().Count.Should().Be(1);
+        }
+
+        public class TestService_ServiceProvider_Scoped : IDisposable
+        {
+            private readonly DisposeCounter _counter;
+
+            public TestService_ServiceProvider_Scoped(DisposeCounter counter)
+            {
+                _counter = counter;
+            }
+
+            public void Dispose()
+            {
+                _counter.Count++;
+            }
+        }
+
+        public class TestCommand_ServiceProvider_Scoped
+        {
+            public TestCommand_ServiceProvider_Scoped(TestService_ServiceProvider_Scoped counter)
+            {
+            }
+            public void Hello() { }
         }
 
         public class NoCommand

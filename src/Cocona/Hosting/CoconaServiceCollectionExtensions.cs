@@ -43,9 +43,11 @@ namespace Microsoft.Extensions.Hosting
 #if COCONA_LITE
             services.AddSingleton<ICoconaInstanceActivator>(_ => new CoconaLiteInstanceActivator());
             services.AddSingleton<ICoconaServiceProviderIsService>(sp => sp.GetRequiredService<ICoconaServiceProviderIsService>());
+            services.AddSingleton<ICoconaServiceProviderScopeSupport>(sp => sp.GetRequiredService<ICoconaServiceProviderScopeSupport>());
 #else
             services.AddSingleton<ICoconaInstanceActivator>(_ => new CoconaInstanceActivator());
             services.AddSingleton<ICoconaServiceProviderIsService, CoconaServiceProviderIsService>();
+            services.AddSingleton<ICoconaServiceProviderScopeSupport, CoconaServiceProviderScopeSupport>();
 #endif
 
             services.TryAddSingleton<ICoconaCommandProvider>(sp =>
