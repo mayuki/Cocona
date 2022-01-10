@@ -100,7 +100,7 @@ namespace Cocona.Lite.Hosting
                 .UseMiddleware((next, sp) => new InitializeCoconaLiteConsoleAppMiddleware(next, sp.GetRequiredService<ICoconaAppContextAccessor>()))
                 .UseMiddleware<CoconaCommandInvokeMiddleware>();
 
-            return new CoconaLiteAppHost(serviceProvider);
+            return new CoconaLiteAppHost(serviceProvider, options);
         }
 
         private static string[] GetCommandLineArguments()

@@ -26,7 +26,6 @@ namespace Cocona.Hosting
 
         private readonly CancellationTokenSource _cancellationTokenSource;
         private Task? _runningCommandTask;
-        private ExceptionDispatchInfo? _capturedException;
 
         public CoconaHostedService(
             ICoconaConsoleProvider console,
@@ -78,10 +77,10 @@ namespace Cocona.Hosting
                 // NOTE: Ignore OperationCanceledException that was thrown by non-user code.
                 Environment.ExitCode = 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Environment.ExitCode = 1;
-                _capturedException = ExceptionDispatchInfo.Capture(ex);
+                throw;
             }
 
             _lifetime.StopApplication();
@@ -89,13 +88,33 @@ namespace Cocona.Hosting
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _cancellationTokenSource?.Cancel();
-
-            _capturedException?.Throw();
+            _cancellationTokenSource.Cancel();
 
             if (_runningCommandTask != null && !_runningCommandTask.IsCompleted)
             {
-                await _runningCommandTask;
+                var cancellationTask = CreateTaskFromCancellationToken(cancellationToken);
+                try
+                {
+                    var winTask = await Task.WhenAny(cancellationTask, _runningCommandTask);
+                    if (winTask == _runningCommandTask)
+                    {
+                        await _runningCommandTask;
+                    }
+                }
+                catch (OperationCanceledException e) when (e.CancellationToken == cancellationToken)
+                {
+                    Environment.ExitCode = 130;
+                }
+            }
+
+            static Task CreateTaskFromCancellationToken(CancellationToken cancellationToken)
+            {
+                var tsc = new TaskCompletionSource<bool>();
+                cancellationToken.Register(() =>
+                {
+                    tsc.TrySetCanceled(cancellationToken);
+                });
+                return tsc.Task;
             }
         }
     }
