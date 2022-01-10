@@ -32,5 +32,10 @@ namespace Cocona
         /// Specify enable shell completion support. The default value is false.
         /// </summary>
         public bool EnableShellCompletionSupport { get; set; } = false;
+
+        /// <summary>
+        /// Specify the timeout before the application is shutdown when Ctrl+C is pressed.
+        /// </summary>
+        public TimeSpan ShutdownTimeout { get; set; } = TimeSpan.FromSeconds(5);
     }
 }

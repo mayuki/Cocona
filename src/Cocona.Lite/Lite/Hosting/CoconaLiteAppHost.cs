@@ -15,12 +15,14 @@ namespace Cocona.Lite.Hosting
         private readonly IServiceProvider _serviceProvider;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEventSlim _waitForShutdown = new ManualResetEventSlim(false);
+        private readonly TimeSpan _shutdownTimeout;
 
         public IServiceProvider Services => _serviceProvider;
 
-        public CoconaLiteAppHost(IServiceProvider serviceProvider)
+        public CoconaLiteAppHost(IServiceProvider serviceProvider, CoconaLiteAppOptions options)
         {
             _serviceProvider = serviceProvider;
+            _shutdownTimeout = options.ShutdownTimeout;
         }
 
         public async Task RunAsync(CancellationToken cancellationToken)
@@ -37,20 +39,28 @@ namespace Cocona.Lite.Hosting
 
             try
             {
-                var task = bootstrapper.RunAsync(linkedCancellationToken.Token);
-                if (task.IsCompleted)
+                var cancellationTask = CreateTaskFromCancellationToken(linkedCancellationToken.Token);
+                var runTask = Task.Run(() => bootstrapper.RunAsync(linkedCancellationToken.Token).AsTask());
+
+                var winTask = await Task.WhenAny(cancellationTask, runTask);
+                if (winTask != runTask)
                 {
-                    Environment.ExitCode = task.Result;
+                    // Wait for shutdown timeout.
+                    var timeoutToken = new CancellationTokenSource(_shutdownTimeout);
+                    var winTask2 = await Task.WhenAny(runTask, CreateTaskFromCancellationToken(timeoutToken.Token));
+                    if (winTask2 != runTask)
+                    {
+                        // Timed out. (throw OperationCanceledException)
+                        await cancellationTask;
+                    }
                 }
-                else
-                {
-                    Environment.ExitCode = await task;
-                }
+
+                Environment.ExitCode = await runTask;
             }
-            catch (OperationCanceledException ex) when (ex.CancellationToken == _cancellationTokenSource.Token)
+            catch (OperationCanceledException ex) when (ex.CancellationToken == linkedCancellationToken.Token)
             {
                 // NOTE: Ignore OperationCanceledException that was thrown by non-user code.
-                Environment.ExitCode = 0;
+                Environment.ExitCode = 130;
             }
 
             _waitForShutdown.Set();
@@ -76,6 +86,16 @@ namespace Cocona.Lite.Hosting
         {
             e.Cancel = true;
             _cancellationTokenSource.Cancel();
+        }
+
+        private static Task CreateTaskFromCancellationToken(CancellationToken cancellationToken)
+        {
+            var tsc = new TaskCompletionSource<bool>();
+            cancellationToken.Register(() =>
+            {
+                tsc.TrySetCanceled(cancellationToken);
+            });
+            return tsc.Task;
         }
     }
 }
