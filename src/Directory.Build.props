@@ -21,12 +21,12 @@
 
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(ProjectDir)\..\Cocona\StrongNameKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(ProjectDir)..\Cocona\StrongNameKey.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-      <None Include="$(ProjectDir)\..\..\docs\assets\icon.png" Pack="true" PackagePath="/" />
-      <None Include="$(ProjectDir)\..\..\README.md" Pack="true" PackagePath="/" />
+      <None Include="$(ProjectDir)..\..\docs\assets\icon.png" Pack="true" PackagePath="/" />
+      <None Include="$(ProjectDir)..\..\README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 </Project>
