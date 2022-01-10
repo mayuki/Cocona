@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Cocona.Command.Binder.Validation;
+using Cocona.Hosting;
 using Xunit;
 
 namespace Cocona.Test.Command
@@ -32,6 +33,7 @@ namespace Cocona.Test.Command
             services.AddTransient<ICoconaCommandResolver, CoconaCommandResolver>();
             services.AddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
             services.AddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
+            services.AddSingleton<ICoconaServiceProviderScopeSupport, CoconaServiceProviderScopeSupport>();
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
             services.AddSingleton<ICoconaCommandDispatcherPipelineBuilder>(serviceProvider =>
                 new CoconaCommandDispatcherPipelineBuilder(serviceProvider, serviceProvider.GetService<ICoconaInstanceActivator>())

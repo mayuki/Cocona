@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cocona.Command.Binder.Validation;
+using Cocona.Hosting;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
 
@@ -37,6 +38,7 @@ namespace Cocona.Test.Command.CommandDispatcher
             services.AddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
             services.AddSingleton<ICoconaInstanceActivator, CoconaInstanceActivator>();
+            services.AddSingleton<ICoconaServiceProviderScopeSupport, CoconaServiceProviderScopeSupport>();
             services.AddSingleton<ICoconaCommandDispatcherPipelineBuilder>(
                 serviceProvider =>
                 {
@@ -467,6 +469,46 @@ namespace Cocona.Test.Command.CommandDispatcher
             }
         }
 #endif
+
+        [Fact]
+        public async Task ServiceProvider_Scoped()
+        {
+            var services = CreateDefaultServices<TestCommand_ServiceProvider_Scoped>(new string[] { });
+            services.AddSingleton<DisposeCounter>();
+            services.AddScoped<TestService_ServiceProvider_Scoped>();
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
+            serviceProvider.GetRequiredService<DisposeCounter>().Count.Should().Be(1);
+        }
+
+        public class TestService_ServiceProvider_Scoped : IDisposable
+        {
+            private readonly DisposeCounter _counter;
+
+            public TestService_ServiceProvider_Scoped(DisposeCounter counter)
+            {
+                _counter = counter;
+            }
+
+            public void Dispose()
+            {
+                _counter.Count++;
+            }
+        }
+
+        public class TestCommand_ServiceProvider_Scoped
+        {
+            public TestCommand_ServiceProvider_Scoped(TestService_ServiceProvider_Scoped counter)
+            {
+            }
+            public void Hello() { }
+        }
 
         public class NoCommand
         { }

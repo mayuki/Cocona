@@ -2,11 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Cocona.Application;
 
 namespace Cocona.Lite
 {
-    public class CoconaLiteServiceProvider : IServiceProvider, IDisposable, ICoconaServiceProviderIsService
+    public class CoconaLiteServiceProvider : IServiceProvider, IDisposable, ICoconaServiceProviderIsService, ICoconaServiceProviderScopeSupport
     {
         private readonly Dictionary<Type, ServiceDescriptor[]> _descriptorsByService;
         private readonly List<IDisposable> _disposables;
@@ -21,6 +22,7 @@ namespace Cocona.Lite
         {
             if (serviceType == typeof(IServiceProvider)) return true;
             if (serviceType == typeof(ICoconaServiceProviderIsService)) return true;
+            if (serviceType == typeof(ICoconaServiceProviderScopeSupport)) return true;
 
             // IEnumerable<T>
             if (serviceType.IsConstructedGenericType && serviceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
@@ -45,6 +47,7 @@ namespace Cocona.Lite
         {
             if (serviceType == typeof(IServiceProvider)) return this;
             if (serviceType == typeof(ICoconaServiceProviderIsService)) return this;
+            if (serviceType == typeof(ICoconaServiceProviderScopeSupport)) return this;
 
             // IEnumerable<T>
             if (serviceType.IsConstructedGenericType && serviceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
@@ -91,6 +94,25 @@ namespace Cocona.Lite
             }
 
             _disposables.Clear();
+        }
+
+        // NOTE: Cocona.Lite's ServiceProvider does not support `Scoped`.
+        (IDisposable Scope, IServiceProvider ScopedServiceProvider) ICoconaServiceProviderScopeSupport.CreateScope(IServiceProvider serviceProvider)
+            => (new NullDisposable(), serviceProvider);
+
+#if NET5_0_OR_GREATER || NETSTANDARD2_1
+        (IAsyncDisposable Scope, IServiceProvider ScopedServiceProvider) ICoconaServiceProviderScopeSupport.CreateAsyncScope(IServiceProvider serviceProvider)
+            => (new NullDisposable(), serviceProvider);
+#endif
+
+        private class NullDisposable :
+              IDisposable
+#if NET5_0_OR_GREATER || NETSTANDARD2_1
+            , IAsyncDisposable
+#endif
+        {
+            public void Dispose() {}
+            public ValueTask DisposeAsync() => default;
         }
     }
 }
