@@ -8,10 +8,6 @@
 
     <!-- NuGet Package Information -->
     <Description>Micro-framework for .NET console application. Cocona makes it easy and fast to build console applications on .NET.</Description>
-
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>StrongNameKey.snk</AssemblyOriginatorKeyFile>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
