@@ -382,6 +382,92 @@ namespace Cocona.Test.Command.CommandDispatcher
             TestCommandStatic.Log[0].Should().Be($"{nameof(TestCommandStatic.Test)}:option0 -> alice");
         }
 
+        [Fact]
+        public async Task CommandInstance_Dispose_After_Dispatch()
+        {
+            var services = CreateDefaultServices<TestCommand_Dispose_After_Dispatch>(new string[] { });
+            services.AddSingleton<DisposeCounter>();
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
+            serviceProvider.GetRequiredService<DisposeCounter>().Count.Should().Be(1);
+        }
+
+        public class DisposeCounter
+        {
+            public int Count { get; set; }
+        }
+
+        public class TestCommand_Dispose_After_Dispatch : IDisposable
+        {
+            private readonly DisposeCounter _counter;
+
+            public TestCommand_Dispose_After_Dispatch(DisposeCounter counter)
+            {
+                _counter = counter;
+            }
+
+            public void Hello() {}
+
+            void IDisposable.Dispose()
+            {
+                if (_counter.Count > 0)
+                {
+                    throw new InvalidOperationException("Dispose should be called only once.");
+                }
+
+                _counter.Count++;
+            }
+        }
+
+#if NET5_0_OR_GREATER || NETSTANDARD2_1
+        [Fact]
+        public async Task CommandInstance_DisposeAsync_After_Dispatch()
+        {
+            var services = CreateDefaultServices<TestCommand_DisposeAsync_After_Dispatch>(new string[] { });
+            services.AddSingleton<DisposeCounter>();
+            var serviceProvider = services.BuildServiceProvider();
+
+            var dispatcher = serviceProvider.GetService<ICoconaCommandDispatcher>();
+            var resolvedCommand = serviceProvider.GetRequiredService<ICoconaCommandResolver>().ParseAndResolve(
+                serviceProvider.GetRequiredService<ICoconaCommandProvider>().GetCommandCollection(),
+                serviceProvider.GetRequiredService<ICoconaCommandLineArgumentProvider>().GetArguments()
+            );
+            var result = await dispatcher.DispatchAsync(resolvedCommand);
+
+            serviceProvider.GetRequiredService<DisposeCounter>().Count.Should().Be(1);
+        }
+
+        public class TestCommand_DisposeAsync_After_Dispatch : IAsyncDisposable
+        {
+            private readonly DisposeCounter _counter;
+
+            public TestCommand_DisposeAsync_After_Dispatch(DisposeCounter counter)
+            {
+                _counter = counter;
+            }
+
+            public void Hello() { }
+
+            ValueTask IAsyncDisposable.DisposeAsync()
+            {
+                if (_counter.Count > 0)
+                {
+                    throw new InvalidOperationException("DisposeAsync should be called only once.");
+                }
+
+                _counter.Count++;
+
+                return default;
+            }
+        }
+#endif
+
         public class NoCommand
         { }
 

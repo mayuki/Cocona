@@ -55,13 +55,6 @@ namespace Cocona.Command.Dispatcher.Middlewares
                 ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
                 return 1; // NOTE: This statement is unreachable.
             }
-            finally
-            {
-                if (ctx.CommandTarget is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
-            }
         }
     }
 }

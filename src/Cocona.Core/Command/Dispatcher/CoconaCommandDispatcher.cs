@@ -44,12 +44,14 @@ namespace Cocona.Command.Dispatcher
 
                 // Activate a command type.
                 var commandInstance = default(object);
+                var shouldCleanup = false;
                 if (matchedCommand.Target is not null)
                 {
                     commandInstance = matchedCommand.Target;
                 }
                 else if (matchedCommand.CommandType.GetConstructors().Any() && !matchedCommand.Method.IsStatic)
                 {
+                    shouldCleanup = true;
                     commandInstance = _activator.GetServiceOrCreateInstance(_serviceProvider, matchedCommand.CommandType);
                     if (commandInstance == null) throw new InvalidOperationException($"Unable to activate command type '{matchedCommand.CommandType.FullName}'");
                 }
@@ -66,16 +68,19 @@ namespace Cocona.Command.Dispatcher
                 }
                 finally
                 {
-                    switch (commandInstance)
+                    if (shouldCleanup)
                     {
-#if NET5_0 || NETSTANDARD2_1
-                        case IAsyncDisposable asyncDisposable:
-                            await asyncDisposable.DisposeAsync().ConfigureAwait(false);
-                            break;
+                        switch (commandInstance)
+                        {
+#if NET5_0_OR_GREATER || NETSTANDARD2_1
+                            case IAsyncDisposable asyncDisposable:
+                                await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+                                break;
 #endif
-                        case IDisposable disposable:
-                            disposable.Dispose();
-                            break;
+                            case IDisposable disposable:
+                                disposable.Dispose();
+                                break;
+                        }
                     }
                 }
             }
