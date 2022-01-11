@@ -1,0 +1,86 @@
+﻿<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="BuiltIn_Command_CompletionCanditates_Description" xml:space="preserve">
+        <value>셸 자동 완성 후보를 생성합니다.</value>
+    </data>
+    <data name="BuiltIn_Command_Completion_Description" xml:space="preserve">
+        <value>셸 자동 완성 코드를 생성합니다.</value>
+    </data>
+    <data name="BuiltIn_Command_Completion_Error_NotSupported" xml:space="preserve">
+        <value>오류: '{0}'에서는 셸 자동 완성이 지원되지 않습니다. (지원되는 셸 목록: {1})</value>
+    </data>
+    <data name="BuiltIn_Command_Help_Description" xml:space="preserve">
+        <value>도움말을 봅니다.</value>
+    </data>
+    <data name="BuiltIn_Command_Version_Description" xml:space="preserve">
+        <value>버전 정보를 봅니다.</value>
+    </data>
+    <data name="Command_Error_Insufficient_Argument" xml:space="preserve">
+        <value>오류: 필수 인자 '{0}'은(는) 생략될 수 없습니다. '--help' 옵션을 쓰시면 자세한 사용법을 알 수 있습니다.</value>
+    </data>
+    <data name="Command_Error_Insufficient_Option" xml:space="preserve">
+        <value>오류: 필수 옵션 '{0}'은(는) 생략될 수 없습니다. '--help' 옵션을 쓰시면 자세한 사용법을 알 수 있습니다.</value>
+    </data>
+    <data name="Command_Error_Insufficient_OptionValue" xml:space="preserve">
+        <value>오류: 옵션 '{0}'은(는) 반드시 값이 함께 있어야 합니다. '--help' 옵션을 쓰시면 자세한 사용법을 알 수 있습니다.</value>
+    </data>
+    <data name="Command_Error_ParameterBind" xml:space="preserve">
+        <value>오류: {0}</value>
+    </data>
+    <data name="Command_Error_UnknownOption" xml:space="preserve">
+        <value>오류: '{0}'라는 옵션은 없습니다. 오타가 있지는 않은지 살펴보세요.</value>
+    </data>
+    <data name="Command_NotYetImplemented" xml:space="preserve">
+        <value>명령어가 아직 구현되어 있지 않습니다.</value>
+    </data>
+    <data name="Exception_TheCommandHasExitedWithCode" xml:space="preserve">
+        <value>명령은 종료 코드 '{0}'와(과) 함께 끝났습니다. {1}</value>
+    </data>
+    <data name="Help_Description_AllowedValues" xml:space="preserve">
+        <value>허용된 값</value>
+    </data>
+    <data name="Help_Description_Default" xml:space="preserve">
+        <value>기본값</value>
+    </data>
+    <data name="Help_Description_Required" xml:space="preserve">
+        <value>필수</value>
+    </data>
+    <data name="Help_Heading_Arguments" xml:space="preserve">
+        <value>인자:</value>
+    </data>
+    <data name="Help_Heading_Commands" xml:space="preserve">
+        <value>명령어:</value>
+    </data>
+    <data name="Help_Heading_Options" xml:space="preserve">
+        <value>옵션:</value>
+    </data>
+    <data name="Help_Index_Usage" xml:space="preserve">
+        <value>사용법: {0}</value>
+    </data>
+    <data name="Help_Index_Usage_Multple" xml:space="preserve">
+        <value>사용법: {0} {1}[명령]</value>
+    </data>
+    <data name="OptionLikeCommand_MethodNotFound" xml:space="preserve">
+        <value>옵션 스타일 명령어 '{0}'의 메서드를 '{1}'에서 찾을 수 없었습니다.</value>
+    </data>
+    <data name="Dispatcher_Error_CommandNotFound" xml:space="preserve">
+        <value>오류: {0}</value>
+    </data>
+    <data name="Dispatcher_Error_NotACommand" xml:space="preserve">
+        <value>오류: '{0}'은(는) 명령어가 아닙니다. '--help' 옵션을 쓰시면 자세한 사용법을 알 수 있습니다.</value>
+    </data>
+    <data name="Dispatcher_Error_SimilarCommands" xml:space="preserve">
+        <value>비슷한 명령어들:</value>
+    </data>
+</root>
