@@ -22,7 +22,7 @@ namespace Cocona.Command
                 {
                     if (Primary != null)
                     {
-                        throw new CoconaException($"The commands contains more then one primary command. A primary command must be only one.: {string.Join(", ", commands.Where(x => x.IsPrimaryCommand).Select(x => x.Name))}");
+                        throw new CoconaException($"The commands contain more than one primary command. A primary command must be unique.: {string.Join(", ", commands.Where(x => x.IsPrimaryCommand).Select(x => x.Name))}");
                     }
                     Primary = command;
                 }

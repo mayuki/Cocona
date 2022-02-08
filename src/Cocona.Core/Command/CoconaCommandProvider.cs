@@ -162,7 +162,7 @@ namespace Cocona.Command
             {
                 if (commandNames.Contains(command.Name))
                 {
-                    throw new CoconaException($"Command '{command.Name}' has already exists. (Method: {command.Method.Name})");
+                    throw new CoconaException($"Command '{command.Name}' already exists. (Method: {command.Method.Name})");
                 }
                 commandNames.Add(command.Name);
 
@@ -172,7 +172,7 @@ namespace Cocona.Command
                     {
                         if (commandNames.Contains(alias))
                         {
-                            throw new CoconaException($"Command alias '{alias}' has already exists in commands. (Method: {command.Method.Name})");
+                            throw new CoconaException($"Command alias '{alias}' already exists in commands. (Method: {command.Method.Name})");
                         }
                         commandNames.Add(alias);
                     }
@@ -700,9 +700,9 @@ namespace Cocona.Command
                 var optionDescriptor = CreateOption(attrSet, type, name, defaultValue);
 
                 if (_allOptions.ContainsKey(optionDescriptor.Name))
-                    throw new CoconaException($"Option '{optionDescriptor.Name}' is already exists.");
+                    throw new CoconaException($"Option '{optionDescriptor.Name}' already exists.");
                 if (_allOptionShortNames.Count != 0 && optionDescriptor.ShortName.Count != 0 && _allOptionShortNames.IsSupersetOf(optionDescriptor.ShortName))
-                    throw new CoconaException($"Short name option '{string.Join(",", optionDescriptor.ShortName)}' is already exists.");
+                    throw new CoconaException($"Short name option '{string.Join(",", optionDescriptor.ShortName)}' already exists.");
 
                 _allOptions.Add(optionDescriptor.Name, optionDescriptor);
                 _allOptionShortNames.UnionWith(optionDescriptor.ShortName);
@@ -789,9 +789,9 @@ namespace Cocona.Command
                     var optionDescriptor = _parent.CreateOption(attrSet, type, name, defaultValue);
 
                     if (_parent._allOptions.ContainsKey(optionDescriptor.Name))
-                        throw new CoconaException($"Option '{optionDescriptor.Name}' is already exists.");
+                        throw new CoconaException($"Option '{optionDescriptor.Name}' already exists.");
                     if (_parent._allOptionShortNames.Count != 0 && optionDescriptor.ShortName.Count != 0 && _parent._allOptionShortNames.IsSupersetOf(optionDescriptor.ShortName))
-                        throw new CoconaException($"Short name option '{string.Join(",", optionDescriptor.ShortName)}' is already exists.");
+                        throw new CoconaException($"Short name option '{string.Join(",", optionDescriptor.ShortName)}' already exists.");
 
                     _parent._allOptions.Add(optionDescriptor.Name, optionDescriptor);
                     _parent._allOptionShortNames.UnionWith(optionDescriptor.ShortName);
