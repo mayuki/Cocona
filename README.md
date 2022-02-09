@@ -6,7 +6,7 @@ Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it e
 ### ⏱ Create a console application with Cocona in seconds.
 ```csharp
 CoconaApp.Run((string? name, bool hey) =>
-    Console.WriteLine("{(hey ? "Hey" :"Hello")} {(name ?? "Guest")}!"));
+    Console.WriteLine($"{(hey ? "Hey" :"Hello")} {(name ?? "Guest")}!"));
 ```
 ![](https://raw.githubusercontent.com/mayuki/Cocona/master/docs/assets/intro-in-seconds.gif)
 
