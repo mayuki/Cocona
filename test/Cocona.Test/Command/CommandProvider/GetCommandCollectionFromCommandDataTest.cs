@@ -90,7 +90,7 @@ namespace Cocona.Test.Command.CommandProvider
                 new TypeCommandData(typeof(CommandTestSingleCommand), new object[] { new CommandNameMetadata("B"), new PrimaryCommandAttribute() }),
             });
 
-            Assert.Throws<CoconaException>(() => provider.GetCommandCollection()).Message.Should().Contain("The commands contains more then one primary command.");
+            Assert.Throws<CoconaException>(() => provider.GetCommandCollection()).Message.Should().Contain("The commands contain more than one primary command.");
         }
 
         [Fact]

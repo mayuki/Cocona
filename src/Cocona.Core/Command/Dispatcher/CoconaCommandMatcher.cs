@@ -38,7 +38,7 @@ namespace Cocona.Command.Dispatcher
                 {
                     if ((overloadCommand.Value == null) || (value.Value != null && overloadCommand.Comparer.Equals(value.Value, overloadCommand.Value)))
                     {
-                        if (resolvedCommand != null) throw new CoconaException($"Command '{command.Name}' and option '{overloadCommand.Option}' has option overloads more than one.");
+                        if (resolvedCommand != null) throw new CoconaException($"Command '{command.Name}' and option '{overloadCommand.Option}' has more than one option overloads.");
                         resolvedCommand = overloadCommand.Command;
                         continue;
                     }

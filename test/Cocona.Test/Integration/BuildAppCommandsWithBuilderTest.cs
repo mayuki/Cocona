@@ -42,7 +42,7 @@ namespace Cocona.Test.Integration
                     app.AddCommand(() => Console.WriteLine("Hello Konnichiwa!"));
                     app.Run();
                 });
-            }).Message.Should().Contain("The commands contains more then one primary command");
+            }).Message.Should().Contain("The commands contain more than one primary command");
         }
 
         [Fact]
