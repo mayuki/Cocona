@@ -1056,7 +1056,7 @@ class Program
     static async Task Main(string[] args)
     {
         await Host.CreateDefaultBuilder()
-            .UseCocona(args, new[] { typeof(Program) })
+            .ConfigureCocona(args, new[] { typeof(Program) })
             .Build()
             .RunAsync();
     }
