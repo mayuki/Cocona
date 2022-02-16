@@ -70,11 +70,22 @@ namespace Cocona.Hosting
         }
 
         /// <summary>
-        /// Adds a delegate for configuring the provided <see cref="ILoggingBuilder"/>. This may be called multiple times. See also <seealso cref="HostingHostBuilderExtensions.ConfigureLogging(Microsoft.Extensions.Hosting.IHostBuilder,System.Action{Microsoft.Extensions.Hosting.HostBuilderContext,Microsoft.Extensions.Logging.ILoggingBuilder})"/>.
+        /// Adds a delegate for configuring the provided <see cref="ILoggingBuilder"/>. This may be called multiple times. See also <seealso cref="HostingHostBuilderExtensions.ConfigureLogging(Microsoft.Extensions.Hosting.IHostBuilder,System.Action{Microsoft.Extensions.Logging.ILoggingBuilder})"/>.
         /// </summary>
         /// <param name="configureLogging"></param>
         /// <returns></returns>
         public CoconaAppHostBuilder ConfigureLogging(Action<ILoggingBuilder> configureLogging)
+        {
+            _builder.ConfigureLogging(configureLogging);
+            return this;
+        }
+        
+        /// <summary>
+        /// Adds a delegate for configuring the provided <see cref="ILoggingBuilder"/>. This may be called multiple times. See also <seealso cref="HostingHostBuilderExtensions.ConfigureLogging(Microsoft.Extensions.Hosting.IHostBuilder,System.Action{Microsoft.Extensions.Hosting.HostBuilderContext,Microsoft.Extensions.Logging.ILoggingBuilder})"/>.
+        /// </summary>
+        /// <param name="configureLogging"></param>
+        /// <returns></returns>
+        public CoconaAppHostBuilder ConfigureLogging(Action<HostBuilderContext, ILoggingBuilder> configureLogging)
         {
             _builder.ConfigureLogging(configureLogging);
             return this;
