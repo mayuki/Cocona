@@ -164,10 +164,10 @@ app.AddCommand("delete", () => { ... });
 app.Run();
 ```
 
-You can add (classic) Class-based style commands with the `AddCommand<T>` method.
+You can add (classic) Class-based style commands with the `AddCommands<T>` method.
 
 ```csharp
-app.AddCommand<MyCommand>();
+app.AddCommands<MyCommand>();
 ```
 
 #### Public method as a command (Class-based style)
