@@ -75,7 +75,7 @@ namespace Cocona.Lite.Hosting
             _configureOptions?.Invoke(options);
             services.AddSingleton(options);
 
-            services.AddCoconaCore(_args ?? GetCommandLineArguments());
+            services.AddCoconaCore(_args);
             services.AddCoconaShellCompletion();
 
             services.AddSingleton<CoconaLiteAppHostOptions>(new CoconaLiteAppHostOptions()
@@ -101,14 +101,6 @@ namespace Cocona.Lite.Hosting
                 .UseMiddleware<CoconaCommandInvokeMiddleware>();
 
             return new CoconaLiteAppHost(serviceProvider, options);
-        }
-
-        private static string[] GetCommandLineArguments()
-        {
-            var args = Environment.GetCommandLineArgs();
-            return args.Any()
-                ? args.Skip(1).ToArray() // args[0] is the path to executable binary.
-                : Array.Empty<string>();
         }
     }
 }
