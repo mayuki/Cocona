@@ -38,7 +38,7 @@ namespace Microsoft.Extensions.Hosting
 {
     public static class CoconaServiceCollectionExtensions
     {
-        internal static IServiceCollection AddCoconaCore(this IServiceCollection services, string[] args)
+        internal static IServiceCollection AddCoconaCore(this IServiceCollection services, string[]? args)
         {
 #if COCONA_LITE
             services.AddSingleton<ICoconaInstanceActivator>(_ => new CoconaLiteInstanceActivator());
@@ -73,8 +73,9 @@ namespace Microsoft.Extensions.Hosting
                     options.EnableShellCompletionSupport
                 );
             });
+            services.TryAddSingleton<ICoconaEnvironmentProvider, DefaultCoconaEnvironmentProvider>();
             services.TryAddSingleton<ICoconaCommandLineArgumentProvider>(serviceProvider =>
-                new CoconaCommandLineArgumentProvider(args));
+                new CoconaCommandLineArgumentProvider(args ?? serviceProvider.GetRequiredService<ICoconaEnvironmentProvider>().GetCommandLineArgs()));
             services.TryAddSingleton<ICoconaCommandDispatcherPipelineBuilder, CoconaCommandDispatcherPipelineBuilder>();
             services.TryAddSingleton<ICoconaAppContextAccessor, CoconaAppContextAccessor>();
             services.TryAddSingleton<ICoconaApplicationMetadataProvider, CoconaApplicationMetadataProvider>();
