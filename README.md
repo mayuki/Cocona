@@ -214,7 +214,7 @@ public void Hello(string name, bool hey) { ... }
 ```
 </details>
 
-If the parameter of a method is defined as nullable, Cocona will treat them as non-mandatory option for a command. (That is, the parameters are treated as **required option** by default excepts boolean).
+If the parameter of a method is defined as nullable, Cocona will treat it as a non-mandatory option for a command. (That is, the parameters are treated as **required option** by default except boolean).
 If a parameter is boolean, it's assumed that `false` default value is specified.
 
 ```csharp
@@ -225,7 +225,7 @@ app.AddCommand((string? name) => { ... });
 
 <details><summary>Optional with default value (Class-based style)</summary>
 
-If method parameters are [optional argument](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/named-and-optional-arguments#optional-arguments), Cocona treats those as optional command options. (That is, the parameters are treated as **required option** by default excepts boolean).
+If method parameters are [optional argument](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/named-and-optional-arguments#optional-arguments), Cocona treats those as optional command options. (That is, the parameters are treated as **required option** by default except boolean).
 If a parameter is boolean, it's assumed that `false` default value is specified.
 
 ```csharp
@@ -1029,7 +1029,7 @@ app.Run();
 
 ### CommandMethodForwardedTo attribute
 The `CommandMethodForwardedTo` attribute allows you to specify that the substance of the specified command method is a different method and that the operation should be forwarded.
-If this attribute is given to a command method, the destination's attribute and its implementation are used. Excepts for the `Command` and `Hidden` attributes specified by the method.
+If this attribute is given to a command method, the destination's attribute and its implementation are used. Except for the `Command` and `Hidden` attributes specified by the method.
 
 For example, it can be used if the command implementation is defined in an external assembly or to call a built-in command (such as help) or compatibility purposes.
 
