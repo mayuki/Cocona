@@ -183,10 +183,28 @@ namespace Cocona.Test.Builder
         { }
 
         [Fact]
-        public void AddCommand_Chained()
+        public void AddCommands_Chained()
         {
             var builder = new CoconaCommandsBuilder();
-            builder.AddCommand(() => { }).AddCommand(() => { });
+            builder.AddCommands(() => { }).AddCommands(() => { });
+
+            var built = builder.Build();
+            built.Should().HaveCount(2);
+            built[0].Should().BeOfType<DelegateCommandData>();
+            built[0].Metadata.Should().HaveCount(2);
+            built[0].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            built[0].Metadata[1].Should().BeOfType<PrimaryCommandAttribute>();
+            built[1].Should().BeOfType<DelegateCommandData>();
+            built[1].Metadata.Should().HaveCount(2);
+            built[1].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            built[1].Metadata[1].Should().BeOfType<PrimaryCommandAttribute>();
+        }
+
+        [Fact]
+        public void AddCommands_Multiparams()
+        {
+            var builder = new CoconaCommandsBuilder();
+            builder.AddCommands(() => { }, () => { });
 
             var built = builder.Build();
             built.Should().HaveCount(2);
