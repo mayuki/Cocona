@@ -186,7 +186,7 @@ namespace Cocona.Test.Builder
         public void AddCommands_Chained()
         {
             var builder = new CoconaCommandsBuilder();
-            builder.AddCommands(() => { }).AddCommands(() => { });
+            builder.AddCommands(("1", () => { })).AddCommands(("2", () => { }));
 
             var built = builder.Build();
             built.Should().HaveCount(2);
@@ -204,7 +204,10 @@ namespace Cocona.Test.Builder
         public void AddCommands_Multiparams()
         {
             var builder = new CoconaCommandsBuilder();
-            builder.AddCommands(() => { }, () => { });
+            builder.AddCommands(
+                ("1", () => { }), 
+                ("2", () => { })
+            );
 
             var built = builder.Build();
             built.Should().HaveCount(2);

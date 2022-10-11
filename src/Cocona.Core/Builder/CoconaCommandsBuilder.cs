@@ -167,11 +167,11 @@ namespace Cocona
         /// <param name="builder"></param>
         /// <param name="commandBody"></param>
         /// <returns></returns>
-        public static ICoconaCommandsBuilder AddCommands(this ICoconaCommandsBuilder builder, params Delegate[] commandBodies)
+        public static ICoconaCommandsBuilder AddCommands(this ICoconaCommandsBuilder builder, params (string, Delegate)[] commandBodies)
         {
-            foreach (var commandBody in commandBodies)
+            foreach (var (name, commandBody) in commandBodies)
             {
-                builder.AddCommand(commandBody);
+                builder.AddCommand(name, commandBody);
             }
             return builder;
         }
