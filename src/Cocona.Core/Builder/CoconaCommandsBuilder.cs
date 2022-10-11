@@ -160,6 +160,19 @@ namespace Cocona
             return new CommandConventionBuilder(conventions).FromBuilder().WithMetadata(new PrimaryCommandAttribute());
         }
 
+        
+        /// <summary>
+        /// Adds a primary command definition delegate to the builder and return the builder.
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <param name="commandBody"></param>
+        /// <returns></returns>
+        public static ICoconaCommandsBuilder AddCommand(this ICoconaCommandsBuilder builder, Delegate commandBody)
+        {
+           builder.AddCommand(commandBody);
+           return builder;
+        }
+
         /// <summary>
         /// Adds a command definition delegate to the builder.
         /// </summary>
