@@ -193,11 +193,9 @@ namespace Cocona.Test.Builder
             built[0].Should().BeOfType<DelegateCommandData>();
             built[0].Metadata.Should().HaveCount(2);
             built[0].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
-            built[0].Metadata[1].Should().BeOfType<PrimaryCommandAttribute>();
             built[1].Should().BeOfType<DelegateCommandData>();
             built[1].Metadata.Should().HaveCount(2);
             built[1].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
-            built[1].Metadata[1].Should().BeOfType<PrimaryCommandAttribute>();
         }
 
         [Fact]
@@ -214,11 +212,9 @@ namespace Cocona.Test.Builder
             built[0].Should().BeOfType<DelegateCommandData>();
             built[0].Metadata.Should().HaveCount(2);
             built[0].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
-            built[0].Metadata[1].Should().BeOfType<PrimaryCommandAttribute>();
             built[1].Should().BeOfType<DelegateCommandData>();
             built[1].Metadata.Should().HaveCount(2);
             built[1].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
-            built[1].Metadata[1].Should().BeOfType<PrimaryCommandAttribute>();
         }
     }
 }
