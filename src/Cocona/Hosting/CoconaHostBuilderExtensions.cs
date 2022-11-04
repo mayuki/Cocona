@@ -49,7 +49,7 @@ namespace Microsoft.Extensions.Hosting
                 .ConfigureAppConfiguration(config => { })
                 .ConfigureServices(services =>
                 {
-                    services.AddCoconaCore(args ?? GetCommandLineArguments());
+                    services.AddCoconaCore(args);
                     services.AddCoconaShellCompletion();
 
                     services.AddHostedService<CoconaHostedService>();
@@ -64,12 +64,5 @@ namespace Microsoft.Extensions.Hosting
                 });
         }
 
-        private static string[] GetCommandLineArguments()
-        {
-            var args = System.Environment.GetCommandLineArgs();
-            return args.Any()
-                ? args.Skip(1).ToArray() // args[0] is the path to executable binary.
-                : Array.Empty<string>();
-        }
     }
 }
