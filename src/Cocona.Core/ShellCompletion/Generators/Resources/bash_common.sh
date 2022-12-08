@@ -68,7 +68,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_get_argument_index() {
         fi
     done
 
-    return $index
+    return "$index"
 }
 
 __cocona_APPNAMEPLACEHOLDER_completion_index_of() {
@@ -77,7 +77,7 @@ __cocona_APPNAMEPLACEHOLDER_completion_index_of() {
     for i in "${@:2}"
     do
         if [[ "$i" == "$value" ]]; then
-            return $index
+            return "$index"
         fi
         ((index++))
     done
