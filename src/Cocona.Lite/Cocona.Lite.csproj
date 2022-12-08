@@ -40,10 +40,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Lite\Resources\Strings.ja-jp.resx">
+    <EmbeddedResource Update="Lite\Resources\Strings.ja-JP.resx">
       <DependentUpon>Strings.resx</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Update="Lite\Resources\Strings.ko-kr.resx">
+    <EmbeddedResource Update="Lite\Resources\Strings.ko-KR.resx">
       <DependentUpon>Strings.resx</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="Lite\Resources\Strings.resx">
