@@ -6,6 +6,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- CS1591: Missing XML comment for publicly visible type or member '...' -->
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <WarningsAsErrors>$(WarningsAsErrors);Nullable</WarningsAsErrors>
 
     <!-- NuGet Package Information -->
     <Description>Micro-framework for .NET console application. Cocona makes it easy and fast to build console applications on .NET.</Description>
