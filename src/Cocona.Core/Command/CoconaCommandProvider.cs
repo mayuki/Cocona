@@ -93,7 +93,16 @@ namespace Cocona.Command
                     }
 
                     if (_options.HasFlag(CommandProviderOptions.CommandNameToLowerCase)) commandName = ToCommandCase(commandName);
-                    commands.Add(new SubCommandData(subCommandDataSet, new [] { new CommandNameMetadata(commandName) }));
+
+                    var commandMetadataSet = new List<object>()
+                    {
+                        new CommandNameMetadata(commandName)
+                    };
+                    if (!string.IsNullOrWhiteSpace(subCommandsAttr.Description))
+                    {
+                        commandMetadataSet.Add(new CommandDescriptionMetadata(subCommandsAttr.Description));
+                    }
+                    commands.Add(new SubCommandData(subCommandDataSet, commandMetadataSet));
                 }
             }
 
