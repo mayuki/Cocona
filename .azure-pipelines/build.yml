@@ -27,7 +27,7 @@ jobs:
     - task: UseDotNet@2
       inputs:
         packageType: 'sdk'
-        version: 7.x
+        version: 7.0.x
     - script: dotnet restore
       displayName: dotnet restore
 
