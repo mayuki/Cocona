@@ -154,6 +154,38 @@ namespace Cocona.Test.Command.CommandProvider
         }
 
         [Fact]
+        public void CommandDescription()
+        {
+            var provider = new CoconaCommandProvider(new[] { typeof(TestCommand_CommandDescription) });
+            var commands = provider.GetCommandCollection();
+            commands.All.Should().HaveCount(3);
+            commands.All[2].SubCommands.Should().NotBeNull(); // Hello, SubCommand, NestedSubCommand
+            commands.All[2].Description.Should().Be("NESTED_DESC");
+            commands.All[2].Flags.Should().Be(CommandFlags.SubCommandsEntryPoint);
+
+            commands.All[2].SubCommands.Primary.Should().BeNull();
+            commands.All[2].SubCommands.All.Should().HaveCount(2);
+        }
+
+        [HasSubCommands(typeof(NestedSubCommand), Description = "NESTED_DESC")]
+        class TestCommand_CommandDescription
+        {
+            public void Hello()
+            { }
+
+            public void SubCommand()
+            { }
+
+            class NestedSubCommand
+            {
+                public void SubSubCommand1()
+                { }
+                public void SubSubCommand2()
+                { }
+            }
+        }
+
+        [Fact]
         public void SingleMethod_NotPrimary()
         {
             var provider = new CoconaCommandProvider(new[] { typeof(TestCommand_SingleMethod_NotPrimary) });
