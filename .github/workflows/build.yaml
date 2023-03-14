@@ -21,6 +21,7 @@ jobs:
         dotnet-version: |
           3.1.x
           6.0.x
+          7.0.x
 
     # Build
     - run: dotnet restore
