@@ -20,6 +20,16 @@ namespace Cocona.Lite.Test
         }
 
         [Fact]
+        public void Resolve_LastRegisteredService_When_MultipleServicesRegistered()
+        {
+            var services = new CoconaLiteServiceCollection();
+            services.AddSingleton<string>("foo");
+            services.AddSingleton<string>("bar");
+            var serviceProvider = new CoconaLiteServiceProvider(services);
+            serviceProvider.GetRequiredService<string>().Should().Be("bar");
+        }
+
+        [Fact]
         public void NoDependency_Singleton_TService_TImplementation()
         {
             var services = new CoconaLiteServiceCollection();
