@@ -98,9 +98,9 @@ namespace Cocona.Command
                     {
                         new CommandNameMetadata(commandName)
                     };
-                    if (!string.IsNullOrWhiteSpace(subCommandsAttr.Description))
+                    if (subCommandsAttr.Description is { } description && !string.IsNullOrWhiteSpace(description))
                     {
-                        commandMetadataSet.Add(new CommandDescriptionMetadata(subCommandsAttr.Description));
+                        commandMetadataSet.Add(new CommandDescriptionMetadata(description));
                     }
                     commands.Add(new SubCommandData(subCommandDataSet, commandMetadataSet));
                 }
