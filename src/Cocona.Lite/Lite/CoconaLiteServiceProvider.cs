@@ -62,7 +62,7 @@ namespace Cocona.Lite
 
             if (_descriptorsByService.TryGetValue(serviceType, out var descriptors) && descriptors.Length != 0)
             {
-                return descriptors[0].Factory(this, _disposables);
+                return descriptors[descriptors.Length - 1].Factory(this, _disposables);
             }
 
             return null!;
