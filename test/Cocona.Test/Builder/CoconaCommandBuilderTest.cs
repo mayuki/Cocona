@@ -181,5 +181,40 @@ namespace Cocona.Test.Builder
         }
         class UseFilter_Filter3 : IFilterMetadata
         { }
+
+        [Fact]
+        public void AddCommands_Chained()
+        {
+            var builder = new CoconaCommandsBuilder();
+            builder.AddCommands(("1", () => { })).AddCommands(("2", () => { }));
+
+            var built = builder.Build();
+            built.Should().HaveCount(2);
+            built[0].Should().BeOfType<DelegateCommandData>();
+            built[0].Metadata.Should().HaveCount(2);
+            built[0].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            built[1].Should().BeOfType<DelegateCommandData>();
+            built[1].Metadata.Should().HaveCount(2);
+            built[1].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+        }
+
+        [Fact]
+        public void AddCommands_Multiparams()
+        {
+            var builder = new CoconaCommandsBuilder();
+            builder.AddCommands(
+                ("1", () => { }), 
+                ("2", () => { })
+            );
+
+            var built = builder.Build();
+            built.Should().HaveCount(2);
+            built[0].Should().BeOfType<DelegateCommandData>();
+            built[0].Metadata.Should().HaveCount(2);
+            built[0].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+            built[1].Should().BeOfType<DelegateCommandData>();
+            built[1].Metadata.Should().HaveCount(2);
+            built[1].Metadata[0].Should().BeOfType<CommandFromBuilderMetadata>();
+        }
     }
 }
