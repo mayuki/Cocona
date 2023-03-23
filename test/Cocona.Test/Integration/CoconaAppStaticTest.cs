@@ -1,13 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Cocona.Application;
-using Cocona.Command.BuiltIn;
-using Cocona.CommandLine;
-using Cocona.ShellCompletion.Candidate;
 using FluentAssertions;
 #if COCONA_LITE
 using Cocona.Lite;

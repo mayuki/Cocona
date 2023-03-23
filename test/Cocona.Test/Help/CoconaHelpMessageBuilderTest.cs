@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Cocona.Application;
 using Cocona.Command;
 using Cocona.Command.BuiltIn;
 using Cocona.Command.Features;
 using Cocona.Help;
 using Cocona.Help.DocumentModel;
-using Cocona.Test.Command.CommandResolver;
 using FluentAssertions;
 using Xunit;
 

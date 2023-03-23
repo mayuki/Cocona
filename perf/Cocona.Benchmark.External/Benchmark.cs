@@ -1,9 +1,6 @@
 // This benchmark project is based on CliFx.Benchmarks.
 // https://github.com/Tyrrrz/CliFx/tree/master/CliFx.Benchmarks/
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using CliFx;

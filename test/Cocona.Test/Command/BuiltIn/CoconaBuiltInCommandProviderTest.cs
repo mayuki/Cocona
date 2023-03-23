@@ -1,10 +1,6 @@
 using Cocona.Command;
 using Cocona.Command.BuiltIn;
 using FluentAssertions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace Cocona.Test.Command.BuiltIn

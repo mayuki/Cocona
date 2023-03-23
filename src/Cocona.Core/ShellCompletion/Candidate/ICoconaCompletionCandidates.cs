@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text;
 using Cocona.Command;
 
 namespace Cocona.ShellCompletion.Candidate

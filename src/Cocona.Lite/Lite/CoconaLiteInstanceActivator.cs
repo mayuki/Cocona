@@ -1,6 +1,5 @@
 using System;
 using Cocona.Application;
-using Cocona.Lite;
 
 namespace Cocona.Lite
 {

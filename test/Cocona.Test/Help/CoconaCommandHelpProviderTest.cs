@@ -6,8 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Cocona.Internal;
 using Xunit;
 
 namespace Cocona.Test.Help

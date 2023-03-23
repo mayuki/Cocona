@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using Cocona;
 using Cocona.Command;
 using Cocona.Help;

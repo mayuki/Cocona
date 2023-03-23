@@ -1,11 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Cocona.Application;
-using Cocona.Command.Features;
-using Cocona.CommandLine;
 using Cocona.Help;
 using Cocona.Resources;
 using Cocona.ShellCompletion;

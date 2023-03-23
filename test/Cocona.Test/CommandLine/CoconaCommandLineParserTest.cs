@@ -3,7 +3,6 @@ using Cocona.CommandLine;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Cocona.Command.BuiltIn;
 using Xunit;
 

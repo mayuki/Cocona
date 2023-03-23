@@ -3,7 +3,6 @@ using Cocona.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Cocona.Command.Binder.Validation;
 
 namespace Cocona.Command.Binder

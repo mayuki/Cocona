@@ -1,10 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using Cocona.Command;
-using Cocona.Command.BuiltIn;
 using Cocona.Command.Dispatcher;
 using Cocona.CommandLine;
 using FluentAssertions;

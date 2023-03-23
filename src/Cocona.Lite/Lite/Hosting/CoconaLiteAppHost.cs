@@ -1,12 +1,7 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Cocona.Application;
 using Cocona.Command;
-using Cocona.Command.Dispatcher;
-using Cocona.Internal;
-using Cocona.Lite.Resources;
 
 namespace Cocona.Lite.Hosting
 {
