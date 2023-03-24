@@ -56,7 +56,8 @@ public class CoconaBootstrapper : ICoconaBootstrapper
                 _console.Error.WriteLine(string.Format(Strings.Dispatcher_Error_NotACommand, cmdNotFoundEx.Command));
             }
 
-            var similarCommands = cmdNotFoundEx.ImplementedCommands.All.Where(x => Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
+            var similarCommands = cmdNotFoundEx.ImplementedCommands.All
+                .Where(x => !x.IsHidden && Levenshtein.GetDistance(cmdNotFoundEx.Command.ToLowerInvariant(), x.Name.ToLowerInvariant()) < 3).ToArray();
             if (similarCommands.Any())
             {
                 _console.Error.WriteLine();
