@@ -1,4 +1,3 @@
-using System.Linq;
 using Cocona.Command;
 using Cocona.ShellCompletion.Candidate.Providers;
 

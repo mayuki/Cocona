@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Cocona.Command;
 using Cocona.ShellCompletion.Candidate;
 using Cocona.ShellCompletion.Generators;

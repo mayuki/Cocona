@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Cocona.ShellCompletion.Candidate.Providers
 {
     public sealed class EnumCompletionCandidatesProvider : ICoconaCompletionStaticCandidatesProvider

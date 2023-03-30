@@ -1,15 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Cocona.Application;
 using Cocona.Command.Binder;
-using Cocona.Command.BuiltIn;
 using Cocona.Command.Dispatcher.Middlewares;
-using Cocona.Help;
-using Cocona.ShellCompletion;
-using Cocona.ShellCompletion.Candidate;
 
 namespace Cocona.Command.Dispatcher
 {

@@ -3,10 +3,8 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;netstandard2.0;netstandard2.1</TargetFrameworks>
     <RootNamespace>Cocona</RootNamespace>
-
-    <nullable>enable</nullable>
-    <WarningsAsErrors>RS0030</WarningsAsErrors>
-    <NoWarn>$(NoWarn);1701;1702;1591</NoWarn>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
 
     <!-- NuGet Package Information -->
     <Description>Core component for Cocona. Micro-framework for .NET console application.</Description>

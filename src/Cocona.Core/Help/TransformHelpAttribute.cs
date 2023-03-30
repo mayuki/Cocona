@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Cocona.Application;
 using Cocona.Command;
 using Cocona.Filters;

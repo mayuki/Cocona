@@ -1,18 +1,8 @@
 using Cocona.Application;
 using Cocona.Command;
-using Cocona.Command.BuiltIn;
 using Cocona.Command.Dispatcher;
 using Cocona.Command.Dispatcher.Middlewares;
-using Cocona.Internal;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Cocona.Resources;
 using Microsoft.Extensions.Options;
 
 namespace Cocona.Hosting

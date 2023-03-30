@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-
 namespace Cocona.CommandLine
 {
     public class DefaultCoconaEnvironmentProvider : ICoconaEnvironmentProvider

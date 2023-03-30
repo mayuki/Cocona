@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Cocona.Builder
+﻿namespace Cocona.Builder
 {
     public interface ICommandBuilder
     {

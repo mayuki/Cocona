@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Cocona.Command.Binder
+﻿namespace Cocona.Command.Binder
 {
     public interface ICoconaValueConverter
     {

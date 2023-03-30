@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Cocona
+﻿namespace Cocona
 {
     /// <summary>
     /// Specifies the parameter that should be set by dependency injection.

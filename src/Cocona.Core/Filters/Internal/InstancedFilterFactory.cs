@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cocona.Filters.Internal
+﻿namespace Cocona.Filters.Internal
 {
     internal class InstancedFilterFactory : IFilterFactory, IOrderedFilter
     {

@@ -1,5 +1,3 @@
-using System;
-
 namespace Cocona.ShellCompletion.Candidate.Providers
 {
     public sealed class StaticCompletionCandidatesProvider : ICoconaCompletionStaticCandidatesProvider

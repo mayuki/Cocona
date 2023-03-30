@@ -2,17 +2,9 @@ using Cocona.Application;
 using Cocona.Builder;
 using Cocona.Builder.Metadata;
 using Cocona.Internal;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace Cocona.Command
 {

@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Cocona.Command.Dispatcher
+﻿namespace Cocona.Command.Dispatcher
 {
     public abstract class CommandDispatcherMiddleware
     {

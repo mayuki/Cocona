@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Cocona.Command.Binder.Validation
+﻿namespace Cocona.Command.Binder.Validation
 {
     public interface ICoconaParameterValidator
     {

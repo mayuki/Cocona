@@ -1,6 +1,5 @@
 using Cocona.Command;
 using Cocona.CommandLine;
-using System;
 
 namespace Cocona.Filters
 {

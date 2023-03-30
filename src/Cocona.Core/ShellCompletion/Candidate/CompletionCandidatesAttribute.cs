@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Cocona.ShellCompletion.Candidate.Providers;
 
 namespace Cocona.ShellCompletion.Candidate
