@@ -1,5 +1,3 @@
-using System;
-using System.Reflection;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 
