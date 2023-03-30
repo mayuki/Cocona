@@ -5,104 +5,103 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Cocona.Builder
+namespace Cocona.Builder;
+
+/// <summary>
+/// A builder for console applications.
+/// </summary>
+public class CoconaAppBuilder
 {
-    /// <summary>
-    /// A builder for console applications.
-    /// </summary>
-    public class CoconaAppBuilder
+    private readonly IServiceCollection _services = new ServiceCollection();
+    private readonly HostBuilder _hostBuilder = new HostBuilder();
+    private readonly ConfigureHostBuilder _configureHostBuilder;
+    private readonly Action<CoconaAppOptions>? _configureOptions;
+    private CoconaApp? _application;
+
+    public IServiceCollection Services => _services;
+    public ILoggingBuilder Logging { get; }
+    public IHostBuilder Host => _configureHostBuilder;
+    public IHostEnvironment Environment { get; }
+    public ConfigurationManager Configuration { get; }
+
+    internal CoconaAppBuilder(string[]? args, Action<CoconaAppOptions>? configureOptions = null)
     {
-        private readonly IServiceCollection _services = new ServiceCollection();
-        private readonly HostBuilder _hostBuilder = new HostBuilder();
-        private readonly ConfigureHostBuilder _configureHostBuilder;
-        private readonly Action<CoconaAppOptions>? _configureOptions;
-        private CoconaApp? _application;
+        Configuration = new ConfigurationManager();
+        _configureOptions = configureOptions;
 
-        public IServiceCollection Services => _services;
-        public ILoggingBuilder Logging { get; }
-        public IHostBuilder Host => _configureHostBuilder;
-        public IHostEnvironment Environment { get; }
-        public ConfigurationManager Configuration { get; }
-
-        internal CoconaAppBuilder(string[]? args, Action<CoconaAppOptions>? configureOptions = null)
+        // Sets the default configuration values for the application host.
+        // such as EnvironmentName, ApplicationName, ContentRoot...
+        var bootstrapHostBuilder = new BootstrapHostBuilder(_services);
+        bootstrapHostBuilder.ConfigureDefaultCocona(args, app =>
         {
-            Configuration = new ConfigurationManager();
-            _configureOptions = configureOptions;
-
-            // Sets the default configuration values for the application host.
-            // such as EnvironmentName, ApplicationName, ContentRoot...
-            var bootstrapHostBuilder = new BootstrapHostBuilder(_services);
-            bootstrapHostBuilder.ConfigureDefaultCocona(args, app =>
+            // Copy commands from CoconaApp to CoconaAppHostOptions on starting application.
+            foreach (var commandData in ((ICoconaCommandsBuilder)_application!).Build())
             {
-                // Copy commands from CoconaApp to CoconaAppHostOptions on starting application.
-                foreach (var commandData in ((ICoconaCommandsBuilder)_application!).Build())
-                {
-                    app.AddCommand(commandData);
-                }
-            });
-            var (hostBuilderContext, hostConfiguration) = bootstrapHostBuilder.Apply(Configuration, _hostBuilder);
+                app.AddCommand(commandData);
+            }
+        });
+        var (hostBuilderContext, hostConfiguration) = bootstrapHostBuilder.Apply(Configuration, _hostBuilder);
 
-            _configureHostBuilder = new ConfigureHostBuilder(hostBuilderContext, Configuration, Services);
-            Environment = hostBuilderContext.HostingEnvironment;
-            Logging = new LoggingBuilder(_services);
+        _configureHostBuilder = new ConfigureHostBuilder(hostBuilderContext, Configuration, Services);
+        Environment = hostBuilderContext.HostingEnvironment;
+        Logging = new LoggingBuilder(_services);
 
-            _services.AddSingleton<IConfiguration>(sp => Configuration);
-        }
-
-        public CoconaApp Build()
-        {
-            _hostBuilder.ConfigureAppConfiguration((hostBuilder, configuration) =>
-            {
-                // Use the HostEnvironment created by CoconaAppBuilder instead of the default.
-                hostBuilder.HostingEnvironment = Environment;
-
-                var chainedSource = new ChainedConfigurationSource()
-                {
-                    Configuration = Configuration,
-                    ShouldDisposeConfiguration = true,
-                };
-                configuration.Add(chainedSource);
-
-                foreach (var keyValue in ((IConfigurationBuilder)Configuration).Properties)
-                {
-                    configuration.Properties[keyValue.Key] = keyValue.Value;
-                }
-            });
-
-            _hostBuilder.ConfigureServices((hostBuilder, services) =>
-            {
-                services.AddSingleton(Environment);
-
-                if (_configureOptions != null)
-                {
-                    services.Configure<CoconaAppOptions>(_configureOptions);
-                }
-
-                foreach (var service in _services.Where(x => !typeof(IHostedService).IsAssignableFrom(x.ServiceType)))
-                {
-                    services.Add(service);
-                }
-                foreach (var service in _services.Where(x => typeof(IHostedService).IsAssignableFrom(x.ServiceType)))
-                {
-                    services.Add(service);
-                }
-            });
-
-            _configureHostBuilder.RunOperations(_hostBuilder);
-
-            _application = new CoconaApp(_hostBuilder.Build());
-            return _application;
-        }
+        _services.AddSingleton<IConfiguration>(sp => Configuration);
     }
 
-    internal static class HostBuilderExtensions
+    public CoconaApp Build()
     {
-        public static IHostBuilder ConfigureDefaultCocona(this IHostBuilder hostBuilder, string[]? args, Action<ICoconaCommandsBuilder> configureApplication)
+        _hostBuilder.ConfigureAppConfiguration((hostBuilder, configuration) =>
         {
-            var builder = new CoconaAppHostBuilder(hostBuilder);
-            builder.ConfigureDefaults(args, configureApplication);
+            // Use the HostEnvironment created by CoconaAppBuilder instead of the default.
+            hostBuilder.HostingEnvironment = Environment;
 
-            return hostBuilder;
-        }
+            var chainedSource = new ChainedConfigurationSource()
+            {
+                Configuration = Configuration,
+                ShouldDisposeConfiguration = true,
+            };
+            configuration.Add(chainedSource);
+
+            foreach (var keyValue in ((IConfigurationBuilder)Configuration).Properties)
+            {
+                configuration.Properties[keyValue.Key] = keyValue.Value;
+            }
+        });
+
+        _hostBuilder.ConfigureServices((hostBuilder, services) =>
+        {
+            services.AddSingleton(Environment);
+
+            if (_configureOptions != null)
+            {
+                services.Configure<CoconaAppOptions>(_configureOptions);
+            }
+
+            foreach (var service in _services.Where(x => !typeof(IHostedService).IsAssignableFrom(x.ServiceType)))
+            {
+                services.Add(service);
+            }
+            foreach (var service in _services.Where(x => typeof(IHostedService).IsAssignableFrom(x.ServiceType)))
+            {
+                services.Add(service);
+            }
+        });
+
+        _configureHostBuilder.RunOperations(_hostBuilder);
+
+        _application = new CoconaApp(_hostBuilder.Build());
+        return _application;
+    }
+}
+
+internal static class HostBuilderExtensions
+{
+    public static IHostBuilder ConfigureDefaultCocona(this IHostBuilder hostBuilder, string[]? args, Action<ICoconaCommandsBuilder> configureApplication)
+    {
+        var builder = new CoconaAppHostBuilder(hostBuilder);
+        builder.ConfigureDefaults(args, configureApplication);
+
+        return hostBuilder;
     }
 }

@@ -1,42 +1,41 @@
 using Cocona.Builder;
 using Cocona.Builder.Metadata;
 
-namespace Cocona.Test.Builder
+namespace Cocona.Test.Builder;
+
+public class DelegateCommandDataSourceTest
 {
-    public class DelegateCommandDataSourceTest
+    [Fact]
+    public void Build()
     {
-        [Fact]
-        public void Build()
-        {
-            var conventions = new List<Action<ICommandBuilder>>();
-            var dataSource = new DelegateCommandDataSource(TestMethod, conventions, Array.Empty<object>());
-            var data = dataSource.Build();
+        var conventions = new List<Action<ICommandBuilder>>();
+        var dataSource = new DelegateCommandDataSource(TestMethod, conventions, Array.Empty<object>());
+        var data = dataSource.Build();
 
-            var delegateCommandData = data.Should().BeOfType<DelegateCommandData>().Subject;
-            delegateCommandData.Target.Should().Be(this);
-            delegateCommandData.Method.Should().BeSameAs(new Action(TestMethod).Method);
-        }
-
-        [Fact]
-        public void AttributesToMetadata()
-        {
-            var conventions = new List<Action<ICommandBuilder>>();
-            var dataSource = new DelegateCommandDataSource(TestMethod, conventions, Array.Empty<object>());
-            conventions.Add(x => x.Metadata.Add(new CommandNameMetadata("TestMethod")));
-            var data = dataSource.Build();
-            data.Metadata.Should().HaveCount(3);
-
-            // Attributes -> Conventions
-            data.Metadata[0].Should().BeOfType<DummyAttribute>();
-            data.Metadata[1].Should().BeOfType<Dummy2Attribute>();
-            data.Metadata[2].Should().BeOfType<CommandNameMetadata>();
-        }
-
-        [Dummy]
-        [Dummy2]
-        void TestMethod() => Console.WriteLine("Hello");
-
-        class DummyAttribute : Attribute { }
-        class Dummy2Attribute : Attribute { }
+        var delegateCommandData = data.Should().BeOfType<DelegateCommandData>().Subject;
+        delegateCommandData.Target.Should().Be(this);
+        delegateCommandData.Method.Should().BeSameAs(new Action(TestMethod).Method);
     }
+
+    [Fact]
+    public void AttributesToMetadata()
+    {
+        var conventions = new List<Action<ICommandBuilder>>();
+        var dataSource = new DelegateCommandDataSource(TestMethod, conventions, Array.Empty<object>());
+        conventions.Add(x => x.Metadata.Add(new CommandNameMetadata("TestMethod")));
+        var data = dataSource.Build();
+        data.Metadata.Should().HaveCount(3);
+
+        // Attributes -> Conventions
+        data.Metadata[0].Should().BeOfType<DummyAttribute>();
+        data.Metadata[1].Should().BeOfType<Dummy2Attribute>();
+        data.Metadata[2].Should().BeOfType<CommandNameMetadata>();
+    }
+
+    [Dummy]
+    [Dummy2]
+    void TestMethod() => Console.WriteLine("Hello");
+
+    class DummyAttribute : Attribute { }
+    class Dummy2Attribute : Attribute { }
 }

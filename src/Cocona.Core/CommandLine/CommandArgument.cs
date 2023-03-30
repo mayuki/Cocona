@@ -1,22 +1,21 @@
 using System.Diagnostics;
 
-namespace Cocona.CommandLine
+namespace Cocona.CommandLine;
+
+[DebuggerDisplay("CommandArgument: {Value,nq}")]
+public readonly struct CommandArgument
 {
-    [DebuggerDisplay("CommandArgument: {Value,nq}")]
-    public readonly struct CommandArgument
+    public string Value { get; }
+    public int Position { get; }
+
+    public CommandArgument(string value, int position)
     {
-        public string Value { get; }
-        public int Position { get; }
+        Value = value;
+        Position = position;
+    }
 
-        public CommandArgument(string value, int position)
-        {
-            Value = value;
-            Position = position;
-        }
-
-        public override string ToString()
-        {
-            return $"CommandArgument: {Value}";
-        }
+    public override string ToString()
+    {
+        return $"CommandArgument: {Value}";
     }
 }

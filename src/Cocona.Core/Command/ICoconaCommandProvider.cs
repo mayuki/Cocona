@@ -1,7 +1,6 @@
-namespace Cocona.Command
+namespace Cocona.Command;
+
+public interface ICoconaCommandProvider
 {
-    public interface ICoconaCommandProvider
-    {
-        CommandCollection GetCommandCollection();
-    }
+    CommandCollection GetCommandCollection();
 }

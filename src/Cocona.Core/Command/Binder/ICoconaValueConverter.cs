@@ -1,7 +1,6 @@
-﻿namespace Cocona.Command.Binder
+﻿namespace Cocona.Command.Binder;
+
+public interface ICoconaValueConverter
 {
-    public interface ICoconaValueConverter
-    {
-        object? ConvertTo(Type t, string? value);
-    }
+    object? ConvertTo(Type t, string? value);
 }

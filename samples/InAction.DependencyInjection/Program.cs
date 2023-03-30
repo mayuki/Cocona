@@ -2,47 +2,46 @@ using Cocona;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace CoconaSample.InAction.DependencyInjection
+namespace CoconaSample.InAction.DependencyInjection;
+
+class Program
 {
-    class Program
+    public Program(ILogger<Program> logger)
     {
-        public Program(ILogger<Program> logger)
-        {
-            logger.LogInformation("Create Instance");
-        }
-
-        static void Main(string[] args)
-        {
-            CoconaApp.CreateHostBuilder()
-                .ConfigureLogging(logging =>
-                {
-                    logging.AddDebug();
-                })
-                .ConfigureServices(services =>
-                {
-                    services.AddTransient<MyService>();
-                })
-                .Run<Program>(args);
-        }
-
-        public void Hello([FromService]MyService myService)
-        {
-            myService.Hello("Hello Konnichiwa!");
-        }
+        logger.LogInformation("Create Instance");
     }
 
-    class MyService
+    static void Main(string[] args)
     {
-        private readonly ILogger _logger;
+        CoconaApp.CreateHostBuilder()
+            .ConfigureLogging(logging =>
+            {
+                logging.AddDebug();
+            })
+            .ConfigureServices(services =>
+            {
+                services.AddTransient<MyService>();
+            })
+            .Run<Program>(args);
+    }
 
-        public MyService(ILogger<MyService> logger)
-        {
-            _logger = logger;
-        }
+    public void Hello([FromService]MyService myService)
+    {
+        myService.Hello("Hello Konnichiwa!");
+    }
+}
 
-        public void Hello(string message)
-        {
-            _logger.LogInformation(message);
-        }
+class MyService
+{
+    private readonly ILogger _logger;
+
+    public MyService(ILogger<MyService> logger)
+    {
+        _logger = logger;
+    }
+
+    public void Hello(string message)
+    {
+        _logger.LogInformation(message);
     }
 }

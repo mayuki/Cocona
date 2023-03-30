@@ -1,8 +1,7 @@
-namespace Cocona.ShellCompletion.Candidate
+namespace Cocona.ShellCompletion.Candidate;
+
+public interface ICoconaCompletionCandidatesProviderFactory
 {
-    public interface ICoconaCompletionCandidatesProviderFactory
-    {
-        ICoconaCompletionStaticCandidatesProvider CreateStaticProvider(CoconaCompletionCandidatesMetadata metadata);
-        ICoconaCompletionOnTheFlyCandidatesProvider CreateOnTheFlyProvider(CoconaCompletionCandidatesMetadata metadata);
-    }
+    ICoconaCompletionStaticCandidatesProvider CreateStaticProvider(CoconaCompletionCandidatesMetadata metadata);
+    ICoconaCompletionOnTheFlyCandidatesProvider CreateOnTheFlyProvider(CoconaCompletionCandidatesMetadata metadata);
 }

@@ -1,113 +1,112 @@
 using Cocona.Application;
 
-namespace Cocona.Lite
+namespace Cocona.Lite;
+
+public class CoconaLiteServiceProvider : IServiceProvider, IDisposable, ICoconaServiceProviderIsService, ICoconaServiceProviderScopeSupport
 {
-    public class CoconaLiteServiceProvider : IServiceProvider, IDisposable, ICoconaServiceProviderIsService, ICoconaServiceProviderScopeSupport
+    private readonly Dictionary<Type, ServiceDescriptor[]> _descriptorsByService;
+    private readonly List<IDisposable> _disposables;
+
+    public CoconaLiteServiceProvider(ICoconaLiteServiceCollection services)
     {
-        private readonly Dictionary<Type, ServiceDescriptor[]> _descriptorsByService;
-        private readonly List<IDisposable> _disposables;
+        _descriptorsByService = services.GroupBy(k => k.ServiceType).ToDictionary(k => k.Key, v => v.ToArray());
+        _disposables = new List<IDisposable>(10);
+    }
 
-        public CoconaLiteServiceProvider(ICoconaLiteServiceCollection services)
+    public bool IsService(Type serviceType)
+    {
+        if (serviceType == typeof(IServiceProvider)) return true;
+        if (serviceType == typeof(ICoconaServiceProviderIsService)) return true;
+        if (serviceType == typeof(ICoconaServiceProviderScopeSupport)) return true;
+
+        // IEnumerable<T>
+        if (serviceType.IsConstructedGenericType && serviceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
         {
-            _descriptorsByService = services.GroupBy(k => k.ServiceType).ToDictionary(k => k.Key, v => v.ToArray());
-            _disposables = new List<IDisposable>(10);
+            return true;
+        }
+        // T[]
+        if (serviceType.IsArray)
+        {
+            return true;
         }
 
-        public bool IsService(Type serviceType)
+        if (_descriptorsByService.TryGetValue(serviceType, out var descriptors) && descriptors.Length != 0)
         {
-            if (serviceType == typeof(IServiceProvider)) return true;
-            if (serviceType == typeof(ICoconaServiceProviderIsService)) return true;
-            if (serviceType == typeof(ICoconaServiceProviderScopeSupport)) return true;
-
-            // IEnumerable<T>
-            if (serviceType.IsConstructedGenericType && serviceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-            {
-                return true;
-            }
-            // T[]
-            if (serviceType.IsArray)
-            {
-                return true;
-            }
-
-            if (_descriptorsByService.TryGetValue(serviceType, out var descriptors) && descriptors.Length != 0)
-            {
-                return true;
-            }
-
-            return false;
+            return true;
         }
 
-        public object GetService(Type serviceType)
+        return false;
+    }
+
+    public object GetService(Type serviceType)
+    {
+        if (serviceType == typeof(IServiceProvider)) return this;
+        if (serviceType == typeof(ICoconaServiceProviderIsService)) return this;
+        if (serviceType == typeof(ICoconaServiceProviderScopeSupport)) return this;
+
+        // IEnumerable<T>
+        if (serviceType.IsConstructedGenericType && serviceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
         {
-            if (serviceType == typeof(IServiceProvider)) return this;
-            if (serviceType == typeof(ICoconaServiceProviderIsService)) return this;
-            if (serviceType == typeof(ICoconaServiceProviderScopeSupport)) return this;
-
-            // IEnumerable<T>
-            if (serviceType.IsConstructedGenericType && serviceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-            {
-                return GetServiceForArray(serviceType.GetGenericArguments()[0]);
-            }
-            // T[]
-            if (serviceType.IsArray)
-            {
-                return GetServiceForArray(serviceType.GetElementType()!);
-            }
-
-            if (_descriptorsByService.TryGetValue(serviceType, out var descriptors) && descriptors.Length != 0)
-            {
-                return descriptors[descriptors.Length - 1].Factory(this, _disposables);
-            }
-
-            return null!;
+            return GetServiceForArray(serviceType.GetGenericArguments()[0]);
+        }
+        // T[]
+        if (serviceType.IsArray)
+        {
+            return GetServiceForArray(serviceType.GetElementType()!);
         }
 
-        private object GetServiceForArray(Type elementType)
+        if (_descriptorsByService.TryGetValue(serviceType, out var descriptors) && descriptors.Length != 0)
         {
-            if (_descriptorsByService.TryGetValue(elementType, out var descriptors) && descriptors.Length != 0)
-            {
-                var index = 0;
-                var typedArr = Array.CreateInstance(elementType, descriptors.Length);
-                foreach (var descriptor in descriptors)
-                {
-                    typedArr.SetValue(descriptor.Factory(this, _disposables), index++);
-                }
-
-                return typedArr;
-            }
-
-            return Array.CreateInstance(elementType, 0);
+            return descriptors[descriptors.Length - 1].Factory(this, _disposables);
         }
 
+        return null!;
+    }
 
-        public void Dispose()
+    private object GetServiceForArray(Type elementType)
+    {
+        if (_descriptorsByService.TryGetValue(elementType, out var descriptors) && descriptors.Length != 0)
         {
-            foreach (var disposable in _disposables)
+            var index = 0;
+            var typedArr = Array.CreateInstance(elementType, descriptors.Length);
+            foreach (var descriptor in descriptors)
             {
-                disposable.Dispose();
+                typedArr.SetValue(descriptor.Factory(this, _disposables), index++);
             }
 
-            _disposables.Clear();
+            return typedArr;
         }
 
-        // NOTE: Cocona.Lite's ServiceProvider does not support `Scoped`.
-        (IDisposable Scope, IServiceProvider ScopedServiceProvider) ICoconaServiceProviderScopeSupport.CreateScope(IServiceProvider serviceProvider)
-            => (new NullDisposable(), serviceProvider);
+        return Array.CreateInstance(elementType, 0);
+    }
+
+
+    public void Dispose()
+    {
+        foreach (var disposable in _disposables)
+        {
+            disposable.Dispose();
+        }
+
+        _disposables.Clear();
+    }
+
+    // NOTE: Cocona.Lite's ServiceProvider does not support `Scoped`.
+    (IDisposable Scope, IServiceProvider ScopedServiceProvider) ICoconaServiceProviderScopeSupport.CreateScope(IServiceProvider serviceProvider)
+        => (new NullDisposable(), serviceProvider);
 
 #if NET5_0_OR_GREATER || NETSTANDARD2_1
-        (IAsyncDisposable Scope, IServiceProvider ScopedServiceProvider) ICoconaServiceProviderScopeSupport.CreateAsyncScope(IServiceProvider serviceProvider)
-            => (new NullDisposable(), serviceProvider);
+    (IAsyncDisposable Scope, IServiceProvider ScopedServiceProvider) ICoconaServiceProviderScopeSupport.CreateAsyncScope(IServiceProvider serviceProvider)
+        => (new NullDisposable(), serviceProvider);
 #endif
 
-        private class NullDisposable :
-              IDisposable
+    private class NullDisposable :
+        IDisposable
 #if NET5_0_OR_GREATER || NETSTANDARD2_1
-            , IAsyncDisposable
+        , IAsyncDisposable
 #endif
-        {
-            public void Dispose() {}
-            public ValueTask DisposeAsync() => default;
-        }
+    {
+        public void Dispose() {}
+        public ValueTask DisposeAsync() => default;
     }
 }

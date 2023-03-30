@@ -1,10 +1,9 @@
-﻿namespace Cocona.Application
+﻿namespace Cocona.Application;
+
+public interface ICoconaApplicationMetadataProvider
 {
-    public interface ICoconaApplicationMetadataProvider
-    {
-        string GetExecutableName();
-        string GetVersion();
-        string GetProductName();
-        string GetDescription();
-    }
+    string GetExecutableName();
+    string GetVersion();
+    string GetProductName();
+    string GetDescription();
 }

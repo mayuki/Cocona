@@ -1,15 +1,14 @@
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 
-namespace Cocona.Benchmark.Performance
+namespace Cocona.Benchmark.Performance;
+
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            //BenchmarkRunner.Run(typeof(Program).Assembly, DefaultConfig.Instance);
-            //BenchmarkRunner.Run<ToCommandBenchmark>(DefaultConfig.Instance);
-            BenchmarkRunner.Run<CommandProviderBenchmark>(DefaultConfig.Instance);
-        }
+        //BenchmarkRunner.Run(typeof(Program).Assembly, DefaultConfig.Instance);
+        //BenchmarkRunner.Run<ToCommandBenchmark>(DefaultConfig.Instance);
+        BenchmarkRunner.Run<CommandProviderBenchmark>(DefaultConfig.Instance);
     }
 }

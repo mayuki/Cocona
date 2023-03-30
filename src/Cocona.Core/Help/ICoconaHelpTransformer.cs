@@ -2,10 +2,9 @@ using Cocona.Command;
 using Cocona.Filters;
 using Cocona.Help.DocumentModel;
 
-namespace Cocona.Help
+namespace Cocona.Help;
+
+public interface ICoconaHelpTransformer : IFilterMetadata
 {
-    public interface ICoconaHelpTransformer : IFilterMetadata
-    {
-        void TransformHelp(HelpMessage helpMessage, CommandDescriptor command);
-    }
+    void TransformHelp(HelpMessage helpMessage, CommandDescriptor command);
 }

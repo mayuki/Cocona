@@ -1,15 +1,14 @@
-﻿namespace Cocona.CommandLine
+﻿namespace Cocona.CommandLine;
+
+public class CoconaCommandLineArgumentProvider : ICoconaCommandLineArgumentProvider
 {
-    public class CoconaCommandLineArgumentProvider : ICoconaCommandLineArgumentProvider
+    private readonly string[] _args;
+
+    public CoconaCommandLineArgumentProvider(string[] args)
     {
-        private readonly string[] _args;
-
-        public CoconaCommandLineArgumentProvider(string[] args)
-        {
-            _args = args;
-        }
-
-        public string[] GetArguments()
-            => _args;
+        _args = args;
     }
+
+    public string[] GetArguments()
+        => _args;
 }

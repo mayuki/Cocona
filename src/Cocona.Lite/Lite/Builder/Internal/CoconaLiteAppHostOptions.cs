@@ -1,9 +1,8 @@
 using Cocona.Builder;
 
-namespace Cocona.Lite.Builder.Internal
+namespace Cocona.Lite.Builder.Internal;
+
+internal class CoconaLiteAppHostOptions
 {
-    internal class CoconaLiteAppHostOptions
-    {
-        public Action<ICoconaCommandsBuilder>? ConfigureApplication { get; set; }
-    }
+    public Action<ICoconaCommandsBuilder>? ConfigureApplication { get; set; }
 }

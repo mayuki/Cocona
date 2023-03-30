@@ -1,12 +1,11 @@
-﻿namespace Cocona.Application
-{
-    public interface ICoconaAppContextAccessor
-    {
-        CoconaAppContext? Current { get; set; }
-    }
+﻿namespace Cocona.Application;
 
-    public class CoconaAppContextAccessor : ICoconaAppContextAccessor
-    {
-        public CoconaAppContext? Current { get; set; }
-    }
+public interface ICoconaAppContextAccessor
+{
+    CoconaAppContext? Current { get; set; }
+}
+
+public class CoconaAppContextAccessor : ICoconaAppContextAccessor
+{
+    public CoconaAppContext? Current { get; set; }
 }

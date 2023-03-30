@@ -5,107 +5,106 @@ using Cocona.Command.Dispatcher.Middlewares;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
-namespace Cocona.Hosting
+namespace Cocona.Hosting;
+
+public class CoconaHostedService : IHostedService
 {
-    public class CoconaHostedService : IHostedService
+    private readonly ICoconaConsoleProvider _console;
+    private readonly ICoconaBootstrapper _bootstrapper;
+    private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
+    private readonly IHostApplicationLifetime _lifetime;
+
+    private readonly CancellationTokenSource _cancellationTokenSource;
+    private Task? _runningCommandTask;
+
+    public CoconaHostedService(
+        ICoconaConsoleProvider console,
+        ICoconaBootstrapper bootstrapper,
+        ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
+        IHostApplicationLifetime lifetime,
+        IOptions<CoconaAppOptions> options)
     {
-        private readonly ICoconaConsoleProvider _console;
-        private readonly ICoconaBootstrapper _bootstrapper;
-        private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
-        private readonly IHostApplicationLifetime _lifetime;
+        _console = console;
+        _bootstrapper = bootstrapper;
+        _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
+        _lifetime = lifetime;
 
-        private readonly CancellationTokenSource _cancellationTokenSource;
-        private Task? _runningCommandTask;
+        _cancellationTokenSource = new CancellationTokenSource();
+    }
 
-        public CoconaHostedService(
-            ICoconaConsoleProvider console,
-            ICoconaBootstrapper bootstrapper,
-            ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
-            IHostApplicationLifetime lifetime,
-            IOptions<CoconaAppOptions> options)
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _dispatcherPipelineBuilder
+            .UseMiddleware<HandleExceptionAndExitMiddleware>()
+            .UseMiddleware<HandleParameterBindExceptionMiddleware>()
+            .UseMiddleware<RejectUnknownOptionsMiddleware>()
+            .UseMiddleware<CommandFilterMiddleware>()
+            .UseMiddleware<InitializeConsoleAppMiddleware>()
+            .UseMiddleware<CoconaCommandInvokeMiddleware>();
+
+        var waitForApplicationStartedTsc = new TaskCompletionSource<bool>();
+
+        _lifetime.ApplicationStarted.Register(() => waitForApplicationStartedTsc.TrySetResult(true));
+
+        // Build command collection and parse the command line.
+        _bootstrapper.Initialize();
+
+        _runningCommandTask = ExecuteCoconaApplicationAsync(waitForApplicationStartedTsc.Task);
+
+        return Task.CompletedTask;
+    }
+
+    private async Task ExecuteCoconaApplicationAsync(Task waitForApplicationStarted)
+    {
+        await waitForApplicationStarted.ConfigureAwait(false); // Wait for IHostApplicationLifetime.ApplicationStarted
+
+        try
         {
-            _console = console;
-            _bootstrapper = bootstrapper;
-            _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
-            _lifetime = lifetime;
-
-            _cancellationTokenSource = new CancellationTokenSource();
+            Environment.ExitCode = await Task.Run(async () => await _bootstrapper.RunAsync(_cancellationTokenSource.Token));
+        }
+        catch (OperationCanceledException ex) when (ex.CancellationToken == _cancellationTokenSource.Token)
+        {
+            // NOTE: Ignore OperationCanceledException that was thrown by non-user code.
+            Environment.ExitCode = 0;
+        }
+        catch (Exception)
+        {
+            Environment.ExitCode = 1;
+            throw;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        _lifetime.StopApplication();
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        _cancellationTokenSource.Cancel();
+
+        if (_runningCommandTask != null && !_runningCommandTask.IsCompleted)
         {
-            _dispatcherPipelineBuilder
-                .UseMiddleware<HandleExceptionAndExitMiddleware>()
-                .UseMiddleware<HandleParameterBindExceptionMiddleware>()
-                .UseMiddleware<RejectUnknownOptionsMiddleware>()
-                .UseMiddleware<CommandFilterMiddleware>()
-                .UseMiddleware<InitializeConsoleAppMiddleware>()
-                .UseMiddleware<CoconaCommandInvokeMiddleware>();
-
-            var waitForApplicationStartedTsc = new TaskCompletionSource<bool>();
-
-            _lifetime.ApplicationStarted.Register(() => waitForApplicationStartedTsc.TrySetResult(true));
-
-            // Build command collection and parse the command line.
-            _bootstrapper.Initialize();
-
-            _runningCommandTask = ExecuteCoconaApplicationAsync(waitForApplicationStartedTsc.Task);
-
-            return Task.CompletedTask;
-        }
-
-        private async Task ExecuteCoconaApplicationAsync(Task waitForApplicationStarted)
-        {
-            await waitForApplicationStarted.ConfigureAwait(false); // Wait for IHostApplicationLifetime.ApplicationStarted
-
+            var cancellationTask = CreateTaskFromCancellationToken(cancellationToken);
             try
             {
-                Environment.ExitCode = await Task.Run(async () => await _bootstrapper.RunAsync(_cancellationTokenSource.Token));
+                var winTask = await Task.WhenAny(cancellationTask, _runningCommandTask);
+                if (winTask == _runningCommandTask)
+                {
+                    await _runningCommandTask;
+                }
             }
-            catch (OperationCanceledException ex) when (ex.CancellationToken == _cancellationTokenSource.Token)
+            catch (OperationCanceledException e) when (e.CancellationToken == cancellationToken)
             {
-                // NOTE: Ignore OperationCanceledException that was thrown by non-user code.
-                Environment.ExitCode = 0;
+                Environment.ExitCode = 130;
             }
-            catch (Exception)
-            {
-                Environment.ExitCode = 1;
-                throw;
-            }
-
-            _lifetime.StopApplication();
         }
 
-        public async Task StopAsync(CancellationToken cancellationToken)
+        static Task CreateTaskFromCancellationToken(CancellationToken cancellationToken)
         {
-            _cancellationTokenSource.Cancel();
-
-            if (_runningCommandTask != null && !_runningCommandTask.IsCompleted)
+            var tsc = new TaskCompletionSource<bool>();
+            cancellationToken.Register(() =>
             {
-                var cancellationTask = CreateTaskFromCancellationToken(cancellationToken);
-                try
-                {
-                    var winTask = await Task.WhenAny(cancellationTask, _runningCommandTask);
-                    if (winTask == _runningCommandTask)
-                    {
-                        await _runningCommandTask;
-                    }
-                }
-                catch (OperationCanceledException e) when (e.CancellationToken == cancellationToken)
-                {
-                    Environment.ExitCode = 130;
-                }
-            }
-
-            static Task CreateTaskFromCancellationToken(CancellationToken cancellationToken)
-            {
-                var tsc = new TaskCompletionSource<bool>();
-                cancellationToken.Register(() =>
-                {
-                    tsc.TrySetCanceled(cancellationToken);
-                });
-                return tsc.Task;
-            }
+                tsc.TrySetCanceled(cancellationToken);
+            });
+            return tsc.Task;
         }
     }
 }

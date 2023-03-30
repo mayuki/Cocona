@@ -1,10 +1,9 @@
 using Cocona.Command;
 
-namespace Cocona.ShellCompletion.Candidate
+namespace Cocona.ShellCompletion.Candidate;
+
+public interface ICoconaCompletionCandidatesMetadataFactory
 {
-    public interface ICoconaCompletionCandidatesMetadataFactory
-    {
-        CoconaCompletionCandidatesMetadata GetMetadata(CommandOptionDescriptor option);
-        CoconaCompletionCandidatesMetadata GetMetadata(CommandArgumentDescriptor argument);
-    }
+    CoconaCompletionCandidatesMetadata GetMetadata(CommandOptionDescriptor option);
+    CoconaCompletionCandidatesMetadata GetMetadata(CommandArgumentDescriptor argument);
 }

@@ -1,20 +1,19 @@
 using CliFx.Attributes;
 using CliFx.Services;
 
-namespace Cocona.Benchmark.External.Commands
+namespace Cocona.Benchmark.External.Commands;
+
+[CliFx.Attributes.Command]
+public class CliFxCommand : CliFx.ICommand
 {
-    [CliFx.Attributes.Command]
-    public class CliFxCommand : CliFx.ICommand
-    {
-        [CommandOption("str", 's')]
-        public string? StrOption { get; set; }
+    [CommandOption("str", 's')]
+    public string? StrOption { get; set; }
 
-        [CommandOption("int", 'i')]
-        public int IntOption { get; set; }
+    [CommandOption("int", 'i')]
+    public int IntOption { get; set; }
 
-        [CommandOption("bool", 'b')]
-        public bool BoolOption { get; set; }
+    [CommandOption("bool", 'b')]
+    public bool BoolOption { get; set; }
 
-        public Task ExecuteAsync(IConsole console) => Task.CompletedTask;
-    }
+    public Task ExecuteAsync(IConsole console) => Task.CompletedTask;
 }

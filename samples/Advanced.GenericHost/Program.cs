@@ -1,20 +1,19 @@
 using Microsoft.Extensions.Hosting;
 
-namespace CoconaSample.Advanced.GenericHost
-{
-    class Program
-    {
-        static async Task Main(string[] args)
-        {
-            await Host.CreateDefaultBuilder()
-                .ConfigureCocona(args, new[] { typeof(Program) })
-                .Build()
-                .RunAsync();
-        }
+namespace CoconaSample.Advanced.GenericHost;
 
-        public void Hello()
-        {
-            Console.WriteLine($"Hello Konnichiwa!");
-        }
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        await Host.CreateDefaultBuilder()
+            .ConfigureCocona(args, new[] { typeof(Program) })
+            .Build()
+            .RunAsync();
+    }
+
+    public void Hello()
+    {
+        Console.WriteLine($"Hello Konnichiwa!");
     }
 }

@@ -1,18 +1,17 @@
-namespace Cocona.Internal
+namespace Cocona.Internal;
+
+internal static class ThrowHelper
 {
-    internal static class ThrowHelper
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    public static void ThrowIfNull(object? argument, [System.Runtime.CompilerServices.CallerArgumentExpression("argument")] string? paramName = null)
     {
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static void ThrowIfNull(object? argument, [System.Runtime.CompilerServices.CallerArgumentExpression("argument")] string? paramName = null)
-        {
 #if NET6_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(argument, paramName);
 #else
-            if (argument is null)
-            {
-                throw new ArgumentNullException(paramName);
-            }
-#endif
+        if (argument is null)
+        {
+            throw new ArgumentNullException(paramName);
         }
+#endif
     }
 }

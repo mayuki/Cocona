@@ -1,7 +1,6 @@
-﻿namespace Cocona.Command.Binder.Validation
+﻿namespace Cocona.Command.Binder.Validation;
+
+public interface ICoconaParameterValidatorProvider
 {
-    public interface ICoconaParameterValidatorProvider
-    {
-        IEnumerable<ICoconaParameterValidator> CreateValidators(ICommandParameterDescriptor parameter);
-    }
+    IEnumerable<ICoconaParameterValidator> CreateValidators(ICommandParameterDescriptor parameter);
 }

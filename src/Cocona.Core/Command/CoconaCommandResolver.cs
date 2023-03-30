@@ -1,91 +1,90 @@
 using Cocona.Command.Dispatcher;
 using Cocona.CommandLine;
 
-namespace Cocona.Command
+namespace Cocona.Command;
+
+public class CoconaCommandResolver : ICoconaCommandResolver
 {
-    public class CoconaCommandResolver : ICoconaCommandResolver
+    private readonly ICoconaCommandLineParser _commandLineParser;
+    private readonly ICoconaCommandMatcher _commandMatcher;
+
+    public CoconaCommandResolver(
+        ICoconaCommandLineParser commandLineParser,
+        ICoconaCommandMatcher commandMatcher
+    )
     {
-        private readonly ICoconaCommandLineParser _commandLineParser;
-        private readonly ICoconaCommandMatcher _commandMatcher;
+        _commandLineParser = commandLineParser;
+        _commandMatcher = commandMatcher;
+    }
 
-        public CoconaCommandResolver(
-            ICoconaCommandLineParser commandLineParser,
-            ICoconaCommandMatcher commandMatcher
-        )
+    public CommandResolverResult ParseAndResolve(CommandCollection commandCollection, IReadOnlyList<string> args)
+    {
+        var subCommandStack = new List<CommandDescriptor>();
+
+        Retry:
+        var matchedCommand = default(CommandDescriptor);
+        if (commandCollection.All.Count == 1 && (commandCollection.All[0].Flags.HasFlag(CommandFlags.Primary) && !commandCollection.All[0].Flags.HasFlag(CommandFlags.SubCommandsEntryPoint)))
         {
-            _commandLineParser = commandLineParser;
-            _commandMatcher = commandMatcher;
+            // single-command style (unnamed command)
+            matchedCommand = commandCollection.All[0];
         }
-
-        public CommandResolverResult ParseAndResolve(CommandCollection commandCollection, IReadOnlyList<string> args)
+        else if (commandCollection.All.Count > 0)
         {
-            var subCommandStack = new List<CommandDescriptor>();
-
-            Retry:
-            var matchedCommand = default(CommandDescriptor);
-            if (commandCollection.All.Count == 1 && (commandCollection.All[0].Flags.HasFlag(CommandFlags.Primary) && !commandCollection.All[0].Flags.HasFlag(CommandFlags.SubCommandsEntryPoint)))
+            // multi-commands hosted style
+            if (_commandLineParser.TryGetCommandName(args, out var commandName))
             {
-                // single-command style (unnamed command)
-                matchedCommand = commandCollection.All[0];
-            }
-            else if (commandCollection.All.Count > 0)
-            {
-                // multi-commands hosted style
-                if (_commandLineParser.TryGetCommandName(args, out var commandName))
+                if (!_commandMatcher.TryGetCommand(commandName, commandCollection, out matchedCommand))
                 {
-                    if (!_commandMatcher.TryGetCommand(commandName, commandCollection, out matchedCommand))
-                    {
-                        throw new CommandNotFoundException(
-                            commandName,
-                            commandCollection,
-                            $"The specified command '{commandName}' was not found."
-                        );
-                    }
-
-                    // NOTE: Skip a first argument that is command name.
-                    args = args.Skip(1).ToArray();
-
-                    // If the command has nested sub-commands, try to restart parse command.
-                    if (matchedCommand.SubCommands != null)
-                    {
-                        commandCollection = matchedCommand.SubCommands;
-                        subCommandStack.Add(matchedCommand);
-                        goto Retry;
-                    }
-                }
-                else
-                {
-                    // Use default command (NOTE: The default command must have no argument.)
-                    matchedCommand = commandCollection.Primary ?? throw new CommandNotFoundException("", commandCollection, "A primary command was not found.");
-                }
-            }
-
-            // Found a command and dispatch.
-            if (matchedCommand != null)
-            {
-                // resolve command overload
-                if (matchedCommand.Overloads.Any())
-                {
-                    // Try parse command-line for overload resolution by options.
-                    var preParsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options.OfType<ICommandOptionDescriptor>().Concat(matchedCommand.OptionLikeCommands).ToArray(), matchedCommand.Arguments);
-                    matchedCommand = _commandMatcher.ResolveOverload(matchedCommand, preParsedCommandLine);
+                    throw new CommandNotFoundException(
+                        commandName,
+                        commandCollection,
+                        $"The specified command '{commandName}' was not found."
+                    );
                 }
 
-                var parsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options.OfType<ICommandOptionDescriptor>().Concat(matchedCommand.OptionLikeCommands).ToArray(), matchedCommand.Arguments);
+                // NOTE: Skip a first argument that is command name.
+                args = args.Skip(1).ToArray();
 
-                // OptionLikeCommand
-                if (parsedCommandLine.Options.FirstOrDefault(x => x.Option is CommandOptionLikeCommandDescriptor) is var commandOption &&
-                    commandOption.Option is CommandOptionLikeCommandDescriptor optionLikeCommand)
+                // If the command has nested sub-commands, try to restart parse command.
+                if (matchedCommand.SubCommands != null)
                 {
+                    commandCollection = matchedCommand.SubCommands;
                     subCommandStack.Add(matchedCommand);
-                    matchedCommand = optionLikeCommand.Command;
-                    parsedCommandLine = _commandLineParser.ParseCommand(args.Skip(commandOption.Position + 1).ToArray(), matchedCommand.Options, matchedCommand.Arguments);
+                    goto Retry;
                 }
+            }
+            else
+            {
+                // Use default command (NOTE: The default command must have no argument.)
+                matchedCommand = commandCollection.Primary ?? throw new CommandNotFoundException("", commandCollection, "A primary command was not found.");
+            }
+        }
 
-                return new CommandResolverResult(true, commandCollection, parsedCommandLine, matchedCommand, subCommandStack);
+        // Found a command and dispatch.
+        if (matchedCommand != null)
+        {
+            // resolve command overload
+            if (matchedCommand.Overloads.Any())
+            {
+                // Try parse command-line for overload resolution by options.
+                var preParsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options.OfType<ICommandOptionDescriptor>().Concat(matchedCommand.OptionLikeCommands).ToArray(), matchedCommand.Arguments);
+                matchedCommand = _commandMatcher.ResolveOverload(matchedCommand, preParsedCommandLine);
             }
 
-            return new CommandResolverResult(false, commandCollection, null, null, null);
+            var parsedCommandLine = _commandLineParser.ParseCommand(args, matchedCommand.Options.OfType<ICommandOptionDescriptor>().Concat(matchedCommand.OptionLikeCommands).ToArray(), matchedCommand.Arguments);
+
+            // OptionLikeCommand
+            if (parsedCommandLine.Options.FirstOrDefault(x => x.Option is CommandOptionLikeCommandDescriptor) is var commandOption &&
+                commandOption.Option is CommandOptionLikeCommandDescriptor optionLikeCommand)
+            {
+                subCommandStack.Add(matchedCommand);
+                matchedCommand = optionLikeCommand.Command;
+                parsedCommandLine = _commandLineParser.ParseCommand(args.Skip(commandOption.Position + 1).ToArray(), matchedCommand.Options, matchedCommand.Arguments);
+            }
+
+            return new CommandResolverResult(true, commandCollection, parsedCommandLine, matchedCommand, subCommandStack);
         }
+
+        return new CommandResolverResult(false, commandCollection, null, null, null);
     }
 }

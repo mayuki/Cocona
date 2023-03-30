@@ -4,31 +4,30 @@ using Cocona.Filters;
 using Cocona.Help.DocumentModel;
 using Cocona.Internal;
 
-namespace Cocona.Help
+namespace Cocona.Help;
+
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
+public abstract class TransformHelpAttribute : Attribute, ICoconaHelpTransformer
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-    public abstract class TransformHelpAttribute : Attribute, ICoconaHelpTransformer
+    public abstract void TransformHelp(HelpMessage helpMessage, CommandDescriptor command);
+}
+
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
+public class TransformHelpFactoryAttribute : Attribute, IFilterFactory
+{
+    public Type Transformer { get; }
+
+    public TransformHelpFactoryAttribute(Type transformer)
     {
-        public abstract void TransformHelp(HelpMessage helpMessage, CommandDescriptor command);
+        Transformer = transformer ?? throw new ArgumentNullException(nameof(transformer));
+        if (!typeof(ICoconaHelpTransformer).IsAssignableFrom(transformer))
+        {
+            throw new ArgumentException($"Transformer Type '{transformer.FullName}' doesn't implement ICoconaHelpTransformer");
+        }
     }
 
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-    public class TransformHelpFactoryAttribute : Attribute, IFilterFactory
+    public IFilterMetadata CreateInstance(IServiceProvider serviceProvider)
     {
-        public Type Transformer { get; }
-
-        public TransformHelpFactoryAttribute(Type transformer)
-        {
-            Transformer = transformer ?? throw new ArgumentNullException(nameof(transformer));
-            if (!typeof(ICoconaHelpTransformer).IsAssignableFrom(transformer))
-            {
-                throw new ArgumentException($"Transformer Type '{transformer.FullName}' doesn't implement ICoconaHelpTransformer");
-            }
-        }
-
-        public IFilterMetadata CreateInstance(IServiceProvider serviceProvider)
-        {
-            return (IFilterMetadata)(serviceProvider.GetRequiredService<ICoconaInstanceActivator>()).GetServiceOrCreateInstance(serviceProvider, Transformer)!;
-        }
+        return (IFilterMetadata)(serviceProvider.GetRequiredService<ICoconaInstanceActivator>()).GetServiceOrCreateInstance(serviceProvider, Transformer)!;
     }
 }

@@ -1,21 +1,20 @@
-namespace Cocona.ShellCompletion.Candidate.Providers
+namespace Cocona.ShellCompletion.Candidate.Providers;
+
+public sealed class StaticKeywordsCompletionCandidatesProvider : ICoconaCompletionStaticCandidatesProvider
 {
-    public sealed class StaticKeywordsCompletionCandidatesProvider : ICoconaCompletionStaticCandidatesProvider
+    public CompletionCandidateResult GetCandidates(CoconaCompletionCandidatesMetadata metadata)
     {
-        public CompletionCandidateResult GetCandidates(CoconaCompletionCandidatesMetadata metadata)
+        var attr = metadata.ParameterAttributes.OfType<CompletionCandidatesAttribute>().FirstOrDefault();
+        if (attr != null)
         {
-            var attr = metadata.ParameterAttributes.OfType<CompletionCandidatesAttribute>().FirstOrDefault();
-            if (attr != null)
-            {
-                return CompletionCandidateResult.Keywords(((ICoconaCompletionCandidatesStaticKeywords)attr).Candidates);
-            }
-
-            return CompletionCandidateResult.Default;
+            return CompletionCandidateResult.Keywords(((ICoconaCompletionCandidatesStaticKeywords)attr).Candidates);
         }
-    }
 
-    internal interface ICoconaCompletionCandidatesStaticKeywords
-    {
-        IEnumerable<CompletionCandidateValue> Candidates { get; }
+        return CompletionCandidateResult.Default;
     }
+}
+
+internal interface ICoconaCompletionCandidatesStaticKeywords
+{
+    IEnumerable<CompletionCandidateValue> Candidates { get; }
 }
