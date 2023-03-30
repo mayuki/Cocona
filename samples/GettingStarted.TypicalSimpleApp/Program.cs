@@ -1,5 +1,4 @@
 using Cocona;
-using System;
 
 namespace CoconaSample.GettingStarted.TypicalSimpleApp
 {

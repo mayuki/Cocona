@@ -1,4 +1,3 @@
-using System;
 using Cocona;
 
 namespace CoconaSample.Advanced.OptionLikeCommand
