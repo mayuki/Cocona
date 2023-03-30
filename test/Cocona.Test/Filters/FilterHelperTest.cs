@@ -1,13 +1,7 @@
 using Cocona.Builder.Metadata;
 using Cocona.Filters;
 using Cocona.Filters.Internal;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace Cocona.Test.Filters
 {

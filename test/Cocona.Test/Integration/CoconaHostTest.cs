@@ -1,21 +1,7 @@
 #if !COCONA_LITE
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Cocona.Application;
-using Cocona.Command.BuiltIn;
-using Cocona.CommandLine;
-using Cocona.ShellCompletion.Candidate;
-using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
-using Xunit;
 
 namespace Cocona.Test.Integration
 {

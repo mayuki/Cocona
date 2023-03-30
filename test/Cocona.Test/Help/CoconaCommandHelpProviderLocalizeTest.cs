@@ -1,16 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Cocona.Application;
 using Cocona.Command;
 using Cocona.Help;
 using Cocona.Internal;
 using Cocona.Localization;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Cocona.Test.Help
 {

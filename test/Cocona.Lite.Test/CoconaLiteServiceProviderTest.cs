@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using FluentAssertions;
-using Xunit;
-
 namespace Cocona.Lite.Test
 {
     public class CoconaLiteServiceProviderTest

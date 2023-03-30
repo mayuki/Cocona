@@ -1,9 +1,4 @@
 using Cocona.Command;
-using FluentAssertions;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
 
 namespace Cocona.Test.Command.CommandProvider
 {

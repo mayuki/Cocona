@@ -1,17 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Cocona.Application;
 using Cocona.Command.BuiltIn;
 using Cocona.CommandLine;
 using Cocona.ShellCompletion.Candidate;
-using FluentAssertions;
-using Xunit;
 
 #if COCONA_LITE
 using CoconaApp = Cocona.CoconaLiteApp;
