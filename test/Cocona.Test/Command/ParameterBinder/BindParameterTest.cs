@@ -1,14 +1,8 @@
 using Cocona.Command;
 using Cocona.Command.Binder;
 using Cocona.CommandLine;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Cocona.Command.Binder.Validation;
-using Xunit;
 
 namespace Cocona.Test.Command.ParameterBinder
 {

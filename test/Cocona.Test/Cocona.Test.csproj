@@ -6,7 +6,8 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\src\Cocona\StrongNameKey.snk</AssemblyOriginatorKeyFile>
     <NoWarn>$(NoWarn);1701;1702;CS1998</NoWarn>
-    <nullable>annotations</nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>annotations</Nullable>
     <OutputType>Library</OutputType>
     <LangVersion>10</LangVersion>
   </PropertyGroup>

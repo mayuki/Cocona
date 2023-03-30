@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using Cocona;
 using Microsoft.Extensions.Hosting;
 
 namespace CoconaSample.Advanced.GenericHost

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using clipr;
 
 namespace Cocona.Benchmark.External.Commands

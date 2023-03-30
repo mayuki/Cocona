@@ -1,8 +1,4 @@
 extern alias Cocona_v1_1_0;
-
-using System;
-using System.Collections.Generic;
-using System.Text;
 using BenchmarkDotNet.Attributes;
 
 namespace Cocona.Benchmark.Performance

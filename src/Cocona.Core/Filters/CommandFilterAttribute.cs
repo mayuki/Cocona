@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Cocona.Filters
+﻿namespace Cocona.Filters
 {
     /// <summary>
     /// An abstract filter that surrounds execution of command.

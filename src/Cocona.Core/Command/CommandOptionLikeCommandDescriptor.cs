@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Cocona.Command
 {
     public class CommandOptionLikeCommandDescriptor : ICommandOptionDescriptor

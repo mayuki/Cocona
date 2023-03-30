@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Cocona;
-using Cocona.Command;
 using Cocona.CommandLine;
 using Cocona.ShellCompletion.Candidate;
 

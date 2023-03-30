@@ -3,11 +3,7 @@ using Cocona.Command;
 using Cocona.Command.BuiltIn;
 using Cocona.Filters.Internal;
 using Cocona.Help.DocumentModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using Cocona.Internal;
 using Cocona.Localization.Internal;
 using Cocona.Resources;
 

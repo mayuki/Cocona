@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Cocona.Application
+﻿namespace Cocona.Application
 {
     public interface ICoconaConsoleProvider
     {

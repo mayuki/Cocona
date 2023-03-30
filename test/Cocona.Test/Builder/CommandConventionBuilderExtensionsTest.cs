@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
 using Cocona.Builder;
 using Cocona.Builder.Metadata;
-using FluentAssertions;
-using Xunit;
 
 namespace Cocona.Test.Builder
 {

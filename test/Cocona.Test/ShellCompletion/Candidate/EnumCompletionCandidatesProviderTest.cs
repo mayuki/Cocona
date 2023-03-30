@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Cocona.Command;
-using Cocona.CommandLine;
 using Cocona.ShellCompletion.Candidate;
 using Cocona.ShellCompletion.Candidate.Providers;
-using FluentAssertions;
-using Xunit;
 
 namespace Cocona.Test.ShellCompletion.Candidate
 {

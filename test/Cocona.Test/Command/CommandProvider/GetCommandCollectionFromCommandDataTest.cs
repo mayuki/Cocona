@@ -1,13 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Cocona.Builder;
 using Cocona.Builder.Metadata;
 using Cocona.Command;
-using FluentAssertions;
-using Xunit;
 
 namespace Cocona.Test.Command.CommandProvider
 {

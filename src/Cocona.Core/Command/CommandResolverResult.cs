@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Cocona.CommandLine;
 
 namespace Cocona.Command

@@ -1,11 +1,5 @@
 using Cocona.Application;
 using Cocona.Command.Binder;
-using Cocona.Help;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Cocona.Resources;
 
 namespace Cocona.Command.Dispatcher.Middlewares

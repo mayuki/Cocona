@@ -1,5 +1,4 @@
 using Cocona.Command;
-using System;
 using System.Diagnostics;
 
 namespace Cocona.CommandLine

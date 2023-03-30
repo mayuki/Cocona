@@ -4,19 +4,11 @@ using Cocona.Command.Binder;
 using Cocona.Command.Dispatcher;
 using Cocona.Command.Dispatcher.Middlewares;
 using Cocona.CommandLine;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Cocona.Command.Binder.Validation;
 using Cocona.Hosting;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Xunit;
 
 namespace Cocona.Test.Command.CommandDispatcher
 {

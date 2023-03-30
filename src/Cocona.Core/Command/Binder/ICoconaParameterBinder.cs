@@ -1,5 +1,4 @@
 ﻿using Cocona.CommandLine;
-using System.Collections.Generic;
 
 namespace Cocona.Command.Binder
 {

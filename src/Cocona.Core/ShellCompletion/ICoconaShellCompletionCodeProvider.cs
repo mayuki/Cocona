@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using Cocona.Command;
 using Cocona.ShellCompletion.Candidate;
 

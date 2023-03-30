@@ -1,5 +1,3 @@
-using System;
-
 namespace Cocona.Command.Binder
 {
     public class ParameterBinderException : Exception

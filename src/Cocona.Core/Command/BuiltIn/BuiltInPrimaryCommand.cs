@@ -1,11 +1,6 @@
 using Cocona.Application;
 using Cocona.Help;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using Cocona.Command.Features;
 
 namespace Cocona.Command.BuiltIn
 {

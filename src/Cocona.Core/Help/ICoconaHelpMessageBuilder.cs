@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Text;
 using Cocona.Help.DocumentModel;
 
 namespace Cocona.Help

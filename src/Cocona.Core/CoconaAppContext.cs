@@ -1,7 +1,4 @@
 using Cocona.Command;
-using Cocona.CommandLine;
-using System.Text;
-using System.Threading;
 
 namespace Cocona
 {

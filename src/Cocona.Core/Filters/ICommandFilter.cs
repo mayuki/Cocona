@@ -1,7 +1,4 @@
-﻿using System.Text;
-using System.Threading.Tasks;
-
-namespace Cocona.Filters
+﻿namespace Cocona.Filters
 {
     public delegate ValueTask<int> CommandExecutionDelegate(CoconaCommandExecutingContext ctx);
 

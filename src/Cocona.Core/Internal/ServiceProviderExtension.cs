@@ -1,5 +1,3 @@
-using System;
-
 namespace Cocona.Internal
 {
     internal static class ServiceProviderExtension

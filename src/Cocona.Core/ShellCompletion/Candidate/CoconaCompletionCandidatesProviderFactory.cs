@@ -1,4 +1,3 @@
-using System;
 using Cocona.Application;
 
 namespace Cocona.ShellCompletion.Candidate

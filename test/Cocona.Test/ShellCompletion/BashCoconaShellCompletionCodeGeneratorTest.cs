@@ -1,15 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using Cocona.Application;
 using Cocona.Command;
-using Cocona.ShellCompletion;
 using Cocona.ShellCompletion.Candidate;
 using Cocona.ShellCompletion.Generators;
-using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Cocona.Test.ShellCompletion
 {

@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Cocona.Application;
+﻿using Cocona.Application;
 using Cocona.Command.Dispatcher;
 using Cocona.CommandLine;
 using Cocona.Internal;

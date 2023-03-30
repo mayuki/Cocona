@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cocona.Command.Binder.Validation
+﻿namespace Cocona.Command.Binder.Validation
 {
     public struct CoconaParameterValidationContext
     {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Cocona.Builder
+﻿namespace Cocona.Builder
 {
     public class CommandTypeConventionBuilder
     {

@@ -1,5 +1,3 @@
-using System;
-
 namespace Cocona
 {
     public static class ServiceProviderExtensions

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Cocona.Command;
 using Cocona.Help.DocumentModel;
 

@@ -1,12 +1,6 @@
 using Cocona.Command.Dispatcher;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using Cocona.Application;
-using Xunit;
 
 namespace Cocona.Test.Command.CommandDispatcher
 {

@@ -1,10 +1,7 @@
-using System;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Cocona;
 using Cocona.Command.Binder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace CoconaSample.Advanced.JsonValueConverter
 {

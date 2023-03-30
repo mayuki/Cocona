@@ -1,14 +1,9 @@
 #nullable enable
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Cocona.Application;
 using Cocona.Command;
 using Cocona.CommandLine;
 using Cocona.ShellCompletion.Candidate;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace Cocona.Test.ShellCompletion.Candidate
 {

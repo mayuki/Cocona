@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace Cocona.Command.BuiltIn
 {
     public class CoconaBuiltInCommandProvider : ICoconaCommandProvider

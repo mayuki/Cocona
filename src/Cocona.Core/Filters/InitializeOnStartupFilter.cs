@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Cocona.Filters
+﻿namespace Cocona.Filters
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class InitializeOnStartupFilterAttribute : Attribute, IFilterFactory
