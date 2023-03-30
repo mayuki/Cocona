@@ -1,11 +1,10 @@
-namespace Cocona.Builder.Metadata
+namespace Cocona.Builder.Metadata;
+
+public class CommandAliasesMetadata
 {
-    public class CommandAliasesMetadata
+    public IReadOnlyList<string> Aliases { get; }
+    public CommandAliasesMetadata(IReadOnlyList<string> aliases)
     {
-        public IReadOnlyList<string> Aliases { get; }
-        public CommandAliasesMetadata(IReadOnlyList<string> aliases)
-        {
-            Aliases = aliases;
-        }
+        Aliases = aliases;
     }
 }

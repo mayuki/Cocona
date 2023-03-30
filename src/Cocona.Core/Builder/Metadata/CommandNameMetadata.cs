@@ -1,11 +1,10 @@
-namespace Cocona.Builder.Metadata
+namespace Cocona.Builder.Metadata;
+
+public class CommandNameMetadata
 {
-    public class CommandNameMetadata
+    public string Name { get; }
+    public CommandNameMetadata(string name)
     {
-        public string Name { get; }
-        public CommandNameMetadata(string name)
-        {
-            Name = name;
-        }
+        Name = name;
     }
 }

@@ -3,69 +3,68 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using Cocona.Command;
 
-namespace Cocona.Benchmark.Performance
+namespace Cocona.Benchmark.Performance;
+
+[SimpleJob(RunStrategy.ColdStart, launchCount: 20)]
+[SimpleJob]
+[MemoryDiagnoser]
+public class CommandProviderBenchmark
 {
-    [SimpleJob(RunStrategy.ColdStart, launchCount: 20)]
-    [SimpleJob]
-    [MemoryDiagnoser]
-    public class CommandProviderBenchmark
+    [Benchmark]
+    public void CommandProvider_v1_1_0()
     {
-        [Benchmark]
-        public void CommandProvider_v1_1_0()
-        {
-            var provider = new Cocona_v1_1_0::Cocona.Command.CoconaCommandProvider(
-                new [] { typeof(TestCommand_v1_1_0) },
-                treatPublicMethodsAsCommands:true,
-                enableConvertCommandNameToLowerCase:true,
-                enableConvertOptionNameToLowerCase:true
-            );
+        var provider = new Cocona_v1_1_0::Cocona.Command.CoconaCommandProvider(
+            new [] { typeof(TestCommand_v1_1_0) },
+            treatPublicMethodsAsCommands:true,
+            enableConvertCommandNameToLowerCase:true,
+            enableConvertOptionNameToLowerCase:true
+        );
 
-            var commands = provider.GetCommandCollection();
-        }
-        [Benchmark]
-        public void BuiltInCommandProvider_v1_1_0()
-        {
-            var provider = new Cocona_v1_1_0::Cocona.Command.BuiltIn.CoconaBuiltInCommandProvider(new Cocona_v1_1_0::Cocona.Command.CoconaCommandProvider(
-                new[] { typeof(TestCommand_v1_1_0) },
-                treatPublicMethodsAsCommands: true,
-                enableConvertCommandNameToLowerCase: true,
-                enableConvertOptionNameToLowerCase: true
-            ));
+        var commands = provider.GetCommandCollection();
+    }
+    [Benchmark]
+    public void BuiltInCommandProvider_v1_1_0()
+    {
+        var provider = new Cocona_v1_1_0::Cocona.Command.BuiltIn.CoconaBuiltInCommandProvider(new Cocona_v1_1_0::Cocona.Command.CoconaCommandProvider(
+            new[] { typeof(TestCommand_v1_1_0) },
+            treatPublicMethodsAsCommands: true,
+            enableConvertCommandNameToLowerCase: true,
+            enableConvertOptionNameToLowerCase: true
+        ));
 
-            var commands = provider.GetCommandCollection();
-        }
+        var commands = provider.GetCommandCollection();
+    }
 
-        class TestCommand_v1_1_0
-        {
-            public void Hello([Cocona_v1_1_0::Cocona.Option('b')]bool boolOption, [Cocona_v1_1_0::Cocona.Option('s')]string strOption, [Cocona_v1_1_0::Cocona.Argument]string arg0)
-            { }
-        }
+    class TestCommand_v1_1_0
+    {
+        public void Hello([Cocona_v1_1_0::Cocona.Option('b')]bool boolOption, [Cocona_v1_1_0::Cocona.Option('s')]string strOption, [Cocona_v1_1_0::Cocona.Argument]string arg0)
+        { }
+    }
 
-        [Benchmark]
-        public void CommandProvider_Current()
-        {
-            var provider = new global::Cocona.Command.CoconaCommandProvider(
-                new[] { typeof(TestCommand_Current) },
-                options: CommandProviderOptions.TreatPublicMethodAsCommands | CommandProviderOptions.CommandNameToLowerCase | CommandProviderOptions.OptionNameToLowerCase | CommandProviderOptions.ArgumentNameToLowerCase
-            );
+    [Benchmark]
+    public void CommandProvider_Current()
+    {
+        var provider = new global::Cocona.Command.CoconaCommandProvider(
+            new[] { typeof(TestCommand_Current) },
+            options: CommandProviderOptions.TreatPublicMethodAsCommands | CommandProviderOptions.CommandNameToLowerCase | CommandProviderOptions.OptionNameToLowerCase | CommandProviderOptions.ArgumentNameToLowerCase
+        );
 
-            var commands = provider.GetCommandCollection();
-        }
-        [Benchmark]
-        public void BuiltInCommandProvider_Current()
-        {
-            var provider = new global::Cocona.Command.BuiltIn.CoconaBuiltInCommandProvider(new global::Cocona.Command.CoconaCommandProvider(
-                new[] { typeof(TestCommand_Current) },
-                options: CommandProviderOptions.TreatPublicMethodAsCommands | CommandProviderOptions.CommandNameToLowerCase | CommandProviderOptions.OptionNameToLowerCase | CommandProviderOptions.ArgumentNameToLowerCase
-            ), enableShellCompletionSupport:true);
+        var commands = provider.GetCommandCollection();
+    }
+    [Benchmark]
+    public void BuiltInCommandProvider_Current()
+    {
+        var provider = new global::Cocona.Command.BuiltIn.CoconaBuiltInCommandProvider(new global::Cocona.Command.CoconaCommandProvider(
+            new[] { typeof(TestCommand_Current) },
+            options: CommandProviderOptions.TreatPublicMethodAsCommands | CommandProviderOptions.CommandNameToLowerCase | CommandProviderOptions.OptionNameToLowerCase | CommandProviderOptions.ArgumentNameToLowerCase
+        ), enableShellCompletionSupport:true);
 
-            var commands = provider.GetCommandCollection();
-        }
+        var commands = provider.GetCommandCollection();
+    }
 
-        class TestCommand_Current
-        {
-            public void Hello([global::Cocona.Option('b')]bool boolOption, [global::Cocona.Option('s')]string strOption, [global::Cocona.Argument]string arg0)
-            { }
-        }
+    class TestCommand_Current
+    {
+        public void Hello([global::Cocona.Option('b')]bool boolOption, [global::Cocona.Option('s')]string strOption, [global::Cocona.Argument]string arg0)
+        { }
     }
 }

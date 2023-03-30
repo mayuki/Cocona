@@ -1,7 +1,6 @@
-namespace Cocona.Command
+namespace Cocona.Command;
+
+public interface ICoconaCommandResolver
 {
-    public interface ICoconaCommandResolver
-    {
-        CommandResolverResult ParseAndResolve(CommandCollection commandCollection, IReadOnlyList<string> args);
-    }
+    CommandResolverResult ParseAndResolve(CommandCollection commandCollection, IReadOnlyList<string> args);
 }

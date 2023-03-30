@@ -1,6 +1,5 @@
-namespace Cocona.Builder.Metadata
+namespace Cocona.Builder.Metadata;
+
+internal class CommandFromBuilderMetadata
 {
-    internal class CommandFromBuilderMetadata
-    {
-    }
 }

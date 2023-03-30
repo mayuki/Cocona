@@ -1,14 +1,13 @@
 using Cocona.Command;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Cocona.CommandLine
+namespace Cocona.CommandLine;
+
+/// <summary>
+/// A command-line arguments parser for Cocona.
+/// </summary>
+public interface ICoconaCommandLineParser
 {
-    /// <summary>
-    /// A command-line arguments parser for Cocona.
-    /// </summary>
-    public interface ICoconaCommandLineParser
-    {
-        ParsedCommandLine ParseCommand(IReadOnlyList<string> args, IReadOnlyList<ICommandOptionDescriptor> options, IReadOnlyList<CommandArgumentDescriptor> arguments);
-        bool TryGetCommandName(IReadOnlyList<string> args, [NotNullWhen(true)] out string? commandName);
-    }
+    ParsedCommandLine ParseCommand(IReadOnlyList<string> args, IReadOnlyList<ICommandOptionDescriptor> options, IReadOnlyList<CommandArgumentDescriptor> arguments);
+    bool TryGetCommandName(IReadOnlyList<string> args, [NotNullWhen(true)] out string? commandName);
 }

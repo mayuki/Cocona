@@ -1,13 +1,12 @@
 ﻿using System.Text;
 
-namespace Cocona.Internal
+namespace Cocona.Internal;
+
+internal static class StringBuilderExtensions
 {
-    internal static class StringBuilderExtensions
+    public static StringBuilder AppendPadding(this StringBuilder sb, int indentCount, string indent = "  ")
     {
-        public static StringBuilder AppendPadding(this StringBuilder sb, int indentCount, string indent = "  ")
-        {
-            for (var i = 0; i < indentCount; i++) sb.Append(indent);
-            return sb;
-        }
+        for (var i = 0; i < indentCount; i++) sb.Append(indent);
+        return sb;
     }
 }

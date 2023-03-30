@@ -2,102 +2,101 @@ using Cocona.Application;
 using Cocona.Command.Features;
 using Cocona.Resources;
 
-namespace Cocona.Command.Dispatcher
+namespace Cocona.Command.Dispatcher;
+
+public class CoconaCommandDispatcher : ICoconaCommandDispatcher
 {
-    public class CoconaCommandDispatcher : ICoconaCommandDispatcher
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ICoconaServiceProviderScopeSupport _serviceProviderScopeSupport;
+    private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
+    private readonly ICoconaInstanceActivator _activator;
+    private readonly ICoconaAppContextAccessor _appContext;
+
+    public CoconaCommandDispatcher(
+        IServiceProvider serviceProvider,
+        ICoconaServiceProviderScopeSupport serviceProviderScopeSupport,
+        ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
+        ICoconaInstanceActivator activator,
+        ICoconaAppContextAccessor appContext
+    )
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ICoconaServiceProviderScopeSupport _serviceProviderScopeSupport;
-        private readonly ICoconaCommandDispatcherPipelineBuilder _dispatcherPipelineBuilder;
-        private readonly ICoconaInstanceActivator _activator;
-        private readonly ICoconaAppContextAccessor _appContext;
+        _serviceProvider = serviceProvider;
+        _serviceProviderScopeSupport = serviceProviderScopeSupport;
+        _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
+        _activator = activator;
+        _appContext = appContext;
+    }
 
-        public CoconaCommandDispatcher(
-            IServiceProvider serviceProvider,
-            ICoconaServiceProviderScopeSupport serviceProviderScopeSupport,
-            ICoconaCommandDispatcherPipelineBuilder dispatcherPipelineBuilder,
-            ICoconaInstanceActivator activator,
-            ICoconaAppContextAccessor appContext
-        )
+    public async ValueTask<int> DispatchAsync(CommandResolverResult commandResolverResult, CancellationToken cancellationToken)
+    {
+        if (commandResolverResult.Success)
         {
-            _serviceProvider = serviceProvider;
-            _serviceProviderScopeSupport = serviceProviderScopeSupport;
-            _dispatcherPipelineBuilder = dispatcherPipelineBuilder;
-            _activator = activator;
-            _appContext = appContext;
-        }
+            // Found a command and dispatch.
+            var parsedCommandLine = commandResolverResult.ParsedCommandLine!;
+            var matchedCommand = commandResolverResult.MatchedCommand!;
+            var subCommandStack = commandResolverResult.SubCommandStack!;
 
-        public async ValueTask<int> DispatchAsync(CommandResolverResult commandResolverResult, CancellationToken cancellationToken)
-        {
-            if (commandResolverResult.Success)
-            {
-                // Found a command and dispatch.
-                var parsedCommandLine = commandResolverResult.ParsedCommandLine!;
-                var matchedCommand = commandResolverResult.MatchedCommand!;
-                var subCommandStack = commandResolverResult.SubCommandStack!;
-
-                var dispatchAsync = _dispatcherPipelineBuilder.Build();
+            var dispatchAsync = _dispatcherPipelineBuilder.Build();
 
 #if NET5_0_OR_GREATER || NETSTANDARD2_1
-                var (scope, serviceProvider) = _serviceProviderScopeSupport.CreateAsyncScope(_serviceProvider);
-                await using (scope)
+            var (scope, serviceProvider) = _serviceProviderScopeSupport.CreateAsyncScope(_serviceProvider);
+            await using (scope)
 #else
                 var (scope, serviceProvider) = _serviceProviderScopeSupport.CreateScope(_serviceProvider);
                 using (scope)
 #endif
+            {
+
+                // Activate a command type.
+                var commandInstance = default(object);
+                var shouldCleanup = false;
+                if (matchedCommand.Target is not null)
                 {
+                    commandInstance = matchedCommand.Target;
+                }
+                else if (matchedCommand.CommandType.GetConstructors().Any() && !matchedCommand.Method.IsStatic)
+                {
+                    shouldCleanup = true;
+                    commandInstance = _activator.GetServiceOrCreateInstance(serviceProvider, matchedCommand.CommandType);
+                    if (commandInstance == null) throw new InvalidOperationException($"Unable to activate command type '{matchedCommand.CommandType.FullName}'");
+                }
 
-                    // Activate a command type.
-                    var commandInstance = default(object);
-                    var shouldCleanup = false;
-                    if (matchedCommand.Target is not null)
-                    {
-                        commandInstance = matchedCommand.Target;
-                    }
-                    else if (matchedCommand.CommandType.GetConstructors().Any() && !matchedCommand.Method.IsStatic)
-                    {
-                        shouldCleanup = true;
-                        commandInstance = _activator.GetServiceOrCreateInstance(serviceProvider, matchedCommand.CommandType);
-                        if (commandInstance == null) throw new InvalidOperationException($"Unable to activate command type '{matchedCommand.CommandType.FullName}'");
-                    }
+                // Set CoconaAppContext
+                _appContext.Current = new CoconaAppContext(matchedCommand, cancellationToken);
+                _appContext.Current.Features.Set<ICoconaCommandFeature>(new CoconaCommandFeature(commandResolverResult.CommandCollection, matchedCommand, subCommandStack, commandInstance));
 
-                    // Set CoconaAppContext
-                    _appContext.Current = new CoconaAppContext(matchedCommand, cancellationToken);
-                    _appContext.Current.Features.Set<ICoconaCommandFeature>(new CoconaCommandFeature(commandResolverResult.CommandCollection, matchedCommand, subCommandStack, commandInstance));
-
-                    // Dispatch the command
-                    try
+                // Dispatch the command
+                try
+                {
+                    var ctx = new CommandDispatchContext(matchedCommand, parsedCommandLine, commandInstance, cancellationToken);
+                    return await dispatchAsync(ctx).ConfigureAwait(false);
+                }
+                finally
+                {
+                    if (shouldCleanup)
                     {
-                        var ctx = new CommandDispatchContext(matchedCommand, parsedCommandLine, commandInstance, cancellationToken);
-                        return await dispatchAsync(ctx).ConfigureAwait(false);
-                    }
-                    finally
-                    {
-                        if (shouldCleanup)
+                        switch (commandInstance)
                         {
-                            switch (commandInstance)
-                            {
 #if NET5_0_OR_GREATER || NETSTANDARD2_1
-                                case IAsyncDisposable asyncDisposable:
-                                    await asyncDisposable.DisposeAsync().ConfigureAwait(false);
-                                    break;
+                            case IAsyncDisposable asyncDisposable:
+                                await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+                                break;
 #endif
-                                case IDisposable disposable:
-                                    disposable.Dispose();
-                                    break;
-                            }
+                            case IDisposable disposable:
+                                disposable.Dispose();
+                                break;
                         }
                     }
                 }
             }
-            else
-            {
-                throw new CommandNotFoundException(
-                    string.Empty,
-                    commandResolverResult.CommandCollection,
-                    Strings.Command_NotYetImplemented
-                );
-            }
+        }
+        else
+        {
+            throw new CommandNotFoundException(
+                string.Empty,
+                commandResolverResult.CommandCollection,
+                Strings.Command_NotYetImplemented
+            );
         }
     }
 }

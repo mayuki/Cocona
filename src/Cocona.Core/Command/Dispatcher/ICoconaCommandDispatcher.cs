@@ -1,7 +1,6 @@
-namespace Cocona.Command.Dispatcher
+namespace Cocona.Command.Dispatcher;
+
+public interface ICoconaCommandDispatcher
 {
-    public interface ICoconaCommandDispatcher
-    {
-        ValueTask<int> DispatchAsync(CommandResolverResult commandResolverResult, CancellationToken cancellationToken = default);
-    }
+    ValueTask<int> DispatchAsync(CommandResolverResult commandResolverResult, CancellationToken cancellationToken = default);
 }

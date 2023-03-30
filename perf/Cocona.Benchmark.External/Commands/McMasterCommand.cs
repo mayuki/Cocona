@@ -1,16 +1,15 @@
-namespace Cocona.Benchmark.External.Commands
+namespace Cocona.Benchmark.External.Commands;
+
+public class McMasterCommand
 {
-    public class McMasterCommand
-    {
-        [McMaster.Extensions.CommandLineUtils.Option("--str|-s")]
-        public string? StrOption { get; set; }
+    [McMaster.Extensions.CommandLineUtils.Option("--str|-s")]
+    public string? StrOption { get; set; }
 
-        [McMaster.Extensions.CommandLineUtils.Option("--int|-i")]
-        public int IntOption { get; set; }
+    [McMaster.Extensions.CommandLineUtils.Option("--int|-i")]
+    public int IntOption { get; set; }
 
-        [McMaster.Extensions.CommandLineUtils.Option("--bool|-b")]
-        public bool BoolOption { get; set; }
+    [McMaster.Extensions.CommandLineUtils.Option("--bool|-b")]
+    public bool BoolOption { get; set; }
 
-        public int OnExecute() => 0;
-    }
+    public int OnExecute() => 0;
 }

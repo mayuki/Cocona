@@ -1,8 +1,7 @@
-namespace Cocona.Command
+namespace Cocona.Command;
+
+public interface ICommandParameterDescriptor
 {
-    public interface ICommandParameterDescriptor
-    {
-        string Name { get; }
-        IReadOnlyList<Attribute> ParameterAttributes { get; }
-    }
+    string Name { get; }
+    IReadOnlyList<Attribute> ParameterAttributes { get; }
 }

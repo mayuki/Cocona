@@ -1,8 +1,7 @@
-namespace Cocona.Application
+namespace Cocona.Application;
+
+public interface ICoconaInstanceActivator
 {
-    public interface ICoconaInstanceActivator
-    {
-        object? GetServiceOrCreateInstance(IServiceProvider serviceProvider, Type instanceType);
-        object? CreateInstance(IServiceProvider serviceProvider, Type instanceType, object[]? parameters);
-    }
+    object? GetServiceOrCreateInstance(IServiceProvider serviceProvider, Type instanceType);
+    object? CreateInstance(IServiceProvider serviceProvider, Type instanceType, object[]? parameters);
 }

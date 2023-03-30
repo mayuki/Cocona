@@ -1,27 +1,26 @@
-namespace Cocona.Command
+namespace Cocona.Command;
+
+public class CommandCollection
 {
-    public class CommandCollection
+    public IReadOnlyList<CommandDescriptor> All { get; }
+    public CommandDescriptor? Primary { get; }
+
+    public string Description { get; } = string.Empty; // TODO:
+
+    public CommandCollection(IReadOnlyList<CommandDescriptor> commands)
     {
-        public IReadOnlyList<CommandDescriptor> All { get; }
-        public CommandDescriptor? Primary { get; }
+        All = commands ?? throw new ArgumentNullException(nameof(commands));
 
-        public string Description { get; } = string.Empty; // TODO:
-
-        public CommandCollection(IReadOnlyList<CommandDescriptor> commands)
+        for (var i = 0; i < commands.Count; i++)
         {
-            All = commands ?? throw new ArgumentNullException(nameof(commands));
-
-            for (var i = 0; i < commands.Count; i++)
+            var command = commands[i];
+            if (command.IsPrimaryCommand)
             {
-                var command = commands[i];
-                if (command.IsPrimaryCommand)
+                if (Primary != null)
                 {
-                    if (Primary != null)
-                    {
-                        throw new CoconaException($"The commands contain more than one primary command. A primary command must be unique.: {string.Join(", ", commands.Where(x => x.IsPrimaryCommand).Select(x => x.Name))}");
-                    }
-                    Primary = command;
+                    throw new CoconaException($"The commands contain more than one primary command. A primary command must be unique.: {string.Join(", ", commands.Where(x => x.IsPrimaryCommand).Select(x => x.Name))}");
                 }
+                Primary = command;
             }
         }
     }

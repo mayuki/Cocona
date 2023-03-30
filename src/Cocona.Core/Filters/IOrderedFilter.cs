@@ -1,7 +1,6 @@
-﻿namespace Cocona.Filters
+﻿namespace Cocona.Filters;
+
+public interface IOrderedFilter
 {
-    public interface IOrderedFilter
-    {
-        int Order { get; }
-    }
+    int Order { get; }
 }

@@ -1,28 +1,27 @@
 using Cocona;
 
-namespace CoconaSample.InAction.MultipleCommandTypes
+namespace CoconaSample.InAction.MultipleCommandTypes;
+
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            CoconaApp.Run(args, new[] { typeof(Program), typeof(GreeterCommands) });
-        }
-
-        public void Foo()
-        { }
-        public void Bar()
-        { }
-        public void Baz()
-        { }
+        CoconaApp.Run(args, new[] { typeof(Program), typeof(GreeterCommands) });
     }
 
-    class GreeterCommands
-    {
-        public void Hello()
-        { }
+    public void Foo()
+    { }
+    public void Bar()
+    { }
+    public void Baz()
+    { }
+}
 
-        public void Konnichiwa()
-        { }
-    }
+class GreeterCommands
+{
+    public void Hello()
+    { }
+
+    public void Konnichiwa()
+    { }
 }

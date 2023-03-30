@@ -4,13 +4,13 @@
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 
-namespace Cocona.Benchmark.External
+namespace Cocona.Benchmark.External;
+
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            BenchmarkRunner.Run(typeof(Program).Assembly, DefaultConfig.Instance.With(ConfigOptions.DisableOptimizationsValidator));
-        }
+        BenchmarkRunner.Run(typeof(Program).Assembly,
+            DefaultConfig.Instance.With(ConfigOptions.DisableOptimizationsValidator));
     }
 }

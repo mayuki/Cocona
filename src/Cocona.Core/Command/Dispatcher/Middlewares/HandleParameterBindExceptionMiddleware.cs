@@ -2,41 +2,40 @@ using Cocona.Application;
 using Cocona.Command.Binder;
 using Cocona.Resources;
 
-namespace Cocona.Command.Dispatcher.Middlewares
+namespace Cocona.Command.Dispatcher.Middlewares;
+
+public class HandleParameterBindExceptionMiddleware : CommandDispatcherMiddleware
 {
-    public class HandleParameterBindExceptionMiddleware : CommandDispatcherMiddleware
+    private readonly ICoconaConsoleProvider _console;
+
+    public HandleParameterBindExceptionMiddleware(CommandDispatchDelegate next, ICoconaConsoleProvider console) : base(next)
     {
-        private readonly ICoconaConsoleProvider _console;
+        _console = console;
+    }
 
-        public HandleParameterBindExceptionMiddleware(CommandDispatchDelegate next, ICoconaConsoleProvider console) : base(next)
+    public override async ValueTask<int> DispatchAsync(CommandDispatchContext ctx)
+    {
+        try
         {
-            _console = console;
+            return await Next(ctx);
+        }
+        catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.InsufficientArgument)
+        {
+            _console.Error.WriteLine(string.Format(Strings.Command_Error_Insufficient_Argument, paramEx.Argument!.Name));
+        }
+        catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.InsufficientOption)
+        {
+            _console.Error.WriteLine(string.Format(Strings.Command_Error_Insufficient_Option, paramEx.Option!.Name));
+        }
+        catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.InsufficientOptionValue)
+        {
+            _console.Error.WriteLine(string.Format(Strings.Command_Error_Insufficient_OptionValue, paramEx.Option!.Name));
+        }
+        catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.TypeNotSupported || paramEx.Result == ParameterBinderResult.ValidationFailed)
+        {
+            _console.Error.WriteLine(string.Format(Strings.Command_Error_ParameterBind, paramEx.Message));
         }
 
-        public override async ValueTask<int> DispatchAsync(CommandDispatchContext ctx)
-        {
-            try
-            {
-                return await Next(ctx);
-            }
-            catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.InsufficientArgument)
-            {
-                _console.Error.WriteLine(string.Format(Strings.Command_Error_Insufficient_Argument, paramEx.Argument!.Name));
-            }
-            catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.InsufficientOption)
-            {
-                _console.Error.WriteLine(string.Format(Strings.Command_Error_Insufficient_Option, paramEx.Option!.Name));
-            }
-            catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.InsufficientOptionValue)
-            {
-                _console.Error.WriteLine(string.Format(Strings.Command_Error_Insufficient_OptionValue, paramEx.Option!.Name));
-            }
-            catch (ParameterBinderException paramEx) when (paramEx.Result == ParameterBinderResult.TypeNotSupported || paramEx.Result == ParameterBinderResult.ValidationFailed)
-            {
-                _console.Error.WriteLine(string.Format(Strings.Command_Error_ParameterBind, paramEx.Message));
-            }
-
-            return 1;
-        }
+        return 1;
     }
 }

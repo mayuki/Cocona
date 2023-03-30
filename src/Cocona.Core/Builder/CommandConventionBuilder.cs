@@ -1,24 +1,23 @@
 using Cocona.Internal;
 
-namespace Cocona.Builder
+namespace Cocona.Builder;
+
+/// <summary>
+/// Builds conventions that will be used for customization of CommandBuilder instances.
+/// </summary>
+public class CommandConventionBuilder
 {
-    /// <summary>
-    /// Builds conventions that will be used for customization of CommandBuilder instances.
-    /// </summary>
-    public class CommandConventionBuilder
+    private readonly List<Action<ICommandBuilder>> _conventions;
+
+    public CommandConventionBuilder(List<Action<ICommandBuilder>> conventions)
     {
-        private readonly List<Action<ICommandBuilder>> _conventions;
+        _conventions = conventions;
+    }
 
-        public CommandConventionBuilder(List<Action<ICommandBuilder>> conventions)
-        {
-            _conventions = conventions;
-        }
+    public void Add(Action<ICommandBuilder> convention)
+    {
+        ThrowHelper.ThrowIfNull(convention);
 
-        public void Add(Action<ICommandBuilder> convention)
-        {
-            ThrowHelper.ThrowIfNull(convention);
-
-            _conventions.Add(convention);
-        }
+        _conventions.Add(convention);
     }
 }

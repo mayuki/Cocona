@@ -1,7 +1,6 @@
-﻿namespace Cocona.Builder
+﻿namespace Cocona.Builder;
+
+public interface ICommandBuilder
 {
-    public interface ICommandBuilder
-    {
-        IList<object> Metadata { get; }
-    }
+    IList<object> Metadata { get; }
 }

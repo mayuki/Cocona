@@ -1,12 +1,11 @@
-﻿namespace Cocona.Builder
+﻿namespace Cocona.Builder;
+
+internal class CommandDataDataSource : ICommandDataSource
 {
-    internal class CommandDataDataSource : ICommandDataSource
+    private readonly ICommandData _commandData;
+    public CommandDataDataSource(ICommandData commandData)
     {
-        private readonly ICommandData _commandData;
-        public CommandDataDataSource(ICommandData commandData)
-        {
-            _commandData = commandData;
-        }
-        public ICommandData Build() => _commandData;
+        _commandData = commandData;
     }
+    public ICommandData Build() => _commandData;
 }

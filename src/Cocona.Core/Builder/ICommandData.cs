@@ -1,7 +1,6 @@
-namespace Cocona.Builder
+namespace Cocona.Builder;
+
+public interface ICommandData
 {
-    public interface ICommandData
-    {
-        IReadOnlyList<object> Metadata { get; }
-    }
+    IReadOnlyList<object> Metadata { get; }
 }

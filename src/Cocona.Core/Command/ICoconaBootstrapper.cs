@@ -1,8 +1,7 @@
-namespace Cocona.Command
+namespace Cocona.Command;
+
+public interface ICoconaBootstrapper
 {
-    public interface ICoconaBootstrapper
-    {
-        void Initialize();
-        ValueTask<int> RunAsync(CancellationToken cancellationToken);
-    }
+    void Initialize();
+    ValueTask<int> RunAsync(CancellationToken cancellationToken);
 }

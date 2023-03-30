@@ -1,66 +1,65 @@
 using Cocona.Filters;
 
-namespace CoconaSample.Advanced.PreventMultipleInstances
+namespace CoconaSample.Advanced.PreventMultipleInstances;
+
+public class PreventMultipleInstancesAttribute : CommandFilterAttribute
 {
-    public class PreventMultipleInstancesAttribute : CommandFilterAttribute
+    private readonly Mutex _mutex;
+    private readonly Thread _mutexAcquireThread;
+    private readonly ManualResetEventSlim _waitForExit;
+
+    public PreventMultipleInstancesAttribute()
     {
-        private readonly Mutex _mutex;
-        private readonly Thread _mutexAcquireThread;
-        private readonly ManualResetEventSlim _waitForExit;
+        _mutex = new Mutex(false, System.Reflection.Assembly.GetEntryAssembly().GetName().Name);
+        _mutexAcquireThread = new Thread(AcquireAndHoldMutexInThread);
+        _waitForExit = new ManualResetEventSlim();
+    }
 
-        public PreventMultipleInstancesAttribute()
+    public override async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+        _mutexAcquireThread.Start(tcs);
+
+        try
         {
-            _mutex = new Mutex(false, System.Reflection.Assembly.GetEntryAssembly().GetName().Name);
-            _mutexAcquireThread = new Thread(AcquireAndHoldMutexInThread);
-            _waitForExit = new ManualResetEventSlim();
+            var acquired = await tcs.Task;
+            if (!acquired)
+            {
+                Console.Error.WriteLine("Error: The application is already running.");
+                return 1;
+            }
+
+            return await next(ctx);
         }
-
-        public override async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+        finally
         {
-            var tcs = new TaskCompletionSource<bool>();
-            _mutexAcquireThread.Start(tcs);
+            _waitForExit.Set();
+            _mutexAcquireThread.Join();
+        }
+    }
 
-            try
-            {
-                var acquired = await tcs.Task;
-                if (!acquired)
-                {
-                    Console.Error.WriteLine("Error: The application is already running.");
-                    return 1;
-                }
+    private void AcquireAndHoldMutexInThread(object state)
+    {
+        var tcs = (TaskCompletionSource<bool>)state;
+        var acquired = false;
+        try
+        {
+            acquired = _mutex.WaitOne(0, false);
+            tcs.SetResult(acquired);
 
-                return await next(ctx);
-            }
-            finally
+            if (acquired)
             {
-                _waitForExit.Set();
-                _mutexAcquireThread.Join();
+                _waitForExit.Wait();
             }
         }
-
-        private void AcquireAndHoldMutexInThread(object state)
+        finally
         {
-            var tcs = (TaskCompletionSource<bool>)state;
-            var acquired = false;
-            try
+            if (acquired)
             {
-                acquired = _mutex.WaitOne(0, false);
-                tcs.SetResult(acquired);
-
-                if (acquired)
-                {
-                    _waitForExit.Wait();
-                }
+                _mutex.ReleaseMutex();
             }
-            finally
-            {
-                if (acquired)
-                {
-                    _mutex.ReleaseMutex();
-                }
 
-                _mutex.Dispose();
-            }
+            _mutex.Dispose();
         }
     }
 }

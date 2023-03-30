@@ -1,20 +1,19 @@
 using System.Reflection;
 
-namespace Cocona.Builder
-{
-    public class TypeMethodCommandData : ICommandData
-    {
-        public MethodInfo Method { get; }
-        public object? Target { get; }
-        public bool IsImplicitCommand { get; }
-        public IReadOnlyList<object> Metadata { get; }
+namespace Cocona.Builder;
 
-        public TypeMethodCommandData(MethodInfo methodInfo, object? target, bool isImplicitCommand, IReadOnlyList<object> metadata)
-        {
-            Method = methodInfo;
-            Target = target;
-            IsImplicitCommand = isImplicitCommand;
-            Metadata = metadata;
-        }
+public class TypeMethodCommandData : ICommandData
+{
+    public MethodInfo Method { get; }
+    public object? Target { get; }
+    public bool IsImplicitCommand { get; }
+    public IReadOnlyList<object> Metadata { get; }
+
+    public TypeMethodCommandData(MethodInfo methodInfo, object? target, bool isImplicitCommand, IReadOnlyList<object> metadata)
+    {
+        Method = methodInfo;
+        Target = target;
+        IsImplicitCommand = isImplicitCommand;
+        Metadata = metadata;
     }
 }

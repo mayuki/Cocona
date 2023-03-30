@@ -1,47 +1,46 @@
 using Cocona.Builder;
 using Cocona.Lite.Hosting;
 
-namespace Cocona.Lite.Builder
+namespace Cocona.Lite.Builder;
+
+/// <summary>
+/// A builder for console applications.
+/// </summary>
+public class CoconaLiteAppBuilder
 {
-    /// <summary>
-    /// A builder for console applications.
-    /// </summary>
-    public class CoconaLiteAppBuilder
+    private readonly CoconaLiteAppHostBuilder _hostBuilder;
+    private readonly ICoconaLiteServiceCollection _services;
+    private CoconaLiteApp? _application;
+
+    public ICoconaLiteServiceCollection Services => _services;
+
+    internal CoconaLiteAppBuilder(string[]? args, Action<CoconaLiteAppOptions>? configure)
     {
-        private readonly CoconaLiteAppHostBuilder _hostBuilder;
-        private readonly ICoconaLiteServiceCollection _services;
-        private CoconaLiteApp? _application;
+        _services = new CoconaLiteServiceCollection();
 
-        public ICoconaLiteServiceCollection Services => _services;
-
-        internal CoconaLiteAppBuilder(string[]? args, Action<CoconaLiteAppOptions>? configure)
+        _hostBuilder = new CoconaLiteAppHostBuilder(args);
+        _hostBuilder.ConfigureOptions(configure);
+        _hostBuilder.ConfigureApplication(app =>
         {
-            _services = new CoconaLiteServiceCollection();
-
-            _hostBuilder = new CoconaLiteAppHostBuilder(args);
-            _hostBuilder.ConfigureOptions(configure);
-            _hostBuilder.ConfigureApplication(app =>
+            // Copy commands from CoconaApp to CoconaAppHostOptions on starting application.
+            foreach (var commandData in ((ICoconaCommandsBuilder)_application!).Build())
             {
-                // Copy commands from CoconaApp to CoconaAppHostOptions on starting application.
-                foreach (var commandData in ((ICoconaCommandsBuilder)_application!).Build())
-                {
-                    app.AddCommand(commandData);
-                }
-            });
-        }
+                app.AddCommand(commandData);
+            }
+        });
+    }
 
-        public CoconaLiteApp Build()
+    public CoconaLiteApp Build()
+    {
+        _hostBuilder.ConfigureServices((services) =>
         {
-            _hostBuilder.ConfigureServices((services) =>
+            foreach (var service in _services)
             {
-                foreach (var service in _services)
-                {
-                    services.Add(service);
-                }
-            });
+                services.Add(service);
+            }
+        });
 
-            _application = new CoconaLiteApp(_hostBuilder.Build());
-            return _application;
-        }
+        _application = new CoconaLiteApp(_hostBuilder.Build());
+        return _application;
     }
 }

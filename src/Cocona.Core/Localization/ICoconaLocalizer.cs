@@ -1,11 +1,10 @@
 using Cocona.Command;
 
-namespace Cocona.Localization
+namespace Cocona.Localization;
+
+public interface ICoconaLocalizer
 {
-    public interface ICoconaLocalizer
-    {
-        string GetCommandDescription(CommandDescriptor command);
-        string GetOptionDescription(CommandDescriptor command, ICommandOptionDescriptor option);
-        string GetArgumentDescription(CommandDescriptor command, CommandArgumentDescriptor argument);
-    }
+    string GetCommandDescription(CommandDescriptor command);
+    string GetOptionDescription(CommandDescriptor command, ICommandOptionDescriptor option);
+    string GetArgumentDescription(CommandDescriptor command, CommandArgumentDescriptor argument);
 }

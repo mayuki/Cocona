@@ -4,81 +4,80 @@ using Cocona.ShellCompletion.Candidate;
 using Cocona.ShellCompletion.Generators;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cocona.Test.ShellCompletion
+namespace Cocona.Test.ShellCompletion;
+
+public class CoconaShellCompletionCodeProviderTest
 {
-    public class CoconaShellCompletionCodeProviderTest
+    [Fact]
+    public void BuildGenerator()
     {
-        [Fact]
-        public void BuildGenerator()
-        {
-            var services = new ServiceCollection();
-            services.AddSingleton<ICoconaShellCompletionCodeGenerator, TestCodeGenerator>();
-            services.AddSingleton<ICoconaShellCompletionCodeGenerator, Test2CodeGenerator>();
-            services.AddSingleton<ICoconaShellCompletionCodeProvider, CoconaShellCompletionCodeProvider>();
-            var serviceProvider = services.BuildServiceProvider();
+        var services = new ServiceCollection();
+        services.AddSingleton<ICoconaShellCompletionCodeGenerator, TestCodeGenerator>();
+        services.AddSingleton<ICoconaShellCompletionCodeGenerator, Test2CodeGenerator>();
+        services.AddSingleton<ICoconaShellCompletionCodeProvider, CoconaShellCompletionCodeProvider>();
+        var serviceProvider = services.BuildServiceProvider();
 
-            var generator = serviceProvider.GetRequiredService<ICoconaShellCompletionCodeProvider>();
-            generator.SupportedTargets.Should().BeEquivalentTo("test", "test2");
+        var generator = serviceProvider.GetRequiredService<ICoconaShellCompletionCodeProvider>();
+        generator.SupportedTargets.Should().BeEquivalentTo("test", "test2");
+    }
+
+    [Fact]
+    public void CanHandle()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<ICoconaShellCompletionCodeGenerator, TestCodeGenerator>();
+        services.AddSingleton<ICoconaShellCompletionCodeGenerator, Test2CodeGenerator>();
+        services.AddSingleton<ICoconaShellCompletionCodeProvider, CoconaShellCompletionCodeProvider>();
+        var serviceProvider = services.BuildServiceProvider();
+
+        var generator = serviceProvider.GetRequiredService<ICoconaShellCompletionCodeProvider>();
+        generator.CanHandle("test").Should().BeTrue();
+        generator.CanHandle("test2").Should().BeTrue();
+        generator.CanHandle("test3").Should().BeFalse();
+    }
+
+    [Fact]
+    public void Generate()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<ICoconaShellCompletionCodeGenerator, TestCodeGenerator>();
+        services.AddSingleton<ICoconaShellCompletionCodeGenerator, Test2CodeGenerator>();
+        services.AddSingleton<ICoconaShellCompletionCodeProvider, CoconaShellCompletionCodeProvider>();
+        var serviceProvider = services.BuildServiceProvider();
+
+        var generator = serviceProvider.GetRequiredService<ICoconaShellCompletionCodeProvider>();
+        var writer = new StringWriter();
+        generator.Generate("test2", writer, new CommandCollection(Array.Empty<CommandDescriptor>()));
+        writer.ToString().Should().Be("Provider2");
+    }
+
+    public class TestCodeGenerator : ICoconaShellCompletionCodeGenerator
+    {
+        public IReadOnlyList<string> Targets => new[] {"test"};
+
+        public void Generate(TextWriter writer, CommandCollection commandCollection)
+        {
+            writer.Write("Provider");
         }
 
-        [Fact]
-        public void CanHandle()
+        public void GenerateOnTheFlyCandidates(TextWriter writer, IReadOnlyList<CompletionCandidateValue> values)
         {
-            var services = new ServiceCollection();
-            services.AddSingleton<ICoconaShellCompletionCodeGenerator, TestCodeGenerator>();
-            services.AddSingleton<ICoconaShellCompletionCodeGenerator, Test2CodeGenerator>();
-            services.AddSingleton<ICoconaShellCompletionCodeProvider, CoconaShellCompletionCodeProvider>();
-            var serviceProvider = services.BuildServiceProvider();
+            writer.Write("Provider/OnTheFly");
+        }
+    }
 
-            var generator = serviceProvider.GetRequiredService<ICoconaShellCompletionCodeProvider>();
-            generator.CanHandle("test").Should().BeTrue();
-            generator.CanHandle("test2").Should().BeTrue();
-            generator.CanHandle("test3").Should().BeFalse();
+    public class Test2CodeGenerator : ICoconaShellCompletionCodeGenerator
+    {
+        public IReadOnlyList<string> Targets => new[] { "test2" };
+
+        public void Generate(TextWriter writer, CommandCollection commandCollection)
+        {
+            writer.Write("Provider2");
         }
 
-        [Fact]
-        public void Generate()
+        public void GenerateOnTheFlyCandidates(TextWriter writer, IReadOnlyList<CompletionCandidateValue> values)
         {
-            var services = new ServiceCollection();
-            services.AddSingleton<ICoconaShellCompletionCodeGenerator, TestCodeGenerator>();
-            services.AddSingleton<ICoconaShellCompletionCodeGenerator, Test2CodeGenerator>();
-            services.AddSingleton<ICoconaShellCompletionCodeProvider, CoconaShellCompletionCodeProvider>();
-            var serviceProvider = services.BuildServiceProvider();
-
-            var generator = serviceProvider.GetRequiredService<ICoconaShellCompletionCodeProvider>();
-            var writer = new StringWriter();
-            generator.Generate("test2", writer, new CommandCollection(Array.Empty<CommandDescriptor>()));
-            writer.ToString().Should().Be("Provider2");
-        }
-
-        public class TestCodeGenerator : ICoconaShellCompletionCodeGenerator
-        {
-            public IReadOnlyList<string> Targets => new[] {"test"};
-
-            public void Generate(TextWriter writer, CommandCollection commandCollection)
-            {
-                writer.Write("Provider");
-            }
-
-            public void GenerateOnTheFlyCandidates(TextWriter writer, IReadOnlyList<CompletionCandidateValue> values)
-            {
-                writer.Write("Provider/OnTheFly");
-            }
-        }
-
-        public class Test2CodeGenerator : ICoconaShellCompletionCodeGenerator
-        {
-            public IReadOnlyList<string> Targets => new[] { "test2" };
-
-            public void Generate(TextWriter writer, CommandCollection commandCollection)
-            {
-                writer.Write("Provider2");
-            }
-
-            public void GenerateOnTheFlyCandidates(TextWriter writer, IReadOnlyList<CompletionCandidateValue> values)
-            {
-                writer.Write("Provider2/OnTheFly");
-            }
+            writer.Write("Provider2/OnTheFly");
         }
     }
 }

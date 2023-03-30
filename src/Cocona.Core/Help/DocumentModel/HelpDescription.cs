@@ -1,12 +1,11 @@
 ﻿using System.Diagnostics;
 
-namespace Cocona.Help.DocumentModel
+namespace Cocona.Help.DocumentModel;
+
+[DebuggerDisplay("Description: {Content,nq}")]
+public class HelpDescription : HelpParagraph
 {
-    [DebuggerDisplay("Description: {Content,nq}")]
-    public class HelpDescription : HelpParagraph
+    public HelpDescription(string content) : base(content)
     {
-        public HelpDescription(string content) : base(content)
-        {
-        }
     }
 }

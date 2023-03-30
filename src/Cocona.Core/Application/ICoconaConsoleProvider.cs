@@ -1,8 +1,7 @@
-﻿namespace Cocona.Application
+﻿namespace Cocona.Application;
+
+public interface ICoconaConsoleProvider
 {
-    public interface ICoconaConsoleProvider
-    {
-        TextWriter Output { get; }
-        TextWriter Error { get; }
-    }
+    TextWriter Output { get; }
+    TextWriter Error { get; }
 }

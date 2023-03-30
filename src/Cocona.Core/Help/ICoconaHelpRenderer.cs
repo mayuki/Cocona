@@ -1,9 +1,8 @@
 ﻿using Cocona.Help.DocumentModel;
 
-namespace Cocona.Help
+namespace Cocona.Help;
+
+public interface ICoconaHelpRenderer
 {
-    public interface ICoconaHelpRenderer
-    {
-        string Render(HelpMessage message);
-    }
+    string Render(HelpMessage message);
 }

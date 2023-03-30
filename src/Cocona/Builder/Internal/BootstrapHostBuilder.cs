@@ -3,133 +3,132 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 
-namespace Cocona.Builder.Internal
+namespace Cocona.Builder.Internal;
+
+internal class BootstrapHostBuilder : IHostBuilder
 {
-    internal class BootstrapHostBuilder : IHostBuilder
+    private readonly IServiceCollection _services;
+
+    private readonly List<Action<IConfigurationBuilder>> _configureHostConfigs = new();
+    private readonly List<Action<HostBuilderContext, IServiceCollection>> _configureServices = new();
+    private readonly List<Action<HostBuilderContext, IConfigurationBuilder>> _configureAppConfigs = new();
+    private readonly List<Action<IHostBuilder>> _remainingOperations = new();
+
+    public IDictionary<object, object> Properties { get; } = new Dictionary<object, object>();
+
+    public BootstrapHostBuilder(IServiceCollection services)
     {
-        private readonly IServiceCollection _services;
+        _services = services;
+    }
 
-        private readonly List<Action<IConfigurationBuilder>> _configureHostConfigs = new();
-        private readonly List<Action<HostBuilderContext, IServiceCollection>> _configureServices = new();
-        private readonly List<Action<HostBuilderContext, IConfigurationBuilder>> _configureAppConfigs = new();
-        private readonly List<Action<IHostBuilder>> _remainingOperations = new();
+    public IHost Build()
+    {
+        throw new InvalidOperationException();
+    }
 
-        public IDictionary<object, object> Properties { get; } = new Dictionary<object, object>();
+    public (HostBuilderContext HostBuilderContext, ConfigurationManager HostConfiguration) Apply(ConfigurationManager configuration, HostBuilder hostBuilder)
+    {
+        // Use default services/configurations for HostBuilder
+        this.ConfigureDefaults(Array.Empty<string>());
 
-        public BootstrapHostBuilder(IServiceCollection services)
+        var hostConfiguration = new ConfigurationManager();
+
+        foreach (var action in _configureHostConfigs)
         {
-            _services = services;
+            action(hostConfiguration);
         }
 
-        public IHost Build()
+        var contentRootPath = ResolveContentRootPath(hostConfiguration[HostDefaults.ContentRootKey], AppContext.BaseDirectory);
+        var hostBuilderContext = new HostBuilderContext(new Dictionary<object, object>())
         {
-            throw new InvalidOperationException();
-        }
-
-        public (HostBuilderContext HostBuilderContext, ConfigurationManager HostConfiguration) Apply(ConfigurationManager configuration, HostBuilder hostBuilder)
-        {
-            // Use default services/configurations for HostBuilder
-            this.ConfigureDefaults(Array.Empty<string>());
-
-            var hostConfiguration = new ConfigurationManager();
-
-            foreach (var action in _configureHostConfigs)
+            Configuration = hostConfiguration,
+            HostingEnvironment = new HostEnvironment()
             {
-                action(hostConfiguration);
-            }
+                ApplicationName = hostConfiguration[HostDefaults.ApplicationKey],
+                EnvironmentName = hostConfiguration[HostDefaults.EnvironmentKey] ?? Environments.Production,
+                ContentRootPath = contentRootPath,
+                ContentRootFileProvider = new PhysicalFileProvider(contentRootPath),
+            },
+        };
 
-            var contentRootPath = ResolveContentRootPath(hostConfiguration[HostDefaults.ContentRootKey], AppContext.BaseDirectory);
-            var hostBuilderContext = new HostBuilderContext(new Dictionary<object, object>())
-            {
-                Configuration = hostConfiguration,
-                HostingEnvironment = new HostEnvironment()
-                {
-                    ApplicationName = hostConfiguration[HostDefaults.ApplicationKey],
-                    EnvironmentName = hostConfiguration[HostDefaults.EnvironmentKey] ?? Environments.Production,
-                    ContentRootPath = contentRootPath,
-                    ContentRootFileProvider = new PhysicalFileProvider(contentRootPath),
-                },
-            };
-
-            configuration.SetBasePath(hostBuilderContext.HostingEnvironment.ContentRootPath);
-            configuration.AddConfiguration(hostConfiguration, true);
-            foreach (var action in _configureAppConfigs)
-            {
-                action(hostBuilderContext, configuration);
-            }
-            hostBuilderContext.Configuration = configuration;
-
-            foreach (var action in _configureServices)
-            {
-                action(hostBuilderContext, _services);
-            }
-
-            foreach (var action in _remainingOperations)
-            {
-                action(hostBuilder);
-            }
-
-            return (hostBuilderContext, hostConfiguration);
-        }
-
-        // https://github.com/dotnet/runtime/blob/312c66f1fc2f749f56612999cb1adab9ca7fde59/src/libraries/Microsoft.Extensions.Hosting/src/HostBuilder.cs#L198
-        private string ResolveContentRootPath(string contentRootPath, string basePath)
+        configuration.SetBasePath(hostBuilderContext.HostingEnvironment.ContentRootPath);
+        configuration.AddConfiguration(hostConfiguration, true);
+        foreach (var action in _configureAppConfigs)
         {
-            if (string.IsNullOrEmpty(contentRootPath))
-            {
-                return basePath;
-            }
-            if (Path.IsPathRooted(contentRootPath))
-            {
-                return contentRootPath;
-            }
-            return Path.Combine(Path.GetFullPath(basePath), contentRootPath);
+            action(hostBuilderContext, configuration);
+        }
+        hostBuilderContext.Configuration = configuration;
+
+        foreach (var action in _configureServices)
+        {
+            action(hostBuilderContext, _services);
         }
 
-        class HostEnvironment : IHostEnvironment
+        foreach (var action in _remainingOperations)
         {
-            public string? ApplicationName { get; set; }
-            public IFileProvider? ContentRootFileProvider { get; set; }
-            public string? ContentRootPath { get; set; }
-            public string? EnvironmentName { get; set; }
+            action(hostBuilder);
         }
 
-        public IHostBuilder ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
-        {
-            _configureAppConfigs.Add(configureDelegate ?? throw new ArgumentNullException(nameof(configureDelegate)));
-            return this;
-        }
+        return (hostBuilderContext, hostConfiguration);
+    }
 
-        public IHostBuilder ConfigureContainer<TContainerBuilder>(Action<HostBuilderContext, TContainerBuilder> configureDelegate)
+    // https://github.com/dotnet/runtime/blob/312c66f1fc2f749f56612999cb1adab9ca7fde59/src/libraries/Microsoft.Extensions.Hosting/src/HostBuilder.cs#L198
+    private string ResolveContentRootPath(string contentRootPath, string basePath)
+    {
+        if (string.IsNullOrEmpty(contentRootPath))
         {
-            _remainingOperations.Add(builder => builder.ConfigureContainer<TContainerBuilder>(configureDelegate));
-            return this;
+            return basePath;
         }
+        if (Path.IsPathRooted(contentRootPath))
+        {
+            return contentRootPath;
+        }
+        return Path.Combine(Path.GetFullPath(basePath), contentRootPath);
+    }
 
-        public IHostBuilder ConfigureHostConfiguration(Action<IConfigurationBuilder> configureDelegate)
-        {
-            _configureHostConfigs.Add(configureDelegate ?? throw new ArgumentNullException(nameof(configureDelegate)));
-            return this;
-        }
+    class HostEnvironment : IHostEnvironment
+    {
+        public string? ApplicationName { get; set; }
+        public IFileProvider? ContentRootFileProvider { get; set; }
+        public string? ContentRootPath { get; set; }
+        public string? EnvironmentName { get; set; }
+    }
 
-        public IHostBuilder ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
-        {
-            _configureServices.Add(configureDelegate ?? throw new ArgumentNullException(nameof(configureDelegate)));
-            return this;
-        }
+    public IHostBuilder ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
+    {
+        _configureAppConfigs.Add(configureDelegate ?? throw new ArgumentNullException(nameof(configureDelegate)));
+        return this;
+    }
 
-        public IHostBuilder UseServiceProviderFactory<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory)
-            where TContainerBuilder : notnull
-        {
-            _remainingOperations.Add(builder => builder.UseServiceProviderFactory<TContainerBuilder>(factory));
-            return this;
-        }
+    public IHostBuilder ConfigureContainer<TContainerBuilder>(Action<HostBuilderContext, TContainerBuilder> configureDelegate)
+    {
+        _remainingOperations.Add(builder => builder.ConfigureContainer<TContainerBuilder>(configureDelegate));
+        return this;
+    }
 
-        public IHostBuilder UseServiceProviderFactory<TContainerBuilder>(Func<HostBuilderContext, IServiceProviderFactory<TContainerBuilder>> factory)
-            where TContainerBuilder : notnull
-        {
-            _remainingOperations.Add(builder => builder.UseServiceProviderFactory<TContainerBuilder>(factory));
-            return this;
-        }
+    public IHostBuilder ConfigureHostConfiguration(Action<IConfigurationBuilder> configureDelegate)
+    {
+        _configureHostConfigs.Add(configureDelegate ?? throw new ArgumentNullException(nameof(configureDelegate)));
+        return this;
+    }
+
+    public IHostBuilder ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
+    {
+        _configureServices.Add(configureDelegate ?? throw new ArgumentNullException(nameof(configureDelegate)));
+        return this;
+    }
+
+    public IHostBuilder UseServiceProviderFactory<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory)
+        where TContainerBuilder : notnull
+    {
+        _remainingOperations.Add(builder => builder.UseServiceProviderFactory<TContainerBuilder>(factory));
+        return this;
+    }
+
+    public IHostBuilder UseServiceProviderFactory<TContainerBuilder>(Func<HostBuilderContext, IServiceProviderFactory<TContainerBuilder>> factory)
+        where TContainerBuilder : notnull
+    {
+        _remainingOperations.Add(builder => builder.UseServiceProviderFactory<TContainerBuilder>(factory));
+        return this;
     }
 }
