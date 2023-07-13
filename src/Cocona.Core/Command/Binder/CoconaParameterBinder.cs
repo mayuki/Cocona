@@ -244,7 +244,7 @@ public class CoconaParameterBinder : ICoconaParameterBinder
         {
             return Validate(option, _valueConverter.ConvertTo(type, value));
         }
-        catch (Exception ex) when (!(ex is ParameterBinderException))
+        catch (Exception ex) when (ex is not ParameterBinderException)
         {
             throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Option '{option.Name}' requires {type.Name} value. '{value}' cannot be converted to {type.Name} value.", option: option, innerException: ex);
         }
@@ -256,7 +256,7 @@ public class CoconaParameterBinder : ICoconaParameterBinder
         {
             return Validate(argument, _valueConverter.ConvertTo(type, value));
         }
-        catch (Exception ex) when (!(ex is ParameterBinderException))
+        catch (Exception ex) when (ex is not ParameterBinderException)
         {
             throw new ParameterBinderException(ParameterBinderResult.TypeNotSupported, $"Argument '{argument.Name}' requires {type.Name} value. '{value}' cannot be converted to {type.Name} value.", argument: argument, innerException: ex);
         }
@@ -267,7 +267,7 @@ public class CoconaParameterBinder : ICoconaParameterBinder
         if (DynamicListHelper.TryCreateArrayOrEnumerableLike(valueType, values, _valueConverter, out var arrayOrEnumerableLike))
         {
             // T[] or List<T> (IEnumerable<T>, IList<T>)
-            return arrayOrEnumerableLike;
+            return option is not null ? Validate(option, arrayOrEnumerableLike) : Validate(argument!, arrayOrEnumerableLike);
         }
         else if (!DynamicListHelper.IsArrayOrEnumerableLike(valueType))
         {
