@@ -1,6 +1,6 @@
 namespace Cocona.Builder.Internal;
 
-internal class CoconaAppHostOptions
+internal sealed class CoconaAppHostOptions
 {
     public Action<ICoconaCommandsBuilder>? ConfigureApplication { get; set; }
 }

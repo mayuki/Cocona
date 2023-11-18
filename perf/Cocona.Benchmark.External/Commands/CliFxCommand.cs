@@ -1,5 +1,5 @@
 using CliFx.Attributes;
-using CliFx.Services;
+using CliFx.Infrastructure;
 
 namespace Cocona.Benchmark.External.Commands;
 
@@ -14,6 +14,6 @@ public class CliFxCommand : CliFx.ICommand
 
     [CommandOption("bool", 'b')]
     public bool BoolOption { get; set; }
-
-    public Task ExecuteAsync(IConsole console) => Task.CompletedTask;
+    
+    public ValueTask ExecuteAsync(IConsole console) => ValueTask.CompletedTask;
 }

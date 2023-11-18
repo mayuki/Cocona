@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Cocona.Builder.Internal;
 
-internal class ConfigureHostBuilder : IHostBuilder
+internal sealed class ConfigureHostBuilder : IHostBuilder
 {
     private readonly List<Action<IHostBuilder>> _operations = new();
 

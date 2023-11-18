@@ -167,7 +167,7 @@ public class BindParameterTest
         var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
         invokeArgs.Should().NotBeNull();
         invokeArgs.Should().HaveCount(3);
-        invokeArgs[0].Should().Equals(new[] { "argValue0", "argValue1", });
+        invokeArgs[0].Should().BeEquivalentTo(new[] { "argValue0", "argValue1", });
         invokeArgs[1].Should().Be("argValue2");
         invokeArgs[2].Should().Be("argValue3");
     }
@@ -192,7 +192,7 @@ public class BindParameterTest
         invokeArgs.Should().NotBeNull();
         invokeArgs.Should().HaveCount(3);
         invokeArgs[0].Should().Be("argValue0");
-        invokeArgs[1].Should().Equals(new[] { "argValue1", "argValue2", });
+        invokeArgs[1].Should().BeEquivalentTo(new[] { "argValue1", "argValue2", });
         invokeArgs[2].Should().Be("argValue3");
     }
 
@@ -217,7 +217,7 @@ public class BindParameterTest
         invokeArgs.Should().HaveCount(3);
         invokeArgs[0].Should().Be("argValue0");
         invokeArgs[1].Should().Be("argValue1");
-        invokeArgs[2].Should().Equals(new[] { "argValue2", "argValue3", });
+        invokeArgs[2].Should().BeEquivalentTo(new[] { "argValue2", "argValue3", });
     }
 
     [Fact]
@@ -277,7 +277,7 @@ public class BindParameterTest
         var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
         invokeArgs.Should().NotBeNull();
         invokeArgs.Should().HaveCount(1);
-        invokeArgs[0].Should().Equals(new string[] { "argValue0" });
+        invokeArgs[0].Should().BeEquivalentTo(new string[] { "argValue0" });
     }
 
     [Fact]
@@ -343,7 +343,7 @@ public class BindParameterTest
         var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
         invokeArgs.Should().NotBeNull();
         invokeArgs.Should().HaveCount(3);
-        invokeArgs[0].Should().Equals(new[] { "argValue0", });
+        invokeArgs[0].Should().BeEquivalentTo(new[] { "argValue0", });
         invokeArgs[1].Should().Be("argValue1");
         invokeArgs[2].Should().Be("argValue2");
     }
@@ -409,7 +409,7 @@ public class BindParameterTest
         var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
         invokeArgs.Should().NotBeNull();
         invokeArgs.Should().HaveCount(3);
-        invokeArgs[0].Should().Equals(new List<string>() { "argValue0", "argValue1", });
+        invokeArgs[0].Should().BeEquivalentTo(new List<string>() { "argValue0", "argValue1", });
         invokeArgs[1].Should().Be("argValue2");
         invokeArgs[2].Should().Be("argValue3");
     }
