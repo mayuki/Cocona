@@ -27,6 +27,7 @@ public class ParameterValidationTest
             null
         );
     }
+
     private static CoconaParameterBinder CreateCoconaParameterBinder()
     {
         return new CoconaParameterBinder(new ServiceCollection().BuildServiceProvider(), new CoconaValueConverter(), new DataAnnotationsParameterValidatorProvider());
@@ -48,7 +49,7 @@ public class ParameterValidationTest
     [Fact]
     public void Bind_Option_DataAnnotationsParameterValidator_Single()
     {
-        var command = CreateCommand(new []
+        var command = CreateCommand(new[]
         {
             new CommandOptionDescriptor(typeof(int), "arg0", Array.Empty<char>(), "", CoconaDefaultValue.None, null, CommandOptionFlags.None, new [] { new RangeAttribute(0, 100) } )
         });
@@ -111,6 +112,7 @@ public class ParameterValidationTest
         result.Should().HaveCount(1);
     }
 
+
     [Fact]
     public void Bind_Argument_DataAnnotationsParameterValidator_Error()
     {
@@ -122,6 +124,36 @@ public class ParameterValidationTest
         var binder = CreateCoconaParameterBinder();
         var ex = Assert.Throws<ParameterBinderException>(() => binder.Bind(command, Array.Empty<CommandOption>(), new[] { new CommandArgument("123", 0) }));
         ex.Result.Should().Be(ParameterBinderResult.ValidationFailed);
+    }
+    
+    [Fact]
+    public void Bind_Enumerable_Argument_DataAnnotationsParameterValidator_Single()
+    {
+        var command = CreateCommand(new[] { new CommandArgumentDescriptor(typeof(List<int>), "arg0", 0, "", CoconaDefaultValue.None, new[] { new IsEvenEnumerableAttribute() }) });
+
+        var binder = CreateCoconaParameterBinder();
+        var result = binder.Bind(command, Array.Empty<CommandOption>(), new[]
+        {
+            new CommandArgument("10", 0),
+            new CommandArgument("20", 1),
+            new CommandArgument("30", 2),
+            new CommandArgument("40", 3),
+        });
+        result.Should().HaveCount(1);
+    }
+    
+    [Fact]
+    public void Bind_Enumerable_Argument_DataAnnotationsParameterValidator_Error()
+    {
+        var command = CreateCommand(new[] { new CommandArgumentDescriptor(typeof(List<int>), "arg0", 0, "", CoconaDefaultValue.None, new[] { new IsEvenEnumerableAttribute() }) });
+
+        var binder = CreateCoconaParameterBinder();
+        var act = () => binder.Bind(
+            command,
+            Array.Empty<CommandOption>(), 
+            new[] { new CommandArgument("10", 0), new CommandArgument("15", 1), new CommandArgument("20", 2), new CommandArgument("25", 3), });
+
+        act.Should().Throw<ParameterBinderException>().And.Result.Should().Be(ParameterBinderResult.ValidationFailed);
     }
 
     [Fact]
@@ -138,7 +170,24 @@ public class ParameterValidationTest
     }
 
 
-    class MyAttribute : Attribute { }
+    class MyAttribute : Attribute
+    {
+    }
+
+    class IsEvenEnumerableAttribute : ValidationAttribute
+    {
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+        {
+            if (value is not IEnumerable<int> numbers)
+            {
+                return new ValidationResult($"Could not validate collection, values's type is {value?.GetType()}");
+            }
+
+            return numbers.All(x => x % 2 == 0)
+                ? ValidationResult.Success
+                : new ValidationResult("List contains uneven numbers.");
+        }
+    }
 
     class CommandParameterValidationTest
     {
