@@ -38,17 +38,11 @@ internal class BootstrapHostBuilder : IHostBuilder
             action(hostConfiguration);
         }
 
-        var contentRootPath = ResolveContentRootPath(hostConfiguration[HostDefaults.ContentRootKey], AppContext.BaseDirectory);
+        var contentRootPath = ResolveContentRootPath(hostConfiguration[HostDefaults.ContentRootKey]!, AppContext.BaseDirectory);
         var hostBuilderContext = new HostBuilderContext(new Dictionary<object, object>())
         {
             Configuration = hostConfiguration,
-            HostingEnvironment = new HostEnvironment()
-            {
-                ApplicationName = hostConfiguration[HostDefaults.ApplicationKey],
-                EnvironmentName = hostConfiguration[HostDefaults.EnvironmentKey] ?? Environments.Production,
-                ContentRootPath = contentRootPath,
-                ContentRootFileProvider = new PhysicalFileProvider(contentRootPath),
-            },
+            HostingEnvironment = new HostEnvironment(hostConfiguration[HostDefaults.ApplicationKey]!, contentRootPath, new PhysicalFileProvider(contentRootPath), hostConfiguration[HostDefaults.EnvironmentKey] ?? Environments.Production)
         };
 
         configuration.SetBasePath(hostBuilderContext.HostingEnvironment.ContentRootPath);
@@ -86,12 +80,20 @@ internal class BootstrapHostBuilder : IHostBuilder
         return Path.Combine(Path.GetFullPath(basePath), contentRootPath);
     }
 
-    class HostEnvironment : IHostEnvironment
+    sealed class HostEnvironment : IHostEnvironment
     {
-        public string? ApplicationName { get; set; }
-        public IFileProvider? ContentRootFileProvider { get; set; }
-        public string? ContentRootPath { get; set; }
-        public string? EnvironmentName { get; set; }
+        public HostEnvironment(string applicationName, string contentRootPath, IFileProvider contentRootFileProvider, string environmentName)
+        {
+            ApplicationName = applicationName;
+            ContentRootFileProvider = contentRootFileProvider;
+            ContentRootPath = contentRootPath;
+            EnvironmentName = environmentName;
+        }
+
+        public string ApplicationName { get; set; }
+        public IFileProvider ContentRootFileProvider { get; set; }
+        public string ContentRootPath { get; set; }
+        public string EnvironmentName { get; set; }
     }
 
     public IHostBuilder ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
