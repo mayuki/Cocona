@@ -4,6 +4,32 @@ namespace Cocona.Test.Command.ParameterBinder;
 
 public class ValueConverterTest
 {
+    internal class FileInfoComparer : IEqualityComparer<FileInfo>
+    {
+        public bool Equals(FileInfo? x, FileInfo? y)
+        {
+            return x?.Name == y?.Name;
+        }
+
+        public int GetHashCode(FileInfo obj)
+        {
+            return obj.GetHashCode();
+        }
+    }
+
+    internal class DirectoryInfoComparer : IEqualityComparer<DirectoryInfo>
+    {
+        public bool Equals(DirectoryInfo? x, DirectoryInfo? y)
+        {
+            return x?.Name == y?.Name;
+        }
+
+        public int GetHashCode(DirectoryInfo obj)
+        {
+            return obj.GetHashCode();
+        }
+    }
+
     [Fact]
     public void CanNotConvertType_Int32()
     {
@@ -38,5 +64,31 @@ public class ValueConverterTest
     public void Boolean_Int32()
     {
         new CoconaValueConverter().ConvertTo(typeof(int), "12345").Should().Be(12345);
+    }
+
+    [Fact]
+    public void DirectoryInfo_Null()
+    {
+        new CoconaValueConverter().ConvertTo(typeof(FileInfo), null).Should().Be(null);
+    }
+
+    [Fact]
+    public void DirectoryInfo_String()
+    {
+        new CoconaValueConverter().ConvertTo(typeof(DirectoryInfo), "somedirname").Should()
+            .Be(new DirectoryInfo("somedirname"), new DirectoryInfoComparer());
+    }
+
+    [Fact]
+    public void FileInfo_Null()
+    {
+        new CoconaValueConverter().ConvertTo(typeof(FileInfo), null).Should().Be(null);
+    }
+
+    [Fact]
+    public void FileInfo_String()
+    {
+        new CoconaValueConverter().ConvertTo(typeof(FileInfo), "somefilename").Should()
+            .Be(new FileInfo("somefilename"), new FileInfoComparer());
     }
 }
