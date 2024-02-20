@@ -989,4 +989,27 @@ public class CoconaAppRunTest : EndToEndTestBase
         public void A([Option]int a, [Option(StopParsingOptions = true)]string b, [Argument]string arg0, [Argument]string[] args)
             => Console.WriteLine($"A:{a}:{b}:{arg0}:{string.Join(",", args)}");
     }
+
+
+    [Theory]
+    [InlineData(RunBuilderMode.CreateHostBuilder)]
+    [InlineData(RunBuilderMode.CreateBuilder)]
+    public void CoconaApp_Run_AbortOnActivationError(RunBuilderMode mode)
+    {
+        var (stdOut, stdErr, exitCode) = Run<TestCommand_AbortOnActivationError>(mode, Array.Empty<string>());
+        exitCode.Should().Be(1);
+        stdErr.Should().StartWith("System.InvalidOperationException: Unable to resolve service");
+    }
+
+    class TestCommand_AbortOnActivationError
+    {
+        public TestCommand_AbortOnActivationError(Class1 class1)
+        { }
+
+        public void A()
+            => Console.WriteLine($"Hello");
+
+        public class Class1
+        { }
+    }
 }
