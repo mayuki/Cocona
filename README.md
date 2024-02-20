@@ -646,7 +646,7 @@ Cocona can use attributes to validate options and arguments. It is similar to AS
 .NET BCL (`System.ComponentModel.DataAnnotations`) has some pre-defined attributes:
 
 - `RangeAttribute`
-- `MaxLangeAttribute`
+- `MaxLengthAttribute`
 - `MinLengthAttribute`
 - ...
 
