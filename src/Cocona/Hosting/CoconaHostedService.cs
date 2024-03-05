@@ -71,7 +71,6 @@ public class CoconaHostedService : IHostedService
         {
             _console.Error.WriteLine(ex.ToString());
             Environment.ExitCode = 1;
-            throw;
         }
         finally
         {

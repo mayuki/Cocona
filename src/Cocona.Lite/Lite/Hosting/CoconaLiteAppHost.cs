@@ -61,8 +61,6 @@ public class CoconaLiteAppHost
         {
             console.Error.WriteLine(ex.ToString());
             Environment.ExitCode = 1;
-            // NOTE: Exception is suppressed here to match the behavior of Cocona.
-            //throw;
         }
 
         _waitForShutdown.Set();
