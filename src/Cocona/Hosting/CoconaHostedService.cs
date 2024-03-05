@@ -67,13 +67,15 @@ public class CoconaHostedService : IHostedService
             // NOTE: Ignore OperationCanceledException that was thrown by non-user code.
             Environment.ExitCode = 0;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _console.Error.WriteLine(ex.ToString());
             Environment.ExitCode = 1;
-            throw;
         }
-
-        _lifetime.StopApplication();
+        finally
+        {
+            _lifetime.StopApplication();
+        }
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)

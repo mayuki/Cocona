@@ -1,3 +1,5 @@
+using System;
+using Cocona.Application;
 using Cocona.Command;
 
 namespace Cocona.Lite.Hosting;
@@ -21,6 +23,7 @@ public class CoconaLiteAppHost
     {
         var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
         var bootstrapper = _serviceProvider.GetRequiredService<ICoconaBootstrapper>();
+        var console = _serviceProvider.GetRequiredService<ICoconaConsoleProvider>();
 
 #pragma warning disable RS0030 // Do not used banned APIs
         Console.CancelKeyPress += OnCancelKeyPress;
@@ -53,6 +56,11 @@ public class CoconaLiteAppHost
         {
             // NOTE: Ignore OperationCanceledException that was thrown by non-user code.
             Environment.ExitCode = 130;
+        }
+        catch (Exception ex)
+        {
+            console.Error.WriteLine(ex.ToString());
+            Environment.ExitCode = 1;
         }
 
         _waitForShutdown.Set();
