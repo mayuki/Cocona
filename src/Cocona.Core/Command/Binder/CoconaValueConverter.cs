@@ -22,6 +22,14 @@ public class CoconaValueConverter : ICoconaValueConverter
         {
             return value;
         }
+        else if (t == typeof(FileInfo))
+        {
+            return value is null ? null : new FileInfo(value);
+        }
+        else if (t == typeof(DirectoryInfo))
+        {
+            return value is null ? null : new DirectoryInfo(value);
+        }
 
         return TypeDescriptor.GetConverter(t).ConvertFrom(value);
     }
