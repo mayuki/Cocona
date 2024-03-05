@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -45,7 +46,8 @@ internal class BootstrapHostBuilder : IHostBuilder
             HostingEnvironment = new HostEnvironment(hostConfiguration[HostDefaults.ApplicationKey]!, contentRootPath, new PhysicalFileProvider(contentRootPath), hostConfiguration[HostDefaults.EnvironmentKey] ?? Environments.Production)
         };
 
-        configuration.SetBasePath(hostBuilderContext.HostingEnvironment.ContentRootPath);
+        var appLocation = Assembly.GetCallingAssembly().Location;
+        configuration.SetBasePath(Path.GetDirectoryName(appLocation)!);
         configuration.AddConfiguration(hostConfiguration, true);
         foreach (var action in _configureAppConfigs)
         {
