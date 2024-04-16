@@ -24,48 +24,14 @@ jobs:
       inputs:
         packageType: 'sdk'
         version: 8.0.x
-    - script: dotnet restore
-      displayName: dotnet restore
 
-    - script: dotnet build -c Release
-      displayName: dotnet build
-
-    - script: dotnet test -c Release --no-build --logger trx
+    - script: dotnet test -c Release --logger trx
       displayName: dotnet test
     - task: PublishTestResults@2
       condition: succeededOrFailed()
       inputs:
         testRunner: VSTest
         testResultsFiles: '**/*.trx'
-
-    - script: |
-        cd samples/GettingStarted.SubCommandApp
-        shellcheck <(dotnet run -- --completion bash)
-      displayName: Shellcheck for Bash completion
-
-    # NOTE: Currently, Shellcheck doesn't support zsh script.
-    #- script: |
-    #    cd samples/GettingStarted.SubCommandApp
-    #    shellcheck <(dotnet run -- --completion zsh)
-    #  displayName: Shellcheck for Zsh completion
-
-    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
-      displayName: dotnet pack Cocona
-    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Core/Cocona.Core.csproj
-      displayName: dotnet pack Cocona.Core
-    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Lite/Cocona.Lite.csproj
-      displayName: dotnet pack Cocona.Lite
-
-    # Publish to Azure Artifacts
-    - task: NuGetAuthenticate@0
-      displayName: 'NuGet Authenticate'
-    - task: NuGetCommand@2
-      displayName: 'NuGet push'
-      inputs:
-        command: 'push'
-        nuGetFeedType: 'internal'
-        publishVstsFeed: 'fb5f5542-197b-4b74-85dc-e7028e5541de/72ea1975-d994-41bf-b517-185b51130c29'
-        allowPackageConflicts: true
 
   # ========================================
   - job: Build_PullRequest
@@ -79,13 +45,7 @@ jobs:
       inputs:
         packageType: 'sdk'
         version: 8.0.x
-    - script: dotnet restore
-      displayName: dotnet restore
-
-    - script: dotnet build -c Release
-      displayName: dotnet build
-
-    - script: dotnet test -c Release --no-build --logger trx
+    - script: dotnet test -c Release --logger trx
       displayName: dotnet test
     - task: PublishTestResults@2
       condition: succeededOrFailed()
@@ -93,62 +53,44 @@ jobs:
         testRunner: VSTest
         testResultsFiles: '**/*.trx'
 
-    - script: |
-        cd samples/GettingStarted.SubCommandApp
-        shellcheck <(dotnet run -- --completion bash)
-      displayName: Shellcheck for Bash completion
-
-    # NOTE: Currently, Shellcheck doesn't support zsh script.
-    #- script: |
-    #    cd samples/GettingStarted.SubCommandApp
-    #    shellcheck <(dotnet run -- --completion zsh)
-    #  displayName: Shellcheck for Zsh completion
-
-    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
-      displayName: dotnet pack
-    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Core/Cocona.Core.csproj
-      displayName: dotnet pack Cocona.Core
-    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Lite/Cocona.Lite.csproj
-      displayName: dotnet pack Cocona.Lite
-
-  # ========================================
-  - job: Release
-    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/v')
-    steps:
-    - task: UseDotNet@2
-      inputs:
-        packageType: 'sdk'
-        useGlobalJson: true
-
-    - script: |
-        echo "##vso[task.setvariable variable=versionSuffix]"
-      displayName: Unset version suffix
-      condition: not(contains(variables['Build.SourceBranchName'], '-preview'))
-
-    - script: |
-        VERSION_SUFFIX=$(echo $BUILD_SOURCEBRANCHNAME | sed 's|^v[^-]*-||')
-        echo "VersionSuffix: $VERSION_SUFFIX"
-        echo "##vso[task.setvariable variable=versionSuffix]$VERSION_SUFFIX"
-      displayName: Set version suffix for preview
-      condition: contains(variables['Build.SourceBranchName'], '-preview')
-
-    - script: dotnet restore
-      displayName: dotnet restore
-
-    - script: dotnet build -c Release
-      displayName: dotnet build
-
-    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
-      displayName: dotnet pack Cocona
-    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Core/Cocona.Core.csproj
-      displayName: dotnet pack Cocona.Core
-    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Lite/Cocona.Lite.csproj
-      displayName: dotnet pack Cocona.Lite
-
-    # Publish to NuGet.org
-    - task: NuGetCommand@2
-      inputs:
-        command: 'push'
-        packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.snupkg'
-        nuGetFeedType: 'external'
-        publishFeedCredentials: 'NuGet.org (mayuki)'
+#  # ========================================
+#  - job: Release
+#    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/v')
+#    steps:
+#    - task: UseDotNet@2
+#      inputs:
+#        packageType: 'sdk'
+#        useGlobalJson: true
+#
+#    - script: |
+#        echo "##vso[task.setvariable variable=versionSuffix]"
+#      displayName: Unset version suffix
+#      condition: not(contains(variables['Build.SourceBranchName'], '-preview'))
+#
+#    - script: |
+#        VERSION_SUFFIX=$(echo $BUILD_SOURCEBRANCHNAME | sed 's|^v[^-]*-||')
+#        echo "VersionSuffix: $VERSION_SUFFIX"
+#        echo "##vso[task.setvariable variable=versionSuffix]$VERSION_SUFFIX"
+#      displayName: Set version suffix for preview
+#      condition: contains(variables['Build.SourceBranchName'], '-preview')
+#
+#    - script: dotnet restore
+#      displayName: dotnet restore
+#
+#    - script: dotnet build -c Release
+#      displayName: dotnet build
+#
+#    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
+#      displayName: dotnet pack Cocona
+#    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Core/Cocona.Core.csproj
+#      displayName: dotnet pack Cocona.Core
+#    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Lite/Cocona.Lite.csproj
+#      displayName: dotnet pack Cocona.Lite
+#
+#    # Publish to NuGet.org
+#    - task: NuGetCommand@2
+#      inputs:
+#        command: 'push'
+#        packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.snupkg'
+#        nuGetFeedType: 'external'
+#        publishFeedCredentials: 'NuGet.org (mayuki)'
