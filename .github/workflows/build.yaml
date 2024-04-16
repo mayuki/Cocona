@@ -22,8 +22,8 @@ jobs:
       id: op-load-secret
       with:
         export-env: false
-        service-account-token: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN_PUBLIC }}
       env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN_PUBLIC }}
         NUGET_AUTH_TOKEN: "op://GitHub Actions - Public/NuGet - Azure Artifacts/credential"
 
     - uses: actions/checkout@v4
