@@ -892,9 +892,10 @@ class MyService
 var builder = CoconaApp.CreateBuilder();
 builder.Logging.AddDebug();
 
-app.AddCommand((ILogger<Program> logger) => logger.LogInformation("Hello Konnichiwa!")));
-
 var app = builder.Build();
+
+app.AddCommand((ILogger<Program> logger) => logger.LogInformation("Hello Konnichiwa!"));
+
 app.Run();
 ```
 
