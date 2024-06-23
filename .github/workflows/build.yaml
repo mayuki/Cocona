@@ -17,15 +17,6 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     steps:
-    # Load secrets from 1Password
-    - uses: 1password/load-secrets-action@v2
-      id: op-load-secret
-      with:
-        export-env: false
-      env:
-        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN_PUBLIC }}
-        NUGET_AUTH_TOKEN: "op://GitHub Actions - Public/NuGet - Azure Artifacts/credential"
-
     - uses: actions/checkout@v4
     - uses: actions/setup-dotnet@v4
       with:
@@ -61,6 +52,16 @@ jobs:
       with:
         name: Packages
         path: artifacts
+
+    # Load secrets from 1Password
+    - uses: 1password/load-secrets-action@v2
+      if: ${{ github.event_name != 'pull_request' }}
+      id: op-load-secret
+      with:
+        export-env: false
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN_PUBLIC }}
+        NUGET_AUTH_TOKEN: "op://GitHub Actions - Public/NuGet - Azure Artifacts/credential"
 
     - name: Publish NuGet packages to Azure Artifacts
       if: ${{ github.event_name != 'pull_request' }}
