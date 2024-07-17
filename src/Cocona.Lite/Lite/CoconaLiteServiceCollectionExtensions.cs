@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Cocona.Lite;
 
 public static class CoconaLiteServiceCollectionExtensions
@@ -26,7 +28,11 @@ public static class CoconaLiteServiceCollectionExtensions
         }, singleton: false);
     }
 
-    public static void AddTransient<TService, TImplementation>(this ICoconaLiteServiceCollection services)
+    public static void AddTransient<TService,
+#if NET6_0_OR_GREATER
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+#endif
+    TImplementation>(this ICoconaLiteServiceCollection services)
         where TImplementation : TService
     {
         services.AddDescriptor<TService>((provider, disposables) =>
@@ -41,7 +47,11 @@ public static class CoconaLiteServiceCollectionExtensions
         }, singleton: false);
     }
 
-    public static void AddSingleton<TService, TImplementation>(this ICoconaLiteServiceCollection services)
+    public static void AddSingleton<TService,
+#if NET6_0_OR_GREATER
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+#endif
+    TImplementation>(this ICoconaLiteServiceCollection services)
         where TImplementation : TService
     {
         services.AddDescriptor<TService>((provider, disposables) =>
@@ -82,7 +92,11 @@ public static class CoconaLiteServiceCollectionExtensions
         }
     }
 
-    public static void TryAddTransient<TService, TImplementation>(this ICoconaLiteServiceCollection services)
+    public static void TryAddTransient<TService,
+#if NET6_0_OR_GREATER
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+#endif
+    TImplementation>(this ICoconaLiteServiceCollection services)
         where TImplementation : TService
     {
         if (services.All(x => x.ServiceType != typeof(TService)))
@@ -91,7 +105,11 @@ public static class CoconaLiteServiceCollectionExtensions
         }
     }
 
-    public static void TryAddSingleton<TService, TImplementation>(this ICoconaLiteServiceCollection services)
+    public static void TryAddSingleton<TService,
+#if NET6_0_OR_GREATER
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+#endif
+    TImplementation>(this ICoconaLiteServiceCollection services)
         where TImplementation : TService
     {
         if (services.All(x => x.ServiceType != typeof(TService)))
