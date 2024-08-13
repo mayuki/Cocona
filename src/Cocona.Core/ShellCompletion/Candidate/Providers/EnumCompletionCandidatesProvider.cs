@@ -3,7 +3,10 @@ namespace Cocona.ShellCompletion.Candidate.Providers;
 public sealed class EnumCompletionCandidatesProvider : ICoconaCompletionStaticCandidatesProvider
 {
     public CompletionCandidateResult GetCandidates(CoconaCompletionCandidatesMetadata metadata)
-        => GetCandidates(metadata.ParameterType);
+    {
+        var nullableEnum = Nullable.GetUnderlyingType(metadata.ParameterType);
+        return GetCandidates(nullableEnum ?? metadata.ParameterType);
+    }
 
     private CompletionCandidateResult GetCandidates(Type type)
     {
