@@ -18,7 +18,7 @@ public class DataAnnotationsParameterValidator : ICoconaParameterValidator
             return new[] { new CoconaParameterValidationResult(ctx.Parameter.Name, "The value must not be null.") };
         }
             
-        var validationCtx = new ValidationContext(ctx.Value);
+        var validationCtx = new ValidationContext(ctx.Value, serviceProvider: ctx.ServiceProvider, items: null);
         validationCtx.DisplayName = ctx.Parameter.Name;
         var result = _attribute.GetValidationResult(ctx.Value, validationCtx);
         if (result is not null && result != ValidationResult.Success)

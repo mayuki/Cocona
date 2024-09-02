@@ -28,9 +28,11 @@ public class ParameterValidationTest
         );
     }
 
-    private static CoconaParameterBinder CreateCoconaParameterBinder()
+    private static CoconaParameterBinder CreateCoconaParameterBinder(Action<IServiceCollection>? registerDependencies = null)
     {
-        return new CoconaParameterBinder(new ServiceCollection().BuildServiceProvider(), new CoconaValueConverter(), new DataAnnotationsParameterValidatorProvider());
+        var services = new ServiceCollection();
+        registerDependencies?.Invoke(services);
+        return new CoconaParameterBinder(services.BuildServiceProvider(), new CoconaValueConverter(), new DataAnnotationsParameterValidatorProvider());
     }
 
     [Fact]
@@ -168,8 +170,20 @@ public class ParameterValidationTest
         var result = binder.Bind(command, Array.Empty<CommandOption>(), new[] { new CommandArgument("0", 0) });
         result.Should().HaveCount(1);
     }
+    
+    [Fact]
+    public void Bind_Argument_DataAnnotationsParameterValidator_UsingDependencyInjection()
+    {
+        var command = CreateCommand(new[]
+        {
+            new CommandArgumentDescriptor(typeof(int), "arg0", 0, "", CoconaDefaultValue.None, new [] { new IsEvenUsingDependencyInjectionAttribute() } )
+        });
 
-
+        var binder = CreateCoconaParameterBinder(services => services.AddSingleton<Calculator>());
+        var result = binder.Bind(command, Array.Empty<CommandOption>(), new[] { new CommandArgument("2", 0) });
+        result.Should().HaveCount(1);
+    }
+    
     class MyAttribute : Attribute
     {
     }
@@ -187,6 +201,27 @@ public class ParameterValidationTest
                 ? ValidationResult.Success
                 : new ValidationResult("List contains uneven numbers.");
         }
+    }
+    
+    class IsEvenUsingDependencyInjectionAttribute : ValidationAttribute
+    {
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+        {
+            if (value is not int number)
+            {
+                return new ValidationResult($"Could not validate value, values's type is {value?.GetType()}");
+            }
+            
+            var calculator = validationContext.GetRequiredService<Calculator>();
+            return calculator.IsEven(number)
+                ? ValidationResult.Success
+                : new ValidationResult("Value is an uneven number.");
+        }
+    }
+    
+    class Calculator
+    {
+        public bool IsEven(int number) => number % 2 == 0;
     }
 
     class CommandParameterValidationTest

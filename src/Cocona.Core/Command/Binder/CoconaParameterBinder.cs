@@ -225,7 +225,7 @@ public class CoconaParameterBinder : ICoconaParameterBinder
 
     private object? Validate(ICommandParameterDescriptor commandParameter, object? value)
     {
-        var ctx = new CoconaParameterValidationContext(commandParameter, value);
+        var ctx = new CoconaParameterValidationContext(_serviceProvider, commandParameter, value);
         foreach (var validator in _validatorProvider.CreateValidators(commandParameter))
         {
             var validationFailed = validator.Validate(ctx).FirstOrDefault();
