@@ -12,7 +12,7 @@ public partial class CoconaApp
     /// </summary>
     /// <returns></returns>
     public static CoconaApp Create(string[]? args = default, Action<CoconaAppOptions>? configureOptions = null)
-        => new CoconaAppBuilder(args).Build();
+        => new CoconaAppBuilder(args, configureOptions).Build();
 
     /// <summary>
     /// Creates an instance of <see cref="CoconaAppBuilder"/>.
