@@ -150,6 +150,27 @@ public class CoconaCommandBuilderTest
     {
         public void Hello() => Console.WriteLine("Hello");
     }
+    
+    [Fact]
+    public void AddCommands_Interface()
+    {
+        var builder = new CoconaCommandsBuilder();
+        builder.AddCommands<ICommands>();
+
+        var built = builder.Build();
+        built.Should().HaveCount(2);
+        built[0].Should().BeOfType<TypeCommandData>().Subject.Type.Should().Be<InterfaceCommands>();
+        built[1].Should().BeOfType<TypeCommandData>().Subject.Type.Should().Be<MoreInterfaceCommands>();
+    }
+    
+    interface ICommands
+    { }
+    
+    class InterfaceCommands : ICommands
+    { }
+    
+    class MoreInterfaceCommands : ICommands
+    { }
 
     [Fact]
     public void Filter_Builder_UseFilter()

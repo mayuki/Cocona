@@ -167,7 +167,11 @@ app.Run();
 You can add (classic) Class-based style commands with the `AddCommands<T>` method.
 
 ```csharp
+// Adds a MyCommand class
 app.AddCommands<MyCommand>();
+
+// Adds all classes inheriting from the ICommands interface
+app.AddCommands<ICommands>();
 ```
 
 #### Public method as a command (Class-based style)

@@ -144,8 +144,21 @@ public static class CoconaCommandsBuilderExtensions
         ThrowHelper.ThrowIfNull(commandType);
 
         var conventions = new List<Action<ICommandBuilder>>();
-        builder.Add(new TypeCommandDataSource(commandType, conventions, builder.GetFilters().ToArray()));
+        if (!commandType.IsInterface)
+        {
+            builder.Add(new TypeCommandDataSource(commandType, conventions, builder.GetFilters().ToArray()));
+            return new CommandTypeConventionBuilder(conventions);
+        }
+        
+        var commandTypes = commandType.Assembly.DefinedTypes
+            .Where(x => x is { IsAbstract: false, IsInterface: false } && commandType.IsAssignableFrom(x))
+            .Select(x => x.AsType());
 
+        foreach (var type in commandTypes)
+        {
+            builder.Add(new TypeCommandDataSource(type, conventions, builder.GetFilters().ToArray()));
+        }
+        
         return new CommandTypeConventionBuilder(conventions);
     }
 
