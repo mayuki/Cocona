@@ -109,7 +109,7 @@ class Program
 
 ### Try to run!
 ```sh
-$ dotnet run
+$ dotnet run -- --help
 Usage: ConsoleAppSample [--name <String>]
 
 Options:
