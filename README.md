@@ -1,3 +1,23 @@
+# WildCoco
+
+**WildCoco** is a personal fork of [Cocona](https://github.com/mayuki/Cocona) – a .NET command-line application framework that’s lightweight, expressive, and powerful.
+
+This version is customized for my own development needs and experimentation. While based on the original Cocona project, **WildCoco** may include personal modifications, tweaks, or new features that better fit my use cases.
+
+> ⚠️ Note: This project is not actively maintained for public use. It's intended for personal development and may not follow the upstream project closely.
+
+## Original Project
+
+The original Cocona repository can be found here: [https://github.com/mayuki/Cocona](https://github.com/mayuki/Cocona)
+
+Huge thanks to the original author for their work!
+
+## License
+
+This project continues to use the [MIT License](LICENSE), consistent with the original Cocona project.
+
+
+
 # ![Cocona](https://raw.githubusercontent.com/mayuki/Cocona/master/docs/assets/logo.svg)
 Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it easy and fast to build console applications on .NET.🚀
 
