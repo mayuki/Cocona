@@ -1,0 +1,1 @@
+﻿T:System.Console;Don't use System.Console. Use IWildCocoConsoleProvider instead of System.Console.

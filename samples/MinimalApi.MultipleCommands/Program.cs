@@ -1,6 +1,7 @@
-using Cocona;
+using WildCoco;
+using WildCoco;
 
-var app = CoconaApp.Create();
+var app = WildCocoApp.Create();
 
 app.AddCommand("hello", ([Option('u', Description = "Print a name converted to upper-case.")] bool toUpperCase, [Argument(Description = "Your name")] string name) =>
     {

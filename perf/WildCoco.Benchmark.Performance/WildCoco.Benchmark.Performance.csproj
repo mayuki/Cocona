@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\WildCoco.Core\WildCoco.Core.csproj" />
+    <ProjectReference Include="..\..\src\WildCoco\WildCoco.csproj" />
+  </ItemGroup>
+
+  <Target Name="AddCustomAliases" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'WildCoco' AND '%(ReferencePath.NuGetPackageId)' == 'WildCoco' AND '%(ReferencePath.NuGetPackageVersion)' == '1.1.0'">
+        <Aliases>WildCoco_v1_1_0</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
+</Project>

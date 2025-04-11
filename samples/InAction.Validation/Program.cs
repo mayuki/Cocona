@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using Cocona;
+using WildCoco;
+using WildCoco;
 
 namespace InAction.Validation;
 
@@ -7,7 +8,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     public void Run([Range(1, 128)]int width, [Range(1, 128)]int height, [Argument][PathExists]string filePath)

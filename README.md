@@ -1,34 +1,34 @@
 # WildCoco
 
-**WildCoco** is a personal fork of [Cocona](https://github.com/mayuki/Cocona) – a .NET command-line application framework that’s lightweight, expressive, and powerful.
+**WildCoco** is a personal fork of [WildCoco](https://github.com/mayuki/WildCoco) – a .NET command-line application framework that’s lightweight, expressive, and powerful.
 
-This version is customized for my own development needs and experimentation. While based on the original Cocona project, **WildCoco** may include personal modifications, tweaks, or new features that better fit my use cases.
+This version is customized for my own development needs and experimentation. While based on the original WildCoco project, **WildCoco** may include personal modifications, tweaks, or new features that better fit my use cases.
 
 > ⚠️ Note: This project is not actively maintained for public use. It's intended for personal development and may not follow the upstream project closely.
 
 ## Original Project
 
-The original Cocona repository can be found here: [https://github.com/mayuki/Cocona](https://github.com/mayuki/Cocona)
+The original WildCoco repository can be found here: [https://github.com/mayuki/WildCoco](https://github.com/mayuki/WildCoco)
 
 Huge thanks to the original author for their work!
 
 ## License
 
-This project continues to use the [MIT License](LICENSE), consistent with the original Cocona project.
+This project continues to use the [MIT License](LICENSE), consistent with the original WildCoco project.
 
 
 
-# ![Cocona](https://raw.githubusercontent.com/mayuki/Cocona/master/docs/assets/logo.svg)
-Micro-framework for .NET **Co**re **con**sole **a**pplication. Cocona makes it easy and fast to build console applications on .NET.🚀
+# ![WildCoco](https://raw.githubusercontent.com/mayuki/WildCoco/master/docs/assets/logo.svg)
+Micro-framework for .NET **Co**re **con**sole **a**pplication. WildCoco makes it easy and fast to build console applications on .NET.🚀
 
-[![Build Status](https://dev.azure.com/misuzilla/Cocona/_apis/build/status/Cocona?branchName=master)](https://dev.azure.com/misuzilla/Cocona/_build/latest?definitionId=18&branchName=master) [![NuGet Package: Cocona](https://img.shields.io/nuget/vpre/Cocona?label=NuGet%3A%20Cocona)](https://www.nuget.org/packages/Cocona) [![NuGet Package: Cocona.Lite](https://img.shields.io/nuget/vpre/Cocona.Lite?label=NuGet%3A%20Cocona.Lite)](https://www.nuget.org/packages/Cocona.Lite)
+[![Build Status](https://dev.azure.com/misuzilla/WildCoco/_apis/build/status/WildCoco?branchName=master)](https://dev.azure.com/misuzilla/WildCoco/_build/latest?definitionId=18&branchName=master) [![NuGet Package: WildCoco](https://img.shields.io/nuget/vpre/WildCoco?label=NuGet%3A%20WildCoco)](https://www.nuget.org/packages/WildCoco) [![NuGet Package: WildCoco.Lite](https://img.shields.io/nuget/vpre/WildCoco.Lite?label=NuGet%3A%20WildCoco.Lite)](https://www.nuget.org/packages/WildCoco.Lite)
 
-### ⏱ Create a console application with Cocona in seconds.
+### ⏱ Create a console application with WildCoco in seconds.
 ```csharp
-CoconaApp.Run((string? name, bool hey) =>
+WildCocoApp.Run((string? name, bool hey) =>
     Console.WriteLine($"{(hey ? "Hey" :"Hello")} {(name ?? "Guest")}!"));
 ```
-![](https://raw.githubusercontent.com/mayuki/Cocona/master/docs/assets/intro-in-seconds.gif)
+![](https://raw.githubusercontent.com/mayuki/WildCoco/master/docs/assets/intro-in-seconds.gif)
 
 ## Feature
 - 🚀 **Make it easy to build console applications on .NET.**
@@ -45,8 +45,8 @@ CoconaApp.Run((string? name, bool hey) =>
     - Built-in similar commands suggestion
     - Shell command-line completion support for `bash` and `zsh`
 - 🛠 **Highly modulable/customizable CLI framework.**
-    - Cocona built on top of `Microsoft.Extensions.*` framework. Cocona natively supports Logging, DI, Configuration and ConsoleLifetime.
-    - Don't you need `Microsoft.Extensions.*`? [then you can use a lightweight version of Cocona (named Cocona.Lite)](#performance--coconalite).
+    - WildCoco built on top of `Microsoft.Extensions.*` framework. WildCoco natively supports Logging, DI, Configuration and ConsoleLifetime.
+    - Don't you need `Microsoft.Extensions.*`? [then you can use a lightweight version of WildCoco (named WildCoco.Lite)](#performance--WildCocolite).
 
 [You can find sample code for various features.](samples)
 
@@ -60,7 +60,7 @@ CoconaApp.Run((string? name, bool hey) =>
     - [Arguments](#arguments)
     - [Sub-commands](#sub-commands)
     - [Option-like commands](#option-like-commands)
-- [Cocona in action](#cocona-in-action)
+- [WildCoco in action](#WildCoco-in-action)
     - [Parameter set](#parameter-set)
     - [Exit code](#exit-code)
     - [Validation](#validation)
@@ -70,7 +70,7 @@ CoconaApp.Run((string? name, bool hey) =>
     - [Configuration](#configuration)
     - [Logging](#logging)
     - [Shell command-line completion](#shell-command-line-completion)
-- [Performance & Cocona.Lite](#performance--coconalite)
+- [Performance & WildCoco.Lite](#performance--WildCocolite)
 - [Advanced](#advanced)
     - [Localization](#localization)
     - [Hide command from help](#hide-command-from-help)
@@ -85,10 +85,10 @@ CoconaApp.Run((string? name, bool hey) =>
 Install NuGet package from NuGet.org
 
 ```sh
-$ dotnet add package Cocona
+$ dotnet add package WildCoco
 
 # A lightweight version is also available if you prefer less dependency.
-$ dotnet add package Cocona.Lite
+$ dotnet add package WildCoco.Lite
 ```
 
 ## Requirements
@@ -99,8 +99,8 @@ $ dotnet add package Cocona.Lite
 ## Getting Started
 
 ```csharp
-using Cocona;
-CoconaApp.Run((string name) =>
+using WildCoco;
+WildCocoApp.Run((string name) =>
 {
     Console.WriteLine($"Hello {name}");
 })
@@ -109,13 +109,13 @@ CoconaApp.Run((string name) =>
 <details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
 
 ```csharp
-using Cocona;
+using WildCoco;
 class Program
 {
     static void Main(string[] args)
     {
-        // Cocona parses command-line and executes a command.
-        CoconaApp.Run<Program>(args);
+        // WildCoco parses command-line and executes a command.
+        WildCocoApp.Run<Program>(args);
     }
 
     // public method as a command ™
@@ -137,34 +137,34 @@ Options:
   -h, --help         Show help message
   --version          Show version
 
-$ dotnet run -- --name Cocona
-Hello Cocona
+$ dotnet run -- --name WildCoco
+Hello WildCoco
 ```
 
 ### Extra: Publish the application as a single-file executable
 If your application runs on .NET Core 3.0 or later, you can publish the app as a single-file executable. (see. [What's new in .NET Core 3.0](https://docs.microsoft.com/en-us/dotnet/core/whats-new/dotnet-core-3-0#single-file-executables))
 ```sh
 PS> dotnet publish -r win-x64 -p:PublishSingleFile=true
-PS> app.exe --name Cocona
+PS> app.exe --name WildCoco
 
 $ dotnet publish -r linux-x64 -p:PublishSingleFile=true
-$ ./app --name Cocona
+$ ./app --name WildCoco
 ```
 
 ## Command-line handling basics
 ### Command
 #### Minimal API style
 
-If your application has a single command, you can easily define and run it with `CoconaApp.Run`.
+If your application has a single command, you can easily define and run it with `WildCocoApp.Run`.
 
 ```csharp
-CoconaApp.Run((string name, int age) => { ... });
+WildCocoApp.Run((string name, int age) => { ... });
 ```
 
 This is equivalent to the following code using the Minimal API Builder.
 
 ```csharp
-var builder = CoconaApp.CreateBuilder();
+var builder = WildCocoApp.CreateBuilder();
 var app = builder.Build();
 
 app.AddCommand((string name, int age) => { ... });
@@ -175,7 +175,7 @@ app.Run();
 If you want your application to have more than one command, you can add named commands. See [Sub commands](#sub-commands) for details.
 
 ```csharp
-var app = CoconaApp.Create(); // is a shorthand for `CoconaApp.CreateBuilder().Build()`
+var app = WildCocoApp.Create(); // is a shorthand for `WildCocoApp.CreateBuilder().Build()`
 
 app.AddCommand("list", () => { ... });
 app.AddCommand("add", () => { ... });
@@ -191,9 +191,9 @@ app.AddCommands<MyCommand>();
 ```
 
 #### Public method as a command (Class-based style)
-By default, Cocona treats `public` methods as commands.
+By default, WildCoco treats `public` methods as commands.
 
-If an application has one public method, Cocona calls it on startup. If there are more than one, they are treated as sub-commands. (see also [Sub commands](#sub-commands))
+If an application has one public method, WildCoco calls it on startup. If there are more than one, they are treated as sub-commands. (see also [Sub commands](#sub-commands))
 
 ```csharp
 // Treats a method name as a command name. (Below method is named `command`)
@@ -203,7 +203,7 @@ public void Command() { ... }
 [Command("commandname")]
 public void Command() { ... }
 
-// Cocona will ignore this method.
+// WildCoco will ignore this method.
 [Ignore]
 public void Ignored() { ... }
 ```
@@ -211,7 +211,7 @@ public void Ignored() { ... }
 If you want to specify a method as a command manually, set `false` to `TreatPublicMethodsAsCommands` option at startup. All command methods require `CommandAttribute`.
 
 ```csharp
-CoconaApp.Run<Program>(args, options =>
+WildCocoApp.Run<Program>(args, options =>
 {
     // If the option value is `false`, All command methods require `CommandAttribute`.
     options.TreatPublicMethodsAsCommands = false;
@@ -219,7 +219,7 @@ CoconaApp.Run<Program>(args, options =>
 ```
 
 ### Options
-Cocona exposes method parameters as command-line options (also known as flags).
+WildCoco exposes method parameters as command-line options (also known as flags).
 
 ```csharp
 // This command accepts `--name <string>` and `--hey` options.
@@ -234,7 +234,7 @@ public void Hello(string name, bool hey) { ... }
 ```
 </details>
 
-If the parameter of a method is defined as nullable, Cocona will treat them as non-mandatory option for a command. (That is, the parameters are treated as **required option** by default excepts boolean).
+If the parameter of a method is defined as nullable, WildCoco will treat them as non-mandatory option for a command. (That is, the parameters are treated as **required option** by default excepts boolean).
 If a parameter is boolean, it's assumed that `false` default value is specified.
 
 ```csharp
@@ -245,7 +245,7 @@ app.AddCommand((string? name) => { ... });
 
 <details><summary>Optional with default value (Class-based style)</summary>
 
-If method parameters are [optional argument](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/named-and-optional-arguments#optional-arguments), Cocona treats those as optional command options. (That is, the parameters are treated as **required option** by default excepts boolean).
+If method parameters are [optional argument](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/named-and-optional-arguments#optional-arguments), WildCoco treats those as optional command options. (That is, the parameters are treated as **required option** by default excepts boolean).
 If a parameter is boolean, it's assumed that `false` default value is specified.
 
 ```csharp
@@ -259,7 +259,7 @@ You can specify short-name to an option using `OptionAttribute`.
 
 ```csharp
 // The command accepts `-f` or `--force` option.
-// Cocona's command-line parser accepts getopt-like styles. See below.
+// WildCoco's command-line parser accepts getopt-like styles. See below.
 // $ remove --force --recursive
 // $ remove -r -f
 // $ remove -rf
@@ -270,7 +270,7 @@ app.AddCommand(([Option('f')]bool force, [Option('r')]bool recursive) => { ... }
 
 ```csharp
 // The command accepts `-f` or `--force` option.
-// Cocona's command-line parser accepts getopt-like styles. See below.
+// WildCoco's command-line parser accepts getopt-like styles. See below.
 // $ remove --force --recursive
 // $ remove -r -f
 // $ remove -rf
@@ -312,7 +312,7 @@ public void HasDescription([Option(Description = "Description of the option")] i
 </details>
 
 ```
-Usage: CoconaSample.InAction.CommandOptions has-description [--value <Int32>] [--help] arg
+Usage: WildCocoSample.InAction.CommandOptions has-description [--value <Int32>] [--help] arg
 
 Arguments:
   0: arg    Description of the argument (Required)
@@ -322,7 +322,7 @@ Options:
   -h, --help         Show help message
 ```
 
-- See also: [CoconaSample.InAction.CommandOptions](samples/InAction.CommandOptions)
+- See also: [WildCocoSample.InAction.CommandOptions](samples/InAction.CommandOptions)
 
 ### Arguments
 Command-line arguments are defined as method parameters as same as options.
@@ -354,14 +354,14 @@ public void Copy([Argument]string[] src, [Argument]string dest) { ... }
 ```
 </details>
 
-- See also: [CoconaSample.InAction.ManyArguments](samples/InAction.ManyArguments)
+- See also: [WildCocoSample.InAction.ManyArguments](samples/InAction.ManyArguments)
 
 ### Sub-commands
 
 You can add multiple commands with names and expose them as sub-commands. You can implement an application that has sub-commands similar to `dotnet`, `git`, `kubectl` etc...
 
 ```csharp
-var app = CoconaApp.Create();
+var app = WildCocoApp.Create();
 app.AddCommand("hello", ([Argument]string name) => Console.WriteLine($"Hello {name}!"))
     .WithDescription("Say hello");
 app.AddCommand("bye", ([Argument]string name) => Console.WriteLine($"Goodbye {name}!"))
@@ -376,7 +376,7 @@ If a command type has more than one public method or `[Command]`, those commands
 ```csharp
 static void Main(string[] args)
 {
-    CoconaApp.Run<Program>(args);
+    WildCocoApp.Run<Program>(args);
 }
 
 [Command(Description = "Say hello")]
@@ -409,7 +409,7 @@ Options:
   --version     Show version
 ```
 
-When a user mistypes a command, Cocona prints command autogenerated suggestions.
+When a user mistypes a command, WildCoco prints command autogenerated suggestions.
 
 ```bash
 $ ./SubCommandApp hell
@@ -419,14 +419,14 @@ Similar commands:
   hello
 ```
 
-- See also: [CoconaSample.GettingStarted.SubCommandApp](samples/GettingStarted.SubCommandApp)
+- See also: [WildCocoSample.GettingStarted.SubCommandApp](samples/GettingStarted.SubCommandApp)
 
 ##### Nested sub-commands
 
-Cocona also supports nested sub-commands. Specify the class that has nested sub-commands using `AddSubCommand` method.
+WildCoco also supports nested sub-commands. Specify the class that has nested sub-commands using `AddSubCommand` method.
 
 ```csharp
-var app = CoconaApp.Create();
+var app = WildCocoApp.Create();
 // ./myapp info
 app.AddCommand("info", () => Console.WriteLine("Show information"));
 
@@ -451,14 +451,14 @@ app.Run();
 
 <details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
 
-Cocona also supports nested sub-commands. Specify the class that has nested sub-commands using `HasSubCommands` attribute.
+WildCoco also supports nested sub-commands. Specify the class that has nested sub-commands using `HasSubCommands` attribute.
 
 ```csharp
 [HasSubCommands(typeof(Server), Description = "Server commands")]
 [HasSubCommands(typeof(Client), Description = "Client commands")]
 class Program
 {
-    static void Main(string[] args) => CoconaApp.Run<Program>(args);
+    static void Main(string[] args) => WildCocoApp.Run<Program>(args);
 
     // ./myapp info
     public void Info() => Console.WriteLine("Show information");
@@ -512,7 +512,7 @@ Options:
 
 #### PrimaryCommand
 ```csharp
-var app = CoconaApp.Create();
+var app = WildCocoApp.Create();
 app.AddCommand((bool foo, string bar) => { ... }); // Primary command
 
 app.AddCommand("hello", () => { ... });
@@ -541,7 +541,7 @@ For example, easy to understand examples like `--version` and `--help`.
 These are the options of a command, but they behave as a command when specified.
 
 ```csharp
-var app = CoconaApp.Create();
+var app = WildCocoApp.Create();
 app.AddCommand(() => Console.WriteLine("Execute"))
     .OptionLikeCommand(x =>
     {
@@ -578,10 +578,10 @@ Hello Alice!
     - Example: If `--foo --bar --optionlikecommand --baz arg0` and `--optionlikecommand` is an Option-like command, the command will be passed `--baz arg0`.
 - Arguments are not displayed in help.
 
-## Cocona in action
+## WildCoco in action
 
 ### Parameter set
-Cocona has a mechanism called Parameter set that defines common parameters for multiple commands.
+WildCoco has a mechanism called Parameter set that defines common parameters for multiple commands.
 For example, if every command receives a user name, host name, etc., it would be annoying to define them in a method for each command.
 
 A class or `record` implements the `ICommandParameterSet` interface and treats it as a Parameter set.
@@ -658,10 +658,10 @@ public async ValueTask<int> ReturnValueTaskAsync() { return -1; }
 public void Throw() { throw new CommandExitedException(128); }
 ```
 
-- See also: [CoconaSample.InAction.ExitCode](samples/InAction.ExitCode)
+- See also: [WildCocoSample.InAction.ExitCode](samples/InAction.ExitCode)
 
 ### Validation
-Cocona can use attributes to validate options and arguments. It is similar to ASP.NET Core MVC. 
+WildCoco can use attributes to validate options and arguments. It is similar to ASP.NET Core MVC. 
 
 .NET BCL (`System.ComponentModel.DataAnnotations`) has some pre-defined attributes:
 
@@ -677,7 +677,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     public void Run([Range(1, 128)]int width, [Range(1, 128)]int height, [Argument][PathExists]string filePath)
@@ -700,12 +700,12 @@ class PathExistsAttribute : ValidationAttribute
 }
 ```
 
-- See also: [CoconaSample.InAction.Validation](samples/InAction.Validation)
+- See also: [WildCocoSample.InAction.Validation](samples/InAction.Validation)
 
 ### Shutdown event handling
 
 ```csharp
-app.AddCommand(async (CoconaAppContext ctx) =>
+app.AddCommand(async (WildCocoAppContext ctx) =>
 {
     while (!ctx.CancellationToken.IsCancellationRequested)
     {
@@ -717,7 +717,7 @@ app.AddCommand(async (CoconaAppContext ctx) =>
 <details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
 
 ```csharp
-class Program : CoconaConsoleAppBase
+class Program : WildCocoConsoleAppBase
 {
     ...
     public async Task RunAsync()
@@ -730,10 +730,10 @@ class Program : CoconaConsoleAppBase
 }
 ```
 
-Alternatively, you can use `ICoconaAppContextAccessor` and `CoconaAppContext` to access `CancellationToken`.
+Alternatively, you can use `IWildCocoAppContextAccessor` and `WildCocoAppContext` to access `CancellationToken`.
 
 ```csharp
-public async Task RunAsync([FromService]ICoconaAppContextAccessor contextAccessor)
+public async Task RunAsync([FromService]IWildCocoAppContextAccessor contextAccessor)
 {
     var ctx = contextAccessor.Current ?? throw new InvalidOperationException();
     while (!ctx.CancellationToken.IsCancellationRequested)
@@ -744,10 +744,10 @@ public async Task RunAsync([FromService]ICoconaAppContextAccessor contextAccesso
 ```
 </details>
 
-- See also: [CoconaSample.InAction.HandleShutdownSignal](samples/InAction.HandleShutdownSignal)
+- See also: [WildCocoSample.InAction.HandleShutdownSignal](samples/InAction.HandleShutdownSignal)
 
 ### Command filter
-Cocona has filter mechanism like ASP.NET Core's action filter. Filters allow custom processing before or after you run a command.
+WildCoco has filter mechanism like ASP.NET Core's action filter. Filters allow custom processing before or after you run a command.
 
 - `ICommandFilter` interface
 - `CommandFilterAttribute` attribute
@@ -755,7 +755,7 @@ Cocona has filter mechanism like ASP.NET Core's action filter. Filters allow cus
 - `IFilterMetadata` interface
 
 ```csharp
-var app = CoconaApp.Create();
+var app = WildCocoApp.Create();
 
 // Add a command with command filters.
 app.AddCommand(() =>
@@ -774,7 +774,7 @@ app.UseFilter(new MyFilter());
 
 class SampleCommandFilterAttribute : CommandFilterAttribute
 {
-    public override async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+    public override async ValueTask<int> OnCommandExecutionAsync(WildCocoCommandExecutingContext ctx, CommandExecutionDelegate next)
     {
         Console.WriteLine($"Before Command: {ctx.Command.Name}");
         try
@@ -796,7 +796,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     [SampleCommandFilter]
@@ -808,7 +808,7 @@ class Program
 
 class SampleCommandFilterAttribute : CommandFilterAttribute
 {
-    public override async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+    public override async ValueTask<int> OnCommandExecutionAsync(WildCocoCommandExecutingContext ctx, CommandExecutionDelegate next)
     {
         Console.WriteLine($"Before Command: {ctx.Command.Name}");
         try
@@ -824,13 +824,13 @@ class SampleCommandFilterAttribute : CommandFilterAttribute
 ```
 </details>
 
-- See also: [CoconaSample.InAction.CommandFilter](samples/InAction.CommandFilter)
+- See also: [WildCocoSample.InAction.CommandFilter](samples/InAction.CommandFilter)
 
 ### Dependency Injection
-If a constructor has parameters, Cocona injects an instance obtained from IServiceProvider into the parameter. 
+If a constructor has parameters, WildCoco injects an instance obtained from IServiceProvider into the parameter. 
 
 ```csharp
-var builder = CoconaApp.CreateBuilder();
+var builder = WildCocoApp.CreateBuilder();
 builder.Services.AddTransient<MyService>();
 
 var app = builder.Build();
@@ -858,7 +858,7 @@ class MyService
 
 <details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
 
-If a constructor has parameters, Cocona injects an instance obtained from IServiceProvider into the parameter. Cocona will also inject an instance into the parameter if a command method parameter is marked as `[FromService]`.
+If a constructor has parameters, WildCoco injects an instance obtained from IServiceProvider into the parameter. WildCoco will also inject an instance into the parameter if a command method parameter is marked as `[FromService]`.
 
 ```csharp
 class Program
@@ -870,7 +870,7 @@ class Program
 
     static void Main(string[] args)
     {
-        CoconaApp.Create()
+        WildCocoApp.Create()
             .ConfigureServices(services =>
             {
                 services.AddTransient<MyService>();
@@ -901,15 +901,15 @@ class MyService
 ```
 </details>
 
-- See also: [CoconaSample.InAction.DependencyInjection](samples/InAction.DependencyInjection)
+- See also: [WildCocoSample.InAction.DependencyInjection](samples/InAction.DependencyInjection)
 
 ### Configuration
-- See also: [CoconaSample.InAction.AppConfiguration](samples/InAction.AppConfiguration)
+- See also: [WildCocoSample.InAction.AppConfiguration](samples/InAction.AppConfiguration)
 
 ### Logging
 
 ```csharp
-var builder = CoconaApp.CreateBuilder();
+var builder = WildCocoApp.CreateBuilder();
 builder.Logging.AddDebug();
 
 var app = builder.Build();
@@ -922,11 +922,11 @@ app.Run();
 <details><summary>Class-based style (for .NET Standard / .NET 5)</summary>
 
 ```csharp
-class Program : CoconaConsoleAppBase
+class Program : WildCocoConsoleAppBase
 {
     static void Main(string[] args)
     {
-        CoconaApp.Create()
+        WildCocoApp.Create()
             .ConfigureLogging(logging =>
             {
                 logging.AddDebug();
@@ -943,11 +943,11 @@ class Program : CoconaConsoleAppBase
 </details>
 
 ### Shell command-line completion
-Cocona provides support for shell command-line completion (also known as tab completion).
+WildCoco provides support for shell command-line completion (also known as tab completion).
 
 ![Tab shell completion](https://user-images.githubusercontent.com/9012/83354785-effcd400-a395-11ea-8226-c21e114c746f.gif)
 
-Cocona generates a shell script for command-line completion from a command definition and allows users to use command-line completion by loading it. The `--completion` built-in option is used to specify the name of a shell to generate a script.
+WildCoco generates a shell script for command-line completion from a command definition and allows users to use command-line completion by loading it. The `--completion` built-in option is used to specify the name of a shell to generate a script.
 
 ```sh
 $ source <(./myapp --completion bash)
@@ -963,31 +963,31 @@ It is also possible to dynamically generate command-line completion candidates a
 
 - See: [samples/Advanced.ShellCompletionCandidates](samples/Advanced.ShellCompletionCandidates)
 
-## Performance & Cocona.Lite
-`Microsoft.Extensions.*` are powerful but little heavy libraries. If you don't need`Microsoft.Extensions.*`, you can use a lightweight version of Cocona. (named [Cocona.Lite](https://www.nuget.org/packages/Cocona.Lite/))
+## Performance & WildCoco.Lite
+`Microsoft.Extensions.*` are powerful but little heavy libraries. If you don't need`Microsoft.Extensions.*`, you can use a lightweight version of WildCoco. (named [WildCoco.Lite](https://www.nuget.org/packages/WildCoco.Lite/))
 
 ### Feature & Limitation
-- Almost the same features and APIs as Cocona (command-line, help, etc.)
+- Almost the same features and APIs as WildCoco (command-line, help, etc.)
 - No `Microsoft.Extensions.*` dependencies
     - No Logging, DI, Configuration are provided
 - Fewer overheads
 - The minimal Dependency Injection function
 
 ### Installing & How to use
-Just install NuGet package `Cocona.Lite` instead of `Cocona`.
+Just install NuGet package `WildCoco.Lite` instead of `WildCoco`.
 
 ```sh
-$ dotnet add package Cocona.Lite
+$ dotnet add package WildCoco.Lite
 ```
 
-Then in your source code, use `CoconaLiteApp` class instead of `CoconaApp` class.
+Then in your source code, use `WildCocoLiteApp` class instead of `WildCocoApp` class.
 
 ```csharp
-CoconaLiteApp.Run(() => { ... });
+WildCocoLiteApp.Run(() => { ... });
 ```
 
 ```csharp
-var app = CoconaLiteApp.Create();
+var app = WildCocoLiteApp.Create();
 app.AddCommand(() => { ... });
 app.Run();
 ```
@@ -995,7 +995,7 @@ app.Run();
 ```csharp
 static void Main(string[] args)
 {
-    CoconaLiteApp.Run<Program>(args);
+    WildCocoLiteApp.Run<Program>(args);
 }
 ```
 
@@ -1005,16 +1005,16 @@ static void Main(string[] args)
 Microsoft.Extensions.Localization can be used to localize your application. Please refer to the sample code for details.
 
 ```csharp
-// Register Microsoft.Extensions.Localization and ICoconaLocalizer services
-// Cocona uses `ICoconaLocalizer` to localize command descriptions.
-var builder = CoconaApp.CreateBuilder();
+// Register Microsoft.Extensions.Localization and IWildCocoLocalizer services
+// WildCoco uses `IWildCocoLocalizer` to localize command descriptions.
+var builder = WildCocoApp.CreateBuilder();
 builder.Services.AddLocalization(options =>
 {
     options.ResourcesPath = "Resources";
 });
 
-// `MicrosoftExtensionLocalizationCoconaLocalizer` is not included in Cocona core library.
-builder.Services.TryAddTransient<ICoconaLocalizer, MicrosoftExtensionLocalizationCoconaLocalizer>();
+// `MicrosoftExtensionLocalizationWildCocoLocalizer` is not included in WildCoco core library.
+builder.Services.TryAddTransient<IWildCocoLocalizer, MicrosoftExtensionLocalizationWildCocoLocalizer>();
 
 var app = builder.Build();
 app.AddCommand("hello", ([Argument(Description = "Name")]string name, IStringLocalizer<Program> localizer) =>
@@ -1026,13 +1026,13 @@ app.AddCommand("hello", ([Argument(Description = "Name")]string name, IStringLoc
 app.Run();
 ```
 
-- See also: [CoconaSample.Advanced.Localization](samples/Advanced.Localization)
+- See also: [WildCocoSample.Advanced.Localization](samples/Advanced.Localization)
 
 
 ### Hide command from help
 
 ```csharp
-var app = CoconaApp.Create();
+var app = WildCocoApp.Create();
 app.AddCommand("hello", (string name) =>
     {
         Console.WriteLine("Hello {0}!", name);
@@ -1046,7 +1046,7 @@ app.Run();
 ```
 
 ### Help customization
-- See also: [CoconaSample.Advanced.HelpTransformer](samples/Advanced.HelpTransformer)
+- See also: [WildCocoSample.Advanced.HelpTransformer](samples/Advanced.HelpTransformer)
 
 ### CommandMethodForwardedTo attribute
 The `CommandMethodForwardedTo` attribute allows you to specify that the substance of the specified command method is a different method and that the operation should be forwarded.
@@ -1063,13 +1063,13 @@ public void MyHelp()
 - See: [samples/Advanced.CommandMethodForwarding](samples/Advanced.CommandMethodForwarding)
 
 ### IgnoreUnknownOptions attribute
-Cocona treats unknown options as errors by default.
+WildCoco treats unknown options as errors by default.
 Now, you can set the IgnoreUnknownOptions attribute to ignore unknown options.
 
 ### GenericHost integration
 
-Cocona can be integrated with GenericHost of Microsoft.Extensions.Hosting.
-You can register the services with `UseCocona` extension method.
+WildCoco can be integrated with GenericHost of Microsoft.Extensions.Hosting.
+You can register the services with `UseWildCoco` extension method.
 
 ```csharp
 class Program
@@ -1077,7 +1077,7 @@ class Program
     static async Task Main(string[] args)
     {
         await Host.CreateDefaultBuilder()
-            .ConfigureCocona(args, new[] { typeof(Program) })
+            .ConfigureWildCoco(args, new[] { typeof(Program) })
             .Build()
             .RunAsync();
     }
@@ -1092,7 +1092,7 @@ class Program
 - See: [samples/Advanced.GenericHost](samples/Advanced.GenericHost)
 
 ## Related projects
-- [Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework): ConsoleAppFramework heavily inspired Cocona.
+- [Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework): ConsoleAppFramework heavily inspired WildCoco.
 
 ## License
 MIT License

@@ -1,15 +1,18 @@
-using Cocona;
-using Cocona.Command;
-using Cocona.Help;
-using Cocona.Help.DocumentModel;
+using WildCoco.Command;
+using WildCoco.Help;
+using WildCoco.Help.DocumentModel;
+using WildCoco;
+using WildCoco.Command;
+using WildCoco.Help;
+using WildCoco.Help.DocumentModel;
 
-namespace CoconaSample.Advanced.HelpTransformer;
+namespace WildCocoSample.Advanced.HelpTransformer;
 
 class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     [SampleTransformHelp]

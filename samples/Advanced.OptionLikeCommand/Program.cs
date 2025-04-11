@@ -1,12 +1,13 @@
-using Cocona;
+using WildCoco;
+using WildCoco;
 
-namespace CoconaSample.Advanced.OptionLikeCommand;
+namespace WildCocoSample.Advanced.OptionLikeCommand;
 
 class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     [OptionLikeCommand("hello", new[] {'f'}, typeof(Program), nameof(Hello))]

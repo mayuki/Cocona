@@ -1,14 +1,16 @@
-using Cocona;
-using Cocona.CommandLine;
-using Cocona.ShellCompletion.Candidate;
+using WildCoco.CommandLine;
+using WildCoco.ShellCompletion.Candidate;
+using WildCoco;
+using WildCoco.CommandLine;
+using WildCoco.ShellCompletion.Candidate;
 
-namespace CoconaSample.Advanced.ShellCompletionCandidates;
+namespace WildCocoSample.Advanced.ShellCompletionCandidates;
 
 class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args, options =>
+        WildCocoApp.Run<Program>(args, options =>
         {
             options.EnableShellCompletionSupport = true;
         });
@@ -30,7 +32,7 @@ class Program
     }
 }
 
-class StaticMemberNameProvider : ICoconaCompletionStaticCandidatesProvider
+class StaticMemberNameProvider : IWildCocoCompletionStaticCandidatesProvider
 {
     private readonly CompletionCandidateResult _results = CompletionCandidateResult.Keywords(
         new CompletionCandidateValue("Karen", ""),
@@ -40,10 +42,10 @@ class StaticMemberNameProvider : ICoconaCompletionStaticCandidatesProvider
         new CompletionCandidateValue("Aya", "")
     );
 
-    public CompletionCandidateResult GetCandidates(CoconaCompletionCandidatesMetadata metadata) => _results;
+    public CompletionCandidateResult GetCandidates(WildCocoCompletionCandidatesMetadata metadata) => _results;
 }
 
-class OnTheFlyMemberNameProvider : ICoconaCompletionOnTheFlyCandidatesProvider
+class OnTheFlyMemberNameProvider : IWildCocoCompletionOnTheFlyCandidatesProvider
 {
     private readonly CompletionCandidateValue[] _resultsSphere =
     {
@@ -59,7 +61,7 @@ class OnTheFlyMemberNameProvider : ICoconaCompletionOnTheFlyCandidatesProvider
         new CompletionCandidateValue("Shiina", "Shiina Natsukawa")
     };
 
-    public IReadOnlyList<CompletionCandidateValue> GetCandidates(CoconaCompletionCandidatesMetadata metadata, ParsedCommandLine parsedCommandLine)
+    public IReadOnlyList<CompletionCandidateValue> GetCandidates(WildCocoCompletionCandidatesMetadata metadata, ParsedCommandLine parsedCommandLine)
         => parsedCommandLine.Options.Any(x => x.Option.Name == "group" && string.Equals(x.Value, "trysail", StringComparison.OrdinalIgnoreCase))
             ? _resultsTrySail
             : _resultsSphere;

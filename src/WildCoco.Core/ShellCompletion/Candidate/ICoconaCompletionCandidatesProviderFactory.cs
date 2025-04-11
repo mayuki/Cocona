@@ -1,0 +1,7 @@
+namespace WildCoco.ShellCompletion.Candidate;
+
+public interface IWildCocoCompletionCandidatesProviderFactory
+{
+    IWildCocoCompletionStaticCandidatesProvider CreateStaticProvider(WildCocoCompletionCandidatesMetadata metadata);
+    IWildCocoCompletionOnTheFlyCandidatesProvider CreateOnTheFlyProvider(WildCocoCompletionCandidatesMetadata metadata);
+}

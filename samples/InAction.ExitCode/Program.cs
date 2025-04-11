@@ -1,8 +1,9 @@
-using Cocona;
+using WildCoco;
+using WildCoco;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
-namespace CoconaSample.InAction.ExitCode;
+namespace WildCocoSample.InAction.ExitCode;
 
 class Program
 {
@@ -17,7 +18,7 @@ class Program
     //        123
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     public int Return()
@@ -51,7 +52,7 @@ class Program
 
         void Baz()
         {
-            // When a user-code throws a `CommandExitedException`, Cocona handles as a non-local exit.
+            // When a user-code throws a `CommandExitedException`, WildCoco handles as a non-local exit.
 
             throw new CommandExitedException(128); // ExitCode: 128
             // throw new CommandExitedException("Error Message", 1);

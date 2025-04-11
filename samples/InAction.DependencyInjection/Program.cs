@@ -1,8 +1,9 @@
-using Cocona;
+using WildCoco;
+using WildCoco;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace CoconaSample.InAction.DependencyInjection;
+namespace WildCocoSample.InAction.DependencyInjection;
 
 class Program
 {
@@ -13,7 +14,7 @@ class Program
 
     static void Main(string[] args)
     {
-        CoconaApp.CreateHostBuilder()
+        WildCocoApp.CreateHostBuilder()
             .ConfigureLogging(logging =>
             {
                 logging.AddDebug();

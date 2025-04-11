@@ -1,12 +1,13 @@
-using Cocona;
+using WildCoco;
+using WildCoco;
 
-namespace CoconaSample.Advanced.CommandMethodForwarding;
+namespace WildCocoSample.Advanced.CommandMethodForwarding;
 
 class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     [CommandMethodForwardedTo(typeof(Program), nameof(Program.Hey))]
@@ -16,7 +17,7 @@ class Program
     public void Hey([Argument]string name)
         => Console.WriteLine($"Hello {name}");
 
-    [CommandMethodForwardedTo(typeof(Cocona.Command.BuiltIn.BuiltInOptionLikeCommands), nameof(Cocona.Command.BuiltIn.BuiltInOptionLikeCommands.ShowHelp))]
+    [CommandMethodForwardedTo(typeof(WildCoco.Command.BuiltIn.BuiltInOptionLikeCommands), nameof(WildCoco.Command.BuiltIn.BuiltInOptionLikeCommands.ShowHelp))]
     public void MyHelp()
         => throw new NotSupportedException();
 }

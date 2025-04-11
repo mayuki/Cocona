@@ -1,13 +1,14 @@
-using Cocona;
+using WildCoco;
+using WildCoco;
 
-namespace CoconaSample.GettingStarted.SubCommandApp;
+namespace WildCocoSample.GettingStarted.SubCommandApp;
 
 [HasSubCommands(typeof(SubCommands), Description = "Nested sub-commands")]
 class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args, options =>
+        WildCocoApp.Run<Program>(args, options =>
         {
             options.EnableShellCompletionSupport = true;
         });

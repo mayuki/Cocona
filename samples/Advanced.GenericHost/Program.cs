@@ -1,13 +1,13 @@
 using Microsoft.Extensions.Hosting;
 
-namespace CoconaSample.Advanced.GenericHost;
+namespace WildCocoSample.Advanced.GenericHost;
 
 class Program
 {
     static async Task Main(string[] args)
     {
         await Host.CreateDefaultBuilder()
-            .ConfigureCocona(args, new[] { typeof(Program) })
+            .ConfigureWildCoco(args, new[] { typeof(Program) })
             .Build()
             .RunAsync();
     }

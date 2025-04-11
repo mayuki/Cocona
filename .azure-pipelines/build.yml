@@ -80,12 +80,12 @@ jobs:
 #    - script: dotnet build -c Release
 #      displayName: dotnet build
 #
-#    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona/Cocona.csproj
-#      displayName: dotnet pack Cocona
-#    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Core/Cocona.Core.csproj
-#      displayName: dotnet pack Cocona.Core
-#    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/Cocona.Lite/Cocona.Lite.csproj
-#      displayName: dotnet pack Cocona.Lite
+#    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/WildCoco/WildCoco.csproj
+#      displayName: dotnet pack WildCoco
+#    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/WildCoco.Core/WildCoco.Core.csproj
+#      displayName: dotnet pack WildCoco.Core
+#    - script: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $BUILD_ARTIFACTSTAGINGDIRECTORY ./src/WildCoco.Lite/WildCoco.Lite.csproj
+#      displayName: dotnet pack WildCoco.Lite
 #
 #    # Publish to NuGet.org
 #    - task: NuGetCommand@2

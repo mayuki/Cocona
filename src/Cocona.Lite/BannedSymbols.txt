@@ -1,1 +1,0 @@
-﻿T:System.Console;Don't use System.Console. Use ICoconaConsoleProvider instead of System.Console.

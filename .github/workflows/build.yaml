@@ -10,7 +10,7 @@ on:
       - synchronize
 
 env:
-  AZURE_ARTIFACTS_FEED_URL: https://pkgs.dev.azure.com/misuzilla/Cocona/_packaging/Cocona-Canary/nuget/v3/index.json
+  AZURE_ARTIFACTS_FEED_URL: https://pkgs.dev.azure.com/misuzilla/WildCoco/_packaging/WildCoco-Canary/nuget/v3/index.json
   DOTNET_NOLOGO: true
 
 jobs:
@@ -49,12 +49,12 @@ jobs:
         shellcheck <(dotnet run -- --completion bash)
 
     # Packaging
-    - name: dotnet pack Cocona
-      run: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $GITHUB_WORKSPACE/artifacts ./src/Cocona/Cocona.csproj
-    - name: dotnet pack Cocona.Core
-      run: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $GITHUB_WORKSPACE/artifacts ./src/Cocona.Core/Cocona.Core.csproj
-    - name: dotnet pack Cocona.Lite
-      run: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $GITHUB_WORKSPACE/artifacts ./src/Cocona.Lite/Cocona.Lite.csproj
+    - name: dotnet pack WildCoco
+      run: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $GITHUB_WORKSPACE/artifacts ./src/WildCoco/WildCoco.csproj
+    - name: dotnet pack WildCoco.Core
+      run: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $GITHUB_WORKSPACE/artifacts ./src/WildCoco.Core/WildCoco.Core.csproj
+    - name: dotnet pack WildCoco.Lite
+      run: dotnet pack -c Release --no-build --version-suffix "$(versionSuffix)" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $GITHUB_WORKSPACE/artifacts ./src/WildCoco.Lite/WildCoco.Lite.csproj
 
     # Upload & Publish
     - uses: actions/upload-artifact@v4

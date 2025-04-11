@@ -1,18 +1,20 @@
 using System.Text.Json;
-using Cocona;
-using Cocona.Command.Binder;
+using WildCoco;
+using WildCoco.Command.Binder;
+using WildCoco;
+using WildCoco.Command.Binder;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CoconaSample.Advanced.JsonValueConverter;
+namespace WildCocoSample.Advanced.JsonValueConverter;
 
 class Program
 {
     static async Task Main(string[] args)
     {
-        await CoconaApp.CreateHostBuilder()
+        await WildCocoApp.CreateHostBuilder()
             .ConfigureServices(services =>
             {
-                services.AddSingleton<ICoconaValueConverter, JsonValueConverter>();
+                services.AddSingleton<IWildCocoValueConverter, JsonValueConverter>();
             })
             .RunAsync<Program>(args);
     }
@@ -30,7 +32,7 @@ class Program
     }
 }
 
-class JsonValueConverter : ICoconaValueConverter
+class JsonValueConverter : IWildCocoValueConverter
 {
     public object ConvertTo(Type t, string value)
     {

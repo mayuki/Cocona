@@ -1,14 +1,16 @@
-using Cocona.Command;
-using Cocona.Localization;
+using WildCoco.Command;
+using WildCoco.Localization;
+using WildCoco.Command;
+using WildCoco.Localization;
 using Microsoft.Extensions.Localization;
 
-namespace CoconaSample.Advanced.Localization;
+namespace WildCocoSample.Advanced.Localization;
 
-public class MicrosoftExtensionLocalizationCoconaLocalizer : ICoconaLocalizer
+public class MicrosoftExtensionLocalizationWildCocoLocalizer : IWildCocoLocalizer
 {
     private readonly IStringLocalizerFactory _localizerFactory;
 
-    public MicrosoftExtensionLocalizationCoconaLocalizer(IStringLocalizerFactory localizerFactory)
+    public MicrosoftExtensionLocalizationWildCocoLocalizer(IStringLocalizerFactory localizerFactory)
     {
         _localizerFactory = localizerFactory;
     }

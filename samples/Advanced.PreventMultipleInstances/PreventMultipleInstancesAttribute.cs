@@ -1,6 +1,7 @@
-using Cocona.Filters;
+using WildCoco.Filters;
+using WildCoco.Filters;
 
-namespace CoconaSample.Advanced.PreventMultipleInstances;
+namespace WildCocoSample.Advanced.PreventMultipleInstances;
 
 public class PreventMultipleInstancesAttribute : CommandFilterAttribute
 {
@@ -15,7 +16,7 @@ public class PreventMultipleInstancesAttribute : CommandFilterAttribute
         _waitForExit = new ManualResetEventSlim();
     }
 
-    public override async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+    public override async ValueTask<int> OnCommandExecutionAsync(WildCocoCommandExecutingContext ctx, CommandExecutionDelegate next)
     {
         var tcs = new TaskCompletionSource<bool>();
         _mutexAcquireThread.Start(tcs);

@@ -1,12 +1,12 @@
-using Cocona;
+using WildCoco;
 
-namespace CoconaSample.InAction.MultipleCommandTypes;
+namespace WildCocoSample.InAction.MultipleCommandTypes;
 
 class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run(args, new[] { typeof(Program), typeof(GreeterCommands) });
+        WildCocoApp.Run(args, new[] { typeof(Program), typeof(GreeterCommands) });
     }
 
     public void Foo()

@@ -1,12 +1,13 @@
-using Cocona;
+using WildCoco;
+using WildCoco;
 
-namespace CoconaSample.GettingStarted.MinimalApp;
+namespace WildCocoSample.GettingStarted.MinimalApp;
 
 class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     public void Hello(bool toUpperCase, [Argument]string name)

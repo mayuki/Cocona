@@ -1,12 +1,13 @@
-using Cocona;
+using WildCoco;
+using WildCoco;
 
-namespace CoconaSample.InAction.ParameterSet;
+namespace WildCocoSample.InAction.ParameterSet;
 
 class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     /// <summary>

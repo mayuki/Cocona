@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net6.0;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <RootNamespace>WildCoco</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- NuGet Package Information -->
+    <Description>Lightweight version of WildCoco. Micro-framework for .NET console application. WildCoco makes it easy and fast to build console applications on .NET.</Description>
+
+    <DefineConstants>WildCoco_LITE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="BannedSymbols.txt" />
+    <Compile Include="..\WildCoco\Hosting\WildCocoAppHostBuilderExtensions.cs">
+      <Link>Lite\Hosting\WildCocoAppHostBuilderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\WildCoco\Hosting\WildCocoServiceCollectionExtensions.cs">
+      <Link>Lite\Hosting\WildCocoServiceCollectionExtensions.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WildCoco.Core\WildCoco.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Lite\Resources\Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Lite\Resources\Strings.ja-JP.resx">
+      <DependentUpon>Strings.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Lite\Resources\Strings.ko-KR.resx">
+      <DependentUpon>Strings.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Lite\Resources\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

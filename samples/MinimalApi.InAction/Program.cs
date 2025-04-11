@@ -1,10 +1,12 @@
-using Cocona;
-using Cocona.Filters;
+using WildCoco;
+using WildCoco.Filters;
+using WildCoco;
+using WildCoco.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-var builder = CoconaApp.CreateBuilder();
+var builder = WildCocoApp.CreateBuilder();
 builder.Services.AddSingleton<MyService>(new MyService("Karen"));
 builder.Configuration.AddJsonFile("appsettings.custom.json", optional: true);
 
@@ -23,7 +25,7 @@ app.AddCommand("optional-param", (int? age, [Argument]string? name) =>
 });
 
 // Add a command and use the context to cancel with Ctrl+C.
-app.AddCommand("long-running", async (CoconaAppContext ctx) =>
+app.AddCommand("long-running", async (WildCocoAppContext ctx) =>
 {
     Console.WriteLine($"Running...");
     await Task.Delay(TimeSpan.FromSeconds(30), ctx.CancellationToken);
@@ -81,7 +83,7 @@ class LoggingFilter : CommandFilterAttribute
     {
         _logger = logger;
     }
-    public override async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+    public override async ValueTask<int> OnCommandExecutionAsync(WildCocoCommandExecutingContext ctx, CommandExecutionDelegate next)
     {
         _logger.LogInformation($"Before {ctx.Command.Name}");
         try
@@ -97,7 +99,7 @@ class LoggingFilter : CommandFilterAttribute
 
 class RequirePrivilege : CommandFilterAttribute
 {
-    public override ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+    public override ValueTask<int> OnCommandExecutionAsync(WildCocoCommandExecutingContext ctx, CommandExecutionDelegate next)
     {
         if (Environment.UserName != "Administrator" || Environment.UserName != "root")
         {

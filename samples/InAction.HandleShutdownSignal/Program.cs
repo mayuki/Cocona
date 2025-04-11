@@ -1,12 +1,12 @@
-using Cocona;
+using WildCoco;
 
-namespace CoconaSample.InAction.HandleShutdownSignal;
+namespace WildCocoSample.InAction.HandleShutdownSignal;
 
-class Program : CoconaConsoleAppBase
+class Program : WildCocoConsoleAppBase
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     public async Task RunAsync()

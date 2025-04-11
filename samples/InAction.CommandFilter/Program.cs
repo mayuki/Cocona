@@ -1,16 +1,17 @@
-using Cocona;
-using Cocona.Filters;
+using WildCoco.Filters;
+using WildCoco;
+using WildCoco.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace CoconaSample.InAction.CommandFilter;
+namespace WildCocoSample.InAction.CommandFilter;
 
 [SampleCommandFilter("Class")]
 class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     // Example:
@@ -35,7 +36,7 @@ class SampleCommandFilterAttribute : CommandFilterAttribute
         _label = label;
     }
 
-    public override async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+    public override async ValueTask<int> OnCommandExecutionAsync(WildCocoCommandExecutingContext ctx, CommandExecutionDelegate next)
     {
         Console.WriteLine($"[SampleCommandFilter({_label})] Before Command: {ctx.Command.Name}");
         try
@@ -71,7 +72,7 @@ class SampleCommandFilterWithDI : ICommandFilter
         _logger = logger;
     }
 
-    public async ValueTask<int> OnCommandExecutionAsync(CoconaCommandExecutingContext ctx, CommandExecutionDelegate next)
+    public async ValueTask<int> OnCommandExecutionAsync(WildCocoCommandExecutingContext ctx, CommandExecutionDelegate next)
     {
         _logger.LogInformation($"[SampleCommandFilterWithDI] Before Command: {ctx.Command.Name}");
         try

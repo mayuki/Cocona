@@ -1,6 +1,7 @@
-using Cocona;
+using WildCoco;
+using WildCoco;
 
-var app = CoconaApp.Create();
+var app = WildCocoApp.Create();
 
 app.AddSubCommand("client", x =>
 {

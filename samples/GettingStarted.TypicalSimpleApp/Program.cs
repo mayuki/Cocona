@@ -1,12 +1,13 @@
-using Cocona;
+using WildCoco;
+using WildCoco;
 
-namespace CoconaSample.GettingStarted.TypicalSimpleApp;
+namespace WildCocoSample.GettingStarted.TypicalSimpleApp;
 
 class Program
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     [Command(Description = "This is a sample application")]

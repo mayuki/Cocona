@@ -1,13 +1,13 @@
-using Cocona;
+using WildCoco;
 
-namespace CoconaSample.Advanced.PreventMultipleInstances;
+namespace WildCocoSample.Advanced.PreventMultipleInstances;
 
 [PreventMultipleInstances]
-class Program : CoconaConsoleAppBase
+class Program : WildCocoConsoleAppBase
 {
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     public async Task RunAsync()

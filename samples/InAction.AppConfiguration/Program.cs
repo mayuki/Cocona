@@ -1,7 +1,7 @@
-using Cocona;
+using WildCoco;
 using Microsoft.Extensions.Configuration;
 
-namespace CoconaSample.InAction.AppConfiguration;
+namespace WildCocoSample.InAction.AppConfiguration;
 
 class Program
 {
@@ -20,7 +20,7 @@ class Program
 
     static void Main(string[] args)
     {
-        CoconaApp.Run<Program>(args);
+        WildCocoApp.Run<Program>(args);
     }
 
     public void Run()

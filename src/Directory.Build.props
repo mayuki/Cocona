@@ -9,11 +9,11 @@
     <WarningsAsErrors>$(WarningsAsErrors);RS0030;Nullable</WarningsAsErrors>
 
     <!-- NuGet Package Information -->
-    <Description>Micro-framework for .NET console application. Cocona makes it easy and fast to build console applications on .NET.</Description>
+    <Description>Micro-framework for .NET console application. WildCoco makes it easy and fast to build console applications on .NET.</Description>
     <Authors>Mayuki Sawatari</Authors>
     <Copyright>Copyright 2020-present Mayuki Sawatari</Copyright>
-    <PackageProjectUrl>https://github.com/mayuki/Cocona</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/mayuki/Cocona</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/mayuki/WildCoco</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mayuki/WildCoco</RepositoryUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>CommandLine CLI Framework Console</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -22,7 +22,7 @@
 
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(ProjectDir)..\Cocona\StrongNameKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(ProjectDir)..\WildCoco\StrongNameKey.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
