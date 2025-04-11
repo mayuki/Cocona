@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CoconaSample.InAction.WrappedArrayParameterSet": {
+      "commandName": "Project",
+      "commandLineArgs": "Add -t test -i first -i second from to"
+    }
+  }
+}

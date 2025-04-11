@@ -1,5 +1,6 @@
 using Cocona.Command.Binder;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace Cocona.Internal;
 
@@ -23,6 +24,10 @@ internal static class DynamicListHelper
                 openGenericType == typeof(IReadOnlyList<>) ||
                 openGenericType == typeof(ICollection<>) ||
                 openGenericType == typeof(IEnumerable<>))
+            {
+                return true;
+            }
+            else if (HasSuitableConstructor(valueType))
             {
                 return true;
             }
@@ -81,14 +86,16 @@ internal static class DynamicListHelper
                 openGenericType == typeof(ICollection<>) ||
                 openGenericType == typeof(IEnumerable<>))
             {
-                var typedArray = Array.CreateInstance(elementType, values.Length);
-                for (var i = 0; i < values.Length; i++)
-                {
-                    typedArray.SetValue(converter.ConvertTo(elementType, values[i]), i);
-                }
+                var typedArray = MakeTypedArrayOfValues(values, converter, elementType);
                 var listT = typeof(List<>).MakeGenericType(elementType);
 
                 arrayOrEnumerableLike = Activator.CreateInstance(listT, new[] { typedArray })!;
+                return true;
+            }
+            if (TryGetSuitableConstructor(valueType, elementType, out var ctor))
+            {
+                var typedArray = MakeTypedArrayOfValues(values, converter, elementType);
+                arrayOrEnumerableLike = ctor.Invoke(new object?[] { typedArray });
                 return true;
             }
         }
@@ -107,6 +114,79 @@ internal static class DynamicListHelper
         }
 
         arrayOrEnumerableLike = null;
+        return false;
+    }
+
+    private static Array MakeTypedArrayOfValues(string?[] values, ICoconaValueConverter converter, Type elementType)
+    {
+        if (elementType == typeof(string)) return values;
+        var typedArray = Array.CreateInstance(elementType, values.Length);
+        for (var i = 0; i < values.Length; i++)
+        {
+            typedArray.SetValue(converter.ConvertTo(elementType, values[i]), i);
+        }
+
+        return typedArray;
+    }
+
+    private static bool TryGetSuitableConstructor(Type valueType, Type elementType, [NotNullWhen(true)] out ConstructorInfo? foundConstructor)
+    {
+        if (valueType.IsInterface || valueType.IsAbstract || valueType == typeof(string))
+        {
+            foundConstructor = default;
+            return false;
+        }
+        var constructors = valueType.GetConstructors();
+        var validConstructors = new List<(ConstructorInfo Constructor, Type ParameterType)>();
+        foreach (var constructor in constructors)
+        {
+            var parameterInfos = constructor.GetParameters();
+            if (parameterInfos.Length != 1)
+            {
+                continue;
+            }
+            var singleParameterType = parameterInfos[0].ParameterType;
+            if (singleParameterType.IsGenericType 
+                && singleParameterType.GetGenericTypeDefinition().IsAssignableFrom(typeof(IEnumerable<>))
+                && singleParameterType.GenericTypeArguments[0] == elementType)
+            {
+                foundConstructor = constructor;
+                return true;
+            }
+            else if (singleParameterType.IsArray && singleParameterType.GetElementType() == elementType)
+            {
+                foundConstructor = constructor;
+                return true;
+            }
+        }
+        foundConstructor = null;
+        return false;
+    }
+    private static bool HasSuitableConstructor(Type valueType)
+    {
+        if (valueType.IsInterface || valueType.IsAbstract || valueType == typeof(string))
+        {
+            return false;
+        }
+        var constructors = valueType.GetConstructors();
+        var validConstructors = new List<(ConstructorInfo Constructor, Type ParameterType)>();
+        foreach (var constructor in constructors)
+        {
+            var parameterInfos = constructor.GetParameters();
+            if (parameterInfos.Length != 1)
+            {
+                continue;
+            }
+            var singleParameterType = parameterInfos[0].ParameterType;
+            if (singleParameterType.IsGenericType && singleParameterType.GetGenericTypeDefinition().IsAssignableFrom(typeof(IEnumerable<>)))
+            {
+                return true;
+            }
+            else if (singleParameterType.IsArray)
+            {
+                return true;
+            }
+        }
         return false;
     }
 }

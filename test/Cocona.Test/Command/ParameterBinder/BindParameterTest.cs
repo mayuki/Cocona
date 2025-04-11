@@ -3,6 +3,7 @@ using Cocona.Command.Binder;
 using Cocona.CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Cocona.Command.Binder.Validation;
+using System.Collections;
 
 namespace Cocona.Test.Command.ParameterBinder;
 
@@ -412,6 +413,51 @@ public class BindParameterTest
         invokeArgs[0].Should().BeEquivalentTo(new List<string>() { "argValue0", "argValue1", });
         invokeArgs[1].Should().Be("argValue2");
         invokeArgs[2].Should().Be("argValue3");
+    }
+
+
+
+    [Fact]
+    public void BindArguments_CustomListWrapper()
+    {
+        // void Test([Argument]string[] arg0, [Argument]string arg1, [Argument]string arg2);
+        // Arguments: new [] { "argValue0", "argValue1", "argValue2", "argValue3" }
+        var commandDescriptor = CreateCommand(new ICommandParameterDescriptor[]
+            {
+                new CommandArgumentDescriptor(typeof(MyList<string>), "arg0", 0, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                new CommandArgumentDescriptor(typeof(string), "arg1", 1, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+                new CommandArgumentDescriptor(typeof(string), "arg2", 2, "", CoconaDefaultValue.None, Array.Empty<Attribute>()),
+            }
+        );
+
+        var commandOptions = new CommandOption[] { };
+        var commandArguments = new CommandArgument[] { new CommandArgument("argValue0", 0), new CommandArgument("argValue1", 1), new CommandArgument("argValue2", 2), new CommandArgument("argValue3", 3), };
+
+        var invokeArgs = CreateCoconaParameterBinder().Bind(commandDescriptor, commandOptions, commandArguments);
+        invokeArgs.Should().NotBeNull();
+        invokeArgs.Should().HaveCount(3);
+        invokeArgs[0].Should().BeOfType<MyList<string>>().And.BeEquivalentTo(new string[] { "argValue0", "argValue1", });
+        invokeArgs[1].Should().Be("argValue2");
+        invokeArgs[2].Should().Be("argValue3");
+    }
+    public class MyList<T> : IEnumerable<T>
+    {
+        public readonly T[] Input;
+
+        public MyList(T[] input)
+        {
+            Input = input;
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return ((IEnumerable<T>)Input).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Input.GetEnumerator();
+        }
     }
 
     [Fact]
