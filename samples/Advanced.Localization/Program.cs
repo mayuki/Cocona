@@ -1,9 +1,7 @@
 using System.Globalization;
+using CoconaSample.Advanced.Localization;
 using WildCoco;
 using WildCoco.Localization;
-using WildCoco;
-using WildCoco.Localization;
-using WildCocoSample.Advanced.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Localization;

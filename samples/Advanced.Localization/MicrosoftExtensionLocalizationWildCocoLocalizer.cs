@@ -1,10 +1,8 @@
-using WildCoco.Command;
-using WildCoco.Localization;
-using WildCoco.Command;
-using WildCoco.Localization;
 using Microsoft.Extensions.Localization;
+using WildCoco.Command;
+using WildCoco.Localization;
 
-namespace WildCocoSample.Advanced.Localization;
+namespace CoconaSample.Advanced.Localization;
 
 public class MicrosoftExtensionLocalizationWildCocoLocalizer : IWildCocoLocalizer
 {

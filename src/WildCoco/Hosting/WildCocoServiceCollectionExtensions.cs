@@ -1,9 +1,5 @@
 using WildCoco;
 using WildCoco.Application;
-
-
-
-using Microsoft.Extensions.DependencyInjection;
 using WildCoco.Builder;
 using WildCoco.Command;
 using WildCoco.Command.Binder;
@@ -12,23 +8,10 @@ using WildCoco.Command.BuiltIn;
 using WildCoco.Command.Dispatcher;
 using WildCoco.CommandLine;
 using WildCoco.Help;
-using WildCoco.Lite;
-using WildCoco.Lite.Builder.Internal;
 using WildCoco.Localization.Internal;
 using WildCoco.ShellCompletion;
 using WildCoco.ShellCompletion.Candidate;
 using WildCoco.ShellCompletion.Generators;
-using WildCoco;
-using WildCoco.Application;
-using WildCoco.Builder;
-using WildCoco.Command;
-using WildCoco.Command.Binder;
-using WildCoco.Command.Binder.Validation;
-using WildCoco.Command.BuiltIn;
-using WildCoco.Command.Dispatcher;
-using WildCoco.CommandLine;
-using WildCoco.Help;
-using WildCoco.Localization.Internal;
 #if WildCoco_LITE
 using WildCoco.Lite;
 using WildCoco.Lite.Builder.Internal;
@@ -37,9 +20,6 @@ using WildCoco.Lite.Hosting;
 using WildCoco.Builder.Internal;
 using WildCoco.Hosting;
 #endif
-using WildCoco.ShellCompletion;
-using WildCoco.ShellCompletion.Candidate;
-using WildCoco.ShellCompletion.Generators;
 #if !WildCoco_LITE
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;

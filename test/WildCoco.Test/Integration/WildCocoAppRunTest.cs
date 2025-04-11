@@ -1,13 +1,3 @@
-using System.Runtime.InteropServices.JavaScript;
-using WildCoco;
-using WildCoco.Application;
-using WildCoco.Command.BuiltIn;
-using WildCoco.CommandLine;
-using WildCoco.ShellCompletion.Candidate;
-using WildCoco.Application;
-using WildCoco.Command.BuiltIn;
-using WildCoco.CommandLine;
-using WildCoco.ShellCompletion.Candidate;
 using WildCoco.Application;
 using WildCoco.Command.BuiltIn;
 using WildCoco.CommandLine;
@@ -890,7 +880,7 @@ public class WildCocoAppRunTest : EndToEndTestBase
         var (stdOut, stdErr, exitCode) = Run(Array.Empty<string>(), args =>
         {
             var app = WildCocoApp.Create(args);
-            app.AddCommand(new ActiJSType.Array<>stCommand_Delegate.StaticCommandA));
+            app.AddCommand(new Action(TestCommand_Delegate.StaticCommandA));
             app.Run();
         });
         stdOut.Should().Contain("StaticCommandA");
@@ -916,7 +906,7 @@ public class WildCocoAppRunTest : EndToEndTestBase
         var (stdOut, stdErr, exitCode) = Run(Array.Empty<string>(), args =>
         {
             var app = WildCocoApp.Create(args);
-            app.AddCommand(new ActiJSType.Array<>mmand.InstanceCommandA));
+            app.AddCommand(new Action(command.InstanceCommandA));
             app.Run();
         });
         stdOut.Should().Contain($"InstanceCommandA:{command.Id}");
@@ -936,7 +926,7 @@ public class WildCocoAppRunTest : EndToEndTestBase
         stdOut.Should().Contain($"InstanceCommandB:{command.Id}");
     }
 
-    class TestCommand_Delegate
+    public class TestCommand_Delegate
     {
         public Guid Id { get; } = Guid.NewGuid();
 
@@ -961,7 +951,7 @@ public class WildCocoAppRunTest : EndToEndTestBase
         stdOut.Should().Contain($"A:123");
     }
 
-    class TestCommand_Static_Single
+    public class TestCommand_Static_Single
     {
         [Command]
         public static void A(int value) => Console.WriteLine($"A:{value}");
@@ -977,7 +967,7 @@ public class WildCocoAppRunTest : EndToEndTestBase
         stdOut.Should().Contain($"B:123");
     }
 
-    class TestCommand_Static_Multiple
+    public class TestCommand_Static_Multiple
     {
         [Command]
         public static void A(int value) => Console.WriteLine($"A:{value}");
@@ -994,7 +984,7 @@ public class WildCocoAppRunTest : EndToEndTestBase
         stdOut.Should().Contain($"A:123:valueB:A:B,C,D");
     }
 
-    class TestCommand_StopParsingOption
+    public class TestCommand_StopParsingOption
     {
         public void A([Option]int a, [Option(StopParsingOptions = true)]string b, [Argument]string arg0, [Argument]string[] args)
             => Console.WriteLine($"A:{a}:{b}:{arg0}:{string.Join(",", args)}");
