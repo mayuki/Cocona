@@ -20,41 +20,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\WildCoco.Test\Integration\**\*.cs" LinkBase="Integration" />
-    <Compile Include="..\WildCoco.Test\Integration\BuildAppCommandsWithBuilderTest.cs">
-      <LinkBase>Integration/</LinkBase>
-      <Link>Integration\BuildAppCommandsWithBuilderTest.cs</Link>
-    </Compile>
-    <Compile Include="..\WildCoco.Test\Integration\WildCocoAppRunTest.cs">
-      <LinkBase>Integration/</LinkBase>
-      <Link>Integration\WildCocoAppRunTest.cs</Link>
-    </Compile>
-    <Compile Include="..\WildCoco.Test\Integration\WildCocoAppStaticTest.cs">
-      <LinkBase>Integration/</LinkBase>
-      <Link>Integration\WildCocoAppStaticTest.cs</Link>
-    </Compile>
-    <Compile Include="..\WildCoco.Test\Integration\WildCocoHostTest.cs">
-      <LinkBase>Integration/</LinkBase>
-      <Link>Integration\WildCocoHostTest.cs</Link>
-    </Compile>
-    <Compile Include="..\WildCoco.Test\Integration\CommandFilterTest.cs">
-      <LinkBase>Integration/</LinkBase>
-      <Link>Integration\CommandFilterTest.cs</Link>
-    </Compile>
-    <Compile Include="..\WildCoco.Test\Integration\EndToEndTestBase.cs">
-      <LinkBase>Integration/</LinkBase>
-      <Link>Integration\EndToEndTestBase.cs</Link>
-    </Compile>
-    <Compile Include="..\WildCoco.Test\Integration\ParameterInjectionTest.cs">
-      <LinkBase>Integration/</LinkBase>
-      <Link>Integration\ParameterInjectionTest.cs</Link>
-    </Compile>
-    <Compile Include="..\WildCoco.Test\ModuleInitializers.cs">
-      <Link>ModuleInitializers.cs</Link>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="7.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="xunit" Version="2.9.3" />

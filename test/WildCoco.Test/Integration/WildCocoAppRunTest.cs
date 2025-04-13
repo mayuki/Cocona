@@ -998,7 +998,7 @@ public class WildCocoAppRunTest : EndToEndTestBase
     {
         var (stdOut, stdErr, exitCode) = Run<TestCommand_AbortOnActivationError>(mode, Array.Empty<string>());
         exitCode.Should().Be(1);
-        stdErr.Should().StartWith("System.InvalidOperationExceptiJSType.Array<>nable to resolve service");
+        stdErr.Should().StartWith("System.InvalidOperationException: Unable to resolve service");
     }
 
     class TestCommand_AbortOnActivationError
